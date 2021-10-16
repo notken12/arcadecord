@@ -18,7 +18,7 @@ const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 const cube = new THREE.Mesh(geometry, material);
 //scene.add(cube);
 
-const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+const ambientLight = new THREE.AmbientLight(0x808080); // soft white light
 scene.add(ambientLight);
 
 camera.position.z = 5;
@@ -30,14 +30,14 @@ controls.update();
 controls.enablePan = false;
 controls.enableDamping = true;
 
-const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+const pointLight = new THREE.PointLight(0xffffff, 2.5, 100);
 console.log(pointLight);
 pointLight.position.set(0, 10, 0);
 scene.add(pointLight);
 
 const loader = new GLTFLoader();
 
-loader.load('../public/3d_models/play_area.glb', function (gltf) {
+loader.load('../public/3d_models/table.glb', function (gltf) {
 
     var model = gltf.scene;
     model.traverse((o) => {
@@ -45,7 +45,8 @@ loader.load('../public/3d_models/play_area.glb', function (gltf) {
         if (o.isMesh) {
             // note: for a multi-material mesh, `o.material` may be an array,
             // in which case you'd need to set `.map` on each value.
-            o.material = new THREE.MeshStandardMaterial({ color: 0x10704B });
+            //o.material = new THREE.MeshStandardMaterial({ color: 0x10704B });
+            console.log(o);
         }
     });
     scene.add(model);
