@@ -12,7 +12,7 @@ function Table(scene) {
         model.scale.multiplyScalar(100);
 
         model.traverse((o) => {
-            if (o.type == 'mesh') {
+            if (o.type == 'Mesh') {
                 o.castShadow = true;
                 o.receiveShadow = true;
 

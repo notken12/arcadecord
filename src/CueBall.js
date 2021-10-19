@@ -12,6 +12,7 @@ CueBall.DEFAULT_POSITION = {
 };
 
 CueBall.prototype = Object.create(Ball.prototype);
+CueBall.prototype.constructor = CueBall;
 
 export { 
     CueBall 

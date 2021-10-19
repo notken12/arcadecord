@@ -1,10 +1,13 @@
+
 const Table = require('./Table').Table;
 const Ball = require('./Ball').Ball;
 const CueBall = require('./CueBall').CueBall;
+const CueStick = require('./CueStick').CueStick;
 
 function Game(scene) {
     this.scene = scene;
     this.table = new Table(scene);
+    this.cueStick = new CueStick(scene);
 
     var apex = Table.LEN_Z / 4;
     var zo = 1.72; //how far the balls are spaced apart on x axis
