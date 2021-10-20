@@ -29,29 +29,30 @@ function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
 }
 
 function CueStick(scene) {
+    var that = this;
     this.scene = scene;
+    this.rotation = 0; // radians
     const loader = new GLTFLoader();
 
     loader.load('../public/3d_models/cue_stick.glb', function (gltf) {
 
         var model = gltf.scene;
-        model.scale.multiplyScalar(100);
+        that.model = model;
         
         model.position.y = Ball.RADIUS;
         model.position.z = Table.LEN_Z / -4;
-        model.rotateOnAxis(new THREE.Vector3(0,1,0), Math.PI);
+
+        if ("rotation" in that) {
+            that.model.rotation.y = that.rotation;
+        }
 
         model.traverse((o) => {
             if (o.type == 'Mesh') {
                 o.castShadow = true;
                 o.receiveShadow = true;
-                o.position.z = (Ball.RADIUS + CueStick.BALL_DISTANCE)*0.01;
-                console.log(o.position.z);
-                //o.position.z = 1;
-                //rotateAboutPoint(o, new THREE.Vector3(0, Ball.RADIUS, Table.LEN_Z / -4), new THREE.Vector3(0, 1, 0), Math.PI/2, true);
-
+                o.position.z = (Ball.RADIUS + CueStick.BALL_DISTANCE);
             };
-        })
+        });
 
         scene.add(model);
 
@@ -62,7 +63,18 @@ function CueStick(scene) {
     });
 }
 
-CueStick.BALL_DISTANCE = 1; //cm, determines how close the cue stick is held behind the ball
+CueStick.prototype.setRotation = function (rot) { // radians
+    this.rotation = rot;
+    if (this.model) {
+        this.model.rotation.y = rot;
+    }
+}
+
+CueStick.prototype.rotate = function (rot) { // radians
+    this.setRotation(this.rotation + rot);
+}
+
+CueStick.BALL_DISTANCE = 3; //cm, determines how close the cue stick is held behind the ball
 
 export {
     CueStick

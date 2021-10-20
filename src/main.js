@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { InputHandler } from "./InputHandler";
 
 const Game = require('./Game').Game;
 
@@ -49,14 +50,26 @@ const divisions = 20;
 
 const gridHelper = new THREE.GridHelper( size, divisions );
 gridHelper.position.set(0, 5, 0);
-scene.add( gridHelper );
+//scene.add( gridHelper );
 
 var game = new Game(scene);
+game.setStickRotation(Math.PI);
+
+var inputHandler = new InputHandler(renderer, scene, game);
+
+var clock = new THREE.Clock();
+clock.start();
 
 const animate = function () {
     requestAnimationFrame(animate);
 
+    var td = clock.getDelta();
+
+    inputHandler.tick(td);
     renderer.render(scene, camera);
 };
+
+
+
 
 animate();

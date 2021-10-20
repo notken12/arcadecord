@@ -9,7 +9,6 @@ function Table(scene) {
     loader.load('../public/3d_models/table.glb', function (gltf) {
 
         var model = gltf.scene;
-        model.scale.multiplyScalar(100);
 
         model.traverse((o) => {
             if (o.type == 'Mesh') {
