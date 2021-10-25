@@ -4,6 +4,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { InputHandler } from "./InputHandler";
 
+//import cannon
+import * as CANNON from "cannon";
+
+//import datgui
+import * as dat from "dat.gui";
+import { CannonDebugRenderer } from "./CannonDebugRenderer";
+
 const Game = require('./Game').Game;
 
 
@@ -15,8 +22,8 @@ scene.background = new THREE.Color(0xeeeeee);
 
 var width = window.innerWidth;
 var height = window.innerHeight;
-const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.1, 1000 );
-camera.position.set(0,300,0);
+const camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 0.1, 1000);
+camera.position.set(0, 300, 0);
 camera.zoom = 2.5;
 
 
@@ -48,14 +55,22 @@ scene.add(pointLight);
 const size = 609.6;
 const divisions = 20;
 
-const gridHelper = new THREE.GridHelper( size, divisions );
+const gridHelper = new THREE.GridHelper(size, divisions);
 gridHelper.position.set(0, 5, 0);
 //scene.add( gridHelper );
 
-var game = new Game(scene);
+var cannonWorld = new CANNON.World();
+cannonWorld.gravity.y = 0;
+
+var game = new Game(scene, cannonWorld);
 game.setStickRotation(Math.PI);
 
 var inputHandler = new InputHandler(renderer, scene, game);
+
+const gui = new dat.GUI();
+gui.add(cannonWorld.gravity, 'y', -1000, 1000);
+
+var cannonDebugRenderer = new CannonDebugRenderer(scene, cannonWorld);
 
 var clock = new THREE.Clock();
 clock.start();
@@ -66,6 +81,12 @@ const animate = function () {
     var td = clock.getDelta();
 
     inputHandler.tick(td);
+    game.cannonWorld.step(td);
+
+    cannonDebugRenderer.update();
+
+    game.tick();
+
     renderer.render(scene, camera);
 };
 

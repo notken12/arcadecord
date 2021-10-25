@@ -2,8 +2,28 @@ import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-function Table(scene) {
+//import cannon
+import * as CANNON from "cannon";
+import { CannonUtils } from "./CannonUtils";
+
+//import { threeToCannon, ShapeType } from 'three-to-cannon';
+
+function Part(mesh, body) {
+    this.mesh = mesh;
+    this.body = body;
+}
+
+Part.prototype.tick = function () {
+    this.mesh.position.copy(this.body.position);
+    this.mesh.quaternion.copy(this.body.quaternion);
+}
+
+function Table(scene, cannonWorld) {
+    var that = this;
+
     this.scene = scene;
+    this.cannonWorld = cannonWorld;
+    this.parts = [];
     const loader = new GLTFLoader();
 
     loader.load('../public/3d_models/table.glb', function (gltf) {
@@ -15,15 +35,43 @@ function Table(scene) {
                 o.castShadow = true;
                 o.receiveShadow = true;
 
-            };
+                var geometry = o.geometry.toNonIndexed();
+
+                //create cannon trimesh from loaded obj file
+                var shape = CannonUtils.createTrimesh(o.geometry);
+                //var shape = new CANNON.ConvexPolyhedron(geometry.vertices, geometry.faces);
+                
+                var body = new CANNON.Body({
+                    mass: 0,
+                    material: new CANNON.Material('tableMaterial'),
+
+                });
+                body.addShape(shape);
+
+                body.position.copy(o.position);
+                body.quaternion.copy(o.quaternion);
+
+                that.cannonWorld.add(body);
+
+                that.parts.push(new Part(o, body));
+
+            }
         })
 
-        scene.add(model);
+        //scene.add(model);
 
-    }, undefined, function (error) {
+    }, function (xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    }, function (error) {
 
         console.error(error);
 
+    });
+}
+
+Table.prototype.tick = function () {
+    this.parts.forEach(function (part) {
+        part.tick();
     });
 }
 

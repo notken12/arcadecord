@@ -1,8 +1,11 @@
 import * as THREE from "three";
 
-function Ball(scene, x, y, z, name, color) {
+import * as CANNON from "cannon";
+
+function Ball(scene, cannonWorld, x, y, z, name, color) {
     this.color = typeof color == 'undefined' ? 0xaa0000 : color;
     this.scene = scene;
+    this.cannonWorld = cannonWorld;
     //this.texture = 'images/balls/' + name + '.png';
 
     this.mesh = this.createMesh(x, y, z);
@@ -13,10 +16,14 @@ function Ball(scene, x, y, z, name, color) {
     //world.addBody(this.rigidBody);
     this.name = name;
     this.fallen = false;
+
+    this.body = this.createBody(x, y, z);
+    this.cannonWorld.add(this.body);
 }
 
 Ball.RADIUS = 5.715 / 2; // cm
 Ball.MASS = 0.170; // kg
+Ball.contactMaterial = new CANNON.Material('ballMaterial');
 
 Ball.prototype.createMesh = function (x, y, z) {
     var geometry = new THREE.SphereGeometry(Ball.RADIUS, 16, 16);
@@ -47,6 +54,29 @@ Ball.prototype.createMesh = function (x, y, z) {
     sphere.receiveShadow = true;
 
     return sphere;
+};
+
+Ball.prototype.createBody = function (x, y, z) {
+    var body = new CANNON.Body({
+        mass: Ball.MASS,
+        material: Ball.contactMaterial,
+        shape: new CANNON.Sphere(Ball.RADIUS),
+        position: new CANNON.Vec3(x, y, z)
+    });
+
+    body.linearDamping = 0.1;
+    body.allowSleep = true;
+
+    body.sleepSpeedLimit = 0.5; // sleep if speed <0.05
+    body.sleepTimeLimit = 0.1; // falls asleep after 1s of sleepiness
+
+
+    return body;
+};
+
+Ball.prototype.tick = function (dt) {
+    this.mesh.position.copy(this.body.position);
+    this.mesh.quaternion.copy(this.body.quaternion);
 };
 
 export {

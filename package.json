@@ -13,7 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "cannon": "^0.6.2",
-    "three": "^0.115.0"
+    "dat.gui": "^0.7.7",
+    "three": "^0.115.0",
+    "three-to-cannon": "^4.0.2"
   },
   "devDependencies": {
     "prettier": "^2.0.4",
