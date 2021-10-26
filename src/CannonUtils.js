@@ -1,5 +1,5 @@
 //import cannon
-var CANNON = require('cannon');
+var CANNON = require('cannon-es');
 
 var CannonUtils = {
     createTrimesh: function (geometry) {

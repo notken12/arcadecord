@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cannon": "^0.6.2",
+    "cannon-es": "^0.18.0",
     "dat.gui": "^0.7.7",
     "three": "^0.115.0",
     "three-to-cannon": "^4.0.2"

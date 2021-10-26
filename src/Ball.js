@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import * as CANNON from "cannon";
+import * as CANNON from "cannon-es";
 
 function Ball(scene, cannonWorld, x, y, z, name, color) {
     this.color = typeof color == 'undefined' ? 0xaa0000 : color;
@@ -18,7 +18,7 @@ function Ball(scene, cannonWorld, x, y, z, name, color) {
     this.fallen = false;
 
     this.body = this.createBody(x, y, z);
-    this.cannonWorld.add(this.body);
+    this.cannonWorld.addBody(this.body);
 }
 
 Ball.RADIUS = 5.715 / 2; // cm

@@ -7,7 +7,7 @@ import { CannonUtils } from "./CannonUtils";
 import { Table } from "./Table";
 
 //import cannon
-import * as CANNON from "cannon";
+import * as CANNON from "cannon-es";
 
 //import { threeToCannon, ShapeType } from 'three-to-cannon';
 
@@ -75,7 +75,7 @@ function CueStick(scene, cannonWorld) {
                 body.position.copy(o.position);
                 body.quaternion.copy(o.quaternion);
 
-                that.cannonWorld.add(body);
+                that.cannonWorld.addBody(body);
 
                 that.mesh = o;
                 that.body = body;

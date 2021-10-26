@@ -3,8 +3,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 //import cannon
-import * as CANNON from "cannon";
+import * as CANNON from "cannon-es";
 import { CannonUtils } from "./CannonUtils";
+
+import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 //import { threeToCannon, ShapeType } from 'three-to-cannon';
 
@@ -38,7 +40,8 @@ function Table(scene, cannonWorld) {
                 var geometry = o.geometry.toNonIndexed();
 
                 //create cannon trimesh from loaded obj file
-                var shape = CannonUtils.createTrimesh(o.geometry);
+                //var shape = CannonUtils.createTrimesh(o.geometry);
+                var shape = threeToCannon(o);
                 //var shape = new CANNON.ConvexPolyhedron(geometry.vertices, geometry.faces);
                 
                 var body = new CANNON.Body({
@@ -51,10 +54,11 @@ function Table(scene, cannonWorld) {
                 body.position.copy(o.position);
                 body.quaternion.copy(o.quaternion);
 
-                that.cannonWorld.add(body);
+                that.cannonWorld.addBody(body);
 
                 that.parts.push(new Part(o, body));
 
+                scene.add(o);
             }
         })
 

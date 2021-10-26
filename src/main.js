@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { InputHandler } from "./InputHandler";
 
 //import cannon
-import * as CANNON from "cannon";
+import * as CANNON from "cannon-es";
 
 //import datgui
 import * as dat from "dat.gui";

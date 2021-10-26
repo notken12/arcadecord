@@ -9,7 +9,7 @@
  */
 
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es';
 
 function CannonDebugRenderer (scene, world, options) {
     options = options || {};
