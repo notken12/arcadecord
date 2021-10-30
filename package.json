@@ -2,18 +2,24 @@
   "name": "pool-discord",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server --mode development",
+    "start": "node .",
     "format": "prettier --write '**/*.js'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/builders": "^0.8.1",
+    "@discordjs/rest": "^0.1.0-canary.0",
     "cannon-es": "^0.18.0",
     "dat.gui": "^0.7.7",
+    "discord-api-types": "^0.24.0",
+    "discord.js": "^13.3.0",
+    "dotenv": "^10.0.0",
+    "request": "^2.88.2",
     "three": "^0.115.0",
     "three-to-cannon": "^4.0.2"
   },
