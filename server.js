@@ -3,10 +3,12 @@ const request = require('request');
 const app = express();
 const port = 3000;
 
-const bot = require('./bot/main.js');
+const bot = require('./bot/bot.js');
 const dotenv = require('dotenv');
 const gamesManager = require('./games/gamesManager.js');
 const cookieParser = require('cookie-parser');
+const db = require('./db/db');
+const discordApiUtils = require('./utils/discord-api');
 
 dotenv.config();
 
@@ -47,20 +49,29 @@ app.get('/auth', (req, res) => {
   };
 
   //send post request
-  request(options, (error, response, body) => {
+  request(options, async (error, response, body) => {
     if (error) throw new Error(error);
-    res.cookie('user', JSON.parse(body).refresh_token, { httpOnly: true });
+
+    var refresh_token = JSON.parse(body).refresh_token;
+    var access_token = JSON.parse(body).access_token;
+
+    var dId = (await discordApiUtils.fetchUserFromAccessToken(id)).id;
+
+    //create user in db
+    var id = (await db.createUser(refresh_token, access_token, dId)).get('id');
+    res.cookie('user', id, { httpOnly: true });
 
     var cookie = req.cookies.gameId;
     if (cookie === undefined) {
-      res.send('logged in');
+      res.send('logged in from sign in page, no game to redirect to');
     } else {
       res.redirect('/game/' + cookie);
     }
   });
 });
 
-app.use('/game', (req, res) => {
+//user is accessing game
+app.use('/game', async (req, res) => {
   var id = req.path.substring(1, req.path.length);
   var game = gamesManager.getGame(id);
 
@@ -76,9 +87,30 @@ app.use('/game', (req, res) => {
     } else {
       //cookie exists. 
       //check database if user is signed in
-      //if user is signed in, send game page
-      //if user is not signed in, redirect to sign in page
-      res.send(cookie);
+      var user = await db.getUser(cookie);
+      if (user) {
+        //user is signed in. 
+        //redirect to game
+        
+
+        var status = await game.addPlayer(cookie);
+        res.clearCookie('gameId', { httpOnly: true });
+
+        if (status) {
+          //game joined successfully
+          res.send(game.name);
+        } else {
+          res.send('failed to join game');
+        }
+        
+      } else {
+        //user is not signed in. 
+        //set cookie for game id to redirect back to
+        //redirect to sign in page
+        res.cookie('gameId', id, { maxAge: 900000, httpOnly: true });
+        console.log('cookie created successfully');
+        res.redirect('/sign-in');
+      }
     }
   } else {
     //game does not exist

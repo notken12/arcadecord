@@ -2,7 +2,8 @@ const { SnowflakeUtil } = require('discord.js');
 const dotenv = require('dotenv');
 const gamesManager = require('./gamesManager');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
-
+const Player = require('./Player');
+const discordApiUtils = require('../utils/discord-api');
 
 dotenv.config();
 
@@ -49,13 +50,24 @@ class Game {
     on(event, callback) {
         this.events[event].push(callback);
     }
-    addPlayer(player) {
+    async addPlayer(id) {
+        if (!(await this.canUserJoin(id))) return false;
+        
         if (this.players.length >= this.maxPlayers) {
             this.emit('error', 'Game is full');
             return false;
         }
+        if (this.players.filter(player => player.id === id).length > 0) {
+            this.emit('error', 'Player already in game');
+            return false;
+        }
+
+        var discordUser = await discordApiUtils.fetchUser(id);
+        var player = new Player(id, discordUser);
+
         this.players.push(player);
         this.emit('join', player);
+
         return true;
     }
     getStartMessage() {
@@ -80,12 +92,27 @@ class Game {
             callback(...args);
         }
     }
-    start () {
+    start() {
         //once first action has been made, start the game
         //first start and then handle first action
     }
     end() {
         //end the game
+    }
+    async canUserJoin(id) {
+        var members = this.guild.members;
+
+        //get discord user id
+        var discordUser = await discordApiUtils.fetchUser(id);
+        var member = await members.fetch(discordUser.id);
+
+        if (!member) return false;
+
+        const hasPermissionInChannel = this.channel
+            .permissionsFor(member)
+            .has('SEND_MESSAGES', false);
+
+        return hasPermissionInChannel;
     }
 }
 

@@ -28,7 +28,7 @@ module.exports = {
             var game = new gameType.Game();
             game.setGuild(interaction.guild);
             game.setChannel(interaction.channel);
-            game.addPlayer(interaction.user);
+            //TODO: make user sign in before creating a game so that they can be added
             game.init();
 
 

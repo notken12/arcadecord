@@ -1,15 +1,24 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const games = require('../../games/game-types');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } = require('discord.js');
+const discordApiUtils = require('../../utils/discord-api');
+const db = require('../../db/db');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Play a game!'),
     async execute(interaction) {
-        var message = this.getMessage();
+        var user = interaction.user;
+        var d = await db.getUserFromDiscordId(user.id);
+        if (d) {
+            var message = this.getMessage();
 
-        await interaction.reply(message);
+            await interaction.reply(message);
+        } else {
+            await interaction.reply('Sign in to play: ' + process.env.BASE_URL + '/sign-in');
+        }
+
     },
     getActionRow() {
         //create message action row

@@ -22,7 +22,7 @@ class TestGame extends Game {
             this.channel.send('Test game started');
         });
         this.on('join', (player) => {
-            this.channel.send(`${player.tag} joined the game ${this.id}`);
+            this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} joined the game ${this.id}`);
         });
         this.on('end', () => {
             this.channel.send('Test game ended');

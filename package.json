@@ -21,6 +21,8 @@
     "discord.js": "^13.3.0",
     "dotenv": "^10.0.0",
     "request": "^2.88.2",
+    "sequelize": "^6.8.0",
+    "sqlite3": "^5.0.2",
     "three": "^0.115.0",
     "three-to-cannon": "^4.0.2"
   },

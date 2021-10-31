@@ -13,6 +13,7 @@ client.commands = new Collection();
 client.selectMenus = new Collection();
 client.buttons = new Collection();
 
+
 const eventFiles = fs.readdirSync(__dirname + '/events').filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
