@@ -7,7 +7,7 @@ var options = {
     name: 'Tic-Tac-Toe',
     description: 'Play Tic-Tac-Toe with your friends!',
     aliases: ['ttt'],
-    id: 'tictactoe',
+    typeId: 'tictactoe',
     maxPlayers: 2,
     minPlayers: 2
 };

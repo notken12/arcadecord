@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test game</title>
+</head>
+
+<body>
+    <h1>Test game</h1>
+    <div id="you">
+        <h2>You</h2>
+    </div>
+    vs.
+    <div id="opponent">
+        <h2 id="opponent_name"></h2>
+    </div>
+
+    <div id="my_score"></div>
+    <div id="opponents_score"></div>
+
+    <button id="increase_score">Press me!!!!</button>
+    <button id="end_turn">End turn</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var gameId = window.location.pathname.split('/')[2];
+        var opponentName = document.querySelector('#opponent_name');
+        var myScore = document.querySelector('#my_score');
+        var opponentsScore = document.querySelector('#opponents_score');
+        var increaseScore = document.querySelector('#increase_score');
+        var endTurn = document.querySelector('#end_turn');
+
+
+        socket.emit('connect_socket', {
+            gameId: gameId
+        }, (response) => {
+            if (response.status != 'success') {
+                console.log(response.status);
+                return;
+            }
+
+            console.log('socket connected');
+
+            var game = response.game;
+            console.log(game);
+
+            var me = game.players[game.myIndex];
+
+            var opponentIndex = game.myIndex === 0 ? 1 : 0;
+            var opponent = game.players[opponentIndex];
+
+            var score = game.data.scores[game.myIndex] || 0;
+            var score_opponent = game.data.scores[opponentIndex] || 0;
+
+
+
+            if (game.hasStarted) {
+                if (game.isItMyTurn) {
+                    console.log('it is my turn');
+                } else {
+                    console.log('it is not my turn');
+                }
+
+                opponentName.innerText = `${opponent.discordUser.username}#${opponent.discordUser.discriminator}`;
+
+            }
+
+            myScore.innerText = score;
+            opponentsScore.innerText = score_opponent;
+
+
+            var actionEmissionQueue = [];
+
+            function emitAction(actionType, actionData) {
+                actionEmissionQueue.push([actionType, actionData]);
+
+                function callback() {
+                    if (actionEmissionQueue.length > 0) {
+                        var action = actionEmissionQueue.shift();
+                        socket.emit('action', action[0], action[1], callback);
+                    }
+                }
+
+                if (actionEmissionQueue.length === 1) { // start the chain
+                    callback();
+                }
+            }
+            increaseScore.addEventListener('click', function () {
+                if (game.isItMyTurn) {
+                    emitAction('increase_score', {});
+
+                    score++;
+                    myScore.innerText = score;
+                }
+
+            });
+
+            endTurn.addEventListener('click', function () {
+                emitAction('end_turn', {});
+            });
+
+            socket.on('turn', (turn, game) => {
+                console.log('turn', turn);
+
+                if (turn.playerIndex == opponentIndex) {
+                    opponentsScore.innerText = game.data.scores[opponentIndex];
+                }
+            });
+        });
+
+        socket.on('disconnect', function (reason) {
+            console.log('socket disconnected because ' + reason);
+        });
+
+    </script>
+</body>
+
+</html>

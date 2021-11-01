@@ -4,5 +4,5 @@ const gameFiles = fs.readdirSync(__dirname + '/types').filter(file => file.endsW
 
 for (const file of gameFiles) {
     const game = require(`./types/${file}`);
-    exports[game.options.id] = game;
+    exports[game.options.typeId] = game;
 }

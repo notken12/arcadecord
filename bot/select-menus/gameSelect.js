@@ -1,6 +1,7 @@
 const games = require('../../games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const gamesManager = require('../../games/gamesManager');
+const db = require('../../db/db');
 
 module.exports = {
     data: {
@@ -28,7 +29,9 @@ module.exports = {
             var game = new gameType.Game();
             game.setGuild(interaction.guild);
             game.setChannel(interaction.channel);
-            //TODO: make user sign in before creating a game so that they can be added
+
+            var user = await db.getUserFromDiscordId(interaction.user.id);
+            game.addPlayer(user.get('id'));
             game.init();
 
 

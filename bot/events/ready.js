@@ -7,7 +7,7 @@ module.exports = {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 
 		// reset database:
-		//Tags.sync({force:true});
+		//db.Tags.sync({force:true});
 
 		// start db
 		db.Tags.sync();

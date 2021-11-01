@@ -44,10 +44,29 @@ async function createUser(refresh_token, access_token, discord_id) {
     }
     catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
-            return interaction.reply('That tag already exists.');
+            console.error('That tag already exists.');
+            return;
         }
+        console.error(error);
+    }
+}
+
+async function updateUser(id, refresh_token, access_token, discord_id) {
+    try {
+        const tag = await Tags.update({
+            refresh_token: refresh_token,
+            access_token: access_token,
+            discord_id: discord_id,
+        }, {
+            where: {
+                id: id,
+            },
+        });
     
-        return interaction.reply('Something went wrong with adding a tag.');
+        return tag;
+    }
+    catch (error) {
+        console.error(error);
     }
 }
 
@@ -77,5 +96,6 @@ module.exports = {
     Tags,
     getUser,
     createUser,
-    getUserFromDiscordId
+    getUserFromDiscordId,
+    updateUser,
 };

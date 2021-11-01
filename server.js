@@ -10,7 +10,44 @@ const cookieParser = require('cookie-parser');
 const db = require('./db/db');
 const discordApiUtils = require('./utils/discord-api');
 
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const cookie = require('cookie');
+const { user } = require('./bot/bot.js');
+
 dotenv.config();
+
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('connect_socket', async function (data, callback) {
+    const cookies = cookie.parse(socket.request.headers.cookie || "");
+
+    const userId = cookies.user;
+    const gameId = data.gameId;
+
+    if (!userId) return;
+
+    if (gameId) {
+      var game = gamesManager.getGame(gameId);
+      if (game) {
+        if (await game.canUserSocketConnect(userId)) {
+          socket.data.userId = userId;
+
+          game.setSocket(userId, socket);
+
+          callback({
+            status: 'success',
+            game: game.getDataForClient(userId)
+          });
+        }
+      }
+    }
+  });
+});
 
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser());
@@ -55,11 +92,21 @@ app.get('/auth', (req, res) => {
     var refresh_token = JSON.parse(body).refresh_token;
     var access_token = JSON.parse(body).access_token;
 
-    var dId = (await discordApiUtils.fetchUserFromAccessToken(id)).id;
+    var dId = (await discordApiUtils.fetchUserFromAccessToken(access_token)).id;
 
     //create user in db
-    var id = (await db.createUser(refresh_token, access_token, dId)).get('id');
-    res.cookie('user', id, { httpOnly: true });
+
+    var existingUserId = await db.getUserFromDiscordId(dId);
+    if (!existingUserId) {
+      // new user
+      var id = (await db.createUser(refresh_token, access_token, dId)).get('id');
+      res.cookie('user', id, { httpOnly: true });
+    }
+    else {
+      // existing user
+      db.updateUser(existingUserId, refresh_token, access_token, dId);
+      res.cookie('user', existingUserId, { httpOnly: true });
+    }
 
     var cookie = req.cookies.gameId;
     if (cookie === undefined) {
@@ -91,18 +138,18 @@ app.use('/game', async (req, res) => {
       if (user) {
         //user is signed in. 
         //redirect to game
-        
 
-        var status = await game.addPlayer(cookie);
+
+        var status = await game.doesUserHavePermission(cookie);
         res.clearCookie('gameId', { httpOnly: true });
 
         if (status) {
-          //game joined successfully
-          res.send(game.name);
+          //user has permission to join
+          res.sendFile(__dirname + '/html/games/' + game.typeId + '.html');
         } else {
-          res.send('failed to join game');
+          res.send('you have no permission to join');
         }
-        
+
       } else {
         //user is not signed in. 
         //set cookie for game id to redirect back to
@@ -120,6 +167,6 @@ app.use('/game', async (req, res) => {
 
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+server.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`)
 });

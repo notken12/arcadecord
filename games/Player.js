@@ -6,6 +6,12 @@ class Player {
 
         this.discordUser = discordUser;
     }
+
+    getDataForClient() {
+        return {
+            discordUser: this.discordUser
+        };
+    }
 }
 
 module.exports = Player;

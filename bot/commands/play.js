@@ -16,7 +16,7 @@ module.exports = {
 
             await interaction.reply(message);
         } else {
-            await interaction.reply('Sign in to play: ' + process.env.BASE_URL + '/sign-in');
+            await interaction.reply({content:'Sign in to play: ' + process.env.BASE_URL + '/sign-in', ephemeral: true});
         }
 
     },
@@ -33,7 +33,7 @@ module.exports = {
                 {
                     label: game.options.name,
                     description: game.options.description,
-                    value: game.options.id
+                    value: game.options.typeId
                 }
             ]);
         }
