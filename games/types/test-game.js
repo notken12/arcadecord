@@ -38,7 +38,8 @@ class TestGame extends Game {
             var player = this.players[action.playerIndex];
             this.data.scores[action.playerIndex]++;
 
-            this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
+            // don't do this anywhere because of rate limits, can get blocked from api for spam
+            //this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
         });
 
         this.onAction('end_turn', (action) => {
