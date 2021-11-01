@@ -26,6 +26,8 @@
 
     <div id="whos_turn"></div>
 
+    <div id="win"></div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="/public/js/game-framework.js"></script>
     <script>
@@ -93,11 +95,11 @@
         function connectionCallback(response) {
             game = response;
 
-            game.client.on('score_increased', function (score) {
+            game.client.on('score_increased', function(score) {
                 myScore.innerText = score;
             });
 
-            game.client.on('turn_ended', function () {
+            game.client.on('turn_ended', function() {
                 whosTurn.innerText = `It is ${opponent_name}'s turn`;
             });
 
@@ -108,11 +110,11 @@
 
         connect(connectionCallback);
 
-        increaseScore.addEventListener('click', function () {
+        increaseScore.addEventListener('click', function() {
             runAction(game, 'increase_score', {});
         });
 
-        endTurn.addEventListener('click', function () {
+        endTurn.addEventListener('click', function() {
             runAction(game, 'end_turn', {});
         });
 
@@ -124,10 +126,9 @@
 
         });
 
-        socket.on('disconnect', function (reason) {
+        socket.on('disconnect', function(reason) {
             console.log('socket disconnected because ' + reason);
         });
-
     </script>
 </body>
 

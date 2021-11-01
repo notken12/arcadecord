@@ -23,60 +23,61 @@ class Game {
     //     "minPlayers": 0,
     // }
     constructor(options) {
-        this.id = SnowflakeUtil.generate();
-        this.players = [];
-        this.eventHandlers = {};
-        this.actionHandlers = {};
-        this.turn = 1;
-        this.sockets = {};
-        this.hasStarted = false;
-        this.data = {}; // game position, scores, etc
-        this.turns = []; // all past turns taken by players
-        this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
-        // async actionModel (action, game) {
+            this.id = SnowflakeUtil.generate();
+            this.players = [];
+            this.eventHandlers = {};
+            this.actionHandlers = {};
+            this.turn = 1;
+            this.gameEnded = false;
+            this.sockets = {};
+            this.hasStarted = false;
+            this.data = {}; // game position, scores, etc
+            this.turns = []; // all past turns taken by players
+            this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+            // async actionModel (action, game) {
             // action: get information about action
             // game: game that the action takes place in, whether it be server or client model of game
 
 
             // manipulate game data, whether it be server or client data
             // return game, or `false` if action was unsuccesful
-        // }
+            // }
 
-        this.client = {
-            eventHandlers: {},
-            emit: function (event, ...args) {
-                if (!this.eventHandlers[event]) return;
+            this.client = {
+                eventHandlers: {},
+                emit: function(event, ...args) {
+                    if (!this.eventHandlers[event]) return;
 
-                for (let callback of this.eventHandlers[event]) {
-                    callback(...args);
+                    for (let callback of this.eventHandlers[event]) {
+                        callback(...args);
+                    }
+                },
+                on: function(event, callback) {
+                    if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
+                    this.eventHandlers[event].push(callback);
+                },
+                getDataForClient: function() {
+                    return {
+                        eventHandlers: this.eventHandlers,
+                        emit: this.emit.toString(),
+                        on: this.on.toString(),
+                    };
                 }
-            },
-            on: function (event, callback) {
-                if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
-                this.eventHandlers[event].push(callback);
-            },
-            getDataForClient: function () {
-                return {
-                    eventHandlers: this.eventHandlers,
-                    emit: this.emit.toString(),
-                    on: this.on.toString(),
-                };
-            }
-        }; // event management, just for client. used for updating ui
+            }; // event management, just for client. used for updating ui
 
-        this.turns.getDataForClient = function () {
-            var data = [];
-            for (let turn of this) {
-                data.push(turn.getDataForClient());
+            this.turns.getDataForClient = function() {
+                var data = [];
+                for (let turn of this) {
+                    data.push(turn.getDataForClient());
+                }
+                return data;
             }
-            return data;
-        }
 
-        for (let key in options) {
-            this[key] = options[key];
+            for (let key in options) {
+                this[key] = options[key];
+            }
         }
-    }
-    //methods
+        //methods
     setGuild(guild) {
         this.guild = guild;
     }
@@ -192,7 +193,12 @@ class Game {
         var discordUser = await discordApiUtils.fetchUser(id);
         if (!discordUser) return false;
 
-        var member = await members.fetch(discordUser.id);
+        try {
+            var member = await members.fetch(discordUser.id);
+        } catch (e) {
+            return false;
+
+        }
 
         if (!member) return false;
 
@@ -285,7 +291,7 @@ class Game {
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
             turns: this.turns.getDataForClient(),
-            endTurn () {
+            endTurn() {
                 this.turn = (this.turn + 1) % this.players.length;
             },
             client: this.client.getDataForClient(),

@@ -18,7 +18,7 @@ class TestGame extends Game {
     constructor() {
         super(options);
         this.winner = null;
-        
+
         this.on('init', () => {
             this.channel.send('Test game initialized');
         });
@@ -31,9 +31,11 @@ class TestGame extends Game {
         this.on('end', () => {
             this.channel.send('Test game ended');
         });
+        this.on('win', (player) => {
+            this.channel.send(`Game ended! ${player.discordUser.username}#${player.discordUser.discriminator} ended the game with a score of ${this.data.scores[action.playerIndex]}!!!!!!!!!!!!!!!!!!!!!`);
+        });
 
-
-        this.setActionModel('increase_score', async (action, game) => {
+        this.setActionModel('increase_score', async(action, game) => {
             if (!game.isItUsersTurn(undefined, action.playerIndex)) {
                 return false;
             }
@@ -47,9 +49,16 @@ class TestGame extends Game {
             //this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
         });
 
-        this.setActionModel('end_turn', async (action, game) => {
+        this.setActionModel('end_turn', async(action, game) => {
             if (!game.isItUsersTurn(undefined, action.playerIndex)) {
                 return false;
+            }
+            if (game.data.scores[action.playerIndex] >= 10) {
+                game.winner = action.playerIndex;
+                console.log(game.winner);
+            } else {
+                game.endTurn();
+                game.client.emit('turn_ended');
             }
 
             game.endTurn();
@@ -60,18 +69,19 @@ class TestGame extends Game {
 
         this.onAction('end_turn', (action) => {
             var player = this.players[action.playerIndex];
-
-            var upNext = this.players[this.turn];
-
-            this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} ended their turn with score ${this.data.scores[action.playerIndex]}`);
-            this.channel.send(`<@${upNext.discordUser.id}>, it's your turn!`);
+            if (this.data.scores[action.playerIndex] < 10) {
+                var upNext = this.players[this.turn];
+                this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} ended their turn with score ${this.data.scores[action.playerIndex]}`);
+                this.channel.send(`<@${upNext.discordUser.id}>, it's your turn!`);
+            }
         });
     }
 
 
-    
+
 }
 
 module.exports = {
-    options, Game: TestGame
+    options,
+    Game: TestGame
 }
