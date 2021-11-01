@@ -143,6 +143,8 @@ class Game {
 
         //get discord user id
         var discordUser = await discordApiUtils.fetchUser(id);
+        if (!discordUser) return false;
+
         var member = await members.fetch(discordUser.id);
 
         if (!member) return false;

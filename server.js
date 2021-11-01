@@ -96,7 +96,12 @@ app.get('/auth', (req, res) => {
 
     //create user in db
 
-    var existingUserId = await db.getUserFromDiscordId(dId);
+    var userFromDiscord = await db.getUserFromDiscordId(dId);
+
+    var existingUserId;
+    if (userFromDiscord) {
+      existingUserId = userFromDiscord.get('id');
+    }
     if (!existingUserId) {
       // new user
       var id = (await db.createUser(refresh_token, access_token, dId)).get('id');
