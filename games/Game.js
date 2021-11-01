@@ -6,6 +6,7 @@ const Player = require('./Player');
 const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
+const { emit } = require('../bot/bot');
 
 dotenv.config();
 
@@ -31,6 +32,37 @@ class Game {
         this.hasStarted = false;
         this.data = {}; // game position, scores, etc
         this.turns = []; // all past turns taken by players
+        this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+        // async actionModel (action, game) {
+            // action: get information about action
+            // game: game that the action takes place in, whether it be server or client model of game
+
+
+            // manipulate game data, whether it be server or client data
+            // return game, or `false` if action was unsuccesful
+        // }
+
+        this.client = {
+            eventHandlers: {},
+            emit: function (event, ...args) {
+                if (!this.eventHandlers[event]) return;
+
+                for (let callback of this.eventHandlers[event]) {
+                    callback(...args);
+                }
+            },
+            on: function (event, callback) {
+                if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
+                this.eventHandlers[event].push(callback);
+            },
+            getDataForClient: function () {
+                return {
+                    eventHandlers: this.eventHandlers,
+                    emit: this.emit.toString(),
+                    on: this.on.toString(),
+                };
+            }
+        }; // event management, just for client. used for updating ui
 
         this.turns.getDataForClient = function () {
             var data = [];
@@ -50,6 +82,9 @@ class Game {
     }
     setChannel(channel) {
         this.channel = channel;
+    }
+    setActionModel(action, model) {
+        this.actionModels[action] = model;
     }
     getURL() {
         return process.env.BASE_URL + "/game/" + this.id;
@@ -93,6 +128,18 @@ class Game {
 
         //add action to turn
         this.turns[this.turns.length - 1].actions.push(action);
+
+        // run action
+        var actionModel = this.actionModels[action.type];
+        if (actionModel) {
+            var successful = await actionModel(action, this);
+
+            if (!successful) {
+                // action failed
+
+                return;
+            }
+        }
 
         if (this.actionHandlers[action.type]) {
             for (let callback of this.actionHandlers[action.type]) {
@@ -189,8 +236,13 @@ class Game {
     getPlayerIndex(id) {
         return this.players.indexOf(this.players.filter(player => player.id === id)[0]);
     }
-    isItUsersTurn(userId) {
-        var i = this.getPlayerIndex(userId);
+    isItUsersTurn(userId, index) {
+        var i;
+        if (index !== undefined) {
+            i = index;
+        } else {
+            i = this.getPlayerIndex(userId);
+        }
         return this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1);
     }
     setSocket(userId, socket) {
@@ -214,11 +266,11 @@ class Game {
         var socket = this.sockets[player.id];
 
         if (socket) {
-            socket.emit('turn', this.turns[this.turns.length - 1].getDataForClient(), this.getDataForClient());
+            socket.emit('turn', this.turns[this.turns.length - 1].getDataForClient(), this.getDataForClient(player.id));
         }
     }
     getDataForClient(userId) {
-        return {
+        var game = {
             id: this.id,
             name: this.name,
             description: this.description,
@@ -233,7 +285,17 @@ class Game {
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
             turns: this.turns.getDataForClient(),
+            endTurn () {
+                this.turn = (this.turn + 1) % this.players.length;
+            },
+            client: this.client.getDataForClient(),
+            actionModels: {}
         };
+        for (let key in this.actionModels) {
+            game.actionModels[key] = this.actionModels[key].toString();
+        }
+
+        return game;
     }
 }
 

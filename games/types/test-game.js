@@ -32,20 +32,33 @@ class TestGame extends Game {
             this.channel.send('Test game ended');
         });
 
-        this.onAction('increase_score', (action) => {
-            if (!this.isItUsersTurn(action.userId)) return;
 
-            var player = this.players[action.playerIndex];
-            this.data.scores[action.playerIndex]++;
+        this.setActionModel('increase_score', async (action, game) => {
+            if (!game.isItUsersTurn(undefined, action.playerIndex)) {
+                return false;
+            }
+
+            game.data.scores[action.playerIndex]++;
+            game.client.emit('score_increased', game.data.scores[action.playerIndex]);
+
+            return game;
 
             // don't do this anywhere because of rate limits, can get blocked from api for spam
             //this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
         });
 
-        this.onAction('end_turn', (action) => {
-            if (!this.isItUsersTurn(action.userId)) return;
-            this.endTurn();
+        this.setActionModel('end_turn', async (action, game) => {
+            if (!game.isItUsersTurn(undefined, action.playerIndex)) {
+                return false;
+            }
 
+            game.endTurn();
+            game.client.emit('turn_ended');
+
+            return game;
+        });
+
+        this.onAction('end_turn', (action) => {
             var player = this.players[action.playerIndex];
 
             var upNext = this.players[this.turn];

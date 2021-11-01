@@ -27,8 +27,8 @@
     <div id="whos_turn"></div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/game-framework.js"></script>
     <script>
-        var socket = io();
         var gameId = window.location.pathname.split('/')[2];
         var opponentName = document.querySelector('#opponent_name');
         var myScore = document.querySelector('#my_score');
@@ -37,100 +37,91 @@
         var endTurn = document.querySelector('#end_turn');
         var whosTurn = document.querySelector('#whos_turn');
 
-        var score = 0;
-        var score_opponent = 0;
-        var isItMyTurn = false;
+        var opponent_name;
 
-        function update(game) {
-            var me = game.players[game.myIndex];
-            var turn = game.turns[game.turns.length - 1];
+        var game;
 
-            var opponentIndex = game.myIndex === 0 ? 1 : 0;
-            var opponent = game.players[opponentIndex];
+        function update(g) {
+            var opponentIndex;
 
-            score = game.data.scores[game.myIndex] || 0;
-            score_opponent = game.data.scores[opponentIndex] || 0;
-            isItMyTurn = game.isItMyTurn;
+            if (game) {
+                if (g)
+                    utils.updateGame(game, g);
 
-            if (game.hasStarted) {
-                if (game.isItMyTurn) {
-                    console.log('it is my turn');
-                    whosTurn.innerText = 'It is your turn';
-                } else {
-                    console.log('it is not my turn');
-                    whosTurn.innerText = `It is ${opponent.discordUser.username}#${opponent.discordUser.discriminator}'s turn`;
+
+                var me = game.players[game.myIndex];
+
+                opponentIndex = game.myIndex === 0 ? 1 : 0;
+
+                var opponent = game.players[opponentIndex];
+                var turn = game.turns[game.turns.length - 1];
+
+                score = game.data.scores[game.myIndex] || 0;
+                score_opponent = game.data.scores[opponentIndex] || 0;
+
+                if (opponent) {
+                    opponent_name = `${opponent.discordUser.username}#${opponent.discordUser.discriminator}`;
+                    opponentName.innerText = opponent_name;
                 }
 
-                opponentName.innerText = `${opponent.discordUser.username}#${opponent.discordUser.discriminator}`;
 
-            }
-
-            if (turn) {
-                if (turn.playerIndex == opponentIndex) {
-                    opponentsScore.innerText = game.data.scores[opponentIndex];
-                }
-            }
-
-
-            myScore.innerText = score;
-            opponentsScore.innerText = score_opponent;
-        }
-
-        socket.emit('connect_socket', {
-            gameId: gameId
-        }, (response) => {
-            if (response.status != 'success') {
-                console.log(response.status);
-                return;
-            }
-
-            console.log('socket connected');
-
-            var game = response.game;
-            console.log(game);
-
-
-            update(game);
-
-            var actionEmissionQueue = [];
-
-            function emitAction(actionType, actionData) {
-                actionEmissionQueue.push([actionType, actionData]);
-
-                function callback() {
-                    if (actionEmissionQueue.length > 0) {
-                        var action = actionEmissionQueue.shift();
-                        socket.emit('action', action[0], action[1], callback);
+                if (turn) {
+                    if (turn.playerIndex == opponentIndex) {
+                        opponentsScore.innerText = game.data.scores[opponentIndex];
                     }
                 }
 
-                if (actionEmissionQueue.length === 1) { // start the chain
-                    callback();
+                if (!game.hasStarted && !game.isItMyTurn) {
+                    whosTurn.innerText = 'Waiting for opponent';
+                    opponentName.innerText = 'Waiting for opponent';
                 }
             }
-            increaseScore.addEventListener('click', function () {
-                if (isItMyTurn) {
-                    emitAction('increase_score', {});
 
-                    score++;
-                    myScore.innerText = score;
-                }
+            if (game.isItMyTurn) {
+                console.log('it is my turn');
+                whosTurn.innerText = 'It is your turn';
+            } else {
+                console.log('it is not my turn');
+                if (opponent_name)
+                    whosTurn.innerText = `It is ${opponent_name}'s turn`;
+            }
 
+            myScore.innerText = game.data.scores[game.myIndex] || 0;
+            opponentsScore.innerText = game.data.scores[opponentIndex];
+        }
+
+        function connectionCallback(response) {
+            game = response;
+
+            game.client.on('score_increased', function (score) {
+                myScore.innerText = score;
             });
 
-            endTurn.addEventListener('click', function () {
-                if (isItMyTurn) {
-                    emitAction('end_turn', {});
-                }
+            game.client.on('turn_ended', function () {
+                whosTurn.innerText = `It is ${opponent_name}'s turn`;
             });
 
+            console.log(game);
 
-            socket.on('turn', (turn, game) => {
-                console.log('turn', turn);
+            update(game);
+        };
 
-                update(game);
+        connect(connectionCallback);
 
-            });
+        increaseScore.addEventListener('click', function () {
+            runAction(game, 'increase_score', {});
+        });
+
+        endTurn.addEventListener('click', function () {
+            runAction(game, 'end_turn', {});
+        });
+
+        socket.on('turn', (turn, game) => {
+            console.log('turn', turn);
+
+            console.log(game);
+            update(game);
+
         });
 
         socket.on('disconnect', function (reason) {
