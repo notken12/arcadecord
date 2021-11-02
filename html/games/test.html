@@ -145,7 +145,7 @@
         });
 
         socket.on('end', function (result, game) {
-            if (result.winner) {
+            if (result.winner != -1) {
                 var winner = game.players[result.winner];
                 whosTurn.innerText = `${winner.discordUser.username}#${winner.discordUser.discriminator} won!`;
             } else {

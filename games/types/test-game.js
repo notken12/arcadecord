@@ -29,7 +29,7 @@ class TestGame extends Game {
             this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} joined the game ${this.id}`);
         });
         this.on('end', (result) => {
-            if (result.winner) {
+            if (result.winner != -1) {
                 var winner = this.players[result.winner];
                 this.channel.send(`Test game ended, and <@${winner.discordUser.id}> won!`);
             } else {
