@@ -1,4 +1,4 @@
-const games = require('../../games/game-types');
+const gameTypes = require('../../games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const gamesManager = require('../../games/gamesManager');
 const db = require('../../db/db');
@@ -8,7 +8,7 @@ module.exports = {
         name: "gameSelect",
     },
     async execute(interaction) {
-        var gameType = games[interaction.values[0]];
+        var gameType = gameTypes[interaction.values[0]];
         if (gameType) {
             // var embed = new MessageEmbed()
             //     .setTitle(game.name)

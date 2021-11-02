@@ -20,6 +20,20 @@ const utils = {
         endTurn() {
             this.turn = (this.turn + 1) % this.players.length;
 
+        },
+        end(result) {
+            //end the game
+            this.endTurn();
+
+            this.hasEnded = true;
+            if (result.winner) {
+                this.winner = result.winner;
+            } else {
+                // draw
+                this.winner = -1;
+            }
+
+            this.client.emit('end', result, this);
         }
     },
 
@@ -63,7 +77,19 @@ function emitAction(actionType, actionData) {
 }
 
 function runAction(game, type, data) {
-    game.actionModels[type](new Action(type, data, game.myIndex), game).then(function (result) {
+    if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
+        return;
+    }
+
+    var index = game.myIndex;
+
+    if (game.myIndex == -1) { // same code as in handleAction in Game.js: if game hasn't started, start game with this action
+        if (game.hasStarted == false) {
+            index = game.players.length;
+        }
+    }
+
+    game.actionModels[type](new Action(type, data, index), game).then(function (result) {
         if (result) {
             emitAction(type, data);
         }

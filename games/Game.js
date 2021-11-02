@@ -7,6 +7,7 @@ const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
 const { emit } = require('../bot/bot');
+const { cloneDeep } = require('lodash');
 
 dotenv.config();
 
@@ -23,61 +24,63 @@ class Game {
     //     "minPlayers": 0,
     // }
     constructor(options) {
-            this.id = SnowflakeUtil.generate();
-            this.players = [];
-            this.eventHandlers = {};
-            this.actionHandlers = {};
-            this.turn = 1;
-            this.gameEnded = false;
-            this.sockets = {};
-            this.hasStarted = false;
-            this.data = {}; // game position, scores, etc
-            this.turns = []; // all past turns taken by players
-            this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
-            // async actionModel (action, game) {
-            // action: get information about action
-            // game: game that the action takes place in, whether it be server or client model of game
+        this.id = SnowflakeUtil.generate();
+        this.players = [];
+        this.eventHandlers = {};
+        this.actionHandlers = {};
+        this.turn = 1;
+        this.gameEnded = false;
+        this.sockets = {};
+        this.hasStarted = false;
+        this.hasEnded = false;
+        this.winner = null; // will be set to player index
+        this.data = {}; // game position, scores, etc
+        this.turns = []; // all past turns taken by players
+        this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+        // async actionModel (action, game) {
+        // action: get information about action
+        // game: game that the action takes place in, whether it be server or client model of game
 
 
-            // manipulate game data, whether it be server or client data
-            // return game, or `false` if action was unsuccesful
-            // }
+        // manipulate game data, whether it be server or client data
+        // return game, or `false` if action was unsuccesful
+        // }
 
-            this.client = {
-                eventHandlers: {},
-                emit: function(event, ...args) {
-                    if (!this.eventHandlers[event]) return;
+        this.client = {
+            eventHandlers: {},
+            emit: function (event, ...args) {
+                if (!this.eventHandlers[event]) return;
 
-                    for (let callback of this.eventHandlers[event]) {
-                        callback(...args);
-                    }
-                },
-                on: function(event, callback) {
-                    if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
-                    this.eventHandlers[event].push(callback);
-                },
-                getDataForClient: function() {
-                    return {
-                        eventHandlers: this.eventHandlers,
-                        emit: this.emit.toString(),
-                        on: this.on.toString(),
-                    };
+                for (let callback of this.eventHandlers[event]) {
+                    callback(...args);
                 }
-            }; // event management, just for client. used for updating ui
-
-            this.turns.getDataForClient = function() {
-                var data = [];
-                for (let turn of this) {
-                    data.push(turn.getDataForClient());
-                }
-                return data;
+            },
+            on: function (event, callback) {
+                if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
+                this.eventHandlers[event].push(callback);
+            },
+            getDataForClient: function () {
+                return {
+                    eventHandlers: this.eventHandlers,
+                    emit: this.emit.toString(),
+                    on: this.on.toString(),
+                };
             }
+        }; // event management, just for client. used for updating ui
 
-            for (let key in options) {
-                this[key] = options[key];
+        this.turns.getDataForClient = function () {
+            var data = [];
+            for (let turn of this) {
+                data.push(turn.getDataForClient());
             }
+            return data;
         }
-        //methods
+
+        Object.assign(this, cloneDeep(options)); // deep clone options so that options wont be changed when game is modified
+
+
+    }
+    //methods
     setGuild(guild) {
         this.guild = guild;
     }
@@ -106,6 +109,7 @@ class Game {
         }
     }
     async handleAction(action) {
+        if (this.hasEnded) return;
 
         if (action.playerIndex == -1) {
             if (this.hasStarted == false) {
@@ -182,9 +186,23 @@ class Game {
         //first start and then handle first action
         this.hasStarted = true;
         this.emit('start');
+
+        this.broadcastToAllSockets('start');
     }
-    end() {
+    end(result) {
         //end the game
+        this.endTurn();
+        this.hasEnded = true;
+        if (result.winner) {
+            this.winner = result.winner;
+        } else {
+            // draw
+            this.winner = -1;
+        }
+
+        this.emit('end', result);
+
+        this.broadcastToAllSockets('end', result, this.getDataForClient());
     }
     async doesUserHavePermission(id) {
         var members = this.guild.members;
@@ -264,6 +282,8 @@ class Game {
 
     }
     endTurn() {
+        if (this.hasEnded) return;
+
         this.emit('end_turn');
 
         this.turn = (this.turn + 1) % this.players.length;
@@ -275,6 +295,13 @@ class Game {
             socket.emit('turn', this.turns[this.turns.length - 1].getDataForClient(), this.getDataForClient(player.id));
         }
     }
+
+    broadcastToAllSockets(event, ...args) {
+        for (let key in this.sockets) {
+            this.sockets[key].emit(event, ...args);
+        }
+    }
+
     getDataForClient(userId) {
         var game = {
             id: this.id,
@@ -291,11 +318,10 @@ class Game {
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
             turns: this.turns.getDataForClient(),
-            endTurn() {
-                this.turn = (this.turn + 1) % this.players.length;
-            },
             client: this.client.getDataForClient(),
-            actionModels: {}
+            actionModels: {},
+            winner: this.winner,
+            hasEnded: this.hasEnded,
         };
         for (let key in this.actionModels) {
             game.actionModels[key] = this.actionModels[key].toString();

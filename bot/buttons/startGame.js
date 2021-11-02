@@ -3,7 +3,7 @@ const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = req
 
 module.exports = {
     data: {
-        name: "backToGameSelect",
+        name: "startGame",
     },
     async execute(interaction) {
 

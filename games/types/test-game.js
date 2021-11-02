@@ -28,20 +28,25 @@ class TestGame extends Game {
         this.on('join', (player) => {
             this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} joined the game ${this.id}`);
         });
-        this.on('end', () => {
-            this.channel.send('Test game ended');
-        });
-        this.on('win', (player) => {
-            this.channel.send(`Game ended! ${player.discordUser.username}#${player.discordUser.discriminator} ended the game with a score of ${this.data.scores[action.playerIndex]}!!!!!!!!!!!!!!!!!!!!!`);
+        this.on('end', (result) => {
+            if (result.winner) {
+                var winner = this.players[result.winner];
+                this.channel.send(`Test game ended, and <@${winner.discordUser.id}> won!`);
+            } else {
+                this.channel.send('Test game ended, and nobody won! (This should not be possible)');
+            }
         });
 
-        this.setActionModel('increase_score', async(action, game) => {
-            if (!game.isItUsersTurn(undefined, action.playerIndex)) {
-                return false;
-            }
+        this.setActionModel('increase_score', async (action, game) => {
 
             game.data.scores[action.playerIndex]++;
             game.client.emit('score_increased', game.data.scores[action.playerIndex]);
+
+            if (game.data.scores[action.playerIndex] >= 10) {
+                game.end({
+                    winner: action.playerIndex
+                });
+            }
 
             return game;
 
@@ -49,17 +54,7 @@ class TestGame extends Game {
             //this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
         });
 
-        this.setActionModel('end_turn', async(action, game) => {
-            if (!game.isItUsersTurn(undefined, action.playerIndex)) {
-                return false;
-            }
-            if (game.data.scores[action.playerIndex] >= 10) {
-                game.winner = action.playerIndex;
-                console.log(game.winner);
-            } else {
-                game.endTurn();
-                game.client.emit('turn_ended');
-            }
+        this.setActionModel('end_turn', async (action, game) => {
 
             game.endTurn();
             game.client.emit('turn_ended');
