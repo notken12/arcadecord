@@ -67,6 +67,10 @@ app.get('/invite', (req, res) => {
   res.sendFile(__dirname + '/html/invite.html')
 });
 
+app.get('/discord-oauth', (req, res) => {
+  res.redirect('https://discord.com/api/oauth2/authorize?client_id=903801669194772531&redirect_uri=' + encodeURIComponent(process.env.BASE_URL + '/auth') + '&response_type=code&scope=identify');
+});
+
 //get authorization code
 app.get('/auth', (req, res) => {
   const code = req.query.code;
