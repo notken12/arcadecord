@@ -34,8 +34,7 @@ module.exports = {
             game.addPlayer(user.get('id'));
             game.init();
 
-
-            // interaction.deleteReply();
+            interaction.update({components: [], content: `${game.name} created`});
             interaction.channel.send(game.getStartMessage());
         }
     }

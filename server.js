@@ -41,7 +41,8 @@ io.on('connection', (socket) => {
 
           callback({
             status: 'success',
-            game: game.getDataForClient(userId)
+            game: game.getDataForClient(userId),
+            discordUser: await discordApiUtils.fetchUser(userId)
           });
         }
       }

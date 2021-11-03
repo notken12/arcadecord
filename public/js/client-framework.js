@@ -33,7 +33,11 @@ const utils = {
                 this.winner = -1;
             }
 
-            this.client.emit('end', result, this);
+            this.client.emit('end', result, this.turns[this.turns.length], this);
+        },
+        start() {
+            this.hasStarted = true;
+            this.client.emit('start', this);
         }
     },
 
@@ -43,6 +47,10 @@ const utils = {
 
         for (let key in game.actionModels) {
             eval(`game.actionModels['${key}'] = ` + game.actionModels[key]);
+        }
+
+        for (let key in game.clientActionModels) {
+            eval(`game.clientActionModels['${key}'] = ` + game.clientActionModels[key]);
         }
 
         for (let key in this.functionsToApplyToGame) {
@@ -76,7 +84,9 @@ function emitAction(actionType, actionData) {
     }
 }
 
-function runAction(game, type, data) {
+var discordUser;
+
+async function runAction(game, type, data) {
     if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
         return;
     }
@@ -85,18 +95,29 @@ function runAction(game, type, data) {
 
     if (game.myIndex == -1) { // same code as in handleAction in Game.js: if game hasn't started, start game with this action
         if (game.hasStarted == false) {
-            index = game.players.length;
+            game.players.push({ discordUser: discordUser });
+            index = game.players.length - 1;
+            game.myIndex = index;
+
+            game.start();
         }
     }
 
-    game.actionModels[type](new Action(type, data, index), game).then(function (result) {
-        if (result) {
-            emitAction(type, data);
-        }
-    });
+    var success = await game.actionModels[type](new Action(type, data, index), game);
+    if (!success) {
+        return;
+    }
+
+    if (game.clientActionModels[type]) {
+        var success = await game.clientActionModels[type](new Action(type, data, index), game);
+
+        if (!success) return;
+    }
+
+    emitAction(type, data);
 }
 
-function connect(callback) {
+function connect(gameId, callback) {
     socket.emit('connect_socket', {
         gameId: gameId
     }, (response) => {
@@ -109,7 +130,19 @@ function connect(callback) {
 
         utils.setUpGame(game);
 
-        callback(game);
+        discordUser = response.discordUser;
+
+        callback({
+            game, discordUser
+        });
     });
 }
 
+export {
+    socket,
+    Action,
+    utils,
+    emitAction,
+    runAction,
+    connect
+}

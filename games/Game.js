@@ -45,6 +45,8 @@ class Game {
         // manipulate game data, whether it be server or client data
         // return game, or `false` if action was unsuccesful
         // }
+        this.serverActionModels = {};
+        this.clientActionModels = {};
 
         this.client = {
             eventHandlers: {},
@@ -87,8 +89,14 @@ class Game {
     setChannel(channel) {
         this.channel = channel;
     }
-    setActionModel(action, model) {
-        this.actionModels[action] = model;
+    setActionModel(action, model, side) {
+        if (side == 'client') {
+            this.clientActionModels[action] = model;
+        } else if (side == 'server') {
+            this.serverActionModels[action] = model;
+        } else {
+            this.actionModels[action] = model;
+        }
     }
     getURL() {
         return process.env.BASE_URL + "/game/" + this.id;
@@ -143,6 +151,17 @@ class Game {
                 // action failed
 
                 return;
+            }
+
+            var serverActionModel = this.serverActionModels[action.type];
+            if (serverActionModel) {
+                var successful = await serverActionModel(action, this);
+
+                if (!successful) {
+                    // action failed
+    
+                    return;
+                }
             }
         }
 
@@ -202,7 +221,7 @@ class Game {
 
         this.emit('end', result);
 
-        this.broadcastToAllSockets('end', result, this.getDataForClient());
+        this.broadcastToAllSockets('end', true, result, this.turns[this.turns.length - 1]);
     }
     async doesUserHavePermission(id) {
         var members = this.guild.members;
@@ -292,13 +311,17 @@ class Game {
         var socket = this.sockets[player.id];
 
         if (socket) {
-            socket.emit('turn', this.turns[this.turns.length - 1].getDataForClient(), this.getDataForClient(player.id));
+            socket.emit('turn', this.getDataForClient(player.id), this.turns[this.turns.length - 1].getDataForClient());
         }
     }
 
-    broadcastToAllSockets(event, ...args) {
+    broadcastToAllSockets(event, broadcastGame, ...args) {
         for (let key in this.sockets) {
-            this.sockets[key].emit(event, ...args);
+            if (broadcastGame) {
+                this.sockets[key].emit(event, this.getDataForClient(key), ...args);
+            } else {
+                this.sockets[key].emit(event, undefined, ...args);
+            }
         }
     }
 
@@ -320,11 +343,15 @@ class Game {
             turns: this.turns.getDataForClient(),
             client: this.client.getDataForClient(),
             actionModels: {},
+            clientActionModels: {},
             winner: this.winner,
             hasEnded: this.hasEnded,
         };
         for (let key in this.actionModels) {
             game.actionModels[key] = this.actionModels[key].toString();
+        }
+        for (let key in this.clientActionModels) {
+            game.clientActionModels[key] = this.clientActionModels[key].toString();
         }
 
         return game;
