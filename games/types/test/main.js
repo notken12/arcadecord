@@ -1,6 +1,6 @@
 //create game for test
 
-const Game = require('../Game');
+const Game = require('../../Game');
 
 const options = {
     name: 'Test game',
@@ -37,7 +37,7 @@ class TestGame extends Game {
             }
         });
 
-        this.setActionModel('increase_score', async (action, game) => {
+        this.setActionModel('increase_score', async (game, action) => {
 
             game.data.scores[action.playerIndex]++;
             game.client.emit('score_increased', game.data.scores[action.playerIndex]);
@@ -54,7 +54,7 @@ class TestGame extends Game {
             //this.channel.send(`${player.discordUser.username}#${player.discordUser.discriminator} increased score to ${this.data.scores[action.playerIndex]}`);
         });
 
-        this.setActionModel('end_turn', async (action, game) => {
+        this.setActionModel('end_turn', async (game, action) => {
 
             game.endTurn();
             game.client.emit('turn_ended');

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+
+    <link rel="stylesheet" href="/public/css/games/tictactoe.css">
+</head>
+
+<body>
+    <div id="whos_turn"></div>
+
+    <div id="board">
+        <div class="row">
+            <div class="square" id="s0_0"></div>
+            <div class="square" id="s0_1"></div>
+            <div class="square" id="s0_2"></div>
+        </div>
+        <div class="row">
+            <div class="square" id="s1_0"></div>
+            <div class="square" id="s1_1"></div>
+            <div class="square" id="s1_2"></div>
+        </div>
+        <div class="row">
+            <div class="square" id="s2_0"></div>
+            <div class="square" id="s2_1"></div>
+            <div class="square" id="s2_2"></div>
+        </div>
+    </div>
+
+    <div id="result"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/client-framework.js" type="module"></script>
+    <script src="/public/js/games/tictactoe.js" type="module"></script>
+</body>
+
+</html>

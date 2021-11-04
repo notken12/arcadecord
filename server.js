@@ -127,6 +127,12 @@ app.get('/auth', (req, res) => {
   });
 });
 
+app.use('/gamecommons', async (req, res) => {
+  var id = req.path.split('/')[1];
+
+  res.sendFile(__dirname + '/games/types/' + id + '/common.js');
+});
+
 //user is accessing game
 app.use('/game', async (req, res) => {
   var id = req.path.substring(1, req.path.length);

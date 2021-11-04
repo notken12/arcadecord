@@ -1,0 +1,34 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.square {
+    width: 64px;
+    height: 64px;
+    border: 2px black solid;
+    cursor: pointer;
+    font-size: 48px;
+    text-align: center;
+    line-height: 64px;
+}
+
+.x {
+    color: red;
+}
+
+.o {
+    color: blue;
+}
+
+#board>*:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.row>*:not(:last-child) {
+    margin-right: 8px;
+}

@@ -68,7 +68,7 @@ class Game {
                     on: this.on.toString(),
                 };
             }
-        }; // event management, just for client. used for updating ui
+        }; // event management, just for client. used for updating ui. copy of this can be found in client-framework.js
 
         this.turns.getDataForClient = function () {
             var data = [];
@@ -129,7 +129,7 @@ class Game {
             }
         }
 
-        if (this.turn != action.playerIndex) return;
+        if (this.turn !== action.playerIndex) return;
 
         if (this.turns.length == 0) {
             // first turn
@@ -145,7 +145,7 @@ class Game {
         // run action
         var actionModel = this.actionModels[action.type];
         if (actionModel) {
-            var successful = await actionModel(action, this);
+            var successful = await actionModel(this, action);
 
             if (!successful) {
                 // action failed
@@ -155,7 +155,7 @@ class Game {
 
             var serverActionModel = this.serverActionModels[action.type];
             if (serverActionModel) {
-                var successful = await serverActionModel(action, this);
+                var successful = await serverActionModel(this, action);
 
                 if (!successful) {
                     // action failed
@@ -303,9 +303,10 @@ class Game {
     endTurn() {
         if (this.hasEnded) return;
 
-        this.emit('end_turn');
 
         this.turn = (this.turn + 1) % this.players.length;
+
+        this.emit('turn');
 
         var player = this.players[this.turn];
         var socket = this.sockets[player.id];
@@ -337,7 +338,6 @@ class Game {
             minPlayers: this.minPlayers,
             turn: this.turn,
             data: this.data,
-            isItMyTurn: this.isItUsersTurn(userId),
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
             turns: this.turns.getDataForClient(),
@@ -346,12 +346,13 @@ class Game {
             clientActionModels: {},
             winner: this.winner,
             hasEnded: this.hasEnded,
+            typeId: this.typeId,
         };
         for (let key in this.actionModels) {
-            game.actionModels[key] = this.actionModels[key].toString();
+            game.actionModels[key] = this.actionModels[key].name;
         }
         for (let key in this.clientActionModels) {
-            game.clientActionModels[key] = this.clientActionModels[key].toString();
+            game.clientActionModels[key] = this.clientActionModels[key].name;
         }
 
         return game;

@@ -1,8 +1,8 @@
 const fs = require('fs');
 
-const gameFiles = fs.readdirSync(__dirname + '/types').filter(file => file.endsWith('.js'));
+const gameFolders = fs.readdirSync(__dirname + '/types');
 
-for (const file of gameFiles) {
-    const game = require(`./types/${file}`);
+for (const folder of gameFolders) {
+    const game = require(`./types/${folder}/main`);
     exports[game.options.typeId] = game;
 }
