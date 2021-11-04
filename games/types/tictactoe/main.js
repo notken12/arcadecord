@@ -16,14 +16,13 @@ var options = {
             [null, null, null],
             [null, null, null]
         ]
-    }
+    },
+    emoji: '#️⃣'
 };
 
 class TicTacToeGame extends Game {
     constructor() {
         super(options);
-
-        this.setActionModel('select', Common.select);
 
         this.setActionModel('place', Common.place);
 
@@ -32,12 +31,9 @@ class TicTacToeGame extends Game {
 
         //     this.channel.send(`<@${player.discordUser.id}> placed on (${action.data.row}, ${action.data.col})`);
         // });
+        this.on('init', Game.eventHandlersDiscord.init.bind(this));
 
-        this.on('turn', () => {
-            var player = this.players[this.turn];
-
-            this.channel.send(`<@${player.discordUser.id}>, it's your turn!`);
-        });
+        this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
 
         this.on('end', () => {
             var winner = this.players[this.winner];

@@ -33,6 +33,8 @@ class Game {
         this.sockets = {};
         this.hasStarted = false;
         this.hasEnded = false;
+        this.lastTurnInvite = null;
+        this.startMessage = null;
         this.winner = null; // will be set to player index
         this.data = {}; // game position, scores, etc
         this.turns = []; // all past turns taken by players
@@ -159,7 +161,7 @@ class Game {
 
                 if (!successful) {
                     // action failed
-    
+
                     return;
                 }
             }
@@ -181,19 +183,6 @@ class Game {
         this.emit('join', player);
 
         return true;
-    }
-    getStartMessage() {
-        var embed = new MessageEmbed()
-            .setTitle(this.name)
-            .setDescription(this.description)
-            .setColor(this.color || '#0099ff');
-        var startGameButton = new MessageButton()
-            .setLabel('Play')
-            .setStyle('LINK')
-            .setURL(this.getURL());
-
-        var row = new MessageActionRow().addComponents([startGameButton]);
-        return { embeds: [embed], components: [row] };
     }
     init() {
         gamesManager.addGame(this);
@@ -356,6 +345,62 @@ class Game {
         }
 
         return game;
+    }
+}
+
+Game.eventHandlersDiscord = {
+    init: async function () {
+        var embed = new MessageEmbed()
+            .setTitle(this.name)
+            .setDescription(this.description)
+            .setColor(this.color || '#0099ff');
+        var startGameButton = new MessageButton()
+            .setLabel('Play')
+            .setStyle('LINK')
+            .setURL(this.getURL());
+
+        var row = new MessageActionRow().addComponents([startGameButton]);
+        var message =  { embeds: [embed], components: [row] };
+        this.startMessage = await this.channel.send(message);
+    },
+    turn: async function () {
+        if (this.startMessage) {
+            this.startMessage.delete().catch(() => {});
+        }
+        if (this.lastTurnInvite) {
+            this.lastTurnInvite.delete();
+        }
+
+        var lastPlayer = this.turns[this.turns.length - 1].playerIndex;
+
+        var m = {
+            content: `<@${this.players[lastPlayer].discordUser.id}>: *${this.emoji + ' ' || ''}${this.name}*`,
+            allowedMentions: {
+                parse: [],
+            }
+        }
+
+        this.channel.send(m);
+
+        var embed = new MessageEmbed()
+        .setTitle(this.name)
+        .setDescription(`Your turn, <@${this.players[this.turn].discordUser.id}>`)
+        .setColor(this.color || '#0099ff');
+
+        var button = new MessageButton()
+        .setLabel('Play')
+        .setStyle('LINK')
+        .setURL(this.getURL());
+
+        var row = new MessageActionRow().addComponents([button]);
+
+        var invite = {
+            embeds: [embed], 
+            components: [row],
+        }
+
+        var message = await this.channel.send(invite);
+        this.lastTurnInvite = message;
     }
 }
 

@@ -4,18 +4,30 @@ import '/gamecommons/tictactoe';
 
 var el = {
     spaces: [[], [], []],
-    whosTurn: document.querySelector('#whos_turn'),
+    contentSpaces: [[], [], []],
+    selectionSpaces: [[], [], []],
+    whosTurn: document.querySelector('#whos-turn'),
     result: document.querySelector('#result'),
+    buttons: {
+        place: document.querySelector('#place'),
+    }
 };
 
 var game;
+var selected = {
+    row: null,
+    col: null,
+};
 
 for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
         el.spaces[i][j] = document.querySelector(`#s${i}_${j}`);
         el.spaces[i][j].addEventListener('click', function (e) {
-            Client.runAction(game, 'place', {row: i, col: j});
+            select(i, j);
         });
+
+        el.contentSpaces[i][j] = el.spaces[i][j].querySelector('.square-content');
+        el.selectionSpaces[i][j] = el.spaces[i][j].querySelector('.square-selection');
     }
 }
 
@@ -23,7 +35,7 @@ function updateUI(game) {
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
             var space = game.data.board[i][j];
-            var elSpace = el.spaces[i][j];
+            var elSpace = el.contentSpaces[i][j];
 
             if (space === Common.SpaceValue.X) {
                 elSpace.innerText = 'X';
@@ -57,6 +69,48 @@ function updateUI(game) {
             el.whosTurn.innerText = `It is ${opponent.discordUser.username}#${opponent.discordUser.discriminator}'s turn`;
         }
     }
+
+    if (game.winner !== null && game.winner !== undefined) {
+        if (game.winner != -1) {
+            var winner = game.players[game.winner];
+            el.result.innerText = `${winner.discordUser.username}#${winner.discordUser.discriminator} won!`;
+        } else {
+            el.result.innerText = 'Draw!';
+        }
+    }
+}
+
+function select(row, col) {
+    if (game.data.board[row][col] !== null || !game.isItMyTurn()) {
+        return false;
+    } else {
+        if (selected.row !== null && selected.col !== null) {
+            var lastSpace = el.selectionSpaces[selected.row][selected.col];
+            lastSpace.classList.remove('selected');
+
+            if (selected.row === row && selected.col === col) {
+                selected.row = null;
+                selected.col = null;
+
+                el.buttons.place.disabled = true;
+                return;
+            }
+        }
+
+        selected = {
+            row, col
+        };
+
+        var space = el.selectionSpaces[row][col];
+        space.innerText = game.myIndex === Common.SpaceValue.X ? 'X' : 'O';
+        space.classList.add(game.myIndex === Common.SpaceValue.X ? 'x' : 'o');
+        space.classList.remove(game.myIndex === Common.SpaceValue.X ? 'o' : 'x');
+        space.classList.add('selected');
+
+        el.buttons.place.disabled = false;
+
+        return true;
+    }
 }
 
 function connectionCallback(response) {
@@ -65,9 +119,16 @@ function connectionCallback(response) {
     updateUI(game);
 
     game.client.on('place', (game, row, col) => {
-        el.spaces[row][col].innerText = game.myIndex === Common.SpaceValue.X ? 'X' : 'O';
-        el.spaces[row][col].classList.remove(game.myIndex === Common.SpaceValue.X ? 'o' : 'x');
-        el.spaces[row][col].classList.add(game.myIndex === Common.SpaceValue.X ? 'x' : 'o');
+        var space = el.contentSpaces[row][col];
+
+        space.innerText = game.myIndex === Common.SpaceValue.X ? 'X' : 'O';
+        space.classList.remove(game.myIndex === Common.SpaceValue.X ? 'o' : 'x');
+        space.classList.add(game.myIndex === Common.SpaceValue.X ? 'x' : 'o');
+
+        if (selected.row !== null && selected.col !== null) {
+            var selectionSpace = el.selectionSpaces[selected.row][selected.col];
+            selectionSpace.classList.remove('selected');
+        }
     });
 
     game.client.on('end_turn', () => {
@@ -76,7 +137,14 @@ function connectionCallback(response) {
             el.whosTurn.innerText = `It is ${opponent.discordUser.username}#${opponent.discordUser.discriminator}'s turn`;
         }
     });
+
 }
+
+el.buttons.place.addEventListener('click', function (e) {
+    if (selected.row !== null && selected.col !== null) {
+        Client.runAction(game, 'place', { row: selected.row, col: selected.col });
+    }
+});
 
 Client.socket.on('turn', (g, turn) => {
     Client.utils.updateGame(game, g);

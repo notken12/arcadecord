@@ -35,7 +35,6 @@ module.exports = {
             game.init();
 
             interaction.update({components: [], content: `${game.name} created`});
-            interaction.channel.send(game.getStartMessage());
         }
     }
 }

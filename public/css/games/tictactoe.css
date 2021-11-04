@@ -2,6 +2,10 @@ body {
     font-family: 'Courier New', Courier, monospace;
 }
 
+#board {
+    margin: auto;
+}
+
 .row {
     display: flex;
     flex-direction: row;
@@ -13,8 +17,29 @@ body {
     border: 2px black solid;
     cursor: pointer;
     font-size: 48px;
+    font-weight: bold;
     text-align: center;
     line-height: 64px;
+    display: grid; /* important for positioning selection */
+    user-select: none;
+}
+
+.square-content {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.square-selection {
+    grid-row: 1;
+    grid-column: 1;
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+    text-shadow: 0 0 6px #0077ff;
+}
+
+.square-selection.selected {
+    opacity: 1;
+    animation: pulsing 2s infinite ease-in-out;
 }
 
 .x {
@@ -31,4 +56,16 @@ body {
 
 .row>*:not(:last-child) {
     margin-right: 8px;
+}
+
+@keyframes pulsing {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }

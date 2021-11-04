@@ -62,20 +62,6 @@ async function place(game, action) {
     }
 };
 
-async function select(game, action) {
-    var board = game.data.board;
-
-    var row = action.data.row;
-    var col = action.data.col;
-
-    if (board[row][col] !== null) {
-        return false;
-    } else {
-        game.client.emit('select', game, row, col);
-        return game;
-    }
-}
-
 const SpaceValue = {
     X: 0,
     O: 1
@@ -83,7 +69,6 @@ const SpaceValue = {
 
 var exports = {
     place: place,
-    select: select,
     SpaceValue: SpaceValue
 };
 
