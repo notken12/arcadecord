@@ -1,4 +1,4 @@
-const { SnowflakeUtil } = require('discord.js');
+const { SnowflakeUtil, MessageAttachment } = require('discord.js');
 const dotenv = require('dotenv');
 const gamesManager = require('./gamesManager');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
@@ -315,6 +315,10 @@ class Game {
         }
     }
 
+    getImage() {
+        
+    }
+
     getDataForClient(userId) {
         var game = {
             id: this.id,
@@ -361,6 +365,16 @@ Game.eventHandlersDiscord = {
 
         var row = new MessageActionRow().addComponents([startGameButton]);
         var message =  { embeds: [embed], components: [row] };
+
+        var image = await this.getThumbnail();
+        if (image) {
+            const attachment = new MessageAttachment(image, 'thumbnail.png');
+
+            embed.setImage(`attachment://thumbnail.png`);
+
+            message.files = [attachment];
+        }
+
         this.startMessage = await this.channel.send(message);
     },
     turn: async function () {
@@ -384,8 +398,11 @@ Game.eventHandlersDiscord = {
 
         var embed = new MessageEmbed()
         .setTitle(this.name)
-        .setDescription(`Your turn, <@${this.players[this.turn].discordUser.id}>`)
-        .setColor(this.color || '#0099ff');
+        //.setDescription(`Your turn, <@${this.players[this.turn].discordUser.id}>`)
+        .setColor(this.color || '#0099ff')
+        .setURL(this.getURL());
+
+
 
         var button = new MessageButton()
         .setLabel('Play')
@@ -395,13 +412,28 @@ Game.eventHandlersDiscord = {
         var row = new MessageActionRow().addComponents([button]);
 
         var invite = {
+            content: `Your turn, <@${this.players[this.turn].discordUser.id}>`,
             embeds: [embed], 
             components: [row],
+        };
+
+        var image = await this.getThumbnail();
+        if (image) {
+            const attachment = new MessageAttachment(image, 'thumbnail.png');
+
+            embed.setImage(`attachment://thumbnail.png`);
+
+            invite.files = [attachment];
         }
 
         var message = await this.channel.send(invite);
         this.lastTurnInvite = message;
     }
 }
+
+Game.thumbnailDimensions = {
+    width: 400,
+    height: 300,
+};
 
 module.exports = Game;

@@ -2,6 +2,7 @@
 
 const Game = require('../../Game');
 const Common = require('./common');
+const Canvas = require('canvas');
 
 var options = {
     name: 'Tic-Tac-Toe',
@@ -44,6 +45,33 @@ class TicTacToeGame extends Game {
                 this.channel.send('It\'s a draw!');
             }
         });
+
+        this.getThumbnail = async function () {
+            const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const background = await Canvas.loadImage(__dirname + '/images/thumbnail-bg.png');
+            ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+            var board = this.data.board;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    if (board[i][j] !== null) {
+                        var symbol = board[i][j] === 0 ? 'x' : 'o';
+                        var image = await Canvas.loadImage(__dirname + '/images/' + symbol + '.png');
+
+                        var x = Game.thumbnailDimensions.width / 2 + (j - 1) * 80 - image.width / 2;
+                        var y = Game.thumbnailDimensions.height / 2 + (i - 1) * 80 - image.height / 2;
+                        ctx.drawImage(image, x, y, image.width, image.height);
+                    }
+                }
+            }
+
+            return canvas.toBuffer();
+        }
     }
 }
 
