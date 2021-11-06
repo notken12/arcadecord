@@ -133,6 +133,16 @@ app.use('/gamecommons', async (req, res) => {
   res.sendFile(__dirname + '/games/types/' + id + '/common.js');
 });
 
+app.use('/gameassets', async (req, res) => {
+  var path = req.path.split('/');
+  path.shift();
+
+  var id = path[0];
+
+  path.shift();
+  res.sendFile(__dirname + '/games/types/' + id + '/assets/' + path.join('/'));
+});
+
 //user is accessing game
 app.use('/game', async (req, res) => {
   var id = req.path.substring(1, req.path.length);
@@ -161,7 +171,7 @@ app.use('/game', async (req, res) => {
 
         if (status) {
           //user has permission to join
-          res.sendFile(__dirname + '/html/games/' + game.typeId + '.html');
+          res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
         } else {
           res.send('you have no permission to join');
         }

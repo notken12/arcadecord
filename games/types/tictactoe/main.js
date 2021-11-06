@@ -53,7 +53,7 @@ class TicTacToeGame extends Game {
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const background = await Canvas.loadImage(__dirname + '/images/thumbnail-bg.png');
+            const background = await Canvas.loadImage(__dirname + '/assets/thumbnail-bg.png');
             ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
             var board = this.data.board;
@@ -61,7 +61,7 @@ class TicTacToeGame extends Game {
                 for (var j = 0; j < 3; j++) {
                     if (board[i][j] !== null) {
                         var symbol = board[i][j] === 0 ? 'x' : 'o';
-                        var image = await Canvas.loadImage(__dirname + '/images/' + symbol + '.png');
+                        var image = await Canvas.loadImage(__dirname + '/assets/' + symbol + '.png');
 
                         var x = Game.thumbnailDimensions.width / 2 + (j - 1) * 80 - image.width / 2;
                         var y = Game.thumbnailDimensions.height / 2 + (i - 1) * 80 - image.height / 2;

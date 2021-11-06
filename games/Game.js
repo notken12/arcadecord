@@ -146,6 +146,8 @@ class Game {
 
         // run action
         var actionModel = this.actionModels[action.type];
+
+        var actionResult = {};
         if (actionModel) {
             var successful = await actionModel(this, action);
 
@@ -157,13 +159,27 @@ class Game {
 
             var serverActionModel = this.serverActionModels[action.type];
             if (serverActionModel) {
-                var successful = await serverActionModel(this, action);
+                var previousData = cloneDeep(this.data);
+                var response = await serverActionModel(this, action);
 
-                if (!successful) {
+                if (!response) {
                     // action failed
 
                     return;
+                } else {
+                    if (typeof response[1] == 'object') {
+                        actionResult = response[1];
+                        actionResult.successful = true;
+                    } else {
+                        actionResult = {
+                            successful: true,
+                            changes: this.getChanges(previousData, this.data)// changes between game data before and after action
+                        };
+                    }
                 }
+                
+
+                
             }
         }
 
@@ -172,6 +188,8 @@ class Game {
                 callback(action);
             }
         }
+
+        return actionResult;
     }
     async addPlayer(id) {
         if (!(await this.canUserJoin(id))) return false;
@@ -283,9 +301,10 @@ class Game {
         }
         this.sockets[userId] = socket;
         socket.join('game:' + this.id);
-        socket.on('action', (type, data) => {
+        socket.on('action', async (type, data, callback) => {
             var action = new Action(type, userId, data, this);
-            this.handleAction(action);
+            var result = await this.handleAction(action);
+            callback(result);
         });
 
     }
@@ -317,6 +336,16 @@ class Game {
 
     getImage() {
         
+    }
+
+    getChanges(oldData, newData) {
+        var changes = {};
+        for (let key in newData) {
+            if (oldData[key] !== newData[key]) {
+                changes[key] = newData[key];
+            }
+        }
+        return changes;
     }
 
     getDataForClient(userId) {
@@ -366,14 +395,17 @@ Game.eventHandlersDiscord = {
         var row = new MessageActionRow().addComponents([startGameButton]);
         var message =  { embeds: [embed], components: [row] };
 
-        var image = await this.getThumbnail();
-        if (image) {
-            const attachment = new MessageAttachment(image, 'thumbnail.png');
-
-            embed.setImage(`attachment://thumbnail.png`);
-
-            message.files = [attachment];
+        if (typeof(this.getThumbnail) == 'function') {
+            var image = await this.getThumbnail();
+            if (image) {
+                const attachment = new MessageAttachment(image, 'thumbnail.png');
+    
+                embed.setImage(`attachment://thumbnail.png`);
+    
+                message.files = [attachment];
+            }
         }
+
 
         this.startMessage = await this.channel.send(message);
     },

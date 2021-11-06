@@ -116,6 +116,10 @@ function select(row, col) {
 function connectionCallback(response) {
     game = response.game;
 
+    
+
+    app.stage.addChild(line1, line2, line3, line4);
+
     updateUI(game);
 
     game.client.on('place', (game, row, col) => {
