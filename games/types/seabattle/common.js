@@ -52,7 +52,7 @@ function placeShips(game, action) {
 
 function shoot(game, action) {
     var playerIndex = action.playerIndex;
-    var board = game.data.visibleBoards[playerIndex];
+    var board = game.data.hitBoards[playerIndex];
     var x = action.x;
     var y = action.y;
     

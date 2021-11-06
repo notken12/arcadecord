@@ -17,8 +17,9 @@ class Board {
 
         // add ships
         for (var j = 0; j < Common.SHIP_TYPES.length; j++) {
-            var ship = new Ship(i, Common.SHIP_LENGTHS[j]);
-            this.availableShips.push(ship);
+            for (var k = 0; k < Common.SHIP_QUANTITIES[j]; k++) {
+                this.availableShips.push(new Ship(i, Common.SHIP_LENGTHS[j]));
+            }
         }
 
         this.ships = [];
@@ -58,7 +59,7 @@ const options = {
     maxPlayers: 2,
     minPlayers: 2,
     data: {
-        visibleBoards: [
+        hitBoards: [ // the map of hits and misses
             new Board(0, 10, 10),
             new Board(1, 10, 10)
         ],
@@ -101,7 +102,7 @@ class SeaBattleGame extends Game {
 
         this.setActionModel('shoot', (game, action) => {
             var board = boards[action.playerIndex + 1 % game.players.length];
-            var visibleBoard = game.data.visibleBoards[action.playerIndex];
+            var hitBoard = game.data.hitBoards[action.playerIndex];
 
             var result = {};
         
@@ -113,7 +114,7 @@ class SeaBattleGame extends Game {
             var y = action.y;
             
             if (board[x][y] == BOARD_STATE_SHIP) {
-                visibleBoard.cells[x][y] = BOARD_STATE_HIT;
+                hitBoard.cells[x][y] = BOARD_STATE_HIT;
 
                 // get ship at x, y
                 var ship = this.getShipAt(board, x, y);
@@ -134,12 +135,12 @@ class SeaBattleGame extends Game {
                     }
                 }
             } else {
-                visibleBoard.cells[x][y] = BOARD_STATE_MISS;
+                hitBoard.cells[x][y] = BOARD_STATE_MISS;
             }
 
             result.x = x;
             result.y = y;
-            result.state = visibleBoard.cells[x][y];
+            result.state = hitBoard.cells[x][y];
         
             return [game, changes];
         }, 'server');
