@@ -11,7 +11,16 @@
 <body>
 
     <div id="game-canvas"></div>
+
+    <div id="ship-placer" v-cloak>
+        <div class="ship-placer-container" :style="styles">
+            <placed-ship v-for="ship in ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
+        </div>
+
+    </div>
     
+    <!--vue.js cdn-->
+    <script src="https://unpkg.com/vue@next"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/konva@8/konva.min.js"></script>
     <script src="/public/js/games/seabattle.js" type="module"></script>

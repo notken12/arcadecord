@@ -1,3 +1,26 @@
 body {
     margin: 0;
 }
+
+#ship-placer-container {
+    position: relative;
+}
+
+.placed-ship-image {
+    position: absolute;
+    border: 1px dotted blue;
+}
+
+.placed-ship-bounding-box {
+    position: absolute;
+    border: 1px dotted red;
+    opacity: 0;
+}
+
+.ship-placer-container {
+    border: 1px solid black;
+}
+
+[v-cloak] {
+    display: none;
+}

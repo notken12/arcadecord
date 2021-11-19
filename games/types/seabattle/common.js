@@ -1,11 +1,12 @@
 const SHIP_DIRECTION_HORIZONTAL = 0;
 const SHIP_DIRECTION_VERTICAL = 1;
-const SHIP_TYPES = ['Carrier', 'Battleship', 'Cruiser', 'Destroyer', 'Submarine'];
-const SHIP_LENGTHS = [1, 2, 3, 4, 5];
-const SHIP_QUANTITIES = [3, 3, 2, 2, 1];
+const SHIP_TYPES = ['Carrier', 'Battleship', 'Cruiser', 'Destroyer'];
+const SHIP_LENGTHS = [4, 3, 2, 1];
+const SHIP_QUANTITIES = [1, 2, 3, 4];
 
 const BOARD_STATE_EMPTY = 0;
 const BOARD_STATE_SHIP = 1;
+const CELL_SIZE = 40;
 
 function setShipsForBoard(board, ships) {
     for (var i = 0; i < ships.length; i++) {
@@ -72,6 +73,7 @@ var exports = {
     SHIP_QUANTITIES,
     BOARD_STATE_EMPTY,
     BOARD_STATE_SHIP,
+    CELL_SIZE,
     placeShips,
     shoot
 };
