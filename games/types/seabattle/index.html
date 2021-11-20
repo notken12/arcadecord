@@ -10,7 +10,12 @@
 </head>
 <body>
 
-    <div id="game-canvas"></div>
+
+    <div id="players-container" v-cloak>
+        <div v-for="player in players" :key="player.discordUser.id" class="player">
+            <div class="player-name">{{player.discordUser.username}}#{{player.discordUser.discriminator}}</div>
+        </div>
+    </div>
 
     <div id="ship-placer" v-cloak>
         <div class="ship-placer-container" :style="styles">
@@ -18,6 +23,7 @@
         </div>
 
     </div>
+    <div id="game-canvas"></div>
     
     <!--vue.js cdn-->
     <script src="https://unpkg.com/vue@next"></script>

@@ -1,5 +1,21 @@
 body {
     margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#players-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#ship-placer {
+    display: flex;
+    justify-content: center;
 }
 
 .ship-placer-container {

@@ -227,6 +227,16 @@ function connectionCallback(response) {
     console.log(ships);
     console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
 
+    const PlayersView = {
+        data() {
+            return {
+                players: game.players,
+            }
+        }
+    };
+
+    var playersView = Vue.createApp(PlayersView);
+    playersView.mount(document.querySelector('#players-container'));
 
     const ShipPlacer = {
         data() {
