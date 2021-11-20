@@ -18,7 +18,7 @@ class Board {
         // add ships
         for (var j = 0; j < Common.SHIP_TYPES.length; j++) {
             for (var k = 0; k < Common.SHIP_QUANTITIES[j]; k++) {
-                this.availableShips.push(new Ship(i, Common.SHIP_LENGTHS[j], undefined, Common.SHIP_TYPES[j]));
+                this.availableShips.push(new Ship(j + '_' + k, i, Common.SHIP_LENGTHS[j], undefined, Common.SHIP_TYPES[j]));
             }
         }
 
@@ -37,7 +37,8 @@ class Board {
 }
 
 class Ship {
-    constructor (playerIndex, length, direction, type, x, y) {
+    constructor (id, playerIndex, length, direction, type, x, y) {
+        this.id = id;
         this.playerIndex = playerIndex;
         this.x = x || 0;
         this.y = y || 0;

@@ -2,23 +2,23 @@ body {
     margin: 0;
 }
 
-#ship-placer-container {
+.ship-placer-container {
     position: relative;
+    border: 1px solid black;
+    background-image:
+        repeating-linear-gradient(#ccc 0 1px, transparent 1px 100%),
+        repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%);
 }
 
 .placed-ship-image {
     position: absolute;
-    border: 1px dotted blue;
+    transition: top 0.2s, left 0.2s;
 }
 
 .placed-ship-bounding-box {
     position: absolute;
     border: 1px dotted red;
     opacity: 0;
-}
-
-.ship-placer-container {
-    border: 1px solid black;
 }
 
 [v-cloak] {
