@@ -93,7 +93,7 @@ function isBoardValid(board, distance) {
 
         // check if ship is inside the board
         if (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL) {
-            if (ship.x < 0 || ship.x + ship.length > board.width || ship.y < 0)
+            if (ship.x < 0 || ship.x + ship.length > board.width || ship.y < 0 || ship.y >= board.height)
                 return false;
         } else {
             if (ship.x < 0 || ship.x >= board.width || ship.y < 0 || ship.y + ship.length > board.height)

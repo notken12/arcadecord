@@ -6,8 +6,8 @@ body {
     position: relative;
     border: 1px solid black;
     background-image:
-        repeating-linear-gradient(#ccc 0 1px, transparent 1px 100%),
-        repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%);
+        repeating-linear-gradient(rgba(0, 89, 255, 0.342) 0 1px, transparent 1px 100%),
+        repeating-linear-gradient(90deg, rgba(0, 89, 255, 0.342) 0 1px, transparent 1px 100%);
 }
 
 .placed-ship-image {
