@@ -47,7 +47,7 @@ function ShipPlacementBoard(width, height) {
 function isValidPosition(board, ship, x, y, direction, distance) {
     // create a bounding box for the ship that extends 1 tile out
     if (distance === undefined)
-        distance = 1;
+        distance = 0;
 
     let x1 = x - distance;
     let y1 = y - distance;
@@ -91,13 +91,26 @@ function isBoardValid(board, distance) {
     for (let i = 0; i < board.ships.length; i++) {
         let ship = board.ships[i];
 
+        // check if ship is inside the board
+        if (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL) {
+            if (ship.x < 0 || ship.x + ship.length > board.width || ship.y < 0)
+                return false;
+        } else {
+            if (ship.x < 0 || ship.x >= board.width || ship.y < 0 || ship.y + ship.length > board.height)
+                return false;
+        }
+        // check if ship is overlapping
         let excludingShip = board.WithoutShip(ship);
+
         let valid = isValidPosition(excludingShip, ship, ship.x, ship.y, ship.direction, distance);
+
+
         if (!valid)
             return false;
     }
     return true;
 }
+
 
 function GetValidPositions(board, ship, direction) {
     let maxX = direction == Common.SHIP_DIRECTION_HORIZONTAL ? board.width - ship.length : board.width - 1;
@@ -176,11 +189,15 @@ function connectionCallback(response) {
     var dragTarget = null;
     var initialDragTargetPosition = null;
     var dragOffset = {};
+    var targetMoved = false;
+    var lastMove = {};
 
     document.addEventListener('mouseup', function (e) {
+
         mouseIsDown = false;
         mouseLandingPoint = {};
-    }, true);
+        targetMoved = false;
+    });
 
     var shipPlacerEl = document.querySelector('.ship-placer-container');
 
@@ -188,32 +205,27 @@ function connectionCallback(response) {
         e.preventDefault();
 
         if (mouseIsDown && dragTarget != null) {
-            var offsetX = e.clientX - mouseLandingPoint.x;
-            var offsetY = e.clientY - mouseLandingPoint.y;
-
-            var shipOffsetX = Math.floor(offsetX / Common.CELL_SIZE);
-            var shipOffsetY = Math.floor(offsetY / Common.CELL_SIZE);
-
             var bb = shipPlacerEl.getBoundingClientRect();
 
             // get nearest tile
             var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE);
             var nearestY = Math.floor((e.clientY - bb.top) / Common.CELL_SIZE);
-
-            var newX = initialDragTargetPosition.x + shipOffsetX;
-            var newY = initialDragTargetPosition.y + shipOffsetY;
-
-            console.log(nearestX, nearestY);
-
-            dragTarget.move({ x: nearestX - dragOffset.x, y: nearestY - dragOffset.y });
+            
+            if (lastMove.x != nearestX || lastMove.y != nearestY) {
+                dragTarget.move({ x: nearestX - dragOffset.x, y: nearestY - dragOffset.y });
+            }
+            lastMove = { x: nearestX, y: nearestY };
         }
-    }, true)
+    }, true);
 
     var myHitBoard = getMyHitBoard(game);
 
     var board = new ShipPlacementBoard(myHitBoard.width, myHitBoard.height);
+    var t1 = performance.now();
     var ships = PlaceShips(myHitBoard.availableShips, board);
+    var t2 = performance.now();
     console.log(ships);
+    console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
 
 
     const ShipPlacer = {
@@ -240,18 +252,28 @@ function connectionCallback(response) {
         props: ['ship', 'game'],
         template: `
             <div class="placed-ship">
-                <img :style="imgStyles" :src="imageURL" class="placed-ship-image" @mousedown="mousedown($event)"/>
-                <div class="placed-ship-bounding-box"></div>
+                <div class="placed-ship-bounding-box" :style="boundingBoxStyles"></div>
+                <img :style="imgStyles" :src="imageURL" class="placed-ship-image" @mousedown="mousedown($event)" @mouseup="mouseup($event)"/>
             </div>`,
         data() {
             var ship = this.ship;
             return {
-
             }
         },
         computed: {
-            styles() {
+            boundingBox() {
+                var ship = this.ship;
+                var x1 = ship.x - 1;
+                var y1 = ship.y - 1;
+                var x2 = ship.x + ship.length;
+                var y2 = ship.y + 1;
 
+                if (ship.direction == Common.SHIP_DIRECTION_VERTICAL) {
+                    x2 = ship.x + 1;
+                    y2 = ship.y + ship.length;
+                }
+
+                return { x1, y1, x2, y2 };
             },
             imgStyles() {
                 var ship = this.ship;
@@ -275,13 +297,25 @@ function connectionCallback(response) {
                     height: height + 'px'
                 };
             },
+            boundingBoxStyles() {
+                var boundingBox = this.boundingBox;
+                var x = boundingBox.x1 * Common.CELL_SIZE;
+                var y = boundingBox.y1 * Common.CELL_SIZE;
+                var width = (boundingBox.x2 - boundingBox.x1 + 1) * Common.CELL_SIZE;
+                var height = (boundingBox.y2 - boundingBox.y1 + 1) * Common.CELL_SIZE;
+                return {
+                    left: x + 'px',
+                    top: y + 'px',
+                    width: width + 'px',
+                    height: height + 'px'
+                }
+            },
 
             imageURL() {
                 var ship = this.ship;
                 var shipType = ship.type;
                 return '/public/assets/seabattle/ships/' + shipType + '.png';
-            },
-
+            }
         },
         methods: {
             move(pos) {
@@ -289,14 +323,25 @@ function connectionCallback(response) {
                 var board = _.cloneDeep(ships);
                 board.ships.forEach(element => {
                     if (element.id == ship.id) {
-                        element.x = pos.x;
-                        element.y = pos.y;
+                        if (pos.x !== undefined)
+                            element.x = pos.x;
+                        if (pos.y !== undefined)
+                            element.y = pos.y;
+                        if (pos.direction !== undefined)
+                            element.direction = pos.direction;
                     }
                 });
 
                 if (isBoardValid(board, 0)) {
-                    ship.x = pos.x;
-                    ship.y = pos.y;
+                    if ((ship.x != pos.x && pos.x !== undefined) || (ship.y != pos.y && pos.y !== undefined)) {
+                        targetMoved = true;
+                    }
+                    if (pos.x !== undefined)
+                        ship.x = pos.x;
+                    if (pos.y !== undefined)
+                        ship.y = pos.y;
+                    if (pos.direction !== undefined)
+                        ship.direction = pos.direction;
                 }
             },
             mousedown(e) {
@@ -320,18 +365,28 @@ function connectionCallback(response) {
                 var bb = shipPlacerEl.getBoundingClientRect();
 
                 // get nearest tile
-                var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE);
+                var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE); // nearest tile's x coordinate
                 var nearestY = Math.floor((e.clientY - bb.top) / Common.CELL_SIZE);
 
                 var offsetX = nearestX - this.ship.x;
                 var offsetY = nearestY - this.ship.y;
-                dragOffset = { x: offsetX, y: offsetY };
+                dragOffset = { x: offsetX, y: offsetY }; // what part of the ship is being dragged
 
 
                 mouseLandingPoint = { x, y };
                 dragTarget = this;
                 initialDragTargetPosition = { x: this.ship.x + 0, y: this.ship.y + 0 };
 
+            },
+            mouseup(e) {
+                if (dragTarget != this)
+                    return;
+                if (mouseIsDown && dragTarget != null) {
+                    if (!targetMoved) {
+                        // rotate ship, user just simply clicked
+                        dragTarget.move({direction: dragTarget.$props.ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? Common.SHIP_DIRECTION_VERTICAL : Common.SHIP_DIRECTION_HORIZONTAL});
+                    }
+                }
             }
         }
     };
