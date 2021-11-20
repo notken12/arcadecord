@@ -2,8 +2,8 @@ const Game = require("../../Game");
 
 const Common = require("./common");
 
-class Board {
-    constructor (playerIndex, width, height) {
+class HitBoard {
+    constructor(playerIndex, width, height) {
         this.playerIndex = playerIndex;
         this.width = width;
         this.height = height;
@@ -15,12 +15,6 @@ class Board {
 
         this.availableShips = [];
 
-        // add ships
-        for (var j = 0; j < Common.SHIP_TYPES.length; j++) {
-            for (var k = 0; k < Common.SHIP_QUANTITIES[j]; k++) {
-                this.availableShips.push(new Ship(j + '_' + k, i, Common.SHIP_LENGTHS[j], undefined, Common.SHIP_TYPES[j]));
-            }
-        }
 
         this.ships = [];
 
@@ -37,7 +31,7 @@ class Board {
 }
 
 class Ship {
-    constructor (id, playerIndex, length, direction, type, x, y) {
+    constructor(id, playerIndex, length, direction, type, x, y) {
         this.id = id;
         this.playerIndex = playerIndex;
         this.x = x || 0;
@@ -61,42 +55,69 @@ const options = {
     minPlayers: 2,
     data: {
         hitBoards: [ // the map of hits and misses
-            new Board(0, 10, 10),
-            new Board(1, 10, 10)
+            new HitBoard(0, 10, 10),
+            new HitBoard(1, 10, 10)
         ],
+        availableShips: [],
+        placed: [false, false]
     },
     emoji: '🚢'
 };
 
 class SeaBattleGame extends Game {
-    constructor () {
+    constructor() {
         super(options);
 
+
+        // add ships
+        for (var i = 0; i < this.maxPlayers; i++) {
+            var ships = [];
+            for (var j = 0; j < Common.SHIP_TYPES.length; j++) {
+                for (var k = 0; k < Common.SHIP_QUANTITIES[j]; k++) {
+                    ships.push(new Ship(j + '_' + k, i, Common.SHIP_LENGTHS[j], undefined, Common.SHIP_TYPES[j]));
+                }
+            }
+            this.data.availableShips.push(ships);
+        }
+
         var boards = [
-            new Board(0, 10, 10),
-            new Board(1, 10, 10)
+            new Common.ShipPlacementBoard(10, 10),
+            new Common.ShipPlacementBoard(10, 10)
         ];
-        
+
         this.on('init', Game.eventHandlersDiscord.init.bind(this));
 
         this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
 
-        this.setActionModel('place_ships', Common.placeShips);
-        this.setActionModel('place_ships', (game, action) => {
-            var ships = action.ships;
-            var board = boards[action.playerIndex];
-            for (var i = 0; i < 10; i++) {
-                board.cells[i] = [];
-                for (var j = 0; j < 10; j++) {
-                    board.cells[i][j] = BOARD_STATE_EMPTY;
-                }
+        // this.setActionModel('place_ships', Common.placeShips);
+        // this.setActionModel('place_ships', (game, action) => {
+        //     var ships = action.ships;
+        //     var board = boards[action.playerIndex];
+        //     for (var i = 0; i < 10; i++) {
+        //         board.cells[i] = [];
+        //         for (var j = 0; j < 10; j++) {
+        //             board.cells[i][j] = BOARD_STATE_EMPTY;
+        //         }
+        //     }
+
+        //     if (!setShipsForBoard(board, ships)) {
+        //         return false;
+        //     }
+
+        //     return game;
+        // }, 'server');
+        this.setActionModel('set_ships', Common.setShips);
+        this.setActionModel('set_ships', (game, action) => {
+            var board = action.data.shipPlacementBoard;
+            var ships = action.data.ships;
+            var playerIndex = action.playerIndex;
+
+            if (Common.isBoardValid(board)) {
+                boards[playerIndex] = board;
+                game.endTurn();
+                return game;
             }
-        
-            if (!setShipsForBoard(board, ships)) {
-                return false;
-            }
-        
-            return game;
+            return false;
         }, 'server');
 
         this.setActionModel('shoot', Common.shoot);
@@ -106,14 +127,14 @@ class SeaBattleGame extends Game {
             var hitBoard = game.data.hitBoards[action.playerIndex];
 
             var result = {};
-        
+
             if (!board.shipsPlaced) {
                 return false;
             }
-        
+
             var x = action.x;
             var y = action.y;
-            
+
             if (board[x][y] == BOARD_STATE_SHIP) {
                 hitBoard.cells[x][y] = BOARD_STATE_HIT;
 
@@ -142,7 +163,7 @@ class SeaBattleGame extends Game {
             result.x = x;
             result.y = y;
             result.state = hitBoard.cells[x][y];
-        
+
             return [game, changes];
         }, 'server');
     }

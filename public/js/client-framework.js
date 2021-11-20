@@ -92,14 +92,18 @@ const utils = {
 
 var actionEmissionQueue = [];
 
-function emitAction(actionType, actionData) {
+function emitAction(game, actionType, actionData, actionCallback) {
     actionEmissionQueue.push([actionType, actionData]);
 
-    function callback() {
+    var firstActionEmitted = false;
+
+    function callback(...args) {
+        if (firstActionEmitted) actionCallback(...args);
         if (actionEmissionQueue.length > 0) {
             var action = actionEmissionQueue.shift();
             socket.emit('action', action[0], action[1], callback);
         }
+        firstActionEmitted = true;
     }
 
     if (actionEmissionQueue.length === 1) { // start the chain
@@ -109,7 +113,7 @@ function emitAction(actionType, actionData) {
 
 var discordUser;
 
-async function runAction(game, type, data) {
+async function runAction(game, type, data, callback) {
     if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
         return;
     }
@@ -137,7 +141,7 @@ async function runAction(game, type, data) {
 
         if (!success) return;
     }
-    emitAction(type, data);
+    emitAction(game, type, data, callback);
 
 }
 

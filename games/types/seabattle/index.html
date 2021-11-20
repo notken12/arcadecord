@@ -9,21 +9,18 @@
     <link rel="stylesheet" href="/public/css/games/seabattle.css">
 </head>
 <body>
+    <div id="app">
+        {{isItMyTurn}}
+        
+        <players-view :players="game.players"></players-view>
 
-
-    <div id="players-container" v-cloak>
-        <div v-for="player in players" :key="player.discordUser.id" class="player">
-            <div class="player-name">{{player.discordUser.username}}#{{player.discordUser.discriminator}}</div>
-        </div>
+        <ship-placer :ships="availableShips" :game="game"></ship-placer>
+    
+        <button @click="setShips">Done</button>
+        <div id="game-canvas"></div>
     </div>
 
-    <div id="ship-placer" v-cloak>
-        <div class="ship-placer-container" :style="styles">
-            <placed-ship v-for="ship in ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
-        </div>
 
-    </div>
-    <div id="game-canvas"></div>
     
     <!--vue.js cdn-->
     <script src="https://unpkg.com/vue@next"></script>

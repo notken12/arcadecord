@@ -169,11 +169,12 @@ class Game {
                 } else {
                     if (typeof response[1] == 'object') {
                         actionResult = response[1];
-                        actionResult.successful = true;
+                        actionResult.success = true;
                     } else {
                         actionResult = {
-                            successful: true,
-                            changes: this.getChanges(previousData, this.data)// changes between game data before and after action
+                            success: true,
+                            changes: this.getChanges(previousData, this.data),// changes between game data before and after action,
+                            game: this.getDataForClient(action.userId)
                         };
                     }
                 }

@@ -18,172 +18,13 @@ function getMyHitBoard(game) {
 }
 
 
-function ShipPlacementBoard(width, height) {
-    var that = this;
 
-    this.width = width;
-    this.height = height;
-    this.cells = [];
-    this.ships = [];
-
-    this.addShip = function (ship) {
-        this.ships.push(ship);
-    }
-
-    this.WithShip = function (ship) {
-        let newBoard = new ShipPlacementBoard(that.width, that.height);
-        newBoard.ships = that.ships.slice();
-        newBoard.ships.push(ship);
-        return newBoard;
-    }
-
-    this.WithoutShip = function (ship) {
-        let newBoard = new ShipPlacementBoard(that.width, that.height);
-        newBoard.ships = that.ships.filter(s => s.id != ship.id);
-        return newBoard;
-    }
-}
-
-function isValidPosition(board, ship, x, y, direction, distance) {
-    // create a bounding box for the ship that extends 1 tile out
-    if (distance === undefined)
-        distance = 0;
-
-    let x1 = x - distance;
-    let y1 = y - distance;
-    let x2 = x + ship.length + distance - 1;
-    let y2 = y + distance;
-
-    if (direction == Common.SHIP_DIRECTION_VERTICAL) {
-        x2 = x + distance;
-        y2 = y + ship.length + distance - 1;
-        //console.log(x1, y1, x2, y2);
-    }
-
-    let valid = true;
-    // ships cannot be touching each other
-    // loop through ships
-    for (let j = 0; j < board.ships.length; j++) {
-        let shipJ = board.ships[j];
-
-        // get bounding box for the ship
-        let x1j = shipJ.x + 0;
-        let y1j = shipJ.y + 0;
-        let x2j = shipJ.x + shipJ.length - 1;
-        let y2j = shipJ.y + 0;
-
-        if (shipJ.direction == Common.SHIP_DIRECTION_VERTICAL) {
-            x2j = shipJ.x + 0;
-            y2j = shipJ.y + shipJ.length - 1;
-        }
-
-        // check if bounding boxes intersect with AABB
-        if (x1 <= x2j && x2 >= x1j && y1 <= y2j && y2 >= y1j) {
-            valid = false;
-            break;
-        }
-    }
-
-    return valid;
-}
-
-function isBoardValid(board, distance) {
-    for (let i = 0; i < board.ships.length; i++) {
-        let ship = board.ships[i];
-
-        // check if ship is inside the board
-        if (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL) {
-            if (ship.x < 0 || ship.x + ship.length > board.width || ship.y < 0 || ship.y >= board.height)
-                return false;
-        } else {
-            if (ship.x < 0 || ship.x >= board.width || ship.y < 0 || ship.y + ship.length > board.height)
-                return false;
-        }
-        // check if ship is overlapping
-        let excludingShip = board.WithoutShip(ship);
-
-        let valid = isValidPosition(excludingShip, ship, ship.x, ship.y, ship.direction, distance);
-
-
-        if (!valid)
-            return false;
-    }
-    return true;
-}
-
-
-function GetValidPositions(board, ship, direction) {
-    let maxX = direction == Common.SHIP_DIRECTION_HORIZONTAL ? board.width - ship.length : board.width - 1;
-    let maxY = direction == Common.SHIP_DIRECTION_VERTICAL ? board.height - ship.length : board.height - 1;
-
-    // search every tile in the board for a valid position
-    // ships cannot be touching each other
-
-    let validPositions = [];
-    for (let i = 0; i < (maxX + 1) * (maxY + 1); i++) {
-        // get x and y from index
-        let x = i % (maxX + 1);
-        let y = Math.floor(i / (maxX + 1));
-
-        if (isValidPosition(board, ship, x, y, direction)) {
-            validPositions.push({ x, y, direction });
-        }
-    }
-    return validPositions;
-}
-
-function GetRandomShipPosition(board, ship) {
-    let validPositionsHorizontal = GetValidPositions(board, ship, Common.SHIP_DIRECTION_HORIZONTAL);
-    let validPositionsVertical = GetValidPositions(board, ship, Common.SHIP_DIRECTION_VERTICAL);
-
-    let validPositions = validPositionsHorizontal.concat(validPositionsVertical);
-    let position = validPositions[Math.floor(Math.random() * validPositions.length)];
-
-    return position;
-}
-
-
-function PlaceShips(shipsRemaining, board) {
-    let shipToPlace = shipsRemaining[0];
-
-    // If all ships were placed, we are done.
-    if (shipsRemaining.length == 0) {
-        return board;
-    }
-
-    let attempts = 0;
-    while (attempts++ < 100000) {
-        // Get a position for the new ship that is OK with the current board.
-        let pos = GetRandomShipPosition(board, shipToPlace);
-
-        // If it isn't possible to find such a position, this branch is bad.
-        if (pos == null)
-            return null;
-
-        shipToPlace.x = pos.x;
-        shipToPlace.y = pos.y;
-        shipToPlace.direction = pos.direction;
-
-        // Create a new board, including the new ship.
-        let newBoard = new board.WithShip(shipToPlace);
-
-        // Recurse by placing remaining ships on the new board.
-        let nextBoard = PlaceShips([...shipsRemaining].slice(1), newBoard);
-        if (nextBoard != null)
-            return nextBoard;
-    }
-    return null;
-}
 
 
 function connectionCallback(response) {
     var game = response.game;
     window.game = game;
 
-
-    if (!game.isItMyTurn()) {
-        return
-    }
     var mouseIsDown = false;
     var mouseLandingPoint = {};
     var dragTarget = null;
@@ -199,52 +40,74 @@ function connectionCallback(response) {
         targetMoved = false;
     });
 
-    var shipPlacerEl = document.querySelector('.ship-placer-container');
-
-    document.addEventListener('mousemove', function (e) {
-        e.preventDefault();
-
-        if (mouseIsDown && dragTarget != null) {
-            var bb = shipPlacerEl.getBoundingClientRect();
-
-            // get nearest tile
-            var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE);
-            var nearestY = Math.floor((e.clientY - bb.top) / Common.CELL_SIZE);
-            
-            if (lastMove.x != nearestX || lastMove.y != nearestY) {
-                dragTarget.move({ x: nearestX - dragOffset.x, y: nearestY - dragOffset.y });
-            }
-            lastMove = { x: nearestX, y: nearestY };
-        }
-    }, true);
 
     var myHitBoard = getMyHitBoard(game);
 
-    var board = new ShipPlacementBoard(myHitBoard.width, myHitBoard.height);
+    var board = new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height);
     var t1 = performance.now();
-    var ships = PlaceShips(myHitBoard.availableShips, board);
+
+    var availableShips = game.data.availableShips[myHitBoard.playerIndex];
+
+    var ships = Common.PlaceShips(availableShips, board);
     var t2 = performance.now();
     console.log(ships);
     console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
 
+    const App = {
+        data() {
+            return {
+                game: game,
+                availableShips: availableShips,
+                isItMyTurn: game.isItMyTurn()
+            }
+        },
+        methods: {
+            setShips() {
+                Client.runAction(game, 'set_ships', {shipPlacementBoard: board}, (response) => {
+                    console.log(response);
+                    if (response.success) {
+                        Client.utils.updateGame(game, response.game);
+                    }
+                });
+            }
+        }
+        // watch: {
+        //     'game.turn': function (newValue, oldValue) {
+        //         this.isItMyTurn = newValue.isItMyTurn(undefined, game.myIndex);
+        //     }
+        // }
+
+    };
+
+    var app = Vue.createApp(App);
+    window.app = app;
+
     const PlayersView = {
         data() {
             return {
-                players: game.players,
             }
-        }
+        },
+        props: ['players'],
+        template: `<div class="players-container">
+        <div v-for="player in players" :key="player.discordUser.id" class="player">
+            <div class="player-name">{{player.discordUser.username}}#{{player.discordUser.discriminator}}</div>
+        </div>
+    </div>`
     };
 
-    var playersView = Vue.createApp(PlayersView);
-    playersView.mount(document.querySelector('#players-container'));
+    var playersView = app.component('players-view', PlayersView);
 
     const ShipPlacer = {
         data() {
             return {
-                ships: ships.ships,
-                game: game
+
             }
         },
+        props: ['ships', 'game'],
+        template: `     
+        <div class="ship-placer-container" :style="styles" @mousemove="mousemove($event)">
+            <placed-ship v-for="ship in ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
+        </div>`,
         computed: {
             styles() {
                 return {
@@ -253,10 +116,29 @@ function connectionCallback(response) {
                     "background-size": Common.CELL_SIZE + 'px ' + Common.CELL_SIZE + 'px'
                 }
             }
+        },
+        methods: {
+            mousemove(e) {
+                e.preventDefault();
+
+                if (mouseIsDown && dragTarget != null) {
+                    var bb = this.$el.getBoundingClientRect();
+
+                    // get nearest tile
+                    var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE);
+                    var nearestY = Math.floor((e.clientY - bb.top) / Common.CELL_SIZE);
+
+                    if (lastMove.x != nearestX || lastMove.y != nearestY) {
+                        dragTarget.move({ x: nearestX - dragOffset.x, y: nearestY - dragOffset.y });
+                    }
+                    lastMove = { x: nearestX, y: nearestY };
+                }
+            }
+            
         }
     }
 
-    var shipPlacer = Vue.createApp(ShipPlacer);
+    var shipPlacer = app.component('ship-placer', ShipPlacer);
 
     const PlacedShip = {
         props: ['ship', 'game'],
@@ -342,7 +224,7 @@ function connectionCallback(response) {
                     }
                 });
 
-                if (isBoardValid(board, 0)) {
+                if (Common.isBoardValid(board, 0)) {
                     if ((ship.x != pos.x && pos.x !== undefined) || (ship.y != pos.y && pos.y !== undefined)) {
                         targetMoved = true;
                     }
@@ -372,7 +254,7 @@ function connectionCallback(response) {
 
 
 
-                var bb = shipPlacerEl.getBoundingClientRect();
+                var bb = this.$el.getBoundingClientRect();
 
                 // get nearest tile
                 var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE); // nearest tile's x coordinate
@@ -394,7 +276,7 @@ function connectionCallback(response) {
                 if (mouseIsDown && dragTarget != null) {
                     if (!targetMoved) {
                         // rotate ship, user just simply clicked
-                        dragTarget.move({direction: dragTarget.$props.ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? Common.SHIP_DIRECTION_VERTICAL : Common.SHIP_DIRECTION_HORIZONTAL});
+                        dragTarget.move({ direction: dragTarget.$props.ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? Common.SHIP_DIRECTION_VERTICAL : Common.SHIP_DIRECTION_HORIZONTAL });
                     }
                 }
             }
@@ -404,10 +286,13 @@ function connectionCallback(response) {
     shipPlacer.component('placed-ship', PlacedShip);
 
 
-    shipPlacer.mount('#ship-placer');
+    app.mount('#app');
 
 
-
+    Client.socket.on('turn', (g, turn) => {
+        Client.utils.updateGame(game, g);
+        game.turn = g.turn;
+    });
 
 }
 
