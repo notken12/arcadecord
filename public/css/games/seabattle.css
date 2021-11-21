@@ -40,3 +40,24 @@ body {
 [v-cloak] {
     display: none;
 }
+
+.hit-board {
+    display: flex;
+    flex-direction: column;
+}
+
+.hit-board-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.hit-board-cell {
+    user-select: none;
+    cursor: pointer;
+    border: 0.5px solid black;
+}
+
+.hit-board-cell img {
+    width: 100%;
+    height: 100%;
+}

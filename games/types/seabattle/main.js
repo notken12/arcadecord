@@ -13,20 +13,21 @@ class HitBoard {
         var h = Common.SHIP_DIRECTION_HORIZONTAL;
         var v = Common.SHIP_DIRECTION_VERTICAL;
 
-        this.availableShips = [];
-
-
-        this.ships = [];
+        this.revealedShips = [];
 
         this.cells = [];
         for (var x = 0; x < width; x++) {
             this.cells[x] = [];
             for (var y = 0; y < height; y++) {
-                this.cells[x][y] = Common.BOARD_STATE_EMPTY;
+                this.cells[x][y] = {
+                    state: Common.BOARD_STATE_EMPTY,
+                    x: x,
+                    y: y,
+                    id: x + "-" + y,
+                };
             }
         }
 
-        this.shipsPlaced = false;
     }
 }
 
@@ -89,31 +90,20 @@ class SeaBattleGame extends Game {
 
         this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
 
-        // this.setActionModel('place_ships', Common.placeShips);
-        // this.setActionModel('place_ships', (game, action) => {
-        //     var ships = action.ships;
-        //     var board = boards[action.playerIndex];
-        //     for (var i = 0; i < 10; i++) {
-        //         board.cells[i] = [];
-        //         for (var j = 0; j < 10; j++) {
-        //             board.cells[i][j] = BOARD_STATE_EMPTY;
-        //         }
-        //     }
-
-        //     if (!setShipsForBoard(board, ships)) {
-        //         return false;
-        //     }
-
-        //     return game;
-        // }, 'server');
         this.setActionModel('set_ships', Common.setShips);
+
         this.setActionModel('set_ships', (game, action) => {
             var board = action.data.shipPlacementBoard;
             var ships = action.data.ships;
             var playerIndex = action.playerIndex;
 
+            if (game.data.placed[playerIndex]) {
+                return false;
+            }
+
             if (Common.isBoardValid(board)) {
                 boards[playerIndex] = board;
+                game.data.placed[playerIndex] = true;
                 game.endTurn();
                 return game;
             }
@@ -123,48 +113,46 @@ class SeaBattleGame extends Game {
         this.setActionModel('shoot', Common.shoot);
 
         this.setActionModel('shoot', (game, action) => {
-            var board = boards[action.playerIndex + 1 % game.players.length];
+            var board = boards[(action.playerIndex + 1) % game.players.length]; // the other player's board
             var hitBoard = game.data.hitBoards[action.playerIndex];
 
-            var result = {};
 
-            if (!board.shipsPlaced) {
+            if (!game.data.placed[action.playerIndex] || !board) {
                 return false;
             }
 
-            var x = action.x;
-            var y = action.y;
+            var x = action.data.x;
+            var y = action.data.y;
 
-            if (board[x][y] == BOARD_STATE_SHIP) {
-                hitBoard.cells[x][y] = BOARD_STATE_HIT;
 
-                // get ship at x, y
-                var ship = this.getShipAt(board, x, y);
-                if (!ship) return false;
-
-                // check if ship is sunk
-                var sunk = true;
-                for (var i = 0; i < ship.length; i++) {
-                    var shipX = ship.x + i * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
-                    var shipY = ship.y + i * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
-                    if (board.cells[shipX][shipY] != BOARD_STATE_HIT) {
-                        sunk = false;
-                        break;
-                    }
-
-                    if (sunk) {
-                        result.revealedShip = ship;
-                    }
-                }
-            } else {
-                hitBoard.cells[x][y] = BOARD_STATE_MISS;
+            // get ship at x, y
+            var ship = this.getShipAt(board, x, y);
+            if (!ship) {
+                hitBoard.cells[x][y].state = Common.BOARD_STATE_MISS;
+                return game;
             }
 
-            result.x = x;
-            result.y = y;
-            result.state = hitBoard.cells[x][y];
 
-            return [game, changes];
+            hitBoard.cells[x][y].state = Common.BOARD_STATE_HIT;
+
+            // check if ship is sunk
+            var sunk = true;
+            for (var i = 0; i < ship.length; i++) {
+                var shipX = ship.x + i * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
+                var shipY = ship.y + i * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
+                if (hitBoard.cells[shipX][shipY].state !== Common.BOARD_STATE_HIT) {
+                    sunk = false;
+                    break;
+                }
+
+
+            }
+            if (sunk) {
+                hitBoard.revealedShips.push(ship);
+            }
+
+            return game;
+
         }, 'server');
     }
 

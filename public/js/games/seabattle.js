@@ -48,39 +48,37 @@ function connectionCallback(response) {
 
     var availableShips = game.data.availableShips[myHitBoard.playerIndex];
 
-    var ships = Common.PlaceShips(availableShips, board);
+    board = Common.PlaceShips(availableShips, board);
     var t2 = performance.now();
-    console.log(ships);
+    console.log(board);
     console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
 
     const App = {
         data() {
             return {
                 game: game,
-                availableShips: availableShips,
+                shipPlacementBoard: board,
                 isItMyTurn: game.isItMyTurn()
             }
         },
         methods: {
             setShips() {
-                Client.runAction(game, 'set_ships', {shipPlacementBoard: board}, (response) => {
+                Client.runAction(this.game, 'set_ships', { shipPlacementBoard: this.shipPlacementBoard }, (response) => {
                     console.log(response);
                     if (response.success) {
-                        Client.utils.updateGame(game, response.game);
+                        Client.utils.updateGame(app.game, response.game);
                     }
                 });
             }
+        },
+        computed: {
+            myHitBoard() {
+                return this.game.data.hitBoards[this.game.myIndex];
+            }
         }
-        // watch: {
-        //     'game.turn': function (newValue, oldValue) {
-        //         this.isItMyTurn = newValue.isItMyTurn(undefined, game.myIndex);
-        //     }
-        // }
-
     };
 
-    var app = Vue.createApp(App);
-    window.app = app;
+    var vm = Vue.createApp(App);
 
     const PlayersView = {
         data() {
@@ -95,7 +93,7 @@ function connectionCallback(response) {
     </div>`
     };
 
-    var playersView = app.component('players-view', PlayersView);
+    var playersView = vm.component('players-view', PlayersView);
 
     const ShipPlacer = {
         data() {
@@ -103,10 +101,10 @@ function connectionCallback(response) {
 
             }
         },
-        props: ['ships', 'game'],
+        props: ['board', 'game'],
         template: `     
         <div class="ship-placer-container" :style="styles" @mousemove="mousemove($event)">
-            <placed-ship v-for="ship in ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
+            <placed-ship v-for="ship in board.ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
         </div>`,
         computed: {
             styles() {
@@ -134,11 +132,11 @@ function connectionCallback(response) {
                     lastMove = { x: nearestX, y: nearestY };
                 }
             }
-            
+
         }
     }
 
-    var shipPlacer = app.component('ship-placer', ShipPlacer);
+    var shipPlacer = vm.component('ship-placer', ShipPlacer);
 
     const PlacedShip = {
         props: ['ship', 'game'],
@@ -212,7 +210,7 @@ function connectionCallback(response) {
         methods: {
             move(pos) {
                 var ship = this.ship;
-                var board = _.cloneDeep(ships);
+                var board = _.cloneDeep(this.$root.shipPlacementBoard);
                 board.ships.forEach(element => {
                     if (element.id == ship.id) {
                         if (pos.x !== undefined)
@@ -282,16 +280,78 @@ function connectionCallback(response) {
             }
         }
     };
-
     shipPlacer.component('placed-ship', PlacedShip);
 
+    const HitBoardView = {
+        props: ['board'],
+        template: `
+            <div class="hit-board">
+                <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
+                    <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell"></hit-board-cell>
+                </div>
+            </div>
+            `,
+        data() {
+            return {
+            }
+        },
+    }
 
-    app.mount('#app');
+    var hitBoardView = vm.component('hit-board-view', HitBoardView);
+
+    const HitBoardCell = {
+        props: ['cell'],
+        template: `<div class="hit-board-cell" 
+            :style="cellStyles"
+            @click="cellClicked"
+            >
+                <img :src="imgURL" draggable="false" alt="altText"/>
+            </div>`,
+        computed: {
+            cellStyles() {
+                return {
+                    width: Common.CELL_SIZE + 'px',
+                    height: Common.CELL_SIZE + 'px'
+                }
+            },
+            imgURL() {
+                return '/public/assets/seabattle/cell-states/' + this.cell.state + '.png';
+            }
+        },
+        methods: {
+            cellClicked() {
+                Client.runAction(this.$root.game, 'shoot', { x: this.cell.x, y: this.cell.y }, (response) => {
+                    console.log(response);
+                    if (response.success) {
+                        Client.utils.updateGame(this.$root.game, response.game);
+                    }
+                });
+            },
+            altText: function () {
+                switch (this.cell.state) {
+                    case Common.CELL_STATE_HIT:
+                        return 'Hit';
+                    case Common.CELL_STATE_MISS:
+                        return 'Miss';
+                    case Common.CELL_STATE_EMPTY:
+                        return 'Unknown';
+                    default: 
+                        return 'Unknown';
+                }
+            }
+        }
+    };
+    hitBoardView.component('hit-board-cell', HitBoardCell);
+
+    var app = vm.mount('#app');
+    window.app = app;
+
+
 
 
     Client.socket.on('turn', (g, turn) => {
-        Client.utils.updateGame(game, g);
-        game.turn = g.turn;
+        Client.utils.updateGame(app.game, g);
+        app.game.turn = g.turn;
     });
 
 }

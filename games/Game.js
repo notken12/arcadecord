@@ -6,7 +6,6 @@ const Player = require('./Player');
 const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
-const { emit } = require('../bot/bot');
 const { cloneDeep } = require('lodash');
 
 dotenv.config();
@@ -119,7 +118,9 @@ class Game {
         }
     }
     async handleAction(action) {
-        if (this.hasEnded) return;
+        if (this.hasEnded) return {
+            success: false
+        };
 
         if (action.playerIndex == -1) {
             if (this.hasStarted == false) {
@@ -131,7 +132,9 @@ class Game {
             }
         }
 
-        if (this.turn !== action.playerIndex) return;
+        if (this.turn !== action.playerIndex) return {
+            success: false,
+        };
 
         if (this.turns.length == 0) {
             // first turn
@@ -154,7 +157,9 @@ class Game {
             if (!successful) {
                 // action failed
 
-                return;
+                return {
+                    success: false,
+                };
             }
 
             var serverActionModel = this.serverActionModels[action.type];
@@ -165,7 +170,9 @@ class Game {
                 if (!response) {
                     // action failed
 
-                    return;
+                    return {
+                        success: false,
+                    };
                 } else {
                     if (typeof response[1] == 'object') {
                         actionResult = response[1];

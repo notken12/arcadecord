@@ -5,7 +5,8 @@ const SHIP_LENGTHS = [4, 3, 2, 1];
 const SHIP_QUANTITIES = [1, 2, 3, 4];
 
 const BOARD_STATE_EMPTY = 0;
-const BOARD_STATE_SHIP = 1;
+const BOARD_STATE_MISS = 1;
+const BOARD_STATE_HIT = 2;
 const CELL_SIZE = 40;
 
 // function setShipsForBoard(board, ships) {
@@ -54,10 +55,10 @@ const CELL_SIZE = 40;
 function shoot(game, action) {
     var playerIndex = action.playerIndex;
     var board = game.data.hitBoards[playerIndex];
-    var x = action.x;
-    var y = action.y;
+    var x = action.data.x;
+    var y = action.data.y;
     
-    if (board[x][y] !== BOARD_STATE_EMPTY) {
+    if (board.cells[x][y].state !== BOARD_STATE_EMPTY) {
         return false; // already shot
     }
     
@@ -70,7 +71,6 @@ function ShipPlacementBoard(width, height) {
 
     this.width = width;
     this.height = height;
-    this.cells = [];
     this.ships = [];
 
     this.addShip = function (ship) {
@@ -101,7 +101,7 @@ function isValidPosition(board, ship, x, y, direction, distance) {
     let x2 = x + ship.length + distance - 1;
     let y2 = y + distance;
 
-    if (direction == Common.SHIP_DIRECTION_VERTICAL) {
+    if (direction == SHIP_DIRECTION_VERTICAL) {
         x2 = x + distance;
         y2 = y + ship.length + distance - 1;
         //console.log(x1, y1, x2, y2);
@@ -119,7 +119,7 @@ function isValidPosition(board, ship, x, y, direction, distance) {
         let x2j = shipJ.x + shipJ.length - 1;
         let y2j = shipJ.y + 0;
 
-        if (shipJ.direction == Common.SHIP_DIRECTION_VERTICAL) {
+        if (shipJ.direction == SHIP_DIRECTION_VERTICAL) {
             x2j = shipJ.x + 0;
             y2j = shipJ.y + shipJ.length - 1;
         }
@@ -134,12 +134,14 @@ function isValidPosition(board, ship, x, y, direction, distance) {
     return valid;
 }
 
-function isBoardValid(board, distance) {
+function isBoardValid(b, distance) {
+    var board = new ShipPlacementBoard(b.width, b.height);
+    board.ships = b.ships;
     for (let i = 0; i < board.ships.length; i++) {
         let ship = board.ships[i];
 
         // check if ship is inside the board
-        if (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL) {
+        if (ship.direction == SHIP_DIRECTION_HORIZONTAL) {
             if (ship.x < 0 || ship.x + ship.length > board.width || ship.y < 0 || ship.y >= board.height)
                 return false;
         } else {
@@ -160,8 +162,8 @@ function isBoardValid(board, distance) {
 
 
 function GetValidPositions(board, ship, direction) {
-    let maxX = direction == Common.SHIP_DIRECTION_HORIZONTAL ? board.width - ship.length : board.width - 1;
-    let maxY = direction == Common.SHIP_DIRECTION_VERTICAL ? board.height - ship.length : board.height - 1;
+    let maxX = direction == SHIP_DIRECTION_HORIZONTAL ? board.width - ship.length : board.width - 1;
+    let maxY = direction == SHIP_DIRECTION_VERTICAL ? board.height - ship.length : board.height - 1;
 
     // search every tile in the board for a valid position
     // ships cannot be touching each other
@@ -180,8 +182,8 @@ function GetValidPositions(board, ship, direction) {
 }
 
 function GetRandomShipPosition(board, ship) {
-    let validPositionsHorizontal = GetValidPositions(board, ship, Common.SHIP_DIRECTION_HORIZONTAL);
-    let validPositionsVertical = GetValidPositions(board, ship, Common.SHIP_DIRECTION_VERTICAL);
+    let validPositionsHorizontal = GetValidPositions(board, ship, SHIP_DIRECTION_HORIZONTAL);
+    let validPositionsVertical = GetValidPositions(board, ship, SHIP_DIRECTION_VERTICAL);
 
     let validPositions = validPositionsHorizontal.concat(validPositionsVertical);
     let position = validPositions[Math.floor(Math.random() * validPositions.length)];
@@ -235,7 +237,8 @@ var exports = {
     SHIP_LENGTHS,
     SHIP_QUANTITIES,
     BOARD_STATE_EMPTY,
-    BOARD_STATE_SHIP,
+    BOARD_STATE_HIT,
+    BOARD_STATE_MISS,
     CELL_SIZE,
     // placeShips,
     shoot,

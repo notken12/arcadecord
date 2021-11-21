@@ -21,7 +21,7 @@ dotenv.config();
 const io = new Server(server);
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  //console.log('a user connected');
 
   socket.on('connect_socket', async function (data, callback) {
     const cookies = cookie.parse(socket.request.headers.cookie || "");

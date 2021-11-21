@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,20 +9,27 @@
 
     <link rel="stylesheet" href="/public/css/games/seabattle.css">
 </head>
+
 <body>
-    <div id="app">
-        {{isItMyTurn}}
-        
+    <div id="app" v-cloak>
+        <div>
+            {{game.turn}}
+
+        </div>
+
         <players-view :players="game.players"></players-view>
 
-        <ship-placer :ships="availableShips" :game="game"></ship-placer>
-    
-        <button @click="setShips">Done</button>
+        <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
+        <hit-board-view :board="myHitBoard" v-else></hit-board-view>
+
+        <button @click="setShips" v-if="!game.data.placed[game.myIndex]">Done</button>
+        <button @click="shoot" v-else>Feuer!</button>
         <div id="game-canvas"></div>
+
     </div>
 
 
-    
+
     <!--vue.js cdn-->
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
@@ -29,4 +37,5 @@
     <script src="https://unpkg.com/konva@8/konva.min.js"></script>
     <script src="/public/js/games/seabattle.js" type="module"></script>
 </body>
+
 </html>
