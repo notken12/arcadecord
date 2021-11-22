@@ -12,18 +12,26 @@
 
 <body>
     <div id="app" v-cloak>
-        <div>
-            {{game.turn}}
-
+        <div class="top">
+            <div>
+                {{game.turn}}
+    
+            </div>
+    
+            <players-view :players="game.players"></players-view>
         </div>
 
-        <players-view :players="game.players"></players-view>
+        <div class="middle">
+            <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
+            <hit-board-view :board="myHitBoard" :target="targetedCell" v-else></hit-board-view>
+        </div>
 
-        <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
-        <hit-board-view :board="myHitBoard" v-else></hit-board-view>
 
-        <button @click="setShips" v-if="!game.data.placed[game.myIndex]">Done</button>
-        <button @click="shoot" v-else>Feuer!</button>
+        <div class="bottom">
+            <button @click="setShips" v-if="!game.data.placed[game.myIndex]">Done</button>
+            <button @click="shoot" v-if="game.data.placed[game.myIndex] && targetedCell">FEUER!</button>
+        </div>
+
         <div id="game-canvas"></div>
 
     </div>

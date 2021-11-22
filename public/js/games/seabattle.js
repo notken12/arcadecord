@@ -58,7 +58,8 @@ function connectionCallback(response) {
             return {
                 game: game,
                 shipPlacementBoard: board,
-                isItMyTurn: game.isItMyTurn()
+                isItMyTurn: game.isItMyTurn(),
+                targetedCell: null,
             }
         },
         methods: {
@@ -69,6 +70,19 @@ function connectionCallback(response) {
                         Client.utils.updateGame(app.game, response.game);
                     }
                 });
+            },
+            shoot() {
+                var cell = this.targetedCell;
+                if (cell) {
+                    Client.runAction(this.game, 'shoot', { x: cell.x, y: cell.y }, (response) => {
+                        console.log(response);
+                        if (response.success) {
+                            Client.utils.updateGame(this.game, response.game);
+                            this.targetedCell = null;
+                        }
+                    });
+                }
+
             }
         },
         computed: {
@@ -139,7 +153,7 @@ function connectionCallback(response) {
     var shipPlacer = vm.component('ship-placer', ShipPlacer);
 
     const PlacedShip = {
-        props: ['ship', 'game'],
+        props: ['ship'],
         template: `
             <div class="placed-ship">
                 <div class="placed-ship-bounding-box" :style="boundingBoxStyles"></div>
@@ -283,11 +297,19 @@ function connectionCallback(response) {
     shipPlacer.component('placed-ship', PlacedShip);
 
     const HitBoardView = {
-        props: ['board'],
+        props: ['board', 'target'],
         template: `
-            <div class="hit-board">
-                <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
-                    <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell"></hit-board-cell>
+            <div class="hit-board" :style="styles">
+
+                <div class="hit-board-grid">
+                    <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
+                        <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell"></hit-board-cell>
+                    </div>
+                </div>
+                <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship"></placed-ship>
+
+                <div class="target-crosshair" v-if="target" :style="targetStyles">
+                    <img src="/public/assets/seabattle/crosshair.png" />
                 </div>
             </div>
             `,
@@ -295,6 +317,23 @@ function connectionCallback(response) {
             return {
             }
         },
+        computed: {
+            styles() {
+                return {
+                    width: board.width * Common.CELL_SIZE + 'px',
+                    height: board.height * Common.CELL_SIZE + 'px',
+                    "background-size": Common.CELL_SIZE + 'px ' + Common.CELL_SIZE + 'px'
+                }
+            },
+            targetStyles() {
+                return {
+                    top: this.target.y * Common.CELL_SIZE + 'px',
+                    left: this.target.x * Common.CELL_SIZE + 'px',
+                    width: Common.CELL_SIZE + 'px',
+                    height: Common.CELL_SIZE + 'px'
+                }
+            }
+        }
     }
 
     var hitBoardView = vm.component('hit-board-view', HitBoardView);
@@ -320,12 +359,8 @@ function connectionCallback(response) {
         },
         methods: {
             cellClicked() {
-                Client.runAction(this.$root.game, 'shoot', { x: this.cell.x, y: this.cell.y }, (response) => {
-                    console.log(response);
-                    if (response.success) {
-                        Client.utils.updateGame(this.$root.game, response.game);
-                    }
-                });
+                if (this.cell.state === Common.BOARD_STATE_EMPTY && this.$root.game.isItMyTurn())
+                    this.$root.targetedCell = this.cell;
             },
             altText: function () {
                 switch (this.cell.state) {
@@ -335,7 +370,7 @@ function connectionCallback(response) {
                         return 'Miss';
                     case Common.CELL_STATE_EMPTY:
                         return 'Unknown';
-                    default: 
+                    default:
                         return 'Unknown';
                 }
             }

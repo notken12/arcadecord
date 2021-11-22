@@ -16,14 +16,14 @@ class HitBoard {
         this.revealedShips = [];
 
         this.cells = [];
-        for (var x = 0; x < width; x++) {
-            this.cells[x] = [];
-            for (var y = 0; y < height; y++) {
-                this.cells[x][y] = {
+        for (var row = 0; row < height; row++) {
+            this.cells[row] = [];
+            for (var col = 0; col < height; col++) {
+                this.cells[row][col] = {
                     state: Common.BOARD_STATE_EMPTY,
-                    x: x,
-                    y: y,
-                    id: x + "-" + y,
+                    x: col,
+                    y: row,
+                    id: col + "-" + row,
                 };
             }
         }
@@ -128,19 +128,23 @@ class SeaBattleGame extends Game {
             // get ship at x, y
             var ship = this.getShipAt(board, x, y);
             if (!ship) {
-                hitBoard.cells[x][y].state = Common.BOARD_STATE_MISS;
+                hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
+
+                // missed, end turn
+                game.endTurn();
+
                 return game;
             }
 
-
-            hitBoard.cells[x][y].state = Common.BOARD_STATE_HIT;
+            // hit, give another chance
+            hitBoard.cells[y][x].state = Common.BOARD_STATE_HIT;
 
             // check if ship is sunk
             var sunk = true;
             for (var i = 0; i < ship.length; i++) {
                 var shipX = ship.x + i * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
                 var shipY = ship.y + i * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
-                if (hitBoard.cells[shipX][shipY].state !== Common.BOARD_STATE_HIT) {
+                if (hitBoard.cells[shipY][shipX].state !== Common.BOARD_STATE_HIT) {
                     sunk = false;
                     break;
                 }

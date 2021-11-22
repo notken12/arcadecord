@@ -58,7 +58,7 @@ function shoot(game, action) {
     var x = action.data.x;
     var y = action.data.y;
     
-    if (board.cells[x][y].state !== BOARD_STATE_EMPTY) {
+    if (board.cells[y][x].state !== BOARD_STATE_EMPTY) {
         return false; // already shot
     }
     
