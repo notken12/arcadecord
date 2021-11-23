@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sea Battle</title>
 
+    <link rel="stylesheet" href="/public/css/all-games.css">
     <link rel="stylesheet" href="/public/css/games/seabattle.css">
 </head>
 
@@ -14,18 +15,17 @@
     <div id="app" v-cloak>
         <div class="top">
             <div>
-                {{game.turn}}
-
+                <button class="btn-icon">
+                    <i class="material-icons">help</i>
+                </button>
+                <button class="btn-icon">
+                    <i class="material-icons">settings</i>
+                </button>
+            </div>
+            <div>
+                <players-view :players="game.players"></players-view>
             </div>
 
-            <players-view :players="game.players"></players-view>
-
-            <div v-if="game.isItMyTurn()">
-                My turn
-            </div>
-            <div v-else>
-                Waiting for opponent
-            </div>
         </div>
 
         <div class="middle">
