@@ -224,11 +224,27 @@ function PlaceShips(shipsRemaining, board) {
     return null;
 }
 
+function getShipAt(board, x, y) {
+    for (var i = 0; i < board.ships.length; i++) {
+        var ship = board.ships[i];
+        for (var j = 0; j < ship.length; j++) {
+            var shipX = ship.x + j * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
+            var shipY = ship.y + j * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
+            if (shipX == x && shipY == y) {
+                return ship;
+            }
+        }
+    }
+    return null;
+}
+
 function setShips(game, action) {
     // nothing, just a placeholder
     // setting ships is done in the server and result is sent to the client
     return game;
 }
+
+
 
 var exports = {
     SHIP_DIRECTION_HORIZONTAL,
@@ -248,6 +264,7 @@ var exports = {
     GetValidPositions,
     GetRandomShipPosition,
     PlaceShips,
+    getShipAt,
     setShips
 };
 

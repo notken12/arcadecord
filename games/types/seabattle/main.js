@@ -160,20 +160,6 @@ class SeaBattleGame extends Game {
         }, 'server');
     }
 
-    getShipAt(board, x, y) {
-        for (var i = 0; i < board.ships.length; i++) {
-            var ship = board.ships[i];
-            for (var j = 0; j < ship.length; j++) {
-                var shipX = ship.x + j * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
-                var shipY = ship.y + j * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
-                if (shipX == x && shipY == y) {
-                    return ship;
-                }
-            }
-        }
-        return null;
-    }
-
     getThumbnail() {
 
     }

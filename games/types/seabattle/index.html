@@ -15,15 +15,23 @@
         <div class="top">
             <div>
                 {{game.turn}}
-    
+
             </div>
-    
+
             <players-view :players="game.players"></players-view>
+
+            <div v-if="game.isItMyTurn()">
+                My turn
+            </div>
+            <div v-else>
+                Waiting for opponent
+            </div>
         </div>
 
         <div class="middle">
             <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
             <hit-board-view :board="myHitBoard" :target="targetedCell" v-else></hit-board-view>
+
         </div>
 
 

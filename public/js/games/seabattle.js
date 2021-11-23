@@ -25,21 +25,6 @@ function connectionCallback(response) {
     var game = response.game;
     window.game = game;
 
-    var mouseIsDown = false;
-    var mouseLandingPoint = {};
-    var dragTarget = null;
-    var initialDragTargetPosition = null;
-    var dragOffset = {};
-    var targetMoved = false;
-    var lastMove = {};
-
-    document.addEventListener('mouseup', function (e) {
-
-        mouseIsDown = false;
-        mouseLandingPoint = {};
-        targetMoved = false;
-    });
-
 
     var myHitBoard = getMyHitBoard(game);
 
@@ -52,6 +37,17 @@ function connectionCallback(response) {
     var t2 = performance.now();
     console.log(board);
     console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+
+
+    var mouseIsDown = false;
+
+    document.addEventListener('mouseup', function () {
+        mouseIsDown = false;
+    });
+
+    document.addEventListener('mousedown', function () {
+        mouseIsDown = true;
+    });
 
     const App = {
         data() {
@@ -112,39 +108,107 @@ function connectionCallback(response) {
     const ShipPlacer = {
         data() {
             return {
-
+                dragTarget: null,
+                lastMove: {},
+                targetMoved: false
             }
         },
         props: ['board', 'game'],
         template: `     
-        <div class="ship-placer-container" :style="styles" @mousemove="mousemove($event)">
-            <placed-ship v-for="ship in board.ships" :key="ship.id" :ship="ship" :game="game"></placed-ship>
+        <div class="ship-placer-container">
+            <div class="ship-placer-grid" :style="gridStyles">
+                <placed-ship v-for="ship in board.ships" :key="ship.id" :ship="ship" :board="board" :selected="dragTarget == ship"></placed-ship>
+            </div>
+
+            <div class="ship-placer-board">
+                <div class="ship-placer-row" v-for="y in board.width" :key="y">
+                    <div class="ship-placer-cell" v-for="x in board.height" :key="x" :x="x-1" :y="y-1" @mouseover="mouseover($event, x-1, y-1)" @mousedown="mousedown($event, x-1, y-1)" @mouseup="mouseup($event, x-1, y-1)"></div>
+                </div>
+            </div>
+            
         </div>`,
         computed: {
-            styles() {
+            gridStyles() {
                 return {
-                    width: myHitBoard.width * Common.CELL_SIZE + 'px',
-                    height: myHitBoard.height * Common.CELL_SIZE + 'px',
-                    "background-size": Common.CELL_SIZE + 'px ' + Common.CELL_SIZE + 'px'
+                    'grid-template-columns': `repeat(${board.width}, ${100/board.width}%)`,
+                    'grid-template-rows': `repeat(${board.height}, ${100/board.height}%)`,
+                    "background-size": 100 / myHitBoard.width + '% ' + 100 / myHitBoard.height + '%',
                 }
             }
         },
         methods: {
-            mousemove(e) {
+            mouseover(e, x, y) {
                 e.preventDefault();
 
-                if (mouseIsDown && dragTarget != null) {
-                    var bb = this.$el.getBoundingClientRect();
+                console.log('mouseover ' + x + ' ' + y);
 
-                    // get nearest tile
-                    var nearestX = Math.floor((e.clientX - bb.left) / Common.CELL_SIZE);
-                    var nearestY = Math.floor((e.clientY - bb.top) / Common.CELL_SIZE);
-
-                    if (lastMove.x != nearestX || lastMove.y != nearestY) {
-                        dragTarget.move({ x: nearestX - dragOffset.x, y: nearestY - dragOffset.y });
-                    }
-                    lastMove = { x: nearestX, y: nearestY };
+                if (this.lastMove.x != x || this.lastMove.y != y) {
+                    if (this.dragTarget && mouseIsDown)
+                        this.moveShip({ x: x - this.dragOffset.x, y: y - this.dragOffset.y });
                 }
+                this.lastMove = { x: x, y: y };
+            },
+            mousedown(e, x, y) {
+                e.preventDefault();
+
+                var ship = Common.getShipAt(this.board, x, y);
+
+                if (ship) {
+
+                    var offsetX = x - ship.x;
+                    var offsetY = y - ship.y;
+                    this.dragOffset = { x: offsetX, y: offsetY }; // what part of the ship is being dragged
+
+                    mouseIsDown = true;
+
+                    this.mouseLandingPoint = { x, y };
+                    this.dragTarget = ship;
+                    this.initialDragTargetPosition = { x: ship.x + 0, y: ship.y + 0 };
+
+                    console.log('drag');
+                } else {
+                    this.dragTarget = null;
+                }
+            },
+            moveShip(pos) {
+                var ship = this.dragTarget;
+                var board = _.cloneDeep(this.$root.shipPlacementBoard);
+                board.ships.forEach(element => {
+                    if (element.id == ship.id) {
+                        if (pos.x !== undefined)
+                            element.x = pos.x;
+                        if (pos.y !== undefined)
+                            element.y = pos.y;
+                        if (pos.direction !== undefined)
+                            element.direction = pos.direction;
+                    }
+                });
+
+                if (Common.isBoardValid(board, 0)) {
+                    if ((ship.x != pos.x && pos.x !== undefined) || (ship.y != pos.y && pos.y !== undefined)) {
+                        this.targetMoved = true;
+                    }
+                    if (pos.x !== undefined)
+                        ship.x = pos.x;
+                    if (pos.y !== undefined)
+                        ship.y = pos.y;
+                    if (pos.direction !== undefined)
+                        ship.direction = pos.direction;
+                }
+            },
+            mouseup(e, x, y) {
+                var dragTarget = this.dragTarget;
+                if (!dragTarget)
+                    return;
+                if (mouseIsDown && dragTarget != null) {
+                    if (!this.targetMoved) {
+                        // rotate ship, user just simply clicked
+                        this.moveShip({ direction: dragTarget.direction == Common.SHIP_DIRECTION_HORIZONTAL ? Common.SHIP_DIRECTION_VERTICAL : Common.SHIP_DIRECTION_HORIZONTAL });
+                    }
+                }
+                mouseIsDown = false;
+                this.targetMoved = false;
+                this.dragTarget = null;
             }
 
         }
@@ -153,11 +217,11 @@ function connectionCallback(response) {
     var shipPlacer = vm.component('ship-placer', ShipPlacer);
 
     const PlacedShip = {
-        props: ['ship'],
+        props: ['ship', 'board', 'selected'],
         template: `
-            <div class="placed-ship">
+            <div class="placed-ship" :style="styles" :x="ship.x" :y="ship.y" :class="classes">
                 <div class="placed-ship-bounding-box" :style="boundingBoxStyles"></div>
-                <img :style="imgStyles" :src="imageURL" class="placed-ship-image" @mousedown="mousedown($event)" @mouseup="mouseup($event)"/>
+                <img draggable="false" :src="imageURL" class="placed-ship-image" @mouseup="mouseup($event)"/>
             </div>`,
         data() {
             var ship = this.ship;
@@ -165,6 +229,27 @@ function connectionCallback(response) {
             }
         },
         computed: {
+            classes() {
+                return this.selected ? 'selected' : '';
+            },
+            styles () {
+                // position based on grid
+                var ship = this.ship;
+
+                var transform = '';
+                if (ship.direction == Common.SHIP_DIRECTION_VERTICAL) {
+                    transform = 'rotate(90deg)';
+                }
+
+                return {
+                    top: ship.y / board.height * 100 + '%',
+                    left: ship.x / board.width * 100 + '%',
+                    width: ship.length / board.width * 100 + '%',
+                    height: 1/ board.height * 100 + '%',
+                    transform: transform,
+                    transformOrigin: (1 / ship.length * 50) + '% 50%'
+                }
+            },
             boundingBox() {
                 var ship = this.ship;
                 var x1 = ship.x - 1;
@@ -182,10 +267,7 @@ function connectionCallback(response) {
             imgStyles() {
                 var ship = this.ship;
 
-                var transform = '';
-                if (ship.direction == Common.SHIP_DIRECTION_VERTICAL) {
-                    transform = 'rotate(90deg)';
-                }
+
 
                 var x = ship.x * Common.CELL_SIZE;
                 var y = ship.y * Common.CELL_SIZE;
@@ -193,8 +275,7 @@ function connectionCallback(response) {
                 var height = Common.CELL_SIZE;
 
                 return {
-                    transform: transform,
-                    transformOrigin: Common.CELL_SIZE / 2 + 'px',
+
                     left: x + 'px',
                     top: y + 'px',
                     width: width + 'px',
@@ -222,32 +303,6 @@ function connectionCallback(response) {
             }
         },
         methods: {
-            move(pos) {
-                var ship = this.ship;
-                var board = _.cloneDeep(this.$root.shipPlacementBoard);
-                board.ships.forEach(element => {
-                    if (element.id == ship.id) {
-                        if (pos.x !== undefined)
-                            element.x = pos.x;
-                        if (pos.y !== undefined)
-                            element.y = pos.y;
-                        if (pos.direction !== undefined)
-                            element.direction = pos.direction;
-                    }
-                });
-
-                if (Common.isBoardValid(board, 0)) {
-                    if ((ship.x != pos.x && pos.x !== undefined) || (ship.y != pos.y && pos.y !== undefined)) {
-                        targetMoved = true;
-                    }
-                    if (pos.x !== undefined)
-                        ship.x = pos.x;
-                    if (pos.y !== undefined)
-                        ship.y = pos.y;
-                    if (pos.direction !== undefined)
-                        ship.direction = pos.direction;
-                }
-            },
             mousedown(e) {
                 var ship = this.ship;
 
@@ -274,23 +329,14 @@ function connectionCallback(response) {
 
                 var offsetX = nearestX - this.ship.x;
                 var offsetY = nearestY - this.ship.y;
-                dragOffset = { x: offsetX, y: offsetY }; // what part of the ship is being dragged
+                this.dragOffset = { x: offsetX, y: offsetY }; // what part of the ship is being dragged
 
 
-                mouseLandingPoint = { x, y };
-                dragTarget = this;
-                initialDragTargetPosition = { x: this.ship.x + 0, y: this.ship.y + 0 };
+                this.mouseLandingPoint = { x, y };
+                this.dragTarget = this;
+                this.initialDragTargetPosition = { x: this.ship.x + 0, y: this.ship.y + 0 };
 
-            },
-            mouseup(e) {
-                if (dragTarget != this)
-                    return;
-                if (mouseIsDown && dragTarget != null) {
-                    if (!targetMoved) {
-                        // rotate ship, user just simply clicked
-                        dragTarget.move({ direction: dragTarget.$props.ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? Common.SHIP_DIRECTION_VERTICAL : Common.SHIP_DIRECTION_HORIZONTAL });
-                    }
-                }
+                console.log('drag');
             }
         }
     };
@@ -303,10 +349,13 @@ function connectionCallback(response) {
 
                 <div class="hit-board-grid">
                     <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
-                        <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell"></hit-board-cell>
+                        <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell" :board="board"></hit-board-cell>
                     </div>
                 </div>
-                <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship"></placed-ship>
+                <div class="hit-board-ships" :style="gridStyles">
+                    <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board" :selected="dragTarget == ship">
+                    </placed-ship>
+                </div>
 
                 <div class="target-crosshair" v-if="target" :style="targetStyles">
                     <img src="/public/assets/seabattle/crosshair.png" />
@@ -320,17 +369,15 @@ function connectionCallback(response) {
         computed: {
             styles() {
                 return {
-                    width: board.width * Common.CELL_SIZE + 'px',
-                    height: board.height * Common.CELL_SIZE + 'px',
-                    "background-size": Common.CELL_SIZE + 'px ' + Common.CELL_SIZE + 'px'
+                    "background-size": 1 / this.board.width * 100 + '% ' + 1 / this.board.height * 100 + '%',
                 }
             },
             targetStyles() {
                 return {
-                    top: this.target.y * Common.CELL_SIZE + 'px',
-                    left: this.target.x * Common.CELL_SIZE + 'px',
-                    width: Common.CELL_SIZE + 'px',
-                    height: Common.CELL_SIZE + 'px'
+                    left: this.target.x / this.board.width * 100 + '%',
+                    top: this.target.y / this.board.height * 100 + '%',
+                    width: 1 / this.board.width * 100 + '%',
+                    height: 1 / this.board.height * 100 + '%'
                 }
             }
         }
@@ -339,7 +386,7 @@ function connectionCallback(response) {
     var hitBoardView = vm.component('hit-board-view', HitBoardView);
 
     const HitBoardCell = {
-        props: ['cell'],
+        props: ['cell', 'board'],
         template: `<div class="hit-board-cell" 
             :style="cellStyles"
             @click="cellClicked"
@@ -349,8 +396,7 @@ function connectionCallback(response) {
         computed: {
             cellStyles() {
                 return {
-                    width: Common.CELL_SIZE + 'px',
-                    height: Common.CELL_SIZE + 'px'
+                    
                 }
             },
             imgURL() {
