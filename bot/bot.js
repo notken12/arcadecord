@@ -54,7 +54,11 @@ for (const file of buttonFiles) {
 	client.buttons.set(button.data.name, button);
 }
 
-// Login to Discord with your client's token
-client.login(process.env.BOT_TOKEN);
-
-module.exports = client;
+module.exports = {
+	getUserProfile: function (id) {
+		return client.users.fetch(id, {force: true});
+	},
+	login: function () {
+		client.login(process.env.BOT_TOKEN);
+	}
+};

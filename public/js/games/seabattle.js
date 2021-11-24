@@ -1,4 +1,5 @@
 import * as Client from '/public/js/client-framework.js';
+import * as UI from '/public/js/ui.js';
 
 import '/gamecommons/seabattle';
 
@@ -90,20 +91,7 @@ function connectionCallback(response) {
 
     var vm = Vue.createApp(App);
 
-    const PlayersView = {
-        data() {
-            return {
-            }
-        },
-        props: ['players'],
-        template: `<div class="players-container">
-        <div v-for="player in players" :key="player.discordUser.id" class="player">
-            <div class="player-name">{{player.discordUser.username}}#{{player.discordUser.discriminator}}</div>
-        </div>
-    </div>`
-    };
-
-    var playersView = vm.component('players-view', PlayersView);
+    var gameHeader = vm.component('game-header', UI.GameHeader);
 
     const ShipPlacer = {
         data() {

@@ -7,6 +7,7 @@ const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
 const { cloneDeep } = require('lodash');
+const bot = require('../bot/bot');
 
 dotenv.config();
 
@@ -202,7 +203,7 @@ class Game {
     async addPlayer(id) {
         if (!(await this.canUserJoin(id))) return false;
 
-        var discordUser = await discordApiUtils.fetchUser(id);
+        var discordUser = await discordApiUtils.fetchUser(bot, id);
         var player = new Player(id, discordUser);
 
         this.players.push(player);
@@ -242,7 +243,7 @@ class Game {
         var members = this.guild.members;
 
         //get discord user id
-        var discordUser = await discordApiUtils.fetchUser(id);
+        var discordUser = await discordApiUtils.fetchUser(bot, id);
         if (!discordUser) return false;
 
         try {

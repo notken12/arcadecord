@@ -3,20 +3,24 @@ const request = require('request');
 const app = express();
 const port = 3000;
 
-const bot = require('./bot/bot.js');
+const db = require('./db/db');
+
+const discordApiUtils = require('./utils/discord-api');
 const dotenv = require('dotenv');
+const gameTypes = require('./games/game-types');
 const gamesManager = require('./games/gamesManager.js');
 const cookieParser = require('cookie-parser');
-const db = require('./db/db');
-const discordApiUtils = require('./utils/discord-api');
+const bot = require('./bot/bot.js');
 
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cookie = require('cookie');
-const { user } = require('./bot/bot.js');
 
 dotenv.config();
+
+bot.login();
+console.log(bot.getUserProfile);
 
 const io = new Server(server);
 
@@ -42,7 +46,7 @@ io.on('connection', (socket) => {
           callback({
             status: 'success',
             game: game.getDataForClient(userId),
-            discordUser: await discordApiUtils.fetchUser(userId)
+            discordUser: await discordApiUtils.fetchUser(bot, userId)
           });
         }
       }
@@ -97,7 +101,7 @@ app.get('/auth', (req, res) => {
     var refresh_token = JSON.parse(body).refresh_token;
     var access_token = JSON.parse(body).access_token;
 
-    var dId = (await discordApiUtils.fetchUserFromAccessToken(access_token)).id;
+    var dId = (await discordApiUtils.fetchUserFromAccessToken(bot, access_token)).id;
 
     //create user in db
 
@@ -165,8 +169,10 @@ app.use('/game', async (req, res) => {
         //user is signed in. 
         //redirect to game
 
+        var userId = cookie;
 
-        var status = await game.doesUserHavePermission(cookie);
+
+        var status = await game.doesUserHavePermission(userId);
         res.clearCookie('gameId', { httpOnly: true });
 
         if (status) {

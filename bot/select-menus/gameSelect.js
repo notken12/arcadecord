@@ -34,7 +34,7 @@ module.exports = {
             game.addPlayer(user.get('id'));
             game.init();
 
-            interaction.update({components: [], content: `${game.name} created`});
+            interaction.update({components: [], content: `${game.name} created`}).catch(console.error);
         }
     }
 }

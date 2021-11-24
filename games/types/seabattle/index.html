@@ -13,20 +13,7 @@
 
 <body>
     <div id="app" v-cloak>
-        <div class="top">
-            <div>
-                <button class="btn-icon">
-                    <i class="material-icons">help</i>
-                </button>
-                <button class="btn-icon">
-                    <i class="material-icons">settings</i>
-                </button>
-            </div>
-            <div>
-                <players-view :players="game.players"></players-view>
-            </div>
-
-        </div>
+        <game-header :game="game"></game-header>
 
         <div class="middle">
             <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
