@@ -152,7 +152,22 @@ class SeaBattleGame extends Game {
 
             }
             if (sunk) {
+                ship.sunk = true;
                 hitBoard.revealedShips.push(ship);
+            }
+
+            // check if all ships are sunk
+            var allSunk = true;
+            for (var ship in board.ships) {
+                if (!ship.sunk) {
+                    allSunk = false;
+                    break;
+                }
+            }
+            if (allSunk) {
+                game.end({
+                    winner: action.playerIndex
+                });
             }
 
             return game;

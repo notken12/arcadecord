@@ -33,14 +33,16 @@ function connectionCallback(response) {
     var myHitBoard = getMyHitBoard(game);
 
     var board = new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height);
-    var t1 = performance.now();
 
     var availableShips = game.data.availableShips[myHitBoard.playerIndex];
 
-    board = Common.PlaceShips(availableShips, board);
-    var t2 = performance.now();
-    console.log(board);
-    console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+    if (!game.data.placed[myHitBoard.playerIndex] && game.isItMyTurn()) {
+        var t1 = performance.now();
+        board = Common.PlaceShips(availableShips, board);
+        var t2 = performance.now();
+        console.log(board);
+        console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+    }
 
 
     var mouseIsDown = false;
@@ -95,7 +97,7 @@ function connectionCallback(response) {
 
     var vm = Vue.createApp(App);
 
-    var gameHeader = vm.component('game-header', UI.GameHeader);
+    var gameView = vm.component('game-view', UI.GameView);
 
     const ShipPlacer = {
         data() {
@@ -132,7 +134,6 @@ function connectionCallback(response) {
             mouseover(e, x, y) {
                 e.preventDefault();
 
-                console.log('mouseover ' + x + ' ' + y);
 
                 if (this.lastMove.x != x || this.lastMove.y != y) {
                     if (this.dragTarget && mouseIsDown)
@@ -157,7 +158,6 @@ function connectionCallback(response) {
                     this.dragTarget = ship;
                     this.initialDragTargetPosition = { x: ship.x + 0, y: ship.y + 0 };
 
-                    console.log('drag');
                 } else {
                     this.dragTarget = null;
                 }
@@ -213,7 +213,7 @@ function connectionCallback(response) {
         template: `
             <div class="placed-ship" :style="styles" :x="ship.x" :y="ship.y" :class="classes">
                 <div class="placed-ship-bounding-box" :style="boundingBoxStyles"></div>
-                <img draggable="false" :src="imageURL" class="placed-ship-image" @mouseup="mouseup($event)"/>
+                <img draggable="false" :src="imageURL" class="placed-ship-image"/>
             </div>`,
         data() {
             var ship = this.ship;
@@ -424,7 +424,19 @@ function connectionCallback(response) {
 
     Client.socket.on('turn', (g, turn) => {
         Client.utils.updateGame(app.game, g);
-        app.game.turn = g.turn;
+
+        if (!app.game.data.placed[app.game.myIndex] && app.game.isItMyTurn()) {
+            var t1 = performance.now();
+
+            app.shipPlacementBoard = Common.PlaceShips(availableShips, board);
+            var t2 = performance.now();
+            console.log(board);
+            console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+        }
+
+
+
+        
     });
 
 }

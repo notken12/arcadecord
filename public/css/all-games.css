@@ -34,82 +34,82 @@
 }
 
 :root {
-    --md-sys-typescale-display1-font: 'Inter';
+    --md-sys-typescale-display1-font: 'Work Sans';
     --md-sys-typescale-display1-weight: Regular;
     --md-sys-typescale-display1-size: 64px;
     --md-sys-typescale-display1-line-height: 76px;
     --md-sys-typescale-display1-tracking: 0px;
-    --md-sys-typescale-display2-font: 'Inter';
+    --md-sys-typescale-display2-font: 'Work Sans';
     --md-sys-typescale-display2-weight: Regular;
     --md-sys-typescale-display2-size: 57px;
     --md-sys-typescale-display2-line-height: 64px;
     --md-sys-typescale-display2-tracking: 0px;
-    --md-sys-typescale-display3-font: 'Inter';
+    --md-sys-typescale-display3-font: 'Work Sans';
     --md-sys-typescale-display3-weight: Regular;
     --md-sys-typescale-display3-size: 45px;
     --md-sys-typescale-display3-line-height: 52px;
     --md-sys-typescale-display3-tracking: 0px;
-    --md-sys-typescale-headline1-font: 'Inter';
+    --md-sys-typescale-headline1-font: 'Work Sans';
     --md-sys-typescale-headline1-weight: Regular;
     --md-sys-typescale-headline1-size: 36px;
     --md-sys-typescale-headline1-line-height: 44px;
     --md-sys-typescale-headline1-tracking: 0px;
-    --md-sys-typescale-headline2-font: 'Inter';
+    --md-sys-typescale-headline2-font: 'Work Sans';
     --md-sys-typescale-headline2-weight: Regular;
     --md-sys-typescale-headline2-size: 32px;
     --md-sys-typescale-headline2-line-height: 40px;
     --md-sys-typescale-headline2-tracking: 0px;
-    --md-sys-typescale-headline3-font: 'Inter';
+    --md-sys-typescale-headline3-font: 'Work Sans';
     --md-sys-typescale-headline3-weight: Regular;
     --md-sys-typescale-headline3-size: 28px;
     --md-sys-typescale-headline3-line-height: 36px;
     --md-sys-typescale-headline3-tracking: 0px;
-    --md-sys-typescale-headline4-font: 'Inter';
+    --md-sys-typescale-headline4-font: 'Work Sans';
     --md-sys-typescale-headline4-weight: Regular;
     --md-sys-typescale-headline4-size: 24px;
     --md-sys-typescale-headline4-line-height: 32px;
     --md-sys-typescale-headline4-tracking: 0px;
-    --md-sys-typescale-headline5-font: 'Inter';
+    --md-sys-typescale-headline5-font: 'Work Sans';
     --md-sys-typescale-headline5-weight: Regular;
     --md-sys-typescale-headline5-size: 22px;
     --md-sys-typescale-headline5-line-height: 28px;
     --md-sys-typescale-headline5-tracking: 0px;
-    --md-sys-typescale-headline6-font: 'Inter';
+    --md-sys-typescale-headline6-font: 'Work Sans';
     --md-sys-typescale-headline6-weight: Regular;
     --md-sys-typescale-headline6-size: 18px;
     --md-sys-typescale-headline6-line-height: 24px;
     --md-sys-typescale-headline6-tracking: 0px;
-    --md-sys-typescale-body1-font: 'Inter';
+    --md-sys-typescale-body1-font: 'Work Sans';
     --md-sys-typescale-body1-weight: Regular;
     --md-sys-typescale-body1-size: 14px;
     --md-sys-typescale-body1-line-height: 24px;
     --md-sys-typescale-body1-tracking: 0px;
-    --md-sys-typescale-body2-font: 'Inter';
+    --md-sys-typescale-body2-font: 'Work Sans';
     --md-sys-typescale-body2-weight: Regular;
     --md-sys-typescale-body2-size: 14px;
     --md-sys-typescale-body2-line-height: 20px;
     --md-sys-typescale-body2-tracking: 0px;
-    --md-sys-typescale-subhead1-font: 'Inter';
+    --md-sys-typescale-subhead1-font: 'Work Sans';
     --md-sys-typescale-subhead1-weight: Medium;
     --md-sys-typescale-subhead1-size: 14px;
     --md-sys-typescale-subhead1-line-height: 24px;
     --md-sys-typescale-subhead1-tracking: 0px;
-    --md-sys-typescale-subhead2-font: 'Inter';
+    --md-sys-typescale-subhead2-font: 'Work Sans';
     --md-sys-typescale-subhead2-weight: Medium;
     --md-sys-typescale-subhead2-size: 14px;
     --md-sys-typescale-subhead2-line-height: 20px;
     --md-sys-typescale-subhead2-tracking: 0px;
-    --md-sys-typescale-button-font: 'Inter';
+    --md-sys-typescale-button-font: 'Work Sans';
     --md-sys-typescale-button-weight: Medium;
     --md-sys-typescale-button-size: 14px;
     --md-sys-typescale-button-line-height: 20px;
     --md-sys-typescale-button-tracking: 0px;
-    --md-sys-typescale-caption-font: 'Inter';
+    --md-sys-typescale-caption-font: 'Work Sans';
     --md-sys-typescale-caption-weight: Regular;
     --md-sys-typescale-caption-size: 12px;
     --md-sys-typescale-caption-line-height: 16px;
     --md-sys-typescale-caption-tracking: 0.1px;
-    --md-sys-typescale-overline-font: 'Inter';
+    --md-sys-typescale-overline-font: 'Work Sans';
     --md-sys-typescale-overline-weight: Medium;
     --md-sys-typescale-overline-size: 12px;
     --md-sys-typescale-overline-line-height: 16px;
@@ -151,12 +151,29 @@
     --md-elevation-level10: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.20);
 }
 
-body {
+html, body {
     background-color: var(--md-sys-background);
     color: var(--md-sys-on-background);
     margin: 0;
     font-family: var(--md-sys-typescale-body1-font);
     font-size: var(--md-sys-typescale-body1-size);
+    height: 100%;
+    overflow: hidden;
+    user-select: none;
+}
+
+#app {
+    min-height: 100%;
+    display: flex;
+    display: grid;
+}
+
+.top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 }
 
 button {
@@ -185,6 +202,16 @@ button {
     font-family: var(--md-sys-typescale-button-font);
     box-shadow: var(--md-elevation-level1);
     font-weight: var(--md-sys-typescale-button-weight);
+    max-height: 36px;
+}
+
+.btn-icon {
+    padding: 8px;
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .btn-fab {
@@ -207,10 +234,19 @@ button {
     height: 24px;
 }
 
+.game-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
 .fabs {
     width: 100%;
     display: flex;
     flex-direction: row;
+    position: relative;
+    z-index: 10;
 }
 
 .fabs .btn-fab {
@@ -224,7 +260,7 @@ button {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    height: 100px;
 }
 
 .player {
@@ -267,4 +303,102 @@ button {
 
 .player-me .username {
     font-weight: bold;
+}
+
+.waiting-view {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.50);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.waiting-view-text {
+    background-color: var(--md-sys-surface-variant);
+    color: var(--md-sys-on-surface-variant);
+    padding: 16px;
+    border-radius: 100px;
+    font-weight: bold;
+}
+
+.waiting-view-text .dots span {
+    animation: dots 2s linear infinite;
+}
+
+.waiting-view-text .dots span:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.waiting-view-text .dots span:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+@keyframes dots {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.game-manual-bg {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 11;
+}
+
+.game-manual-modal {
+    width: 100%;
+    height: 100%;
+    background-color: var(--md-sys-surface);
+    color: var(--md-sys-on-surface);
+    overflow-y: auto;
+}
+
+.game-manual-modal-header {
+    display: flex;
+    flex-direction: row;
+    height: 64px;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    position: fixed;
+    background-color: var(--md-sys-surface);
+    width: 100%;
+    box-shadow: var(--md-elevation-level3);
+}
+
+.game-manual-modal-header .btn-icon {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    color: var(--md-sys-on-surface);
+    padding: 0;
+    min-width: 24px;
+    min-height: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.game-manual-modal-header-text {
+    font-size: var(--md-sys-typescale-headline5-size);
+    font-family: var(--md-sys-typescale-headline5-font);
+    font-weight: var(--md-sys-typescale-headline5-weight);
+    line-height: var(--md-sys-typescale-headline5-line-height);
+}
+
+.game-manual-modal-content {
+    padding: 16px;
+    margin-top: 64px;
 }
