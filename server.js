@@ -20,7 +20,6 @@ const cookie = require('cookie');
 dotenv.config();
 
 bot.login();
-console.log(bot.getUserProfile);
 
 const io = new Server(server);
 

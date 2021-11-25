@@ -21,8 +21,6 @@ async function fetchUserFromAccessToken(bot, access_token) {
 
     me = await me.json();
 
-    console.log(me);
-    console.log(access_token);
     var id = me.id;
 
     var user = await bot.getUserProfile(id);

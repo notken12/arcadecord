@@ -126,7 +126,7 @@ class SeaBattleGame extends Game {
 
 
             // get ship at x, y
-            var ship = this.getShipAt(board, x, y);
+            var ship = Common.getShipAt(board, x, y);
             if (!ship) {
                 hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
 

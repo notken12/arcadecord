@@ -4,20 +4,32 @@ const PlayerView = {
 
         }
     },
-    props: ['player'],
+    props: ['player', 'me'],
     template: `
-        <div class="player">
-            <img v-bind:src="avatarURL" class="player-image" alt="player">
+        <div class="player" :class="classes">
+            <img v-bind:src="avatarURL" class="player-image" alt="player" draggable="false">
             <div class="player-name">
-                <span class="username">{{player.discordUser.username}}</span>
-                <span class="discriminator">#{{player.discordUser.discriminator}}</span>
+                <div v-if="!isMe">
+                    <span class="username">{{player.discordUser.username}}</span>
+                    <span class="discriminator">#{{player.discordUser.discriminator}}</span>
+                </div>
+                <div v-else>
+                    <span class="username">You</span>
+                </div>
             </div>
         </div>
     `,
     computed: {
         avatarURL() {
-            // retrieve avatar with size 128x128
-            return 'https://cdn.discordapp.com/avatars/' + this.player.discordUser.id + '/' + this.player.discordUser.avatar + '?size=128'; 
+            return this.player.discordUser.displayAvatarURL || this.player.discordUser.defaultAvatarURL;
+        },
+        isMe() {
+            return this.player.discordUser.id === this.me.id;
+        },
+        classes() {
+            return {
+                'player-me': this.isMe
+            }
         }
     }
 }
@@ -27,10 +39,10 @@ const PlayersView = {
         return {
         }
     },
-    props: ['players'],
+    props: ['players', 'me'],
     template: `
     <div class="players-container">
-        <player-view v-for="player in players" :key="player.discordUser.id" :player="player"></player-view>
+        <player-view v-for="player in players" :key="player.discordUser.id" :player="player" :me="me"></player-view>
     </div>
     `,
     components: {
@@ -44,7 +56,7 @@ const GameHeader = {
 
         }
     },
-    props: ['game'],
+    props: ['game', 'me'],
     template: `
     <div class="top">
         <div class="fabs">
@@ -56,7 +68,7 @@ const GameHeader = {
             </button>
         </div>
         <div>
-            <players-view :players="game.players"></players-view>
+            <players-view :players="game.players" :me="me"></players-view>
         </div>
     </div>
     `,

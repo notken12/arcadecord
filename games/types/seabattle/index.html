@@ -13,7 +13,7 @@
 
 <body>
     <div id="app" v-cloak>
-        <game-header :game="game"></game-header>
+        <game-header :game="game" :me="me"></game-header>
 
         <div class="middle">
             <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>

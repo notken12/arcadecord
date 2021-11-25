@@ -229,19 +229,21 @@ button {
 
 .player {
     background-color: var(--md-sys-surface-variant);
+    color: var(--md-sys-on-surface-variant);
     border-radius: 6px;
     padding: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 8px;
+    box-shadow: var(--md-elevation-level3);
 }
 
 .player img {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
+    user-select: none;
 }
 
 .player-name span {
@@ -255,10 +257,14 @@ button {
 .players-container {
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    overflow: visible;
     gap: 8px;
+    max-width: 10em;
+}
+
+.player-me .username {
+    font-weight: bold;
 }

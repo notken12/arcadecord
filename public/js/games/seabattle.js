@@ -26,6 +26,9 @@ function connectionCallback(response) {
     var game = response.game;
     window.game = game;
 
+    var discordUser = response.discordUser;
+    window.discordUser = discordUser;
+
 
     var myHitBoard = getMyHitBoard(game);
 
@@ -57,6 +60,7 @@ function connectionCallback(response) {
                 shipPlacementBoard: board,
                 isItMyTurn: game.isItMyTurn(),
                 targetedCell: null,
+                me: discordUser
             }
         },
         methods: {
@@ -340,8 +344,8 @@ function connectionCallback(response) {
                         <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell" :board="board"></hit-board-cell>
                     </div>
                 </div>
-                <div class="hit-board-ships" :style="gridStyles">
-                    <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board" :selected="dragTarget == ship">
+                <div class="hit-board-ships">
+                    <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board">
                     </placed-ship>
                 </div>
 
