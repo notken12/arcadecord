@@ -387,9 +387,18 @@ function connectionCallback(response) {
             </div>`,
         computed: {
             cellStyles() {
-                return {
+                var board = this.board;
+                board.ships = board.revealedShips;
+                if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
+                    return {
+                        'opacity': 0
+                    }
+                } else {
+                    return {
                     
+                    }
                 }
+
             },
             imgURL() {
                 return '/public/assets/seabattle/cell-states/' + this.cell.state + '.png';

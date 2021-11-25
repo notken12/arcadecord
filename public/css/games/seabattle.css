@@ -88,6 +88,10 @@
 
 /****/
 
+.hit-board-ships {
+    opacity: 0.5;
+}
+
 .hit-board-grid {
     display: flex;
     flex-direction: column;
