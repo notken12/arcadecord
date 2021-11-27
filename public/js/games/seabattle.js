@@ -132,8 +132,8 @@ function connectionCallback(response) {
         },
         methods: {
             mouseover(e, x, y) {
-                e.preventDefault();
 
+                console.log('mouseover ' + x + ' ' + y);
 
                 if (this.lastMove.x != x || this.lastMove.y != y) {
                     if (this.dragTarget && mouseIsDown)
