@@ -114,9 +114,13 @@ function connectionCallback(response) {
                 <placed-ship v-for="ship in board.ships" :key="ship.id" :ship="ship" :board="board" :selected="dragTarget == ship"></placed-ship>
             </div>
 
-            <div class="ship-placer-board">
+            <div class="ship-placer-board" @touchmove="touchmove($event)" @touchend="mouseup($event)" ref="board">
                 <div class="ship-placer-row" v-for="y in board.width" :key="y">
-                    <div class="ship-placer-cell" v-for="x in board.height" :key="x" :x="x-1" :y="y-1" @mouseover="mouseover($event, x-1, y-1)" @mousedown="mousedown($event, x-1, y-1)" @mouseup="mouseup($event, x-1, y-1)"></div>
+                    <div class="ship-placer-cell" v-for="x in board.height" :key="x" :x="x-1" :y="y-1" 
+                    @mouseover="mouseover($event, x-1, y-1)" 
+                    @mousedown="mousedown($event, x-1, y-1)" 
+                    @mouseup="mouseup($event, x-1, y-1)"
+                    @touchstart="touchstart($event, x-1, y-1)"></div>
                 </div>
             </div>
             
@@ -131,6 +135,46 @@ function connectionCallback(response) {
             }
         },
         methods: {
+            touchmove(e) {
+                e.preventDefault();
+
+                var b = this.$refs.board.getBoundingClientRect();
+
+                var x = Math.floor((e.touches[0].clientX - b.left) / b.width * this.board.width);
+                var y = Math.floor((e.touches[0].clientY - b.top) / b.height * this.board.height);
+
+                if (this.lastMove.x != x || this.lastMove.y != y) {
+                    if (this.dragTarget && mouseIsDown)
+                        this.moveShip({ x: x - this.dragOffset.x, y: y - this.dragOffset.y });
+                }
+                this.lastMove = { x: x, y: y };
+                
+
+            },
+            touchstart(e, x, y) {
+                e.preventDefault();
+
+                console.log('touchstart' + x + ' ' + y);
+
+                var ship = Common.getShipAt(this.board, x, y);
+
+
+                if (ship) {
+
+                    var offsetX = x - ship.x;
+                    var offsetY = y - ship.y;
+                    this.dragOffset = { x: offsetX, y: offsetY }; // what part of the ship is being dragged
+
+                    mouseIsDown = true;
+
+                    this.mouseLandingPoint = { x, y };
+                    this.dragTarget = ship;
+                    this.initialDragTargetPosition = { x: ship.x + 0, y: ship.y + 0 };
+
+                } else {
+                    this.dragTarget = null;
+                }
+            },
             mouseover(e, x, y) {
 
                 console.log('mouseover ' + x + ' ' + y);
@@ -142,7 +186,8 @@ function connectionCallback(response) {
                 this.lastMove = { x: x, y: y };
             },
             mousedown(e, x, y) {
-                e.preventDefault();
+
+                console.log('mousedown' + x + ' ' + y);
 
                 var ship = Common.getShipAt(this.board, x, y);
 
