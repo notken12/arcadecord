@@ -168,12 +168,6 @@ function connectionCallback(response) {
                 }
             }
         },
-        watch: {
-            board() {
-                console.log('board changed');
-                this.$forceUpdate();
-            }
-        },
         methods: {
             touchmove(e) {
                 e.preventDefault();
@@ -299,16 +293,6 @@ function connectionCallback(response) {
             </div>`,
         data() {
             return {
-            }
-        },
-        watch: {
-            'ship.x': function (newVal, oldVal) {
-                this.$forceUpdate();
-                console.log('ship.x changed');
-            },
-            'ship.y': function (newVal, oldVal) {
-                this.$forceUpdate();
-                console.log('ship.y changed');
             }
         },
         computed: {
