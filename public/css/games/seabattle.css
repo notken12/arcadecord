@@ -127,11 +127,7 @@
     height: 100%;
 }
 
-.hit-board-cell.miss.animated {
-    animation: miss-animation 0.5s;
-}
-
-@keyframes miss-animation {
+@keyframes miss {
     0% {
         opacity: 0;
     }
@@ -140,11 +136,7 @@
     }
 }
 
-.hit-board-cell.hit.animated {
-    animation: hit-animation 0.2s;
-}
-
-@keyframes hit-animation {
+@keyframes hit {
     0% {
         transform: scale(0);
     }

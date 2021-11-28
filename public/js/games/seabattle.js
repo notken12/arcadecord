@@ -70,20 +70,40 @@ function connectionCallback(response) {
                 Client.runAction(this.game, 'set_ships', { shipPlacementBoard: this.shipPlacementBoard }, (response) => {
                     console.log(response);
                     if (response.success) {
-                        Client.utils.updateGame(app.game, response.game);
+                        Client.utils.updateGame(this.game, response.game);
                     }
                 });
             },
             shoot() {
                 var cell = this.targetedCell;
+
+                var y = cell.y;
+                var x = cell.x;
                 if (cell) {
-                    Client.runAction(this.game, 'shoot', { x: cell.x, y: cell.y }, (response) => {
+                    Client.runAction(this.game, 'shoot', { y, x }, (response) => {
                         console.log(response);
                         if (response.success) {
-                            Client.utils.updateGame(this.game, response.game);
+                            // play shooting animation
+                            var responseCell = response.game.data.hitBoards[response.game.myIndex].cells[y][x];
+
+                            this.game.data.hitBoards[this.game.myIndex].cells[y][x] = responseCell;
                             this.targetedCell = null;
+
+                            if (responseCell.state === Common.BOARD_STATE_MISS) {
+                                this.game.client.emit('set_animation', { y, x }, 'miss 1s');
+
+                                setTimeout(() => {
+                                    Client.utils.updateGame(this.game, response.game);
+                                }, 1000);
+                            } else if (responseCell.state === Common.BOARD_STATE_HIT) {
+                                this.game.client.emit('set_animation', { y, x }, 'hit 0.5s');
+
+                                setTimeout(() => {
+                                    Client.utils.updateGame(this.game, response.game);
+                                }, 500);
+                            }
                         }
-                    });
+                    }, true);
                 }
 
             }
@@ -128,8 +148,8 @@ function connectionCallback(response) {
         computed: {
             gridStyles() {
                 return {
-                    'grid-template-columns': `repeat(${board.width}, ${100/board.width}%)`,
-                    'grid-template-rows': `repeat(${board.height}, ${100/board.height}%)`,
+                    'grid-template-columns': `repeat(${board.width}, ${100 / board.width}%)`,
+                    'grid-template-rows': `repeat(${board.height}, ${100 / board.height}%)`,
                     "background-size": 100 / myHitBoard.width + '% ' + 100 / myHitBoard.height + '%',
                 }
             }
@@ -148,13 +168,12 @@ function connectionCallback(response) {
                         this.moveShip({ x: x - this.dragOffset.x, y: y - this.dragOffset.y });
                 }
                 this.lastMove = { x: x, y: y };
-                
+
 
             },
             touchstart(e, x, y) {
                 e.preventDefault();
 
-                console.log('touchstart' + x + ' ' + y);
 
                 var ship = Common.getShipAt(this.board, x, y);
 
@@ -177,7 +196,6 @@ function connectionCallback(response) {
             },
             mouseover(e, x, y) {
 
-                console.log('mouseover ' + x + ' ' + y);
 
                 if (this.lastMove.x != x || this.lastMove.y != y) {
                     if (this.dragTarget && mouseIsDown)
@@ -187,7 +205,6 @@ function connectionCallback(response) {
             },
             mousedown(e, x, y) {
 
-                console.log('mousedown' + x + ' ' + y);
 
                 var ship = Common.getShipAt(this.board, x, y);
 
@@ -269,7 +286,7 @@ function connectionCallback(response) {
             classes() {
                 return this.selected ? 'selected' : '';
             },
-            styles () {
+            styles() {
                 // position based on grid
                 var ship = this.ship;
 
@@ -282,7 +299,7 @@ function connectionCallback(response) {
                     top: ship.y / board.height * 100 + '%',
                     left: ship.x / board.width * 100 + '%',
                     width: ship.length / board.width * 100 + '%',
-                    height: 1/ board.height * 100 + '%',
+                    height: 1 / board.height * 100 + '%',
                     transform: transform,
                     transformOrigin: (1 / ship.length * 50) + '% 50%'
                 }
@@ -373,20 +390,19 @@ function connectionCallback(response) {
                 this.dragTarget = this;
                 this.initialDragTargetPosition = { x: this.ship.x + 0, y: this.ship.y + 0 };
 
-                console.log('drag');
             }
         }
     };
     shipPlacer.component('placed-ship', PlacedShip);
 
     const HitBoardView = {
-        props: ['board', 'target'],
+        props: ['board', 'target', 'game'],
         template: `
             <div class="hit-board" :style="styles">
 
                 <div class="hit-board-grid">
                     <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
-                        <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell" :board="board"></hit-board-cell>
+                        <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell" :board="board" :game="game"></hit-board-cell>
                     </div>
                 </div>
                 <div class="hit-board-ships">
@@ -423,25 +439,31 @@ function connectionCallback(response) {
     var hitBoardView = vm.component('hit-board-view', HitBoardView);
 
     const HitBoardCell = {
-        props: ['cell', 'board'],
+        data() {
+            return {
+                animation: 'none'
+            }
+        },
+        props: ['cell', 'board', 'game'],
         template: `<div class="hit-board-cell" 
             :style="cellStyles"
             @click="cellClicked"
             >
-                <img :src="imgURL" draggable="false" alt="altText"/>
             </div>`,
         computed: {
             cellStyles() {
                 var board = this.board;
                 board.ships = board.revealedShips;
+
+                var opacity = 1;
                 if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
-                    return {
-                        'opacity': 0
-                    }
-                } else {
-                    return {
-                    
-                    }
+                    opacity = 0;
+                }
+
+                return {
+                    opacity,
+                    'background-image': 'url(' + this.imgURL + ')',
+                    animation: this.animation || 'none'
                 }
 
             },
@@ -466,6 +488,12 @@ function connectionCallback(response) {
                         return 'Unknown';
                 }
             }
+        },
+        mounted() {
+            this.game.client.on('set_animation', (pos, animation) => {
+                if (this.cell.x === pos.x && this.cell.y === pos.y)
+                    this.animation = animation;
+            });
         }
     };
     hitBoardView.component('hit-board-cell', HitBoardCell);
@@ -490,7 +518,7 @@ function connectionCallback(response) {
 
 
 
-        
+
     });
 
 }

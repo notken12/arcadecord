@@ -1,3 +1,5 @@
+import 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js';
+
 var socket = io();
 
 class Action {
@@ -113,7 +115,9 @@ function emitAction(game, actionType, actionData, actionCallback) {
 
 var discordUser;
 
-async function runAction(game, type, data, callback) {
+async function runAction(game, type, data, callback, clone) {
+    var game = clone ? _.cloneDeep(game) : game;
+
     if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
         return;
     }

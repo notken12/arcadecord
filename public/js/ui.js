@@ -111,6 +111,8 @@ const WaitingView = {
     },
     props: [],
     template: `
+    <transition name="fade" appear mode="out-in">
+
     <div class="waiting-view">
         <div class="waiting-view-text">
             <span>Waiting for opponent</span>
@@ -121,6 +123,8 @@ const WaitingView = {
             </span>
         </div>
     </div>
+
+    </transition>
     `,
 
 }

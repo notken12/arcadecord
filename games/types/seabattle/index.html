@@ -16,7 +16,7 @@
         <game-view :game="game" :me="me">
             <div class="middle">
                 <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
-                <hit-board-view :board="myHitBoard" :target="targetedCell" v-else></hit-board-view>
+                <hit-board-view :board="myHitBoard" :target="targetedCell" :game="game" v-else></hit-board-view>
     
             </div>
     
