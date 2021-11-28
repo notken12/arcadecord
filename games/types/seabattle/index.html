@@ -13,15 +13,21 @@
 
 <body>
     <div id="app" v-cloak>
-        <game-view :game="game" :me="me">
+        <game-view :game="game" :me="me" :hint="hint" v-cloak>
             <div class="middle">
                 <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
                 <hit-board-view :board="myHitBoard" :target="targetedCell" :game="game" v-else></hit-board-view>
-    
+                
+                <div v-if="game.hasEnded">
+                    <div v-if="game.winner === game.myIndex">You win!</div>
+                    <div v-else>You lose!</div>
+                </div>
+
             </div>
     
     
             <div class="bottom">
+                <button @click="placeShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Shuffle</button>
                 <button @click="setShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Done</button>
                 <button @click="shoot" v-if="game.data.placed[game.myIndex] && targetedCell">FEUER!</button>
             </div>

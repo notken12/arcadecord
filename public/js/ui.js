@@ -77,7 +77,7 @@ const GameHeader = {
 
         }
     },
-    props: ['game', 'me'],
+    props: ['game', 'me', 'hint'],
     template: `
     <div class="top">
         <div class="fabs">
@@ -88,6 +88,7 @@ const GameHeader = {
                 <i class="material-icons">settings</i>
             </button>
         </div>
+        <div class="hint">{{hint}}</div>
         <div>
             <players-view :players="game.players" :me="me"></players-view>
         </div>
@@ -176,12 +177,12 @@ const GameView = {
             manualOpen: false,
         }
     },
-    props: ['game', 'me'],
+    props: ['game', 'me', 'hint'],
     template: `
     <div class="game-container">
-        <game-header :game="game" :me="me"></game-header>
+        <game-header :game="game" :me="me" :hint="hint"></game-header>
         <slot></slot>
-        <waiting-view v-if="!game.isItMyTurn()"></waiting-view>
+        <waiting-view v-if="!game.isItMyTurn() && !game.hasEnded"></waiting-view>
         <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
     </div>
     `,

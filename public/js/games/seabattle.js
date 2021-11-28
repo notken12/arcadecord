@@ -36,15 +36,6 @@ function connectionCallback(response) {
 
     var availableShips = game.data.availableShips[myHitBoard.playerIndex];
 
-    if (!game.data.placed[myHitBoard.playerIndex] && game.isItMyTurn()) {
-        var t1 = performance.now();
-        board = Common.PlaceShips(availableShips, board);
-        var t2 = performance.now();
-        console.log(board);
-        console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
-    }
-
-
     var mouseIsDown = false;
 
     document.addEventListener('mouseup', function () {
@@ -66,6 +57,14 @@ function connectionCallback(response) {
             }
         },
         methods: {
+            placeShips() {
+                var t1 = performance.now();
+
+                this.shipPlacementBoard = Common.PlaceShips(availableShips, board);
+                var t2 = performance.now();
+                console.log(this.shipPlacementBoard);
+                console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+            },
             setShips() {
                 Client.runAction(this.game, 'set_ships', { shipPlacementBoard: this.shipPlacementBoard }, (response) => {
                     console.log(response);
@@ -111,6 +110,21 @@ function connectionCallback(response) {
         computed: {
             myHitBoard() {
                 return this.game.data.hitBoards[this.game.myIndex];
+            },
+            hint() {
+                if (this.game.isItMyTurn()) {
+                    if (!this.game.data.placed[this.game.myIndex]) {
+                        return "Drag ships around or tap to rotate them";
+                    } else {
+                        return "Tap on a tile";
+                    }
+                }
+                return '';
+            }
+        },
+        mounted() {
+            if (!this.game.data.placed[myHitBoard.playerIndex] && this.game.isItMyTurn()) {
+                this.placeShips();
             }
         }
     };
@@ -295,6 +309,7 @@ function connectionCallback(response) {
                     transform = 'rotate(90deg)';
                 }
 
+
                 return {
                     top: ship.y / board.height * 100 + '%',
                     left: ship.x / board.width * 100 + '%',
@@ -399,16 +414,17 @@ function connectionCallback(response) {
         props: ['board', 'target', 'game'],
         template: `
             <div class="hit-board" :style="styles">
+                <div class="hit-board-ships">
+                    <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board">
+                    </placed-ship>
+                </div>
 
                 <div class="hit-board-grid">
                     <div class="hit-board-row" v-for="row in board.cells" :key="board.cells.indexOf(row)">
                         <hit-board-cell v-for="cell in row" :key="cell.id" :cell="cell" :board="board" :game="game"></hit-board-cell>
                     </div>
                 </div>
-                <div class="hit-board-ships">
-                    <placed-ship v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board">
-                    </placed-ship>
-                </div>
+
 
                 <div class="target-crosshair" v-if="target" :style="targetStyles">
                     <img src="/public/assets/seabattle/crosshair.png" />
@@ -455,14 +471,13 @@ function connectionCallback(response) {
                 var board = this.board;
                 board.ships = board.revealedShips;
 
-                var opacity = 1;
+                var show = true;
                 if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
-                    opacity = 0;
+                    show = false;
                 }
 
                 return {
-                    opacity,
-                    'background-image': 'url(' + this.imgURL + ')',
+                    'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
                     animation: this.animation || 'none'
                 }
 
@@ -508,12 +523,7 @@ function connectionCallback(response) {
         Client.utils.updateGame(app.game, g);
 
         if (!app.game.data.placed[app.game.myIndex] && app.game.isItMyTurn()) {
-            var t1 = performance.now();
-
-            app.shipPlacementBoard = Common.PlaceShips(availableShips, board);
-            var t2 = performance.now();
-            console.log(board);
-            console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
+            app.placeShips();
         }
 
 

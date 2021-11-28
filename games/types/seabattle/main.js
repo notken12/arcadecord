@@ -153,12 +153,15 @@ class SeaBattleGame extends Game {
             }
             if (sunk) {
                 ship.sunk = true;
+                console.log(board);
                 hitBoard.revealedShips.push(ship);
             }
 
             // check if all ships are sunk
             var allSunk = true;
-            for (var ship in board.ships) {
+            for (var ship of board.ships) {
+                console.log(ship.sunk);
+                console.log(ship);
                 if (!ship.sunk) {
                     allSunk = false;
                     break;
