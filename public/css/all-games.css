@@ -322,6 +322,19 @@ button {
     padding: 16px;
     border-radius: 100px;
     font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .waiting-view-text .dots span {

@@ -78,10 +78,11 @@
     height: 100%;
 }
 
-.ship-placer-cell {
+.ship-placer-cell, .hit-board-cell {
     width: 100%;
     height: 100%;
     border: 0.5px solid #00000055;
+    user-select: none;
     box-sizing: border-box;
 }
 
@@ -96,6 +97,7 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
+    border: 1px solid #00000055;
     position: absolute;
 }
 
@@ -107,17 +109,10 @@
 }
 
 .hit-board-cell {
-    user-select: none;
     cursor: pointer;
     height: 100%;
     width: 100%;
-    position: relative;
-}
-
-.hit-board-cell img {
-    width: 100%;
-    position: absolute;
-    height: 100%;
+    background-size: 100%;
 }
 
 
@@ -130,4 +125,33 @@
 .target-crosshair img {
     width: 100%;
     height: 100%;
+}
+
+.hit-board-cell.miss.animated {
+    animation: miss-animation 0.5s;
+}
+
+@keyframes miss-animation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.hit-board-cell.hit.animated {
+    animation: hit-animation 0.2s;
+}
+
+@keyframes hit-animation {
+    0% {
+        transform: scale(0);
+    }
+    60% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
