@@ -35,6 +35,7 @@ function connectionCallback(response) {
     var board = new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height);
 
     var availableShips = game.data.availableShips[myHitBoard.playerIndex];
+    window.availableShips = availableShips;
 
     var mouseIsDown = false;
 
@@ -50,7 +51,7 @@ function connectionCallback(response) {
         data() {
             return {
                 game: game,
-                shipPlacementBoard: board,
+                shipPlacementBoard: new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height),
                 isItMyTurn: game.isItMyTurn(),
                 targetedCell: null,
                 me: discordUser
@@ -59,8 +60,7 @@ function connectionCallback(response) {
         methods: {
             placeShips() {
                 var t1 = performance.now();
-
-                this.shipPlacementBoard = Common.PlaceShips(availableShips, board);
+                this.shipPlacementBoard = Common.PlaceShips(_.cloneDeep(availableShips), new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height));
                 var t2 = performance.now();
                 console.log(this.shipPlacementBoard);
                 console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");
@@ -145,7 +145,7 @@ function connectionCallback(response) {
         template: `     
         <div class="ship-placer-container">
             <div class="ship-placer-grid" :style="gridStyles">
-                <placed-ship v-for="ship in board.ships" :key="ship.id" :ship="ship" :board="board" :selected="dragTarget == ship"></placed-ship>
+                <placed-ship v-for="ship of board.ships" :ship="ship" :board="board" :selected="dragTarget == ship"></placed-ship>
             </div>
 
             <div class="ship-placer-board" @touchmove="touchmove($event)" @touchend="mouseup($event)" ref="board">
@@ -166,6 +166,12 @@ function connectionCallback(response) {
                     'grid-template-rows': `repeat(${board.height}, ${100 / board.height}%)`,
                     "background-size": 100 / myHitBoard.width + '% ' + 100 / myHitBoard.height + '%',
                 }
+            }
+        },
+        watch: {
+            board() {
+                console.log('board changed');
+                this.$forceUpdate();
             }
         },
         methods: {
@@ -240,7 +246,7 @@ function connectionCallback(response) {
             },
             moveShip(pos) {
                 var ship = this.dragTarget;
-                var board = _.cloneDeep(this.$root.shipPlacementBoard);
+                var board = _.cloneDeep(this.board);
                 board.ships.forEach(element => {
                     if (element.id == ship.id) {
                         if (pos.x !== undefined)
@@ -292,8 +298,17 @@ function connectionCallback(response) {
                 <img draggable="false" :src="imageURL" class="placed-ship-image"/>
             </div>`,
         data() {
-            var ship = this.ship;
             return {
+            }
+        },
+        watch: {
+            'ship.x': function (newVal, oldVal) {
+                this.$forceUpdate();
+                console.log('ship.x changed');
+            },
+            'ship.y': function (newVal, oldVal) {
+                this.$forceUpdate();
+                console.log('ship.y changed');
             }
         },
         computed: {
@@ -308,7 +323,6 @@ function connectionCallback(response) {
                 if (ship.direction == Common.SHIP_DIRECTION_VERTICAL) {
                     transform = 'rotate(90deg)';
                 }
-
 
                 return {
                     top: ship.y / board.height * 100 + '%',
