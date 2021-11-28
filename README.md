@@ -1,43 +1,24 @@
-# three-js-webpack
+# Arcadecord
 
-Starter project for Three.JS. Configured with Webpack 4 as a bundler.
+A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
-Great and easy way to bootstrap your Three.JS project.
+## How this works
 
-## Development
+### Parts of the system
 
-Clone the project and install dependencies:
+* Player
+* Discord bot `/bot`
+* Game server `server.js`, `/games/Game.js`, `/games/gamesManager.js`, `/games/types/*`
+* Website `server.js`, `/games/types/*/index.html`, `/public`
 
-```bash
-git clone https://github.com/aakatev/three-js-webpack.git
-npm i
-```
+### Gameplay process
 
-Start webpack development server:
+1. The player can create a game with a Discord slash command. 
+2. The Discord bot listens for the slash command and tells the game server, which creates a game. 
+3. The Discord bot sends the link to play the game that was created. 
+4. The player clicks the link and is brought to the website to play the game.
+6. Players log in with their Discord accounts. 
+5. The website broadcasts the player's actions to the server so that gameplay is recorded.
+6. The server notifies the website when other players finish their turns and gives an updated state of the game. 
+7. The Discord bot will send messages about events such as players finishing turns and when the game is over. 
 
-```bash
-npm run start
-```
-
-Webpack configuration is located in [`webpack.config.js`](webpack.config.js).
-
-## Deployment on GitHub Pages
-
-**Works with any other static website hosting too.**
-
-Bundle your code, and push it in your repo:
-
-```bash
-npm run build
-git add
-git commit -m"Deploying on GitHub Pages"
-git push
-```
-
-## Extra
-
-The code can be formated with prettier:
-
-```bash
-npm run format
-```
