@@ -36,6 +36,8 @@ The games running in the server are managed from `/games/gamesManager.js`.
 
 The base class for all games. Contains logic for event handlers and action models. All game types extend this class. 
 
+#### Properties
+
 * `id`: Unique ID
 * `players`: User[], snapshot of players profiles
 * `turn`: Number, index of the player in the `players` array whos turn it is
@@ -47,6 +49,18 @@ The base class for all games. Contains logic for event handlers and action model
 * `winner`: Number or null, index of the winner or -1 if it's a draw
 * `turns`: Turn[], the turns that happened over the game
 * `data`: Object, data about the game state. Ex: state of chess board.
+
+#### Methods
+
+* `setGuild(Guild guild)`
+* `setChannel(Channel channel)`
+* `setActionModel(String action, Function model, ?String side)`
+    * `action`: Action type
+    * `model`: Action model function, will be explained later.
+    * `side`: optional, either `'client'` or `'server'`. Specifies if it will be client or server only. By default it will be common.
+* `getURL()`: get the URL to play the game
+* `on(String event, Function callback)`: add event handler, ex: console.log when game starts. There are provided handlers that send fancy Discord messages when players take turns.
+* `onAction(String action, Function callback)`: add action listener that fires after action
 
 ### `gamesManager.js`
 
