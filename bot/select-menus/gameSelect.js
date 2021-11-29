@@ -8,6 +8,7 @@ module.exports = {
         name: "gameSelect",
     },
     async execute(interaction) {
+        await interaction.deferUpdate();
         var gameType = gameTypes[interaction.values[0]];
         if (gameType) {
             // var embed = new MessageEmbed()
@@ -34,7 +35,7 @@ module.exports = {
             game.addPlayer(user.get('id'));
             game.init();
 
-            interaction.update({components: [], content: `${game.name} created`}).catch(console.error);
+            interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);
         }
     }
 }
