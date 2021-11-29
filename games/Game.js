@@ -8,6 +8,7 @@ const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
 const { cloneDeep } = require('lodash');
 const bot = require('../bot/bot');
+const bases = require('bases');
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ class Game {
     //     "minPlayers": 0,
     // }
     constructor(options) {
-        this.id = SnowflakeUtil.generate();
+        this.id = bases.toBase62(SnowflakeUtil.generate());
         this.players = [];
         this.eventHandlers = {};
         this.actionHandlers = {};

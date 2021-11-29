@@ -139,6 +139,33 @@ The file will be served over http at `/gamecommons/<game_type_id>`.
 
 #### `index.html`
 
-The html file for playing the game. We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to use it for the game UI. Check out vue's Getting Started guide.
+The html file for playing the game. We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
 
 Import `/public/js/client-framework.js` in the game's script. It contains all the utilities you need to implement interactivity with the server. It will be explained later.
+
+## Website
+
+The website is served from an express server in `server.js`. All files from the `/public` folder are served. The `common.js` from every game type is served from `/gamecommons/<game_type_id>`.
+
+When accessing a game, the website will check if the user has permission to join the game. If so, it will serve the game type's `index.html` file.
+
+We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
+
+### `/public/js/client-framework.js`
+
+This contains everything you need to interact with the server. 
+
+#### Exports
+
+* `socket`: socket.io socket used to communicate with the server
+* `utils`: Object, contains utility functions
+    * `setUpGame(game)`: sets up the game, called when the socket connection is made. Attaches functions to the game, which can't be sent over socket.io. Used internally.
+    * `updateGame(gameToUpdate, newGame)`: updates data of the old game to the new game. Use it whenever you receive turn data from the server.
+* `emitAction(game, actionType, actionData, actionCallback)`: Function, emits an action to the server. Used internally.
+* `runAction(game, type, data, callback, ?clone)`: Function, runs an action and emits it to the server. Call this whenever the user does an action.
+    * `game`: Game, the game to run the action on
+    * `type`: String, the type of the action
+    * `data`: Object, the data of the action
+    * `callback`: Function, callback function to be called when the action acknowledgement is received from the server.
+    * `clone`: Boolean, whether to clone the game before running the action. Used when you want to see what would happen if the action was run, for example when you want to run animations and don't want the UI to be affected.
+* `connect(gameId, callback)`: Function, connects to the server. Call this when the page loads and set up the game UI in the callback.

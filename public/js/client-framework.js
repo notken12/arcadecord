@@ -172,7 +172,6 @@ async function connect(gameId, callback) {
 
 export {
     socket,
-    Action,
     utils,
     emitAction,
     runAction,
