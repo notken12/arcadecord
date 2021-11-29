@@ -36,6 +36,16 @@ The games running in the server are managed from `/games/gamesManager.js`.
 
 The base class for all games. Contains logic for event handlers and action models. All game types extend this class. 
 
+#### Logic
+
+Gameplay is turn-based. Each player takes a turn during the game. Each turn is made up of actions.
+
+- Game
+    - Turns
+        - Actions
+
+Games automatically start when the first action is taken. Actions can only be taken before the game has ended. The first player who joins a game (besides the game creator) will be the first allowed to take an action. The logic used for an action (we will call this an **action model**) can decide whether the action ends the turn or even ends the game, and how to manipulate the game data. 
+
 #### Properties
 
 * `id`: Unique ID
@@ -58,9 +68,21 @@ The base class for all games. Contains logic for event handlers and action model
     * `action`: Action type
     * `model`: Action model function, will be explained later.
     * `side`: optional, either `'client'` or `'server'`. Specifies if it will be client or server only. By default it will be common.
-* `getURL()`: get the URL to play the game
 * `on(String event, Function callback)`: add event handler, ex: console.log when game starts. There are provided handlers that send fancy Discord messages when players take turns.
 * `onAction(String action, Function callback)`: add action listener that fires after action
+* `async addPlayer(String id)`: add player with user id, emits `'join'` event
+* `end(Object result)`: ends the game with result, {winner: player index or -1 for draw}, emits `'end'` event, broadcasts `'end'` to all sockets
+* `emit(String event, ...args)`: emit an event, ex: 'init'. Used internally.
+* `init()`: adds the game into `gameManager`'s store of games, emits `'init'` event. Used internally.
+* `start()`: starts the game, emits `'start'` event, broadcasts `'start'` to all sockets. Used internally.
+* `getURL()`: get the URL to play the game
+* `async doesUserHavePermission(String id)`: does user have perms to join game? (message send perms in game's channel)
+* `async canUserJoin(String id)`: can user join game? 
+* `async canUserSocketConnect(id)`: can the user's socket.io socket connect?
+* `endTurn()`: ends the current turn, next players turn. TODO: add support for turns not in order of players
+* `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. TODO: add private keys for authentication cookie instead of using user id.
+
+Some of the functions intended for internal use aren't listed here. See `/games/Game.js`.
 
 ### `gamesManager.js`
 
