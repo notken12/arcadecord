@@ -36,6 +36,18 @@ The games running in the server are managed from `/games/gamesManager.js`.
 
 The base class for all games. Contains logic for event handlers and action models. All game types extend this class. 
 
+* `id`: Unique ID
+* `players`: User[], snapshot of players profiles
+* `turn`: Number, index of the player in the `players` array whos turn it is
+* `sockets`: Object, dict of socket.io sockets, key is user id. Used to send turn and action data to the website client.
+* `hasStarted`: bool
+* `hasEnded`: bool
+* `lastTurnInvite`: Discord.js Message, last message saying whos turn it is, it can be deleted and replaced
+* `startMessage`: Discord.js Message, start message, it can be deleted
+* `winner`: Number or null, index of the winner or -1 if it's a draw
+* `turns`: Turn[], the turns that happened over the game
+* `data`: Object, data about the game state. Ex: state of chess board.
+
 ### `gamesManager.js`
 
 For now it just stores all the active games but later games will be saved to a database to prevent data loss when the server crashes.

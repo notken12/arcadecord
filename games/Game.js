@@ -29,7 +29,6 @@ class Game {
         this.eventHandlers = {};
         this.actionHandlers = {};
         this.turn = 1;
-        this.gameEnded = false;
         this.sockets = {};
         this.hasStarted = false;
         this.hasEnded = false;
