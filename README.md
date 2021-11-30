@@ -3,9 +3,10 @@
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
 ## Todo
+* Use private keys for users instead of user ID to authenticate
 * Add more games
 * Add player winning ui
-    * confetti, use party.js
+    * confetti, use canvas-confetti
     * Play again button
 * Add player losing ui
     * Play again button
@@ -14,6 +15,13 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 * Log player actions to Azure Application Insights
 * Allow players to only invite certain people to games
 * Create app icon
+* Work on example game
+* Add unique IDs to every action and turn
+* Add feedback center
+* Store games in database
+    * Add new property in games, internal (secret) data
+* Log actions and turns
+* Add support for turns not in order of players
 
 ## How this works
 
@@ -96,8 +104,8 @@ Games automatically start when the first action is taken. Actions can only be ta
 * `async doesUserHavePermission(String id)`: does user have perms to join game? (message send perms in game's channel)
 * `async canUserJoin(String id)`: can user join game? 
 * `async canUserSocketConnect(id)`: can the user's socket.io socket connect?
-* `endTurn()`: ends the current turn, next players turn. TODO: add support for turns not in order of players
-* `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. TODO: add private keys for authentication cookie instead of using user id.
+* `endTurn()`: ends the current turn, next players turn.
+* `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. Later user ids will be made available after we switch to using private keys
 
 Some of the functions intended for internal use aren't listed here. See `/games/Game.js`.
 
@@ -126,10 +134,10 @@ Exports:
 
 Object that contains info about the game. 
 
+* `typeId`: The ID of the game type. This will be used as the name of all folders related to the game type.
 * `name`: Displayname of the game
 * `description`: Description of the game
 * `aliases`: String[], game aliases, may be used later for searching for games
-* `typeId`: The ID of the game type. This will be used as the name of all folders related to the game type.
 * `minPlayers`: Number, minimum players required to play the game
 * `maxPlayers`: Number, maximum players
 * `emoji`: String, emoji used to represent the game. Can be normal emoji or custom discord emojis. Discord bots can use custom Discord emojis as if they were Nitro users.
