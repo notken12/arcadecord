@@ -2,6 +2,15 @@
 
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
+## Todo
+* Add more games
+* Add player winning ui
+    * confetti, use party.js
+    * Play again button
+* Add player losing ui
+    * Play again button
+* Add settings ui
+
 ## How this works
 
 ### Parts of the system
