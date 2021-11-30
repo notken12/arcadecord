@@ -10,6 +10,10 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 * Add player losing ui
     * Play again button
 * Add settings ui
+* Save games to database
+* Log player actions to Azure Application Insights
+* Allow players to only invite certain people to games
+* Create app icon
 
 ## How this works
 
@@ -30,6 +34,10 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 5. The website broadcasts the player's actions to the server so that gameplay is recorded.
 6. The server notifies the website when other players finish their turns and gives an updated state of the game. 
 7. The Discord bot will send messages about events such as players finishing turns and when the game is over. 
+
+## Example game
+
+See the example game in the `/games/types/example` folder. This is the easiest way to get started with making an Arcadecord game.
 
 ## Discord bot
 
