@@ -26,6 +26,9 @@ const client = {
 }
 
 const utils = {
+    getGameId: function (location) {
+        return location.pathname.split('/')[2];
+    },
     propertiesToIgnore: ['client', 'actionModels'],
     functionsToApplyToGame: {
         isItUsersTurn(a, i) {
