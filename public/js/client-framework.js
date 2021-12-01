@@ -1,5 +1,6 @@
 import 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js';
 import '/socket.io/socket.io.js';
+import '/public/js/GameFlow.js';
 
 var socket = io();
 
@@ -40,30 +41,6 @@ const utils = {
         },
         isGameFull() {
             return this.players.length >= this.maxPlayers;
-        },
-        endTurn() {
-
-            this.turn = (this.turn + 1) % this.players.length;
-
-            this.client.emit('end_turn', this);
-        },
-        end(result) {
-            //end the game
-            this.endTurn();
-
-            this.hasEnded = true;
-            if (result.winner) {
-                this.winner = result.winner;
-            } else {
-                // draw
-                this.winner = -1;
-            }
-
-            this.client.emit('end', this, result, this.turns[this.turns.length]);
-        },
-        start() {
-            this.hasStarted = true;
-            this.client.emit('start', this);
         }
     },
 
@@ -138,7 +115,7 @@ async function runAction(game, type, data, callback, clone) {
             index = game.players.length - 1;
             game.myIndex = index;
 
-            game.start();
+            GameFlow.start(game);
         }
     }
 

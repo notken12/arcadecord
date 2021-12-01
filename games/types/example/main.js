@@ -1,8 +1,13 @@
 // Import common module for this game type
 const Common = require('./common');
 
+// Import Game class
 const Game = require('../../Game');
 
+// Import GameFlow to control game flow
+const GameFlow = require('../../GameFlow');
+
+// fetch used to get data from the yesno.wtf API
 const fetch = require('node-fetch');
 
 // Game options, required. Export as options

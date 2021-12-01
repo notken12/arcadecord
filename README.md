@@ -21,6 +21,7 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
     * Add new property in games, internal (secret) data
 * Log actions and turns
 * Add support for turns not in order of players
+* Redo game flow functiosn to be centralized
 
 ## How this works
 
