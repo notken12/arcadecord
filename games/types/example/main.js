@@ -40,6 +40,9 @@ class ExampleGame extends Game {
 
         this.on('init', Game.eventHandlersDiscord.init.bind(this)); // <-- don't forget .bind(this)
         this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
+        this.on('end', () => {
+            this.channel.send('Game ended player ' + this.winner + ' won!');
+        });
 
         // Assign event models
 

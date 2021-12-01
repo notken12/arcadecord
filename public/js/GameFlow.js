@@ -7,7 +7,7 @@ const GameFlow = {
     },
     end(game, result) {
         //end the game
-        game.endTurn();
+        this.endTurn(game);
 
         game.hasEnded = true;
         if (result.winner) {
