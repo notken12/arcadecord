@@ -1,4 +1,5 @@
 import 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js';
+import '/socket.io/socket.io.js';
 
 var socket = io();
 
@@ -41,6 +42,7 @@ const utils = {
             return this.players.length >= this.maxPlayers;
         },
         endTurn() {
+
             this.turn = (this.turn + 1) % this.players.length;
 
             this.client.emit('end_turn', this);
@@ -103,7 +105,10 @@ function emitAction(game, actionType, actionData, actionCallback) {
     var firstActionEmitted = false;
 
     function callback(...args) {
-        if (firstActionEmitted) actionCallback(...args);
+        if (firstActionEmitted) { 
+            if (typeof actionCallback === 'function') 
+                actionCallback(...args) 
+        };
         if (actionEmissionQueue.length > 0) {
             var action = actionEmissionQueue.shift();
             socket.emit('action', action[0], action[1], callback);
@@ -122,7 +127,7 @@ async function runAction(game, type, data, callback, clone) {
     var game = clone ? _.cloneDeep(game) : game;
 
     if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
-        return;
+        return false;
     }
 
     var index = game.myIndex;
@@ -137,19 +142,23 @@ async function runAction(game, type, data, callback, clone) {
         }
     }
 
+    if (!game.actionModels[type]) {
+        console.error(`There's no action model for type "${type}". Try:\n - Checking if you misspelled the action type.\n - Checking if you're missing an action model for this game. If so, you'll need to write one!\nRemember that common action models need to be functions from common.js`);
+        return false;
+    }
 
     var success = await game.actionModels[type](game, new Action(type, data, index));
     if (!success) {
-        return;
+        return false;
     }
 
     if (game.clientActionModels[type]) {
         var success = await game.clientActionModels[type](game, new Action(type, data, index));
 
-        if (!success) return;
+        if (!success) return false;
     }
     emitAction(game, type, data, callback);
-
+    return game;
 }
 
 async function connect(gameId, callback) {

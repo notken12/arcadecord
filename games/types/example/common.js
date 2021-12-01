@@ -6,10 +6,10 @@
 
 function boop(game, action) {
     var i = action.playerIndex;
-    var score = game.data.scores[i];
-    score++;
+    game.data.scores[i]++;
 
-    if (score >= 15) {
+    // You win if you get to 15 points
+    if (game.data.scores[i] >= 15) {
         game.end({
             winner: i
         });
@@ -25,15 +25,16 @@ function endTurn(game, action) {
 }
 
 function ask(game, action) {
-    // Dummy model
-    // Just make the action succeed
-    // Server-side model will handle it after this
+    // Check if the question has a question mark
+    if (action.data.question.indexOf('?') === -1) {
+        return false;
+    }
     return game;
 }
 
 // Compatibility with browser and node
 
-const exports = {
+var exports = {
     boop,
     endTurn,
     ask

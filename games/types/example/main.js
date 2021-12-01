@@ -3,6 +3,8 @@ const Common = require('./common');
 
 const Game = require('../../Game');
 
+const fetch = require('node-fetch');
+
 // Game options, required. Export as options
 // README.md
 const options = {
@@ -15,7 +17,7 @@ const options = {
     emoji: '🐶',
     data: {
         scores: [0, 0],
-        answers: ['', '']
+        answers: [null, null]
     }
 }
 
@@ -33,7 +35,7 @@ class ExampleGame extends Game {
 
         this.on('init', Game.eventHandlersDiscord.init.bind(this)); // <-- don't forget .bind(this)
         this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
-        
+
         // Assign event models
 
         // Common action models
@@ -43,22 +45,26 @@ class ExampleGame extends Game {
         this.setActionModel('boop', Common.boop);
         this.setActionModel('end_turn', Common.endTurn);
 
-        // ask_mogo action:
+        // "ask" action:
         // Get a random answer for a yes-or-no question
         // Needs to be done on the server to ensure sync
-        // We will use an dummy common action model...
-        // and use a server-only action model to generate the answer
 
-        // Just returns the game to make the action succeed
-        this.setActionModel('ask_mogo', Common.ask); 
+        // Common action model, checks if question has a question mark
+        this.setActionModel('ask', Common.ask);
 
         // Server action model is processed after common action model succeeds
-        this.setActionModel('ask', (game, action) => {
-            var answer = Math.round(Math.random()) ? 'Yes' : 'No';
+        this.setActionModel('ask', async (game, action) => {
+            // Get the answer from a yesno.wtf API
+            var res = await fetch('https://yesno.wtf/api').catch(err => {
+                console.error(err);
+                return false;
+            });
+
+            var answer = await res.json();
 
             game.data.answers[action.playerIndex] = answer;
-
             return game;
+
         }, 'server'); // <-- important
 
         // The server will acknowledge the action...

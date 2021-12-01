@@ -11,7 +11,6 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 * Add player losing ui
     * Play again button
 * Add settings ui
-* Save games to database
 * Log player actions to Azure Application Insights
 * Allow players to only invite certain people to games
 * Create app icon

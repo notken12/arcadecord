@@ -190,6 +190,12 @@ class Game {
 
                 
             }
+        } else {
+            // action not found
+            return {
+                success: false,
+                message: "Action model not found"
+            };
         }
 
         if (this.actionHandlers[action.type]) {
@@ -387,6 +393,10 @@ class Game {
         }
 
         return game;
+    }
+
+    getThumbnail() {
+
     }
 }
 
