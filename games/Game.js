@@ -9,6 +9,7 @@ const Turn = require('./Turn');
 const { cloneDeep } = require('lodash');
 const bot = require('../bot/bot');
 const bases = require('bases');
+const GameFlow = require('./GameFlow');
 
 dotenv.config();
 
@@ -128,7 +129,7 @@ class Game {
                 await this.addPlayer(action.userId);
                 action.playerIndex = this.getPlayerIndex(action.userId);
 
-                this.start();
+                GameFlow.start(this);
 
             }
         }
@@ -190,6 +191,12 @@ class Game {
 
                 
             }
+        } else {
+            // action not found
+            return {
+                success: false,
+                message: "Action model not found"
+            };
         }
 
         if (this.actionHandlers[action.type]) {
@@ -214,30 +221,6 @@ class Game {
     init() {
         gamesManager.addGame(this);
         this.emit('init');
-    }
-
-    start() {
-        //once first action has been made, start the game
-        //first start and then handle first action
-        this.hasStarted = true;
-        this.emit('start');
-
-        this.broadcastToAllSockets('start');
-    }
-    end(result) {
-        //end the game
-        this.endTurn();
-        this.hasEnded = true;
-        if (result.winner) {
-            this.winner = result.winner;
-        } else {
-            // draw
-            this.winner = -1;
-        }
-
-        this.emit('end', result);
-
-        this.broadcastToAllSockets('end', true, result, this.turns[this.turns.length - 1]);
     }
     async doesUserHavePermission(id) {
         var members = this.guild.members;
@@ -317,21 +300,6 @@ class Game {
         });
 
     }
-    endTurn() {
-        if (this.hasEnded) return;
-
-
-        this.turn = (this.turn + 1) % this.players.length;
-
-        this.emit('turn');
-
-        var player = this.players[this.turn];
-        var socket = this.sockets[player.id];
-
-        if (socket) {
-            socket.emit('turn', this.getDataForClient(player.id), this.turns[this.turns.length - 1].getDataForClient());
-        }
-    }
 
     broadcastToAllSockets(event, broadcastGame, ...args) {
         for (let key in this.sockets) {
@@ -387,6 +355,10 @@ class Game {
         }
 
         return game;
+    }
+
+    getThumbnail() {
+
     }
 }
 

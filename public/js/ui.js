@@ -175,6 +175,7 @@ const GameView = {
     data() {
         return {
             manualOpen: false,
+            isItMyTurn: false,
         }
     },
     props: ['game', 'me', 'hint'],
@@ -182,7 +183,7 @@ const GameView = {
     <div class="game-container">
         <game-header :game="game" :me="me" :hint="hint"></game-header>
         <slot></slot>
-        <waiting-view v-if="!game.isItMyTurn() && !game.hasEnded"></waiting-view>
+        <waiting-view v-if="!isItMyTurn && !game.hasEnded"></waiting-view>
         <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
     </div>
     `,
@@ -198,6 +199,15 @@ const GameView = {
         emitter.on('close-manual', () => {
             this.manualOpen = false;
         });
+    },
+    watch: {
+        'game.turn': function(newTurn) {
+            console.log('turn changed');
+            this.isItMyTurn = this.game.isItMyTurn();
+        }
+    },
+    mounted() {
+        this.isItMyTurn = this.game.isItMyTurn();
     }
 };
 

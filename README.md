@@ -11,6 +11,9 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 * Add player losing ui
     * Play again button
 * Add settings ui
+* Log player actions to Azure Application Insights
+* Allow players to only invite certain people to games
+* Create app icon
 * Work on example game
 * Add unique IDs to every action and turn
 * Add feedback center
@@ -18,6 +21,7 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
     * Add new property in games, internal (secret) data
 * Log actions and turns
 * Add support for turns not in order of players
+* Redo game flow functiosn to be centralized
 
 ## How this works
 
@@ -38,6 +42,10 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 5. The website broadcasts the player's actions to the server so that gameplay is recorded.
 6. The server notifies the website when other players finish their turns and gives an updated state of the game. 
 7. The Discord bot will send messages about events such as players finishing turns and when the game is over. 
+
+## Example game
+
+See the example game in the `/games/types/example` folder. This is the easiest way to get started with making an Arcadecord game.
 
 ## Discord bot
 
@@ -88,18 +96,23 @@ Games automatically start when the first action is taken. Actions can only be ta
 * `on(String event, Function callback)`: add event handler, ex: console.log when game starts. There are provided handlers that send fancy Discord messages when players take turns.
 * `onAction(String action, Function callback)`: add action listener that fires after action
 * `async addPlayer(String id)`: add player with user id, emits `'join'` event
-* `end(Object result)`: ends the game with result, {winner: player index or -1 for draw}, emits `'end'` event, broadcasts `'end'` to all sockets
 * `emit(String event, ...args)`: emit an event, ex: 'init'. Used internally.
 * `init()`: adds the game into `gameManager`'s store of games, emits `'init'` event. Used internally.
-* `start()`: starts the game, emits `'start'` event, broadcasts `'start'` to all sockets. Used internally.
 * `getURL()`: get the URL to play the game
 * `async doesUserHavePermission(String id)`: does user have perms to join game? (message send perms in game's channel)
 * `async canUserJoin(String id)`: can user join game? 
 * `async canUserSocketConnect(id)`: can the user's socket.io socket connect?
-* `endTurn()`: ends the current turn, next players turn.
 * `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. Later user ids will be made available after we switch to using private keys
 
 Some of the functions intended for internal use aren't listed here. See `/games/Game.js`.
+
+### `GameFlow.js`
+
+Methods to control game flow.
+
+* `end(Game game, Object result)`: ends the game with result, {winner: player index or -1 for draw}, emits `'end'` event, broadcasts `'end'` to all sockets
+* `start(Game game)`: starts the game, emits `'start'` event, broadcasts `'start'` to all sockets. Used internally.
+* `endTurn(Game game)`: ends the current turn, next players turn.
 
 ### `gamesManager.js`
 
