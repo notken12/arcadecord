@@ -31,6 +31,7 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 * Discord bot `/bot`
 * Game server `/server.js`, `/games/Game.js`, `/games/gamesManager.js`, `/games/types/*`
 * Website `/server.js`, `/games/types/*/index.html`, `/public`
+* Database - to be added
 
 ### Gameplay process
 

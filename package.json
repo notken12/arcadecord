@@ -7,6 +7,9 @@
     "start": "node .",
     "format": "prettier --write '**/*.js'"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
