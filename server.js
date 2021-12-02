@@ -97,7 +97,10 @@ app.get('/auth', (req, res) => {
 
   //send post request
   request(options, async (error, response, body) => {
-    if (error) throw new Error(error);
+    if (error) {
+      console.log(error);
+      res.send('Error');
+    };
 
 
     var data = JSON.parse(body);
