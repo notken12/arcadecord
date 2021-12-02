@@ -97,10 +97,21 @@ app.get('/auth', (req, res) => {
   request(options, async (error, response, body) => {
     if (error) throw new Error(error);
 
-    var refresh_token = JSON.parse(body).refresh_token;
-    var access_token = JSON.parse(body).access_token;
 
-    var dId = (await discordApiUtils.fetchUserFromAccessToken(bot, access_token)).id;
+    var data = JSON.parse(body);
+
+    console.log(data);
+
+    var refresh_token = data.refresh_token;
+    var access_token = data.access_token;
+
+    var user = await discordApiUtils.fetchUserFromAccessToken(bot, access_token);
+    if (!user) {
+      res.send('Error: could not get user from access token');
+      return;
+    }
+
+    var dId = user.id;
 
     //create user in db
 

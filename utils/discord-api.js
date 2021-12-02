@@ -17,6 +17,9 @@ async function fetchUserFromAccessToken(bot, access_token) {
         headers: {
             authorization: `${'Bearer'} ${access_token}`,
         },
+    }).catch(err => {
+        console.error(err);
+        return null;
     }));
 
     me = await me.json();
