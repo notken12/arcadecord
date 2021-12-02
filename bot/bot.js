@@ -57,6 +57,7 @@ for (const file of buttonFiles) {
 module.exports = {
 	getUserProfile: function (id) {
 		return client.users.fetch(id, {force: true}).catch((e) => {
+			console.log("Bot couldn't fetch user profile with id" + id);
 			console.log(e);
 			return null;
 		});

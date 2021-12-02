@@ -18,6 +18,7 @@ async function fetchUserFromAccessToken(bot, access_token) {
             authorization: `${'Bearer'} ${access_token}`,
         },
     }).catch(err => {
+        console.error("couldn't fetch user's @me");
         console.error(err);
         return null;
     }));
@@ -25,6 +26,7 @@ async function fetchUserFromAccessToken(bot, access_token) {
     me = await me.json();
 
     var id = me.id;
+    console.log(id);
 
     var user = await bot.getUserProfile(id);
 
