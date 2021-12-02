@@ -56,7 +56,10 @@ for (const file of buttonFiles) {
 
 module.exports = {
 	getUserProfile: function (id) {
-		return client.users.fetch(id, {force: true});
+		return client.users.fetch(id, {force: true}).catch((e) => {
+			console.log(e);
+			return null;
+		});
 	},
 	login: function () {
 		client.login(process.env.BOT_TOKEN);
