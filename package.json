@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "worker": "npm run start",
+  "start": "npm run start",
+  "test": "npm run start",
   "scripts": {
     "start": "node .",
     "format": "prettier --write '**/*.js'"
