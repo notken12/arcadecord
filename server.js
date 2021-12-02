@@ -214,6 +214,18 @@ app.use('/game', async (req, res) => {
 
 });
 
+app.get('discord-oauth2-sign-in', (req, res) => {
+  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.CLIENT_ID + '&redirect_uri=' + 
+  encodeURIComponent(process.env.BASE_URL + '/auth') + 
+  '&response_type=code&scope=identify%20email%20connections');
+});
+
+app.get('discord-oauth2-invite-bot', (req, res) => {
+  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.CLIENT_ID + '&redirect_uri=' + 
+  encodeURIComponent(process.env.BASE_URL + '/auth') + 
+  '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write');
+});
+
 server.listen(port || 3000, () => {
   console.log(`App listening at port ${port || 3000}`)
 });
