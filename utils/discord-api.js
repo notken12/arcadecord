@@ -13,6 +13,7 @@ async function fetchUser(bot, id) {
 }
 
 async function fetchUserFromAccessToken(bot, access_token) {
+    
     var me = (await fetch('https://discord.com/api/users/@me', {
         headers: {
             authorization: `${'Bearer'} ${access_token}`,
@@ -24,6 +25,7 @@ async function fetchUserFromAccessToken(bot, access_token) {
     }));
 
     me = await me.json();
+    console.log(access_token);
     console.log(me);
 
     var id = me.id;
