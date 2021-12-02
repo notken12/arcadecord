@@ -24,6 +24,7 @@ async function fetchUserFromAccessToken(bot, access_token) {
     }));
 
     me = await me.json();
+    console.log(me);
 
     var id = me.id;
     console.log(id);
