@@ -1,7 +1,7 @@
 const express = require('express');
 const request = require('request');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const db = require('./db/db');
 
@@ -198,6 +198,6 @@ app.use('/game', async (req, res) => {
 
 });
 
-server.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`)
+server.listen(port || 3000, () => {
+  console.log(`App listening at port ${port || 3000}`)
 });
