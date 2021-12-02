@@ -93,6 +93,8 @@ app.get('/auth', (req, res) => {
     }
   };
 
+  console.log(options);
+
   //send post request
   request(options, async (error, response, body) => {
     if (error) throw new Error(error);
