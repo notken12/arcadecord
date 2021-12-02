@@ -9,7 +9,6 @@ var GameFlow = {
     },
     end(game, result) {
         //end the game
-        this.endTurn(game);
         game.hasEnded = true;
         if (result.winner) {
             game.winner = result.winner;
@@ -17,6 +16,8 @@ var GameFlow = {
             // draw
             game.winner = -1;
         }
+
+
     
         game.emit('end', result);
     
