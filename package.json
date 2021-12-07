@@ -29,14 +29,14 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "lodash.clonedeep": "^4.5.0",
+    "mongoose": "^6.1.0",
     "nodemon": "^2.0.15",
     "pts": "^0.10.6",
     "request": "^2.88.2",
     "sequelize": "^6.8.0",
     "socket.io": "^4.3.1",
     "sqlite3": "^5.0.2",
-    "three": "^0.115.0",
-    "three-to-cannon": "^4.0.2"
+    "three": "^0.115.0"
   },
   "devDependencies": {
     "prettier": "^2.0.4",

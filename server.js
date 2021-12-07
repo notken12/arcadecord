@@ -3,7 +3,7 @@ const request = require('request');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const db = require('./db/db');
+const db = require('./db/db2');
 
 const discordApiUtils = require('./utils/discord-api');
 const dotenv = require('dotenv');
@@ -18,6 +18,8 @@ const { Server } = require("socket.io");
 const cookie = require('cookie');
 
 dotenv.config();
+
+db.connect();
 
 bot.login();
 
@@ -120,21 +122,33 @@ app.get('/auth', (req, res) => {
 
     //create user in db
 
-    var userFromDiscord = await db.getUserFromDiscordId(dId);
+    var userFromDiscord = await db.getUserByDiscordId(dId);
 
     var existingUserId;
     if (userFromDiscord) {
-      existingUserId = userFromDiscord.get('id');
+      existingUserId = userFromDiscord._id;
     }
     if (!existingUserId) {
       // new user
-      var id = (await db.createUser(refresh_token, access_token, dId)).get('id');
-      res.cookie('user', id, { httpOnly: true });
+      var id = (await db.createUser(
+        {
+          discordId: dId,
+          discordRefreshToken: refresh_token,
+          discordAccessToken: access_token
+        }
+      ))._id;
+      var token = await db.generateAccessToken(id);
+      res.cookie('accessToken', token, { httpOnly: true });
     }
     else {
       // existing user
-      db.updateUser(existingUserId, refresh_token, access_token, dId);
-      res.cookie('user', existingUserId, { httpOnly: true });
+      db.updateUser(existingUserId, {
+        discordId: dId,
+        discordRefreshToken: refresh_token,
+        discordAccessToken: access_token
+      });
+      var token = await db.generateAccessToken(existingUserId);
+      res.cookie('accessToken', token, { httpOnly: true });
     }
 
     var cookie = req.cookies.gameId;
@@ -168,7 +182,7 @@ app.use('/game', async (req, res) => {
   var game = gamesManager.getGame(id);
 
   if (game) {
-    var cookie = req.cookies.user;
+    var cookie = req.cookies.accessToken;
     if (cookie === undefined) {
       //user is not signed in. 
       //set cookie for game id to redirect back to
@@ -179,12 +193,12 @@ app.use('/game', async (req, res) => {
     } else {
       //cookie exists. 
       //check database if user is signed in
-      var user = await db.getUser(cookie);
+      var user = await db.getUserByAccessToken(cookie);
       if (user) {
         //user is signed in. 
         //redirect to game
 
-        var userId = cookie;
+        var userId = user._id;
 
 
         var status = await game.doesUserHavePermission(userId);

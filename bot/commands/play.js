@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const games = require('../../games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } = require('discord.js');
-const db = require('../../db/db');
+const db = require('../../db/db2');
 
 function getActionRow() {
     //create message action row
@@ -40,7 +40,7 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply({ephemeral:true});
         var user = interaction.user;
-        var d = await db.getUserFromDiscordId(user.id);
+        var d = await db.getUserByDiscordId(user.id);
         if (d) {
             var message = getMessage();
 

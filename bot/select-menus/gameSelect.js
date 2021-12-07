@@ -1,7 +1,7 @@
 const gameTypes = require('../../games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const gamesManager = require('../../games/gamesManager');
-const db = require('../../db/db');
+const db = require('../../db/db2');
 
 module.exports = {
     data: {
@@ -31,8 +31,8 @@ module.exports = {
             game.setGuild(interaction.guild);
             game.setChannel(interaction.channel);
 
-            var user = await db.getUserFromDiscordId(interaction.user.id);
-            game.addPlayer(user.get('id'));
+            var user = await db.getUserByDiscordId(interaction.user.id);
+            game.addPlayer(user._id);
             game.init();
 
             interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);
