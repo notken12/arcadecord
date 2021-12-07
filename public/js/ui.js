@@ -171,6 +171,102 @@ const GameManualView = {
     }
 }
 
+const ResultView = {
+    data() {
+        return {
+
+        }
+    },
+    props: ['game'],
+    template: `
+    <transition name="fade" appear mode="out-in">
+    <div class="result-view">
+        <div class="result-view-text">
+            <span>{{resultText}}</span>
+        </div>
+    </div>
+    </transition>
+    `,
+    computed: {
+        resultText() {
+            if (this.game.winner === -1) {
+                return 'Draw';
+            }
+            if (this.game.winner === this.game.myIndex) {
+                return 'You win!';
+            } else {
+                return 'You lose!';
+            }
+        }
+    },
+    methods: {
+        showConfetti() {
+            var duration = 60 * 1000;
+            var animationEnd = Date.now() + duration;
+            var skew = 1;
+            // use bright colorful colors
+            var colors = ['#ff1744', '#f50057', '#d500f9', '#651fff','#3d5afe', '#2979ff', '#00b0ff', '#00e5ff', '#1de9b6', '#00e676', '#76ff03', '#c6ff00', '#ffea00', '#ffc400', '#ff9100', '#ff3d00'];
+
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var previousTimestamp;
+
+            (function frame(time) {
+                var count = window.innerWidth / 35;
+                var averageInterval = 1000;
+
+                var chance = count / averageInterval;
+
+                let timeLeft = animationEnd - Date.now();
+                
+                if (previousTimestamp === undefined && time !== undefined)
+                    previousTimestamp = time + 0;
+                
+                let elapsed = time - previousTimestamp;
+
+
+                let rng = Math.random();
+                if (rng <= chance * elapsed) {
+                    var ticks = window.innerHeight * 1.5;
+                    //skew = Math.max(0.8, skew - 0.001);
+
+                    confetti({
+                        particleCount: 1,
+                        startVelocity: 0,
+                        origin: {
+                            x: Math.random(),
+                            // since particles fall down, skew start toward the top
+                            y: 0
+                        },
+                        colors: [colors[Math.floor(Math.random() * colors.length)]],
+                        gravity: randomInRange(0.9, 1.1),
+                        drift: randomInRange(-0.4, 0.4),
+                        shapes: ['square', 'square'],
+                        ticks: ticks,
+                    });
+                }
+
+
+
+                previousTimestamp = time + 0;
+
+
+                if (timeLeft > 0) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    },
+    mounted() {
+        if (this.game.winner === this.game.myIndex) {
+            this.showConfetti();
+        }
+    }
+}
+
 const GameView = {
     data() {
         return {
@@ -184,13 +280,15 @@ const GameView = {
         <game-header :game="game" :me="me" :hint="hint"></game-header>
         <slot></slot>
         <waiting-view v-if="!isItMyTurn && !game.hasEnded"></waiting-view>
+        <result-view v-if="game.hasEnded" :game="game"></result-view>
         <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
     </div>
     `,
     components: {
         'game-header': GameHeader,
         'waiting-view': WaitingView,
-        'game-manual-view': GameManualView
+        'game-manual-view': GameManualView,
+        'result-view': ResultView
     },
     mounted() {
         emitter.on('open-manual', () => {
