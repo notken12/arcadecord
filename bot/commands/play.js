@@ -40,7 +40,7 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply({ephemeral:true});
         var user = interaction.user;
-        var d = await db.getUserByDiscordId(user.id);
+        var d = await db.users.getByDiscordId(user.id);
         if (d) {
             var message = getMessage();
 

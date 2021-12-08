@@ -31,7 +31,17 @@ io.on('connection', (socket) => {
   socket.on('connect_socket', async function (data, callback) {
     const cookies = cookie.parse(socket.request.headers.cookie || "");
 
-    const userId = cookies.user;
+    var token = cookies.accessToken;
+
+    var user = await db.users.getByAccessToken(token);
+    if (!user) {
+      callback({
+        error: "Invalid access token"
+      });
+      return;
+    }
+
+    const userId = user._id;
     const gameId = data.gameId;
 
     if (!userId) return;
@@ -122,7 +132,7 @@ app.get('/auth', (req, res) => {
 
     //create user in db
 
-    var userFromDiscord = await db.getUserByDiscordId(dId);
+    var userFromDiscord = await db.users.getByDiscordId(dId);
 
     var existingUserId;
     if (userFromDiscord) {
@@ -142,7 +152,7 @@ app.get('/auth', (req, res) => {
     }
     else {
       // existing user
-      db.updateUser(existingUserId, {
+      db.users.update(existingUserId, {
         discordId: dId,
         discordRefreshToken: refresh_token,
         discordAccessToken: access_token
@@ -193,7 +203,7 @@ app.use('/game', async (req, res) => {
     } else {
       //cookie exists. 
       //check database if user is signed in
-      var user = await db.getUserByAccessToken(cookie);
+      var user = await db.users.getByAccessToken(cookie);
       if (user) {
         //user is signed in. 
         //redirect to game

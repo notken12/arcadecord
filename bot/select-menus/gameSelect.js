@@ -31,7 +31,7 @@ module.exports = {
             game.setGuild(interaction.guild);
             game.setChannel(interaction.channel);
 
-            var user = await db.getUserByDiscordId(interaction.user.id);
+            var user = await db.users.getByDiscordId(interaction.user.id);
             game.addPlayer(user._id);
             game.init();
 

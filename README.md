@@ -3,7 +3,8 @@
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
 ## Todo
-* Use private keys for users instead of user ID to authenticate
+* Change game interaction to stateless, load game from DB, run action, save game to DB
+    * Add export in each game type that exports server-only action models (functions cant be saved to DB)
 * Add more games
 * Add player winning ui
     * confetti, use canvas-confetti

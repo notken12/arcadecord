@@ -37,7 +37,7 @@ async function fetchUserMe(access_token) {
 }
 
 async function fetchUser(bot, id) {
-    var user = await db.getUserById(id);
+    var user = await db.users.getById(id);
     if (!user) {
         return null;
     }
@@ -58,7 +58,7 @@ async function fetchUserFromAccessToken(bot, access_token) {
         // refresh access token
         console.log('refreshing access token');
 
-        var dbUser = await db.getUserByAccessToken(access_token);
+        var dbUser = await db.users.getByAccessToken(access_token);
         access_token = await getNewAccessToken(dbUser);
         me = await fetchUserMe(access_token);
     }
