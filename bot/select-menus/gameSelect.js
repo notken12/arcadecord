@@ -1,7 +1,8 @@
 const gameTypes = require('../../games/game-types');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton, HTTPError } = require('discord.js');
 const gamesManager = require('../../games/gamesManager');
 const db = require('../../db/db2');
+const fetch = require('node-fetch');
 
 module.exports = {
     data: {
@@ -9,6 +10,8 @@ module.exports = {
     },
     async execute(interaction) {
         await interaction.deferUpdate();
+        var typeId = interaction.values[0];
+
         var gameType = gameTypes[interaction.values[0]];
         if (gameType) {
             // var embed = new MessageEmbed()
@@ -27,7 +30,7 @@ module.exports = {
             // var row = new MessageActionRow().addComponents([startGameButton, backButton]);
             // await interaction.update({ embeds: [embed], components: [row] });
 
-            var game = new gameType.Game();
+            /*var game = new gameType.Game();
             game.setGuild(interaction.guild);
             game.setChannel(interaction.channel);
 
@@ -35,7 +38,31 @@ module.exports = {
             game.addPlayer(user._id);
             game.init();
 
-            interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);
+            interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);*/
+
+            var user = await db.users.getByDiscordId(interaction.user.id);
+
+            const body = {
+                options: {
+                    guild: interaction.guild.id,
+                    channel: interaction.channel.id,
+                    typeId: typeId
+                },
+                userId: user._id
+            };
+
+            const response = await fetch(`${process.env.GAME_SERVER_URL}/create-game`, {
+                method: 'post',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.GAME_SERVER_TOKEN}`
+                }
+            });
+
+            if (response.ok) {
+                interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);
+            }
         }
     }
 }

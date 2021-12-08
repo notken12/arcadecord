@@ -46,7 +46,7 @@ module.exports = {
 
             await interaction.editReply(message);
         } else {
-            await interaction.editReply({content:'Sign in to play: ' + process.env.BASE_URL + '/sign-in', ephemeral: true});
+            await interaction.editReply({content:'Sign in to play: ' + process.env.GAME_SERVER_URL + '/sign-in', ephemeral: true});
         }
 
     }
