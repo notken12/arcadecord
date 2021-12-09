@@ -305,7 +305,7 @@ button {
     font-weight: bold;
 }
 
-.waiting-view {
+.waiting-view, .win-view {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -316,7 +316,7 @@ button {
     user-select: none;
 }
 
-.waiting-view-text {
+.waiting-view-text, .win-view-text {
     background-color: var(--md-sys-surface-variant);
     color: var(--md-sys-on-surface-variant);
     padding: 16px;
@@ -329,9 +329,11 @@ button {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(0.95);
     }
+
     100% {
         transform: scale(1);
     }
@@ -353,12 +355,24 @@ button {
     0% {
         opacity: 1;
     }
+
     50% {
         opacity: 0;
     }
+
     100% {
         opacity: 1;
     }
+}
+
+.win-view {
+    --webkit-box-shadow: inset 0px 0px 50px 30px #F2FF0077; 
+    -box-shadow: inset 0px 0px 50px 30px #F2FF0077;
+}
+
+.win-view-text {
+    background-color: white;
+    color: black;
 }
 
 .game-manual-bg {
@@ -418,10 +432,10 @@ button {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
