@@ -38,6 +38,7 @@ module.exports = {
         .setName('play')
         .setDescription('Play a game!'),
     async execute(interaction) {
+        console.log('play command');
         await interaction.deferReply({ephemeral:true});
         var user = interaction.user;
         var d = await db.users.getByDiscordId(user.id);

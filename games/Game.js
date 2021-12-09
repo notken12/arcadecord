@@ -7,7 +7,7 @@ const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
 const { cloneDeep } = require('lodash');
-const bot = require('../bot/bot');
+//const bot = require('../bot/bot'); will need to replaced with communication with the bot via http
 const bases = require('bases');
 const GameFlow = require('./GameFlow');
 

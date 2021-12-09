@@ -10,7 +10,6 @@ const dotenv = require('dotenv');
 const gameTypes = require('./games/game-types');
 const gamesManager = require('./games/gamesManager.js');
 const cookieParser = require('cookie-parser');
-const bot = require('./bot/bot.js');
 
 const http = require('http');
 const server = http.createServer(app);
@@ -20,8 +19,6 @@ const cookie = require('cookie');
 dotenv.config();
 
 db.connect();
-
-bot.login();
 
 const io = new Server(server);
 
@@ -67,6 +64,8 @@ io.on('connection', (socket) => {
 
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser());
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
@@ -240,7 +239,7 @@ app.use('/game', async (req, res) => {
 
 app.post('/create-game', async (req, res) => {
   // get token from headers
-  var authHeader = req.headers['Authorization'];
+  var authHeader = req.headers.authorization;
   if (!authHeader) {
     res.status(401).send('Access denied. No token provided.');
     return;
@@ -250,7 +249,7 @@ app.post('/create-game', async (req, res) => {
     return;
   }
   // Remove Bearer from string
-  var token = authHeader.slice(7, token.length);
+  var token = authHeader.slice(7, authHeader.length);
 
   if (token !== process.env.GAME_SERVER_TOKEN) {
     res.status(401).send('Access denied. Invalid token.');
@@ -262,7 +261,7 @@ app.post('/create-game', async (req, res) => {
   var typeId = options.typeId;
 
   // get game constructor
-  var Game = gameTypes[typeId];
+  var Game = gameTypes[typeId].Game;
 
   var game = new Game(options);
 

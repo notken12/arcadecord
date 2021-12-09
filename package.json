@@ -7,7 +7,8 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "start": "node .",
+    "startbot": "concurrently \"node bot/index.js 1\" \"node bot/index.js 2\"",
+    "start": "concurrently \"node server.js\" \"npm run startbot\"",
     "format": "prettier --write '**/*.js'"
   },
   "engines": {

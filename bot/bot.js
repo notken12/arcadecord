@@ -5,7 +5,14 @@ const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = 
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 
-dotenv.config();
+// connect to the database
+const db = require('../db/db2');
+db.connect();
+
+// .env is used for all shards
+dotenv.config({
+	path: './bot/.env'
+});
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -53,6 +60,8 @@ for (const file of buttonFiles) {
 	// With the key as the command name and the value as the exported module
 	client.buttons.set(button.data.name, button);
 }
+
+client.login(process.env.BOT_TOKEN);
 
 module.exports = {
 	getUserProfile: function (id) {
