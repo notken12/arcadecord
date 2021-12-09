@@ -3,7 +3,7 @@ const request = require('request');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const db = require('./db/db2');
+const db = require('../db/db2');
 
 const discordApiUtils = require('./utils/discord-api');
 const dotenv = require('dotenv');

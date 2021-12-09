@@ -1,6 +1,6 @@
-const gameTypes = require('../../games/game-types');
+const gameTypes = require('../../server/games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton, HTTPError } = require('discord.js');
-const gamesManager = require('../../games/gamesManager');
+const gamesManager = require('../../server/games/gamesManager');
 const db = require('../../db/db2');
 const fetch = require('node-fetch');
 

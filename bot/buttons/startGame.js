@@ -1,4 +1,4 @@
-const games = require('../../games/game-types');
+const games = require('../../server/games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 
 module.exports = {

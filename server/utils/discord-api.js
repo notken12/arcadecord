@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const db = require('../db/db2');
+const db = require('../../db/db2');
 
 
 async function getNewAccessToken(dbUser) {

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const games = require('../../games/game-types');
+const games = require('../../server/games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } = require('discord.js');
 const db = require('../../db/db2');
 
@@ -38,7 +38,6 @@ module.exports = {
         .setName('play')
         .setDescription('Play a game!'),
     async execute(interaction) {
-        console.log('play command');
         await interaction.deferReply({ephemeral:true});
         var user = interaction.user;
         var d = await db.users.getByDiscordId(user.id);
