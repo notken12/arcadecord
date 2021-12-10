@@ -272,7 +272,7 @@ app.post('/create-game', async (req, res) => {
   // add game to database
   await db.games.create(game);
 
-  res.send('ok');
+  res.json(game);
 });
 
 app.get('/discord-oauth2-sign-in', (req, res) => {

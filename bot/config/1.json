@@ -1,3 +1,4 @@
 {
-    "shardList": [0]
+    "shardList": [0],
+    "port": 2001
 }

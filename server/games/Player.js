@@ -1,4 +1,4 @@
-var discordApiUtils = require('../../utils/discord-api');
+var discordApiUtils = require('../utils/discord-api');
 
 class Player {
     constructor(id, discordUser) {

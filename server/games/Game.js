@@ -10,6 +10,7 @@ const { cloneDeep } = require('lodash');
 //const bot = require('../bot/bot'); will need to replaced with communication with the bot via http
 const bases = require('bases');
 const GameFlow = require('./GameFlow');
+const BotApi = require('../bot/api');
 
 dotenv.config();
 
@@ -210,7 +211,7 @@ class Game {
     async addPlayer(id) {
         if (!(await this.canUserJoin(id))) return false;
 
-        var discordUser = await discordApiUtils.fetchUser(bot, id);
+        var discordUser = await BotApi.fetchUser(id);
         var player = new Player(id, discordUser);
 
         this.players.push(player);
@@ -223,7 +224,10 @@ class Game {
         this.emit('init');
     }
     async doesUserHavePermission(id) {
-        var members = this.guild.members;
+        // MOVE THIS CODE OVER TO THE BOT
+        // and send a request to check if user has permission to join
+
+        /*var members = this.guild.members;
 
         //get discord user id
         var discordUser = await discordApiUtils.fetchUser(bot, id);
@@ -242,7 +246,8 @@ class Game {
             .permissionsFor(member)
             .has('SEND_MESSAGES', false);
 
-        return hasPermissionInChannel;
+        return hasPermissionInChannel;*/
+        return true;
     }
     async canUserJoin(id) {
         if (!(await this.doesUserHavePermission(id))) return false;
@@ -364,7 +369,7 @@ class Game {
 
 Game.eventHandlersDiscord = {
     init: async function () {
-        var embed = new MessageEmbed()
+        /*var embed = new MessageEmbed()
             .setTitle(this.name)
             .setDescription(this.description)
             .setColor(this.color || '#0099ff');
@@ -388,10 +393,12 @@ Game.eventHandlersDiscord = {
         }
 
 
-        this.startMessage = await this.channel.send(message);
+        this.startMessage = await this.channel.send(message);*/
+
+        BotApi.sendStartMessage(this);
     },
     turn: async function () {
-        if (this.startMessage) {
+        /*if (this.startMessage) {
             this.startMessage.delete().catch(() => {});
         }
         if (this.lastTurnInvite) {
@@ -440,7 +447,7 @@ Game.eventHandlersDiscord = {
         }
 
         var message = await this.channel.send(invite);
-        this.lastTurnInvite = message;
+        this.lastTurnInvite = message;*/
     }
 }
 

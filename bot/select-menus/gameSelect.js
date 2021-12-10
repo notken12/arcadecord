@@ -61,7 +61,9 @@ module.exports = {
             });
 
             if (response.ok) {
-                interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);
+                // log result
+                console.log(await response.json());
+                interaction.editReply({components: [], content: `${gameType.options.name} created`}).catch(console.error);
             }
         }
     }
