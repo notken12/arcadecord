@@ -13,5 +13,6 @@
             "shardList": [1]
         }
     ],
-    "totalShards": 2
+    "totalShards": 2,
+    "ipcApiPort": 2000
 }

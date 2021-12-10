@@ -1,22 +1,24 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const request = require('request');
 const app = express();
 const port = process.env.PORT || 3000;
-
-const db = require('../db/db2');
-
-const discordApiUtils = require('./utils/discord-api');
-const dotenv = require('dotenv');
-const gameTypes = require('./games/game-types');
-const gamesManager = require('./games/gamesManager.js');
-const cookieParser = require('cookie-parser');
 
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cookie = require('cookie');
 
-dotenv.config();
+const db = require('../db/db2');
+
+const discordApiUtils = require('./utils/discord-api');
+const gameTypes = require('./games/game-types');
+const gamesManager = require('./games/gamesManager.js');
+const cookieParser = require('cookie-parser');
+
+const BotApi = require('./bot/api');
 
 db.connect();
 
@@ -268,6 +270,7 @@ app.post('/create-game', async (req, res) => {
   // add player to game
   var user = await db.users.getById(req.body.userId);
   game.addPlayer(user._id);
+  game.init();
 
   // add game to database
   await db.games.create(game);

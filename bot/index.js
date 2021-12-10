@@ -9,11 +9,15 @@ require('dotenv').config({
 //load config for this specific process
 var processId = process.argv[2];
 
-const config = require('./config/' + processId + '.json');
+const authMiddleware = require('./auth-middleware');
+
+const arch = require('./config/architecture.json');
+
+const config = arch.hosts.find(host => host.id === processId);
 
 var shardList = config.shardList.map(id => Number(id));
 var port = config.port;
-var totalShards = Number(process.env.TOTAL_SHARDS);
+var totalShards = Number(arch.totalShards);
 
 // load balancing for tasks that can be done on any shard
 var shardIndex = 0;
@@ -38,42 +42,29 @@ manager.spawn();
 
 // create http server to handle requests
 var app = express();
+app.use(express.json());
+
+app.use((req, res, next) => {
+    console.log(req.path);
+    next();
+});
 
 app.use(authMiddleware);
 
-function authMiddleware(req, res, next) {
-    var authHeader = req.headers.authorization;
-    if (!authHeader) {
-        res.status(401).send('Access denied. No token provided.');
-        return;
-    }
-    if (!authHeader.startsWith('Bearer ')) {
-        res.status(401).send('Access denied. Invalid token.');
-        return;
-    }
-
-    // Remove Bearer from string
-    var token = authHeader.slice(7, authHeader.length);
-
-    if (token !== process.env.GAME_SERVER_TOKEN) {
-        res.status(401).send('Access denied. Invalid token.');
-        return;
-    }
-
-    next();
-}
 
 app.post('/message/start', (req, res) => {
     console.log("Received message start request");
+    var game = req.body;
+    console.log(game);
 });
 
 app.get('/users/:id', (req, res) => {
     console.log("Received user request for " + req.params.id);
     var shard = getShardByRoundRobin();
-    manager.broadcastEval(c => {
-        var user = c.users.fetch(req.params.id);
+    manager.broadcastEval((c, { id }) => {
+        var user = c.users.fetch(id);
         return user;
-    }, { shard: shard }).then(users => {
+    }, { shard: shard, context: { id: req.params.id } }).then(users => {
         var user = users.find(u => u);
         if (user) {
             res.json(user);

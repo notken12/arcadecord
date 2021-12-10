@@ -11,6 +11,7 @@ const { cloneDeep } = require('lodash');
 const bases = require('bases');
 const GameFlow = require('./GameFlow');
 const BotApi = require('../bot/api');
+const db = require('../../db/db2');
 
 dotenv.config();
 
@@ -211,7 +212,10 @@ class Game {
     async addPlayer(id) {
         if (!(await this.canUserJoin(id))) return false;
 
-        var discordUser = await BotApi.fetchUser(id);
+        var user = await db.users.getById(id);
+        if (!user) return false;
+
+        var discordUser = await BotApi.fetchUser(user.discordId);
         var player = new Player(id, discordUser);
 
         this.players.push(player);
@@ -220,7 +224,6 @@ class Game {
         return true;
     }
     init() {
-        gamesManager.addGame(this);
         this.emit('init');
     }
     async doesUserHavePermission(id) {
