@@ -24,8 +24,8 @@ const options = {
 }
 
 class Chess extends Game {
-constructor(){
-  super(options);
+constructor(config){
+  super(options, config);
 
   this.on('init', Game.eventHandlersDiscord.init.bind(this)); // <-- don't forget .bind(this)
   this.on('turn', Game.eventHandlersDiscord.turn.bind(this));

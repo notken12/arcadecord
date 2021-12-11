@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const db = require('../../db/db2');
+const BotApi = require('../bot/api');
 
 
 async function getNewAccessToken(dbUser) {
@@ -36,17 +37,17 @@ async function fetchUserMe(access_token) {
     return me;
 }
 
-async function fetchUser(bot, id) {
+async function fetchUser(id) {
     var user = await db.users.getById(id);
     if (!user) {
         return null;
     }
     var access_token = user.discordAccessToken;
 
-    return await fetchUserFromAccessToken(bot, access_token);
+    return await fetchUserFromAccessToken(access_token);
 }
 
-async function fetchUserFromAccessToken(bot, access_token) {
+async function fetchUserFromAccessToken(access_token) {
     
     var me = await fetchUserMe(access_token);
 
@@ -59,18 +60,18 @@ async function fetchUserFromAccessToken(bot, access_token) {
         console.log('refreshing access token');
 
         var dbUser = await db.users.getByAccessToken(access_token);
+        if (!dbUser) {
+            return null;
+        }
         access_token = await getNewAccessToken(dbUser);
         me = await fetchUserMe(access_token);
     }
 
     me = await me.json();
-    console.log(access_token);
-    console.log(me);
 
     var id = me.id;
-    console.log(id);
 
-    var user = await bot.getUserProfile(id);
+    var user = await BotApi.fetchUser(id);
 
     return user;
 }

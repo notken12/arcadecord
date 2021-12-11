@@ -29,10 +29,10 @@ const options = {
 // Game constructor, extends base Game class
 // Don't forget to super(options);
 class ExampleGame extends Game {
-    constructor() {
+    constructor(config) {
         // Creates a game with the options
         // Required
-        super(options);
+        super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
         // Set up event listeners
         // Game.eventHandlersDiscord has default functions

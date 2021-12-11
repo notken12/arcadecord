@@ -1,6 +1,7 @@
 // Require the necessary discord.js classes
 const dotenv = require('dotenv');
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
+const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');

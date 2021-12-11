@@ -38,11 +38,66 @@ function sendStartMessage(game) {
     return fetch(url, options);
 }
 
-function fetchUser(userId) {
-    var url = baseUrl + '/users/' + userId;
+async function fetchUser(userId) {
+    try {
+        var url = baseUrl + '/users/' + userId;
+
+        var options = {
+            method: 'GET'
+        };
+        auth(options);
+    
+        return await (await fetch(url, options)).json();
+    }
+    catch(err) {
+        console.error(err);
+        return null;
+    }
+}
+
+function sendPostTest() {
+    var url = baseUrl + '/posttest';
 
     var options = {
-        method: 'GET'
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: 'test',
+            userId: 'test',
+        }),
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
+function sendGetTest() {
+    var url = baseUrl + '/gettest';
+
+    var options = {
+        method: 'GET',
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
+function sendMessage(message, guild, channel) {
+    var url = baseUrl + '/message';
+    var data = {
+        guild: guild,
+        channel: channel,
+        message: message,
+    };
+
+    var options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
     };
     auth(options);
 
@@ -51,5 +106,8 @@ function fetchUser(userId) {
 
 module.exports = {
     sendStartMessage,
-    fetchUser
+    fetchUser,
+    sendPostTest,
+    sendGetTest,
+    sendMessage
 }

@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
           callback({
             status: 'success',
             game: game.getDataForClient(userId),
-            discordUser: await discordApiUtils.fetchUser(bot, userId)
+            discordUser: await discordApiUtils.fetchUser(userId)
           });
         }
       }
@@ -95,8 +95,8 @@ app.get('/auth', (req, res) => {
     method: 'POST',
     uri: 'https://discord.com/api/oauth2/token',
     form: {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
+      client_id: process.env.BOT_CLIENT_ID,
+      client_secret: process.env.BOT_CLIENT_SECRET,
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: process.env.GAME_SERVER_URL + '/auth'
@@ -123,7 +123,8 @@ app.get('/auth', (req, res) => {
     var refresh_token = data.refresh_token;
     var access_token = data.access_token;
 
-    var user = await discordApiUtils.fetchUserFromAccessToken(bot, access_token);
+    // error here, replace with bot IPC api call
+    var user = await discordApiUtils.fetchUserFromAccessToken(access_token);
     if (!user) {
       res.send('Error: could not get user from access token');
       return;
@@ -133,6 +134,8 @@ app.get('/auth', (req, res) => {
 
     //create user in db
 
+    // check if user exists
+
     var userFromDiscord = await db.users.getByDiscordId(dId);
 
     var existingUserId;
@@ -141,14 +144,14 @@ app.get('/auth', (req, res) => {
     }
     if (!existingUserId) {
       // new user
-      var id = (await db.createUser(
+      var id = (await db.users.create(
         {
           discordId: dId,
           discordRefreshToken: refresh_token,
           discordAccessToken: access_token
         }
       ))._id;
-      var token = await db.generateAccessToken(id);
+      var token = await db.users.generateAccessToken(id);
       res.cookie('accessToken', token, { httpOnly: true });
     }
     else {
@@ -158,7 +161,7 @@ app.get('/auth', (req, res) => {
         discordRefreshToken: refresh_token,
         discordAccessToken: access_token
       });
-      var token = await db.generateAccessToken(existingUserId);
+      var token = await db.users.generateAccessToken(existingUserId);
       res.cookie('accessToken', token, { httpOnly: true });
     }
 
@@ -273,19 +276,19 @@ app.post('/create-game', async (req, res) => {
   game.init();
 
   // add game to database
-  await db.games.create(game);
+  await db.games.create(Object.assign(game, {_id: game.id}));
 
   res.json(game);
 });
 
 app.get('/discord-oauth2-sign-in', (req, res) => {
-  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.CLIENT_ID + '&redirect_uri=' +
+  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.BOT_CLIENT_ID + '&redirect_uri=' +
     encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
     '&response_type=code&scope=identify%20email%20connections');
 });
 
 app.get('/discord-oauth2-invite-bot', (req, res) => {
-  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.CLIENT_ID + '&redirect_uri=' +
+  res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.BOT_CLIENT_ID + '&redirect_uri=' +
     encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
     '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write');
 });

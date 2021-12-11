@@ -66,8 +66,8 @@ const options = {
 };
 
 class SeaBattleGame extends Game {
-    constructor() {
-        super(options);
+    constructor(config) {
+        super(options, config);
 
 
         // add ships

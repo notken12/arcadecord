@@ -103,7 +103,7 @@ const db = {
             }
         },
         async generateAccessToken(id) {
-            var user = await this.users.getById(id);
+            var user = await this.getById(id);
 
             if (!user) {
                 return null;
@@ -123,7 +123,7 @@ const db = {
     games: {
         async create(data) {
             try {
-                var newGame = new User(data);
+                var newGame = new Game(data);
                 return await newGame.save();
             } catch (e) {
                 console.error(e);

@@ -1,4 +1,5 @@
 const { ShardingManager } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const express = require('express');
 
 // load .env that will be used for all processes running shard managers
@@ -25,6 +26,14 @@ var shardIndex = 0;
 function getShardByRoundRobin() {
     shardIndex = (shardIndex + 1) % totalShards;
     return shardList[shardIndex];
+}
+
+function getShardByGuild(guild_id) {
+    var num_shards = arch.totalShards;
+
+    //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
+    var shard_id = (guild_id >> 22) % num_shards;
+    return shard_id;
 }
 
 // create sharding manager
@@ -54,8 +63,27 @@ app.use(authMiddleware);
 
 app.post('/message/start', (req, res) => {
     console.log("Received message start request");
-    var game = req.body;
-    console.log(game);
+
+    var game = req.body.game;
+
+
+    var shard = getShardByGuild(game.guild);
+
+    
+
+
+
+    /*manager.broadcastEval((c, { channel, message }) => {
+
+
+        c.channels.cache.get(channel).send(message);
+
+    }, { shard: shard, context: { channel: game.channel, message } }).then((sentMessage => {
+        console.log(sentMessage);
+    }));*/
+
+
+    res.send('ok');
 });
 
 app.get('/users/:id', (req, res) => {
@@ -65,14 +93,44 @@ app.get('/users/:id', (req, res) => {
         var user = c.users.fetch(id);
         return user;
     }, { shard: shard, context: { id: req.params.id } }).then(users => {
-        var user = users.find(u => u);
-        if (user) {
-            res.json(user);
+        if (typeof users.find === 'function') {
+            var user = users.find(user => user.id === req.params.id);
+            if (user) {
+                res.json(user);
+            }
+            else {
+                res.status(404).send("User not found");
+            }
+        } else {
+            if (users) {
+                res.json(users);
+            } else {
+                res.status(404).send("User not found");
+            }
         }
-        else {
-            res.status(404).send("User not found");
-        }
+
+
     });
+});
+
+app.post('/posttest', (req, res) => {
+    console.log("Received post test request");
+    res.send('ok');
+});
+
+app.get('/gettest', (req, res) => {
+    console.log("Received get test request");
+    res.send('ok');
+});
+
+app.post('/message', (req, res) => {
+    console.log("Received message request");
+    var shard = getShardByGuild(req.body.guild);
+    manager.broadcastEval(async (c, { channel, message }) => {
+        return await c.channels.cache.get(channel).send(message);
+    }, { shard: shard, context: { channel: req.body.channel, message: req.body.message } }).then((sentMessage => {
+        res.send(sentMessage);
+    }));
 });
 
 app.listen(port, () => console.log(`Bot host ${processId} listening on port ${port}`));

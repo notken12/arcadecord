@@ -1,7 +1,6 @@
 const { SnowflakeUtil, MessageAttachment } = require('discord.js');
 const dotenv = require('dotenv');
 const gamesManager = require('./gamesManager');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const Player = require('./Player');
 const Action = require('./Action');
 const discordApiUtils = require('../utils/discord-api');
@@ -12,6 +11,7 @@ const bases = require('bases');
 const GameFlow = require('./GameFlow');
 const BotApi = require('../bot/api');
 const db = require('../../db/db2');
+const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ class Game {
     //     "maxPlayers": 0,
     //     "minPlayers": 0,
     // }
-    constructor(options) {
+    constructor(typeOptions, options) {
         this.id = bases.toBase62(SnowflakeUtil.generate());
         this.players = [];
         this.eventHandlers = {};
@@ -83,8 +83,8 @@ class Game {
             return data;
         }
 
-        Object.assign(this, cloneDeep(options)); // deep clone options so that options wont be changed when game is modified
-
+        Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
+        Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
 
     }
     //methods
@@ -189,9 +189,9 @@ class Game {
                         };
                     }
                 }
-                
 
-                
+
+
             }
         } else {
             // action not found
@@ -320,7 +320,7 @@ class Game {
     }
 
     getImage() {
-        
+
     }
 
     getChanges(oldData, newData) {
@@ -372,33 +372,37 @@ class Game {
 
 Game.eventHandlersDiscord = {
     init: async function () {
-        /*var embed = new MessageEmbed()
-            .setTitle(this.name)
-            .setDescription(this.description)
-            .setColor(this.color || '#0099ff');
+        var game = this;
+
+        var embed = new MessageEmbed()
+            .setTitle(game.name)
+            .setDescription(game.description)
+            .setColor(game.color || '#0099ff');
         var startGameButton = new MessageButton()
             .setLabel('Play')
             .setStyle('LINK')
-            .setURL(this.getURL());
+            .setURL(game.getURL());
 
         var row = new MessageActionRow().addComponents([startGameButton]);
-        var message =  { embeds: [embed], components: [row] };
+        var message = { embeds: [embed], components: [row] };
 
-        if (typeof(this.getThumbnail) == 'function') {
-            var image = await this.getThumbnail();
+        if (typeof (game.getThumbnail) == 'function') {
+            var image = await game.getThumbnail();
             if (image) {
                 const attachment = new MessageAttachment(image, 'thumbnail.png');
-    
+     
                 embed.setImage(`attachment://thumbnail.png`);
-    
+     
                 message.files = [attachment];
             }
         }
 
-
-        this.startMessage = await this.channel.send(message);*/
-
-        BotApi.sendStartMessage(this);
+        BotApi.sendMessage(message, game.guild, game.channel).then(async (res) => {
+            var msg = await res.json();
+            this.startMessage = msg.id;
+            console.log(msg);
+            console.log(res);
+        });
     },
     turn: async function () {
         /*if (this.startMessage) {

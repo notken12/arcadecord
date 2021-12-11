@@ -1,6 +1,7 @@
 // Proxy to load balance and proxy requests to the correct shard manager hosts
 const express = require('express');
-const proxy = require('http-proxy-middleware');
+const httpProxy = require('http-proxy');
+const fetch = require('node-fetch');
 
 require('dotenv').config({
     path: './bot/.env'
@@ -11,6 +12,9 @@ const authMiddleware = require('./auth-middleware');
 const arch = require('./config/architecture.json');
 
 var port = arch.ipcApiPort;
+
+// create proxy
+const proxy = httpProxy.createProxyServer({});
 
 var hostIndex = 0;
 function getHostByRoundRobin() {
@@ -42,32 +46,37 @@ app.use(express.json());
 // authentication middleware
 app.use(authMiddleware);
 
+function forwardRequest(host, req, res) {
+    // forward request to host
+    var options = {
+        url: `http://${host.ip}:${host.port}${req.path}`,
+        method: req.method,
+        headers: req.headers,
+        body: JSON.stringify(req.body),
+    };
+
+    if (options.method === 'GET') {
+        options.body = undefined;
+    }
+    console.log('Proxying to ' + options.url);
+    fetch(options.url, options).then(async response => {
+        // send response back
+        res.status(response.status);
+        res.set(Object.fromEntries(response.headers));
+        res.send(await response.json());
+    });
+}
+
 function proxyRoundRobin(req, res) {
     var host = getHostByRoundRobin();
     // forward request to host
-    var options = {
-        target: `http://${host.ip}:${host.port}`,
-        logLevel: 'debug'
-    };
-    proxy(options)(req, res);
+    return forwardRequest(host, req, res);
 }
-
-function onError(err, req, res) {
-    console.log(err);
-  }
 
 function proxyByGuild(guildId, req, res) {
     var host = getHostByGuild(guildId);
-    console.log(host);
     // forward request to host
-    var options = {
-        target: `http://${host.ip}:${host.port}`,
-        logLevel: 'debug',
-        onError: onError
-    };
-    console.log(options.target);
-    proxy(options)(req, res);
-    console.log('proxied');
+    return forwardRequest(host, req, res);
 }
 
 app.get('/users/:id', (req, res) => {
@@ -80,6 +89,21 @@ app.post('/message/start', (req, res) => {
     proxyByGuild(req.body.game.guild, req, res);
 });
 
-app.listen(port, function() {
+app.post('/posttest', (req, res) => {
+    console.log('post test request');
+    proxyRoundRobin(req, res);
+});
+
+app.get('/gettest', (req, res) => {
+    console.log('get test request');
+    proxyByGuild(0, req, res);
+});
+
+app.post('/message', (req, res) => {
+    console.log('post message');
+    proxyByGuild(req.body.guild, req, res);
+});
+
+app.listen(port, function () {
     console.log('Bot IPC proxy listening on port ' + port);
 });
