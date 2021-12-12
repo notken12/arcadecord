@@ -75,6 +75,18 @@ class Game {
             }
         }; // event management, just for client. used for updating ui. copy of this can be found in client-framework.js
 
+
+
+        Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
+        Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
+
+        if (this._id !== undefined && this._id !== null) {
+            this.id = this._id;
+        }
+        if (this.id !== undefined && this.id !== null) {
+            this._id = this.id;
+        }
+
         this.turns.getDataForClient = function () {
             var data = [];
             for (let turn of this) {
@@ -82,10 +94,6 @@ class Game {
             }
             return data;
         }
-
-        Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
-        Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
-
     }
     //methods
     setGuild(guild) {
@@ -296,16 +304,8 @@ class Game {
         return this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1);
     }
     setSocket(userId, socket) {
-        if (this.sockets[userId]) {
-            this.sockets[userId].disconnect('you connected on another tab');
-        }
+        // TODO: disconnect user's old socket if they have one
         this.sockets[userId] = socket;
-        socket.join('game:' + this.id);
-        socket.on('action', async (type, data, callback) => {
-            var action = new Action(type, userId, data, this);
-            var result = await this.handleAction(action);
-            callback(result);
-        });
 
     }
 
@@ -340,15 +340,15 @@ class Game {
             description: this.description,
             image: this.image,
             aliases: this.aliases,
-            players: this.players.map(player => player.getDataForClient()),
+            players: this.players.map(player => Player.getDataForClient(player, userId)),
             maxPlayers: this.maxPlayers,
             minPlayers: this.minPlayers,
             turn: this.turn,
             data: this.data,
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
-            turns: this.turns.getDataForClient(),
-            client: this.client.getDataForClient(),
+            turns: this.turns.getDataForClient(userId),
+            client: this.client.getDataForClient(userId),
             actionModels: {},
             clientActionModels: {},
             winner: this.winner,
@@ -379,6 +379,7 @@ Game.eventHandlersDiscord = {
             .setDescription(game.description)
             .setColor(game.color || '#0099ff');
         var startGameButton = new MessageButton()
+            .setEmoji(game.emoji || '🎮')
             .setLabel('Play')
             .setStyle('LINK')
             .setURL(game.getURL());
@@ -390,19 +391,20 @@ Game.eventHandlersDiscord = {
             var image = await game.getThumbnail();
             if (image) {
                 const attachment = new MessageAttachment(image, 'thumbnail.png');
-     
+
                 embed.setImage(`attachment://thumbnail.png`);
-     
+
                 message.files = [attachment];
             }
         }
 
-        BotApi.sendMessage(message, game.guild, game.channel).then(async (res) => {
-            var msg = await res.json();
-            this.startMessage = msg.id;
-            console.log(msg);
-            console.log(res);
-        });
+        var res = await BotApi.sendMessage(message, game.guild, game.channel);
+
+        var msg = await res.json();
+        this.startMessage = msg.id;
+        console.log('start message: ' + this.startMessage);
+
+        return true;
     },
     turn: async function () {
         /*if (this.startMessage) {

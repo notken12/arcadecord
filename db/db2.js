@@ -21,6 +21,7 @@ const User = mongoose.model('User', userSchema);
 
 const gameSchema = new Schema({
     _id: String,
+    typeId: String,
     name: String,
     description: String,
     image: String,
@@ -36,9 +37,6 @@ const gameSchema = new Schema({
     winner: Number,
     data: Object,
     turns: Array,
-    actionModels: Object, // point to function name in game actionmodels export
-    serverActionModels: Object,
-    clientActionModels: Object,
 });
 
 const Game = mongoose.model('Game', gameSchema);
@@ -124,6 +122,7 @@ const db = {
         async create(data) {
             try {
                 var newGame = new Game(data);
+                newGame._id = data.id;
                 return await newGame.save();
             } catch (e) {
                 console.error(e);

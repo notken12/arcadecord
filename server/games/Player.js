@@ -5,12 +5,13 @@ class Player {
         this.id = id;
         this.discordUser = discordUser;
     }
-
-    getDataForClient() {
-        return {
-            discordUser: this.discordUser
-        };
-    }
 }
+
+Player.getDataForClient = function (player, userId) {
+    return {
+        id: player.id,
+        discordUser: player.discordUser
+    };
+};
 
 module.exports = Player;

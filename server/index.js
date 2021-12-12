@@ -46,13 +46,31 @@ io.on('connection', (socket) => {
     if (!userId) return;
 
     if (gameId) {
-      var game = gamesManager.getGame(gameId);
-      if (game) {
+      var dbGame = await db.games.getById(gameId);
+
+      if (dbGame) {
+        // get game type
+        var gameType = gameTypes[dbGame._doc.typeId]
+
+        // create instance of game
+        var game = new gameType.Game(dbGame._doc);
+
         if (await game.canUserSocketConnect(userId)) {
+          // TODO: disconnect old socket if the user already connected to the same game
+
+          // set socket info
           socket.data.userId = userId;
+          socket.data.gameId = gameId;
 
-          game.setSocket(userId, socket);
+          game.setSocket(userId, socket.id);
 
+          // add socket to game room for broadcasting events
+          socket.join('game/' + gameId);
+
+          // save game to db
+          await db.games.update(gameId, game);
+
+          // send game info to user
           callback({
             status: 'success',
             game: game.getDataForClient(userId),
@@ -62,6 +80,13 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+  socket.on('action', async function (data, callback) {
+    // get which game the socket is in
+    var gameId = socket.data.gameId;
+    var userId = socket.data.userId;
+  });
+
 });
 
 // need cookieParser middleware before we can do anything with cookies
@@ -191,48 +216,47 @@ app.use('/gameassets', async (req, res) => {
 });
 
 //user is accessing game
-app.use('/game', async (req, res) => {
-  var id = req.path.substring(1, req.path.length);
-  var game = gamesManager.getGame(id);
+app.get('/game/:id', async (req, res) => {
+  var id = req.params.id;
 
-  if (game) {
+  var dbGame = await db.games.getById(id);
+
+  if (dbGame) {
+    // get game type
+    var gameType = gameTypes[dbGame.typeId];
+
+    // create instance of game, var game
+    var game = new gameType.Game(dbGame._doc);
+
     var cookie = req.cookies.accessToken;
-    if (cookie === undefined) {
-      //user is not signed in. 
+
+    //check database if user is signed in
+    var user = await db.users.getByAccessToken(cookie);
+
+    if (user) {
+      //user is signed in. 
+      //redirect to game
+
+      var userId = user._id;
+
+
+      var status = await game.doesUserHavePermission(userId);
+      res.clearCookie('gameId', { httpOnly: true });
+
+      if (status) {
+        //user has permission to join
+        res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
+      } else {
+        res.send('you have no permission to join');
+      }
+
+    } else {
+      //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
       res.cookie('gameId', id, { maxAge: 900000, httpOnly: true });
       console.log('cookie created successfully');
       res.redirect('/sign-in');
-    } else {
-      //cookie exists. 
-      //check database if user is signed in
-      var user = await db.users.getByAccessToken(cookie);
-      if (user) {
-        //user is signed in. 
-        //redirect to game
-
-        var userId = user._id;
-
-
-        var status = await game.doesUserHavePermission(userId);
-        res.clearCookie('gameId', { httpOnly: true });
-
-        if (status) {
-          //user has permission to join
-          res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
-        } else {
-          res.send('you have no permission to join');
-        }
-
-      } else {
-        //user is not signed in. 
-        //set cookie for game id to redirect back to
-        //redirect to sign in page
-        res.cookie('gameId', id, { maxAge: 900000, httpOnly: true });
-        console.log('cookie created successfully');
-        res.redirect('/sign-in');
-      }
     }
   } else {
     //game does not exist
@@ -272,11 +296,11 @@ app.post('/create-game', async (req, res) => {
 
   // add player to game
   var user = await db.users.getById(req.body.userId);
-  game.addPlayer(user._id);
-  game.init();
+  await game.addPlayer(user._id);
+  await game.init();
 
   // add game to database
-  await db.games.create(Object.assign(game, {_id: game.id}));
+  await db.games.create(game);
 
   res.json(game);
 });
