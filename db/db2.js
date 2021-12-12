@@ -38,7 +38,9 @@ const gameSchema = new Schema({
     data: Object,
     secretData: Object,
     turns: Array,
-    sockets: Object
+    sockets: Object,
+    channel: String,
+    guild: String,
 });
 
 const Game = mongoose.model('Game', gameSchema);
@@ -49,6 +51,9 @@ const db = {
     },
     users: {
         getHash: function (token) {
+            if (!token) {
+                return null;
+            }
             return crypto.createHash('sha256').update(token).digest('hex');
         },
         async create(data) {
@@ -78,6 +83,9 @@ const db = {
         },
         async getByAccessToken(token) {
             try {
+                if (!token) {
+                    return null;
+                }
                 // hash token
                 var hash = this.getHash(token);
                 return await User.findOne({ accessTokenHash: hash });

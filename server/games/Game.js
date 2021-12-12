@@ -10,6 +10,7 @@ const { cloneDeep } = require('lodash');
 const bases = require('bases');
 const GameFlow = require('./GameFlow');
 const BotApi = require('../bot/api');
+const Emoji = require('../bot/Emoji');
 const db = require('../../db/db2');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 
@@ -63,7 +64,7 @@ class Game {
                 if (!this.eventHandlers[event]) return;
 
                 for (let callback of this.eventHandlers[event]) {
-                    callback(...args);
+                    callback(this, ...args);
                 }
             },
             on: function (event, callback) {
@@ -130,7 +131,7 @@ class Game {
         if (!this.eventHandlers[event]) return;
 
         for (let callback of this.eventHandlers[event]) {
-            callback(...args);
+            callback(this, ...args);
         }
     }
     async handleAction(action) {
@@ -378,15 +379,13 @@ class Game {
 }
 
 Game.eventHandlersDiscord = {
-    init: async function () {
-        var game = this;
-
+    init: async function (game) {
         var embed = new MessageEmbed()
             .setTitle(game.name)
             .setDescription(game.description)
             .setColor(game.color || '#0099ff');
         var startGameButton = new MessageButton()
-            .setEmoji(game.emoji || '🎮')
+            .setEmoji(Emoji.ICON_WHITE)
             .setLabel('Play')
             .setStyle('LINK')
             .setURL(game.getURL());
@@ -408,52 +407,56 @@ Game.eventHandlersDiscord = {
         var res = await BotApi.sendMessage(message, game.guild, game.channel);
 
         var msg = await res.json();
-        this.startMessage = msg.id;
-        console.log('start message: ' + this.startMessage);
+        game.startMessage = msg.id;
+        console.log('start message: ' + game.startMessage);
 
-        return true;
+        await db.games.update(game.id, game);
+
     },
-    turn: async function () {
-        /*if (this.startMessage) {
-            this.startMessage.delete().catch(() => {});
+    turn: async function (game) {
+        if (game.startMessage) {
+            BotApi.deleteMessage(game.guild, game.channel, game.startMessage);
         }
-        if (this.lastTurnInvite) {
-            this.lastTurnInvite.delete();
+        if (game.lastTurnInvite) {
+            BotApi.deleteMessage(game.guild, game.channel, game.lastTurnInvite);
         }
 
-        var lastPlayer = this.turns[this.turns.length - 1].playerIndex;
+        var lastPlayer = game.turns[game.turns.length - 1].playerIndex;
 
         var m = {
-            content: `<@${this.players[lastPlayer].discordUser.id}>: *${this.emoji + ' ' || ''}${this.name}*`,
+            content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id}>: *${game.emoji + ' ' || ''}${game.name}*`,
             allowedMentions: {
                 parse: [],
             }
         }
 
-        this.channel.send(m);
+        m.content = `${Emoji.ICON_ROUND}  ${game.name}`;
+
+        await BotApi.sendMessage(m, game.guild, game.channel);
 
         var embed = new MessageEmbed()
-        .setTitle(this.name)
-        //.setDescription(`Your turn, <@${this.players[this.turn].discordUser.id}>`)
-        .setColor(this.color || '#0099ff')
-        .setURL(this.getURL());
+        .setTitle(game.name)
+        .setDescription(`${game.description}`)
+        .setColor(game.color || '#0099ff')
+        .setURL(game.getURL());
 
 
 
         var button = new MessageButton()
+        .setEmoji(Emoji.ICON_WHITE)
         .setLabel('Play')
         .setStyle('LINK')
-        .setURL(this.getURL());
+        .setURL(game.getURL());
 
         var row = new MessageActionRow().addComponents([button]);
 
         var invite = {
-            content: `Your turn, <@${this.players[this.turn].discordUser.id}>`,
+            content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
             embeds: [embed], 
             components: [row],
         };
 
-        var image = await this.getThumbnail();
+        var image = await game.getThumbnail();
         if (image) {
             const attachment = new MessageAttachment(image, 'thumbnail.png');
 
@@ -462,8 +465,12 @@ Game.eventHandlersDiscord = {
             invite.files = [attachment];
         }
 
-        var message = await this.channel.send(invite);
-        this.lastTurnInvite = message;*/
+        var res = await BotApi.sendMessage(invite, game.guild, game.channel);
+
+        var msg = await res.json();
+        game.lastTurnInvite = msg.id;
+
+        await db.games.update(game.id, game);
     }
 }
 

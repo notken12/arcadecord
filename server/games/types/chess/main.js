@@ -27,11 +27,8 @@ class Chess extends Game {
 constructor(config){
   super(options, config);
 
-  this.on('init', Game.eventHandlersDiscord.init.bind(this)); // <-- don't forget .bind(this)
-  this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
-  this.on('end', () => {
-      this.channel.send('Game ended player ' + this.winner + ' won!');
-  });
+  this.on('init', Game.eventHandlersDiscord.init);
+  this.on('turn', Game.eventHandlersDiscord.turn);
 
   this.setActionModel("endTurn", Common.endTurn)
 }

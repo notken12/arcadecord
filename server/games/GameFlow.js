@@ -5,7 +5,6 @@ var GameFlow = {
         game.hasStarted = true;
         game.emit('start');
     
-        game.broadcastToAllSockets('start');
     },
     end(game, result) {
         // end the current turn

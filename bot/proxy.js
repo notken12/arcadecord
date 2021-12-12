@@ -63,20 +63,24 @@ function forwardRequest(host, req, res) {
         // send response back
         res.status(response.status);
         res.set(Object.fromEntries(response.headers));
-        res.send(await response.json());
+
+        var text = await response.text();
+        res.send(text || '');
     });
 }
 
 function proxyRoundRobin(req, res) {
     var host = getHostByRoundRobin();
     // forward request to host
-    return forwardRequest(host, req, res);
+    if (host)
+        return forwardRequest(host, req, res);
 }
 
 function proxyByGuild(guildId, req, res) {
     var host = getHostByGuild(guildId);
     // forward request to host
-    return forwardRequest(host, req, res);
+    if (host)
+        return forwardRequest(host, req, res);
 }
 
 app.get('/users/:id', (req, res) => {
@@ -102,6 +106,11 @@ app.get('/gettest', (req, res) => {
 app.post('/message', (req, res) => {
     console.log('post message');
     proxyByGuild(req.body.guild, req, res);
+});
+
+app.delete('/message/:guild/:channel/:message', (req, res) => {
+    console.log('delete message');
+    proxyByGuild(req.params.guild, req, res);
 });
 
 app.listen(port, function () {

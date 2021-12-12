@@ -98,8 +98,8 @@ io.on('connection', (socket) => {
       // create instance of game
       var game = new gameType.Game(dbGame._doc);
 
-      // listen for game flow events
-      game.on('turn', function () {
+      // listen for game flow events so that turns can be broadcasted
+      game.on('turn', function (game) {
         console.log(`Game ${game.id} turn`);
 
         var player = game.players[game.turn];

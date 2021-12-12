@@ -127,9 +127,34 @@ app.post('/message', (req, res) => {
     console.log("Received message request");
     var shard = getShardByGuild(req.body.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
-        return await c.channels.cache.get(channel).send(message);
+        try {
+            return await c.channels.cache.get(channel).send(message);
+        } 
+        catch(e) {
+            console.log(e);
+            return null;
+        }
     }, { shard: shard, context: { channel: req.body.channel, message: req.body.message } }).then((sentMessage => {
         res.send(sentMessage);
+    }));
+});
+
+app.delete('/message/:guild/:channel/:message', (req, res) => {
+    console.log("Received message delete request");
+    var shard = getShardByGuild(req.params.guild);
+    manager.broadcastEval(async (c, { channel, message }) => {
+        console.log(channel, message);
+        var channel = await c.channels.fetch(channel);
+
+        if (!channel) return null;
+
+        var msg = await channel.messages.delete(message).catch(err => {
+            //console.log(err);
+            return null;
+        });
+        return msg;
+    }, { shard: shard, context: { channel: req.params.channel, message: req.params.message } }).then((deletedMessage => {
+        res.send(deletedMessage);
     }));
 });
 

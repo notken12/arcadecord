@@ -90,9 +90,9 @@ class SeaBattleGame extends Game {
 
         var boards = this.secretData.boards;
 
-        this.on('init', Game.eventHandlersDiscord.init.bind(this));
+        this.on('init', Game.eventHandlersDiscord.init);
 
-        this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
+        this.on('turn', Game.eventHandlersDiscord.turn);
 
         this.setActionModel('set_ships', Common.setShips);
 
@@ -164,8 +164,6 @@ class SeaBattleGame extends Game {
             // check if all ships are sunk
             var allSunk = true;
             for (var ship of board.ships) {
-                console.log(ship.sunk);
-                console.log(ship);
                 if (!ship.sunk) {
                     allSunk = false;
                     break;

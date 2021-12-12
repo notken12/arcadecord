@@ -6,8 +6,8 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
-   sodipodi:docname="arcadecordicon2.svg"
-   inkscape:export-filename="C:\dev\github\arcadecord\public\arcadecordicon.png"
+   sodipodi:docname="arcadecordicon.svg"
+   inkscape:export-filename="C:\dev\github\arcadecord\server\public\icon_round.png"
    inkscape:export-xdpi="86.698669"
    inkscape:export-ydpi="86.698669"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -31,18 +31,6 @@
          style="stop-color:#aa00ff;stop-opacity:1"
          offset="1"
          id="stop23941" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient23845">
-      <stop
-         style="stop-color:#55ff55;stop-opacity:1;"
-         offset="0"
-         id="stop23841" />
-      <stop
-         style="stop-color:#55ff55;stop-opacity:0;"
-         offset="1"
-         id="stop23843" />
     </linearGradient>
     <linearGradient
        id="linearGradient18013"
@@ -611,15 +599,6 @@
        id="perspective833" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient23845"
-       id="linearGradient23847"
-       x1="0"
-       y1="-150"
-       x2="300"
-       y2="-150"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient23943"
        id="linearGradient23945"
        x1="151.05833"
@@ -636,10 +615,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.25"
-     inkscape:cx="542"
+     inkscape:cx="442"
      inkscape:cy="262"
      inkscape:document-units="mm"
-     inkscape:current-layer="g14573"
+     inkscape:current-layer="layer8"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
@@ -672,19 +651,6 @@
        height="300"
        x="0"
        y="0" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer8"
-     inkscape:label="Circle guide"
-     style="display:none">
-    <circle
-       style="opacity:0.396825;mix-blend-mode:normal;fill:url(#linearGradient23847);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.286017;stroke-opacity:1"
-       id="path12312"
-       cx="150"
-       cy="-150"
-       r="150"
-       transform="rotate(90)" />
   </g>
   <g
      inkscape:label="Layer 1"
@@ -828,6 +794,19 @@
         </g>
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer8"
+     inkscape:label="Circle guide"
+     style="display:none">
+    <circle
+       style="opacity:0.99;mix-blend-mode:normal;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.286017;stroke-opacity:1"
+       id="path12312"
+       cx="150"
+       cy="-150"
+       r="150"
+       transform="rotate(90)" />
   </g>
   <g
      inkscape:groupmode="layer"

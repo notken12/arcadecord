@@ -7,6 +7,9 @@ const Game = require('../../Game');
 // Import GameFlow to control game flow
 const GameFlow = require('../../GameFlow');
 
+// BotApi to tell the bot to send messages
+const BotApi = require('../../../bot/api');
+
 // fetch used to get data from the yesno.wtf API
 const fetch = require('node-fetch');
 
@@ -38,10 +41,16 @@ class ExampleGame extends Game {
         // Game.eventHandlersDiscord has default functions
         // for announcing events on Discord
 
-        this.on('init', Game.eventHandlersDiscord.init.bind(this)); // <-- don't forget .bind(this)
-        this.on('turn', Game.eventHandlersDiscord.turn.bind(this));
-        this.on('end', () => {
-            this.channel.send('Game ended player ' + this.winner + ' won!');
+        this.on('init', Game.eventHandlersDiscord.init);
+        this.on('turn', Game.eventHandlersDiscord.turn);
+        this.on('end', (game) => {
+            // tell bot to send the winner
+            var winner = game.players[game.winner];
+            if (winner) {
+                BotApi.sendMessage('Game ended and ' + winner.discordUser.username + ' won!', game.guild, game.channel);
+            } else {
+                BotApi.sendMessage('Game ended and nobody won!', game.guild, game.channel);
+            }     
         });
 
         // Assign event models

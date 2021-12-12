@@ -104,10 +104,22 @@ function sendMessage(message, guild, channel) {
     return fetch(url, options);
 }
 
+function deleteMessage(guildId, channelId, messageId) {
+    var url = baseUrl + '/message/' + guildId + '/' + channelId + '/' + messageId;
+
+    var options = {
+        method: 'DELETE',
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
 module.exports = {
     sendStartMessage,
     fetchUser,
     sendPostTest,
     sendGetTest,
-    sendMessage
+    sendMessage,
+    deleteMessage
 }
