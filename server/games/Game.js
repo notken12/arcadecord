@@ -40,15 +40,17 @@ class Game {
         this.startMessage = null;
         this.winner = null; // will be set to player index
         this.data = {}; // game position, scores, etc
+        this.secretData = {}; // data to be kept secret from players clients
         this.turns = []; // all past turns taken by players
         this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+        
         // async actionModel (action, game) {
-        // action: get information about action
+        // action: information about action
         // game: game that the action takes place in, whether it be server or client model of game
 
 
         // manipulate game data, whether it be server or client data
-        // return game, or `false` if action was unsuccesful
+        // return game, or false if action was unsuccesful
         // }
         this.serverActionModels = {};
         this.clientActionModels = {};
@@ -292,7 +294,7 @@ class Game {
         return this.players.filter(player => player.id === id).length > 0;
     }
     getPlayerIndex(id) {
-        return this.players.indexOf(this.players.filter(player => player.id === id)[0]);
+        return this.players.indexOf(this.players.find(player => player.id.toString() === id.toString()));
     }
     isItUsersTurn(userId, index) {
         var i;

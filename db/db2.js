@@ -36,6 +36,7 @@ const gameSchema = new Schema({
     startMessage: String,
     winner: Number,
     data: Object,
+    secretData: Object,
     turns: Array,
 });
 

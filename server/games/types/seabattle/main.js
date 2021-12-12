@@ -1,4 +1,5 @@
 const Game = require("../../Game");
+const GameFlow = require("../../GameFlow");
 
 const Common = require("./common");
 
@@ -62,6 +63,12 @@ const options = {
         availableShips: [],
         placed: [false, false]
     },
+    secretData: {
+        boards: [ // the map of ships
+            new Common.ShipPlacementBoard(10, 10),
+            new Common.ShipPlacementBoard(10, 10)
+        ]
+    },
     emoji: '🚢'
 };
 
@@ -81,10 +88,7 @@ class SeaBattleGame extends Game {
             this.data.availableShips.push(ships);
         }
 
-        var boards = [
-            new Common.ShipPlacementBoard(10, 10),
-            new Common.ShipPlacementBoard(10, 10)
-        ];
+        var boards = this.secretData.boards;
 
         this.on('init', Game.eventHandlersDiscord.init.bind(this));
 
@@ -104,7 +108,7 @@ class SeaBattleGame extends Game {
             if (Common.isBoardValid(board)) {
                 boards[playerIndex] = board;
                 game.data.placed[playerIndex] = true;
-                game.endTurn();
+                GameFlow.endTurn(game);
                 return game;
             }
             return false;

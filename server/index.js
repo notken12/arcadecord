@@ -10,13 +10,14 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cookie = require('cookie');
+const cookieParser = require('cookie-parser');
 
 const db = require('../db/db2');
 
 const discordApiUtils = require('./utils/discord-api');
 const gameTypes = require('./games/game-types');
-const gamesManager = require('./games/gamesManager.js');
-const cookieParser = require('cookie-parser');
+const gamesManager = require('./games/gamesManager');
+const Action = require('./games/Action');
 
 const BotApi = require('./bot/api');
 
@@ -81,10 +82,31 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('action', async function (data, callback) {
+  socket.on('action', async function (type, data, callback) {
     // get which game the socket is in
     var gameId = socket.data.gameId;
     var userId = socket.data.userId;
+
+    // get game from db
+    var dbGame = await db.games.getById(gameId);
+
+    if (dbGame) {
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
+
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc);
+
+      // perform action
+      var action = new Action(type, userId, data, game);
+      var result = await game.handleAction(action);
+
+      // save game to db
+      await db.games.update(gameId, game);
+
+      // send result to client
+      callback(result);
+    }
   });
 
 });
