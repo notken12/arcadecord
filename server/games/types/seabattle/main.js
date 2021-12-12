@@ -135,7 +135,7 @@ class SeaBattleGame extends Game {
                 hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
 
                 // missed, end turn
-                game.endTurn();
+                GameFlow.endTurn(game);
 
                 return game;
             }
@@ -172,9 +172,12 @@ class SeaBattleGame extends Game {
                 }
             }
             if (allSunk) {
-                game.end({
-                    winner: action.playerIndex
-                });
+                GameFlow.end(
+                    game,
+                    {
+                        winner: action.playerIndex
+                    }
+                );
             }
 
             return game;

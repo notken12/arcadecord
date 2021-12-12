@@ -38,6 +38,7 @@ const gameSchema = new Schema({
     data: Object,
     secretData: Object,
     turns: Array,
+    sockets: Object
 });
 
 const Game = mongoose.model('Game', gameSchema);

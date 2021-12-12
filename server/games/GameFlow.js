@@ -8,6 +8,9 @@ var GameFlow = {
         game.broadcastToAllSockets('start');
     },
     end(game, result) {
+        // end the current turn
+        this.endTurn(game);
+
         //end the game
         game.hasEnded = true;
         if (result.winner) {
@@ -20,8 +23,6 @@ var GameFlow = {
 
     
         game.emit('end', result);
-    
-        game.broadcastToAllSockets('end', true, result, game.turns[game.turns.length - 1]);
     },
     endTurn(game) {
         if (game.hasEnded) return;
@@ -30,13 +31,6 @@ var GameFlow = {
         game.turn = (game.turn + 1) % game.players.length;
 
         game.emit('turn');
-
-        var player = game.players[game.turn];
-        var socket = game.sockets[player.id];
-
-        if (socket) {
-            socket.emit('turn', game.getDataForClient(player.id), game.turns[game.turns.length - 1].getDataForClient());
-        }
     }
 }
 

@@ -55,6 +55,8 @@ class Game {
         this.serverActionModels = {};
         this.clientActionModels = {};
 
+        this.io = null;
+
         this.client = {
             eventHandlers: {},
             emit: function (event, ...args) {
@@ -89,10 +91,10 @@ class Game {
             this._id = this.id;
         }
 
-        this.turns.getDataForClient = function () {
+        this.turns.getDataForClient = function (userId) {
             var data = [];
             for (let turn of this) {
-                data.push(turn.getDataForClient());
+                data.push(Turn.getDataForClient(turn, userId));
             }
             return data;
         }
@@ -291,7 +293,7 @@ class Game {
         return this.players.length >= this.maxPlayers;
     }
     isPlayerInGame(id) {
-        return this.players.filter(player => player.id === id).length > 0;
+        return this.players.filter(player => player.id.toString() === id.toString()).length > 0;
     }
     getPlayerIndex(id) {
         return this.players.indexOf(this.players.find(player => player.id.toString() === id.toString()));
@@ -309,6 +311,9 @@ class Game {
         // TODO: disconnect user's old socket if they have one
         this.sockets[userId] = socket;
 
+    }
+    setIo(io) {
+        this.io = io;
     }
 
     broadcastToAllSockets(event, broadcastGame, ...args) {

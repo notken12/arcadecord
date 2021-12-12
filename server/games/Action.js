@@ -4,9 +4,6 @@ class Action {
         this.userId = userId; // userId of the player who made the action
 
         this.playerIndex;   // set by Game, index of player in game.players.
-                            // this is so that the user ids are not exposed to the client.
-                            // otherwise the client could send an action as the other player
-                            // this is used for showing actions of other players to the client
 
         this.data = data;
 
@@ -14,11 +11,16 @@ class Action {
     }
 
     getDataForClient() {
-        return {
-            type: this.type,
-            data: this.data,
-            playerIndex: this.playerIndex
-        }
+
+    }
+}
+
+Action.getDataForClient = function (action, userId) {
+    return {
+        type: action.type,
+        data: action.data,
+        playerIndex: action.playerIndex,
+        userId: action.userId
     }
 }
 

@@ -1,3 +1,5 @@
+const Action = require('./Action');
+
 class Turn {
     constructor (playerIndex, actions) {
         this.playerIndex = playerIndex;
@@ -5,11 +7,15 @@ class Turn {
     }
 
     getDataForClient () {
-        return {
-            playerIndex: this.playerIndex,
-            actions: this.actions.map(action => action.getDataForClient())
-        };
+
     }
 }
+
+Turn.getDataForClient = function (turn, userId) {
+    return {
+        playerIndex: turn.playerIndex,
+        actions: turn.actions.map(action => Action.getDataForClient(action, userId))
+    };
+};
 
 module.exports = Turn;

@@ -18,6 +18,7 @@ const discordApiUtils = require('./utils/discord-api');
 const gameTypes = require('./games/game-types');
 const gamesManager = require('./games/gamesManager');
 const Action = require('./games/Action');
+const Turn = require('./games/Turn');
 
 const BotApi = require('./bot/api');
 
@@ -96,6 +97,19 @@ io.on('connection', (socket) => {
 
       // create instance of game
       var game = new gameType.Game(dbGame._doc);
+
+      // listen for game flow events
+      game.on('turn', function () {
+        console.log(`Game ${game.id} turn`);
+
+        var player = game.players[game.turn];
+        var socket = game.sockets[player.id];
+
+        // send turn to next user
+        if (socket) {
+          io.to(socket).emit('turn', game.getDataForClient(player.id), Turn.getDataForClient(game.turns[game.turns.length - 1], player.id));
+        }
+      });
 
       // perform action
       var action = new Action(type, userId, data, game);
