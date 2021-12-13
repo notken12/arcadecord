@@ -7,14 +7,14 @@ require('dotenv').config({
     path: './bot/.env'
 });
 
-//load config for this specific process
-var processId = process.argv[2];
+//load config for this specific host
+var hostId = process.argv[2];
 
 const authMiddleware = require('./auth-middleware');
 
 const arch = require('./config/architecture.json');
 
-const config = arch.hosts.find(host => host.id === processId);
+const config = arch.hosts.find(host => host.id === hostId);
 
 var shardList = config.shardList.map(id => Number(id));
 var port = config.port;
@@ -43,7 +43,7 @@ const manager = new ShardingManager('./bot/bot.js', {
     totalShards: totalShards
 });
 
-console.log("Starting shard manager " + processId + " with " + shardList.length + " shards out of " + totalShards + " total shards");
+console.log("Starting shard manager " + hostId + " with " + shardList.length + " shards out of " + totalShards + " total shards");
 
 manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
 
@@ -132,4 +132,4 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
     }));
 });
 
-app.listen(port, () => console.log(`Bot host ${processId} listening on port ${port}`));
+app.listen(port, () => console.log(`Bot host ${hostId} listening on port ${port}`));

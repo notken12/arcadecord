@@ -4,7 +4,6 @@ dotenv.config();
 const express = require('express');
 const request = require('request');
 const app = express();
-const port = process.env.PORT || 3000;
 
 const http = require('http');
 const server = http.createServer(app);
@@ -24,7 +23,31 @@ const BotApi = require('./bot/api');
 
 db.connect();
 
+// get architecture from config
+const arch = require('./config/architecture.json');
+
+// get the current host info
+const hostId = process.argv[2];
+const host = arch.hosts.find(host => host.id === hostId);
+
+const port = host.port;
+
+// Health check
+app.head('/health', function (req, res) {
+  res.sendStatus(200);
+});
+
+// Check the name of the host
+app.get('/name', function (req, res) {
+  res.send(host.name);
+});
+
 const io = new Server(server);
+
+// Use redis adapter to communicate socket data with other hosts
+const redis = require('socket.io-redis');
+io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+
 
 io.on('connection', (socket) => {
   //console.log('a user connected');
@@ -355,6 +378,6 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
     '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write');
 });
 
-server.listen(port || 3000, () => {
-  console.log(`App listening at port ${port || 3000}`)
+server.listen(port, () => {
+  console.log(`App listening at port ${port}`);
 });
