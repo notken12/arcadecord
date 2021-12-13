@@ -107,7 +107,9 @@ io.on('connection', (socket) => {
 
         // send turn to next user
         if (socket) {
-          io.to(socket).emit('turn', game.getDataForClient(player.id), Turn.getDataForClient(game.turns[game.turns.length - 1], player.id));
+          var gameData = game.getDataForClient(player.id);
+          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+          io.to(socket).emit('turn', gameData, turnData);
         }
       });
 

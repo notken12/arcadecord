@@ -60,32 +60,6 @@ app.use((req, res, next) => {
 
 app.use(authMiddleware);
 
-
-app.post('/message/start', (req, res) => {
-    console.log("Received message start request");
-
-    var game = req.body.game;
-
-
-    var shard = getShardByGuild(game.guild);
-
-    
-
-
-
-    /*manager.broadcastEval((c, { channel, message }) => {
-
-
-        c.channels.cache.get(channel).send(message);
-
-    }, { shard: shard, context: { channel: game.channel, message } }).then((sentMessage => {
-        console.log(sentMessage);
-    }));*/
-
-
-    res.send('ok');
-});
-
 app.get('/users/:id', (req, res) => {
     console.log("Received user request for " + req.params.id);
     var shard = getShardByRoundRobin();

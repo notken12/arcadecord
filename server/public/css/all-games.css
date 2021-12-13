@@ -305,7 +305,7 @@ button {
     font-weight: bold;
 }
 
-.waiting-view {
+.dialog-container {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -316,7 +316,7 @@ button {
     user-select: none;
 }
 
-.waiting-view-text {
+.dialog-chip {
     background-color: var(--md-sys-surface-variant);
     color: var(--md-sys-on-surface-variant);
     padding: 16px;
@@ -337,15 +337,15 @@ button {
     }
 }
 
-.waiting-view-text .dots span {
+.waiting-view-chip .dots span {
     animation: dots 2s linear infinite;
 }
 
-.waiting-view-text .dots span:nth-child(2) {
+.waiting-view-chip .dots span:nth-child(2) {
     animation-delay: 0.4s;
 }
 
-.waiting-view-text .dots span:nth-child(3) {
+.waiting-view-chip .dots span:nth-child(3) {
     animation-delay: 0.8s;
 }
 
@@ -359,6 +359,29 @@ button {
     100% {
         opacity: 1;
     }
+}
+
+.win-view-chip, .lose-view-chip, .draw-view-chip {
+    background-color: white;
+    color: black;
+}
+
+.win-view {
+    --webkit-box-shadow: inset 0px 0px 50px 30px #F2FF0077; 
+    -box-shadow: inset 0px 0px 50px 30px #F2FF0077;
+}
+
+.lose-view {
+    --webkit-box-shadow: inset 0px 0px 90px 10px #FF220077; 
+    -box-shadow: inset 0px 0px 90px 10px #F2220077;
+}
+
+.lose-view-chip {
+    box-shadow: 0 0 32px 0px #d5000077;
+}
+
+.win-view-chip {
+    box-shadow: 0 0 32px 0px #ffea0077;
 }
 
 .game-manual-bg {

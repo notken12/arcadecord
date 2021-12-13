@@ -1,13 +1,13 @@
 const GameFlow = {
-    endTurn(game) {
+    start(game) {
+        //once first action has been made, start the game
+        //first start and then handle first action
+        game.hasStarted = true;
+        game.client.emit('start');
 
-        game.turn = (game.turn + 1) % game.players.length;
-
-        game.client.emit('end_turn', game);
     },
     end(game, result) {
         //end the game
-
         game.hasEnded = true;
         if (result.winner) {
             game.winner = result.winner;
@@ -16,11 +16,19 @@ const GameFlow = {
             game.winner = -1;
         }
 
-        game.client.emit('end', game, result, game.turns[game.turns.length]);
+        // end the current turn
+        game.turn = (game.turn + 1) % game.players.length;
+        
+        game.client.emit('turn');
+        game.client.emit('end', result);
     },
-    start(game) {
-        game.hasStarted = true;
-        game.client.emit('start', game);
+    endTurn(game) {
+        if (game.hasEnded) return;
+
+
+        game.turn = (game.turn + 1) % game.players.length;
+
+        game.client.emit('turn');
     }
 };
 

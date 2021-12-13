@@ -47,9 +47,9 @@ class ExampleGame extends Game {
             // tell bot to send the winner
             var winner = game.players[game.winner];
             if (winner) {
-                BotApi.sendMessage('Game ended and ' + winner.discordUser.username + ' won!', game.guild, game.channel);
+                BotApi.sendMessage('(Debug) Game ended and ' + winner.discordUser.username + ' won!', game.guild, game.channel);
             } else {
-                BotApi.sendMessage('Game ended and nobody won!', game.guild, game.channel);
+                BotApi.sendMessage('(Debug) Game ended and nobody won! (Shouldn\'t happen with example game)', game.guild, game.channel);
             }     
         });
 

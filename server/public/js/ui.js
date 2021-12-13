@@ -1,10 +1,14 @@
 import 'https://unpkg.com/mitt/dist/mitt.umd.js';
 
+import 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js';
+
 import 'https://cdn.jsdelivr.net/npm/remarkable@2.0.1/dist/remarkable.min.js';
 
 var emitter = mitt();
 
 var md = new remarkable.Remarkable({});
+
+var manualMd;
 
 const PlayerView = {
     data() {
@@ -99,6 +103,7 @@ const GameHeader = {
     },
     methods: {
         openManual() {
+            console.log('open manual');
             emitter.emit('open-manual');
         }
     }
@@ -114,8 +119,8 @@ const WaitingView = {
     template: `
     <transition name="fade" appear mode="out-in">
 
-    <div class="waiting-view">
-        <div class="waiting-view-text">
+    <div class="waiting-view dialog-container">
+        <div class="waiting-view-chip dialog-chip">
             <span>Waiting for opponent</span>
             <span class="dots">
                 <span>.</span>
@@ -133,7 +138,7 @@ const WaitingView = {
 const GameManualView = {
     data() {
         return {
-            parsedMarkdown: ''
+            parsedMarkdown: undefined
         }
     },
     props: ['game'],
@@ -151,7 +156,10 @@ const GameManualView = {
                 </div>
 
             </div>
-            <div class="game-manual-modal-content" v-html="parsedMarkdown">
+            <div class="game-manual-modal-content">
+                <div v-if="parsedMarkdown === undefined">Loading...</div>
+                <div v-if="parsedMarkdown === null">Game manual for {{game.name}} coming soon!</div>
+                <div v-html="parsedMarkdown" v-if="parsedMarkdown"></div>
             </div>
         </div>
     </div>
@@ -162,50 +170,55 @@ const GameManualView = {
         }
     },
     mounted() {
-        var path = '/public/manuals/' + this.game.typeId + '.md';
-        fetch(path).then((response) => {
-            response.text().then((text) => {
-                this.parsedMarkdown = md.render(text);
+        if (manualMd !== undefined) {
+            // manual already loaded
+            this.parsedMarkdown = manualMd;
+        } else {
+            // manual not loaded yet
+            // fetch and parse manual
+            var path = '/public/manuals/' + this.game.typeId + '.md';
+            fetch(path).then((response) => {
+                if (response.ok) {
+                    response.text().then((text) => {
+                        this.parsedMarkdown = md.render(text);
+                        manualMd = this.parsedMarkdown;
+                    });
+                } else {
+                    this.parsedMarkdown = null;
+                    manualMd = null;
+                }
+            }).catch(() => {
+                this.parsedMarkdown = null;
+                manualMd = null;
             });
-        });
+        }
+
     }
 }
 
-const ResultView = {
+const WinScreen = {
     data() {
         return {
 
         }
     },
-    props: ['game'],
+    props: ['game', 'me'],
     template: `
-    <transition name="fade" appear mode="out-in">
-    <div class="result-view">
-        <div class="result-view-text">
-            <span>{{resultText}}</span>
+    <div class="win-view dialog-container">
+        <div class="win-view-chip dialog-chip" ref="chip">
+            <span>🎉 You win!!!</span>
         </div>
     </div>
-    </transition>
     `,
-    computed: {
-        resultText() {
-            if (this.game.winner === -1) {
-                return 'Draw';
-            }
-            if (this.game.winner === this.game.myIndex) {
-                return 'You win!';
-            } else {
-                return 'You lose!';
-            }
-        }
-    },
-    methods: {
-        showConfetti() {
-            var duration = 60 * 1000;
+    mounted() {
+        var colors = ['#ff1744', '#f50057', '#d500f9', '#651fff', '#3d5afe', '#2979ff', '#00b0ff', '#00e5ff', '#1de9b6', '#00e676', '#76ff03', '#c6ff00', '#ffea00', '#ffc400', '#ff9100', '#ff3d00'];
+        colors = ['#3d5afe', '#651fff', '#2979ff', '#00b0ff', '#00e5ff'];
+
+        function showConfetti() {
+            var duration = 10 * 1000;
             var animationEnd = Date.now() + duration;
             var skew = 1;
             // use bright colorful colors
-            var colors = ['#ff1744', '#f50057', '#d500f9', '#651fff','#3d5afe', '#2979ff', '#00b0ff', '#00e5ff', '#1de9b6', '#00e676', '#76ff03', '#c6ff00', '#ffea00', '#ffc400', '#ff9100', '#ff3d00'];
 
 
             function randomInRange(min, max) {
@@ -221,10 +234,10 @@ const ResultView = {
                 var chance = count / averageInterval;
 
                 let timeLeft = animationEnd - Date.now();
-                
+
                 if (previousTimestamp === undefined && time !== undefined)
                     previousTimestamp = time + 0;
-                
+
                 let elapsed = time - previousTimestamp;
 
 
@@ -259,11 +272,146 @@ const ResultView = {
                 }
             }());
         }
+
+        function showConfetti2() {
+            var count = 100;
+            var defaults = {
+                origin: { y: 0.5 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+                colors: colors,
+                shapes: ['square']
+            });
+            fire(0.2, {
+                spread: 60,
+                colors: colors,
+                shapes: ['square']
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8,
+                colors: colors,
+                shapes: ['square']
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2,
+                colors: colors,
+                shapes: ['square']
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+                colors: colors,
+                shapes: ['square']
+            });
+        }
+
+        showConfetti();
+        //showConfetti2();
+
+        this.$refs.chip.addEventListener('click', function (e) {
+            showConfetti2();
+        });
+    }
+};
+
+const LoseScreen = {
+    data() {
+        return {
+            
+        }
+    },
+    props: ['game', 'me'],
+    template: `
+    <div class="lose-view dialog-container">
+        <div class="lose-view-chip dialog-chip" ref="chip">
+            <span>😭 You lose!</span>
+        </div>
+    </div>
+    `,
+    mounted() {
+
+    }
+};
+
+const DrawScreen = {
+    data() {
+        return {
+
+        }
+    },
+    props: ['game', 'me'],
+    template: `
+    <div class="draw-view dialog-container">
+        <div class="draw-view-chip dialog-chip" ref="chip">
+            <span>😐 It's a draw!</span>
+        </div>
+    </div>
+    `,
+    mounted() {
+
+    }
+};
+
+const ResultView = {
+    data() {
+        return {
+
+        }
+    },
+    props: ['game'],
+    template: `
+    <transition name="fade" appear mode="out-in">
+    <win-screen v-if="result === 'win'"></win-screen>
+    <lose-screen v-else-if="result === 'lose'"></lose-screen>
+    <draw-screen v-else-if="result === 'draw'"></draw-screen>
+    <slot v-else></slot>
+    </transition>
+    `,
+    computed: {
+        resultText() {
+            if (this.game.winner === -1) {
+                return 'Draw';
+            }
+            if (this.game.winner === this.game.myIndex) {
+                return 'You win!';
+            } else {
+                return 'You lose!';
+            }
+        },
+        result() {
+            if (this.game.winner === -1) {
+                return 'draw';
+            } else if (this.game.winner === this.game.myIndex) {
+                return 'win';
+            } else {
+                return 'lose';
+            }
+        }
+    },
+    methods: {
+        
     },
     mounted() {
-        if (this.game.winner === this.game.myIndex) {
-            this.showConfetti();
-        }
+
+    },
+    components: {
+        'win-screen': WinScreen,
+        'lose-screen': LoseScreen,
+        'draw-screen': DrawScreen
     }
 }
 
@@ -291,21 +439,20 @@ const GameView = {
         'result-view': ResultView
     },
     mounted() {
+        console.log('game-view mounted');
         emitter.on('open-manual', () => {
             this.manualOpen = true;
         });
         emitter.on('close-manual', () => {
             this.manualOpen = false;
         });
+        this.isItMyTurn = this.game.isItMyTurn();
     },
     watch: {
         'game.turn': function(newTurn) {
             console.log('turn changed');
             this.isItMyTurn = this.game.isItMyTurn();
         }
-    },
-    mounted() {
-        this.isItMyTurn = this.game.isItMyTurn();
     }
 };
 

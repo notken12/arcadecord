@@ -7,9 +7,6 @@ var GameFlow = {
     
     },
     end(game, result) {
-        // end the current turn
-        this.endTurn(game);
-
         //end the game
         game.hasEnded = true;
         if (result.winner) {
@@ -19,8 +16,10 @@ var GameFlow = {
             game.winner = -1;
         }
 
-
-    
+        // end the current turn
+        game.turn = (game.turn + 1) % game.players.length;
+        
+        game.emit('turn');
         game.emit('end', result);
     },
     endTurn(game) {

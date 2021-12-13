@@ -13,6 +13,7 @@ const BotApi = require('../bot/api');
 const Emoji = require('../bot/Emoji');
 const db = require('../../db/db2');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
+const Builders = require('@discordjs/builders');
 
 dotenv.config();
 
@@ -383,7 +384,8 @@ Game.eventHandlersDiscord = {
         var embed = new MessageEmbed()
             .setTitle(game.name)
             .setDescription(game.description)
-            .setColor(game.color || '#0099ff');
+            .setColor(game.color || '#0099ff')
+            .setURL(game.getURL());
         var startGameButton = new MessageButton()
             .setEmoji(Emoji.ICON_WHITE)
             .setLabel('Play')
@@ -430,7 +432,7 @@ Game.eventHandlersDiscord = {
             }
         }
 
-        m.content = `${Emoji.ICON_ROUND}  ${game.name}`;
+        m.content = `${Emoji.ICON_ROUND}  **${game.name}**`;
 
         await BotApi.sendMessage(m, game.guild, game.channel);
 
