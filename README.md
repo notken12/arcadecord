@@ -3,26 +3,19 @@
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
 ## Todo
-* Change game interaction to stateless, load game from DB, run action, save game to DB
-    * Add export in each game type that exports server-only action models (functions cant be saved to DB)
+
+https://github.com/notken12/arcadecord/issues
+
 * Add more games
-* Add player winning ui
-    * confetti, use canvas-confetti
-    * Play again button
-* Add player losing ui
-    * Play again button
 * Add settings ui
 * Log player actions to Azure Application Insights
 * Allow players to only invite certain people to games
-* Create app icon
-* Work on example game
 * Add unique IDs to every action and turn
 * Add feedback center
 * Store games in database
     * Add new property in games, internal (secret) data
 * Log actions and turns
 * Add support for turns not in order of players
-* Redo game flow functiosn to be centralized
 
 ## How this works
 
@@ -30,9 +23,9 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 
 * Player
 * Discord bot `/bot`
-* Game server `/server.js`, `/games/Game.js`, `/games/gamesManager.js`, `/games/types/*`
-* Website `/server.js`, `/games/types/*/index.html`, `/public`
-* Database - to be added
+* Game server `/server`
+* Website `/server`, `/games/types/*/index.html`, `/server/public`
+* Database `/db`
 
 ### Gameplay process
 
@@ -47,11 +40,11 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 
 ## Example game
 
-See the example game in the `/games/types/example` folder. This is the easiest way to get started with making an Arcadecord game.
+See the example game in the `/server/games/types/example` folder. This is the easiest way to get started with making an Arcadecord game.
 
 ## Discord bot
 
-For the bot we are using Discord.js. The Discord application credentials (bot token, client secret, client id) are stored in `/.env`. The file is private and will need to be shared with you before you can run the program. 
+For the bot we are using Discord.js. The Discord application credentials (bot token, client secret, client id) are stored in `.env` files. The files are private and will need to be shared with you before you can run the program. 
 
 The main script for the bot is `/bot/bot.js`. Each interaction (commands, buttons, select menus) has its own script within the `/bot` folder. 
 
@@ -81,16 +74,16 @@ Games automatically start when the first action is taken. Actions can only be ta
 * `sockets`: Object, dict of socket.io sockets, key is user id. Used to send turn and action data to the website client.
 * `hasStarted`: bool
 * `hasEnded`: bool
-* `lastTurnInvite`: Discord.js Message, last message saying whos turn it is, it can be deleted and replaced
-* `startMessage`: Discord.js Message, start message, it can be deleted
+* `lastTurnInvite`: Discord message ID, last message saying whos turn it is, it can be deleted and replaced
+* `startMessage`: Discord message ID, start message, it can be deleted
 * `winner`: Number or null, index of the winner or -1 if it's a draw
 * `turns`: Turn[], the turns that happened over the game
 * `data`: Object, data about the game state. Ex: state of chess board.
 
 #### Methods
 
-* `setGuild(Guild guild)`
-* `setChannel(Channel channel)`
+* `setGuild(String guild)`
+* `setChannel(String channel)`
 * `setActionModel(String action, Function model, ?String side)`
     * `action`: Action type
     * `model`: Action model function, will be explained later.
@@ -115,10 +108,6 @@ Methods to control game flow.
 * `end(Game game, Object result)`: ends the game with result, {winner: player index or -1 for draw}, emits `'end'` event, broadcasts `'end'` to all sockets
 * `start(Game game)`: starts the game, emits `'start'` event, broadcasts `'start'` to all sockets. Used internally.
 * `endTurn(Game game)`: ends the current turn, next players turn.
-
-### `gamesManager.js`
-
-For now it just stores all the active games but later games will be saved to a database to prevent data loss when the server crashes.
 
 ### Game types
 
