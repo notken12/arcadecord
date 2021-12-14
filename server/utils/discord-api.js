@@ -9,7 +9,7 @@ async function getNewAccessToken(dbUser) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `grant_type=refresh_token&refresh_token=${dbUser.discordRefreshToken}&client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}`
+        body: `grant_type=refresh_token&refresh_token=${dbUser.discordRefreshToken}&client_id=${process.env.BOT_CLIENT_ID}&client_secret=${process.env.BOT_CLIENT_SECRET}`
     });
     var json = await res.json();
     var access_token = json.access_token;

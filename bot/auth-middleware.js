@@ -12,7 +12,7 @@ function authMiddleware(req, res, next) {
     // Remove Bearer from string
     var token = authHeader.slice(7, authHeader.length);
 
-    if (token !== process.env.IPC_API_TOKEN) {
+    if (token !== process.env.BOT_IPC_API_TOKEN) {
         res.status(401).send('Access denied. Invalid token.');
         return;
     }
