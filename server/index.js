@@ -128,11 +128,6 @@ io.on('connection', (socket) => {
 
     // Lock actions for this game to prevent multiple actions from being executed at the same time
     lock(gameId, async function (release) {
-      console.log('executing action');
-
-      // wait 3 seconds
-      const delay = ms => new Promise(res => setTimeout(res, ms));
-      await delay(3000);
 
       // get game from db
       var dbGame = await db.games.getById(gameId);
