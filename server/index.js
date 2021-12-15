@@ -3,6 +3,8 @@ dotenv.config({
   'path': './server/.env'
 });
 
+const { cloneDeep } = require('lodash');
+
 const express = require('express');
 const request = require('request');
 const app = express();
@@ -50,6 +52,10 @@ const io = new Server(server);
 const redis = require('socket.io-redis');
 io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
 
+// Local lock for game actions
+// Actions are atomic, so we can use a lock to prevent multiple actions from being executed at the same time
+const Lock = require('lock').Lock;
+const lock = Lock();
 
 io.on('connection', (socket) => {
   //console.log('a user connected');
@@ -113,41 +119,66 @@ io.on('connection', (socket) => {
     var gameId = socket.data.gameId;
     var userId = socket.data.userId;
 
-    // get game from db
-    var dbGame = await db.games.getById(gameId);
-
-    if (dbGame) {
-      // get game type
-      var gameType = gameTypes[dbGame._doc.typeId]
-
-      // create instance of game
-      var game = new gameType.Game(dbGame._doc);
-
-      // listen for game flow events so that turns can be broadcasted
-      game.on('turn', function (game) {
-        console.log(`Game ${game.id} turn`);
-
-        var player = game.players[game.turn];
-        var socket = game.sockets[player.id];
-
-        // send turn to next user
-        if (socket) {
-          var gameData = game.getDataForClient(player.id);
-          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
-          io.to(socket).emit('turn', gameData, turnData);
-        }
+    if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
+      callback({
+        error: "Invalid game or user"
       });
-
-      // perform action
-      var action = new Action(type, userId, data, game);
-      var result = await game.handleAction(action);
-
-      // save game to db
-      await db.games.update(gameId, game);
-
-      // send result to client
-      callback(result);
+      return;
     }
+
+    // Lock actions for this game to prevent multiple actions from being executed at the same time
+    lock(gameId, async function (release) {
+      console.log('executing action');
+
+      // wait 3 seconds
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      await delay(3000);
+
+      // get game from db
+      var dbGame = await db.games.getById(gameId);
+
+      if (dbGame) {
+        // get game type
+        var gameType = gameTypes[dbGame._doc.typeId]
+
+        // create instance of game
+        var game = new gameType.Game(dbGame._doc);
+
+        // listen for game flow events so that turns can be broadcasted
+        game.on('turn', function (game) {
+          console.log(`Game ${game.id} turn`);
+
+          var player = game.players[game.turn];
+          var socket = game.sockets[player.id];
+
+          // send turn to next user
+          if (socket) {
+            var gameData = game.getDataForClient(player.id);
+            var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+            io.to(socket).emit('turn', gameData, turnData);
+          }
+        });
+
+        // perform action
+        var action = new Action(type, userId, data, game);
+        var result = await game.handleAction(action);
+
+        // save game to db
+        await db.games.update(gameId, game);
+
+        // send result to client
+        await callback(result);
+
+        // release lock
+        release(function (err) {
+          if (err) {
+            console.error(err);
+          }
+        })();
+      }
+    });
+
+
   });
 
 });
@@ -194,7 +225,6 @@ app.get('/auth', (req, res) => {
     }
   };
 
-  console.log(options);
 
   //send post request
   request(options, async (error, response, body) => {
@@ -206,7 +236,6 @@ app.get('/auth', (req, res) => {
 
     var data = JSON.parse(body);
 
-    console.log(data);
 
     var refresh_token = data.refresh_token;
     var access_token = data.access_token;

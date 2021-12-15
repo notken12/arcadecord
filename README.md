@@ -12,8 +12,6 @@ https://github.com/notken12/arcadecord/issues
 * Allow players to only invite certain people to games
 * Add unique IDs to every action and turn
 * Add feedback center
-* Store games in database
-    * Add new property in games, internal (secret) data
 * Log actions and turns
 * Add support for turns not in order of players
 
@@ -171,6 +169,11 @@ The website is served from an express server in `server.js`. All files from the 
 When accessing a game, the website will check if the user has permission to join the game. If so, it will serve the game type's `index.html` file.
 
 We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
+
+Gameplay pattern:
+- Show replay of last player's turn
+- Player takes their turn
+- Waiting for opponent
 
 ### `/public/js/client-framework.js`
 
