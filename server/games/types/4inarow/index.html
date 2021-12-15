@@ -5,29 +5,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sea Battle</title>
-
-    <link rel="stylesheet" href="/public/css/all-games.css">
-    <link rel="stylesheet" href="/public/css/games/seabattle.css">
+    <title>Four in a Row</title>
 </head>
 
 <body>
     <div id="app" v-cloak>
         <game-view :game="game" :me="me" :hint="hint" v-cloak>
             <div class="middle">
-                <ship-placer :board="shipPlacementBoard" :game="game" v-if="!game.data.placed[game.myIndex]"></ship-placer>
-                <hit-board-view :board="myHitBoard" :target="targetedCell" :game="game" v-else></hit-board-view>
-                
+                <!-- board goes here -->
 
             </div>
-    
-    
+
+
             <div class="bottom">
                 <button @click="placeShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Shuffle</button>
                 <button @click="setShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Done</button>
                 <button @click="shoot" v-if="game.data.placed[game.myIndex] && targetedCell">FEUER!</button>
             </div>
-    
+
             <div id="game-canvas"></div>
         </game-view>
 
@@ -41,7 +36,7 @@
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/public/js/games/seabattle.js" type="module"></script>
+    <script src="/public/js/games/4inarow.js" type="module"></script>
 </body>
 
 </html>
