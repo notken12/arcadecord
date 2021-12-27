@@ -10,7 +10,7 @@ const { cloneDeep } = require('lodash');
 const bases = require('bases');
 const GameFlow = require('./GameFlow');
 const BotApi = require('../bot/api');
-const Emoji = require('../bot/Emoji');
+const Emoji = require('../../Emoji');
 const db = require('../../db/db2');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const Builders = require('@discordjs/builders');
@@ -410,7 +410,7 @@ Game.eventHandlersDiscord = {
 
         var msg = await res.json();
         game.startMessage = msg.id;
-        console.log('start message: ' + game.startMessage);
+        //console.log('start message: ' + game.startMessage);
 
         await db.games.update(game.id, game);
 

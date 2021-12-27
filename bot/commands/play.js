@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const games = require('../../server/games/game-types');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } = require('discord.js');
 const db = require('../../db/db2');
+const Emoji = require('../../Emoji');
 
 function getActionRow() {
     //create message action row
@@ -12,11 +13,14 @@ function getActionRow() {
 
     for (var g in games) {
         var game = games[g];
+
+        if (game.options.hidden) continue;
         selectMenu.addOptions([
             {
                 label: game.options.name,
                 description: game.options.description,
-                value: game.options.typeId
+                value: game.options.typeId,
+                emoji: game.options.emoji || Emoji.ICON_ROUND
             }
         ]);
     }

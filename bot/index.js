@@ -54,14 +54,14 @@ var app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
-    console.log(req.path);
+    //console.log(req.path);
     next();
 });
 
 app.use(authMiddleware);
 
 app.get('/users/:id', (req, res) => {
-    console.log("Received user request for " + req.params.id);
+    //console.log("Received user request for " + req.params.id);
     var shard = getShardByRoundRobin();
     manager.broadcastEval((c, { id }) => {
         var user = c.users.fetch(id);

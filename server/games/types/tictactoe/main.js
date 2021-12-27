@@ -18,7 +18,8 @@ var options = {
             [null, null, null]
         ]
     },
-    emoji: '#️⃣'
+    emoji: '#️⃣',
+    hidden: true
 };
 
 class TicTacToeGame extends Game {
