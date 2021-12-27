@@ -1,3 +1,5 @@
+let start = Date.now();
+
 const dotenv = require('dotenv');
 dotenv.config({
   'path': './server/.env'
@@ -19,11 +21,20 @@ const db = require('../db/db2');
 
 const discordApiUtils = require('./utils/discord-api');
 const gameTypes = require('./games/game-types');
-const gamesManager = require('./games/gamesManager');
 const Action = require('./games/Action');
 const Turn = require('./games/Turn');
 
 const BotApi = require('./bot/api');
+
+const appInsights = require('applicationinsights');
+
+appInsights
+  .setup(process.env.APPINSIGHTS_CONNECTIONSTRING)
+  .setSendLiveMetrics(true);
+
+const appInsightsClient = appInsights.defaultClient;
+
+appInsights.start();
 
 db.connect();
 
@@ -58,6 +69,7 @@ const Lock = require('lock').Lock;
 const lock = Lock();
 
 io.on('connection', (socket) => {
+  appInsightsClient.trackEvent({ name: 'Socket opened' });
   //console.log('a user connected');
 
   socket.on('connect_socket', async function (data, callback) {
@@ -70,13 +82,22 @@ io.on('connection', (socket) => {
       callback({
         error: "Invalid access token"
       });
+
+      appInsightsClient.trackEvent({ name: 'Socket connection error', properties: { error: 'Invalid access token' } });
       return;
     }
 
     const userId = user._id;
     const gameId = data.gameId;
 
-    if (!userId) return;
+    if (!userId) {
+      callback({
+        error: "Invalid user id"
+      });
+
+      appInsightsClient.trackEvent({ name: 'Socket connection error', properties: { error: 'Invalid user id' } });
+      return;
+    };
 
     if (gameId) {
       var dbGame = await db.games.getById(gameId);
@@ -109,6 +130,8 @@ io.on('connection', (socket) => {
             game: game.getDataForClient(userId),
             discordUser: await discordApiUtils.fetchUser(userId)
           });
+
+          appInsightsClient.trackEvent({ name: 'Socket connection', properties: { gameId: gameId, userId: userId } });
         }
       }
     }
@@ -123,6 +146,8 @@ io.on('connection', (socket) => {
       callback({
         error: "Invalid game or user"
       });
+
+      appInsightsClient.trackEvent({ name: 'Socket action error', properties: { error: 'Invalid game or user' } });
       return;
     }
 
@@ -164,6 +189,8 @@ io.on('connection', (socket) => {
         // send result to client
         await callback(result);
 
+        appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+
         // release lock
         release(function (err) {
           if (err) {
@@ -178,13 +205,21 @@ io.on('connection', (socket) => {
 
 });
 
+// Track all HTTP requests with Application Insights
+app.use(function (req, res, next) {
+  appInsightsClient.trackNodeHttpRequest({request: req, response: res});
+  next();
+});
+
+
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser());
 
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html')
+
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.use('/public', express.static(__dirname + '/public'));
@@ -405,5 +440,7 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`App listening at port ${port}`);
+  let duration = Date.now() - start;
+  appInsights.defaultClient.trackMetric({name: "Server startup time", value: duration});
+  console.log(`Server host ${hostId} listening at port ${port}`);
 });

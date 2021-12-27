@@ -58,7 +58,7 @@ function forwardRequest(host, req, res) {
     if (options.method === 'GET') {
         options.body = undefined;
     }
-    console.log('Proxying to ' + options.url);
+    //console.log('Proxying to ' + options.url);
     fetch(options.url, options).then(async response => {
         // send response back
         res.status(response.status);
@@ -84,32 +84,32 @@ function proxyByGuild(guildId, req, res) {
 }
 
 app.get('/users/:id', (req, res) => {
-    console.log('get user');
+    //console.log('get user');
     proxyRoundRobin(req, res);
 });
 
 app.post('/message/start', (req, res) => {
-    console.log('start message');
+    //console.log('start message');
     proxyByGuild(req.body.game.guild, req, res);
 });
 
 app.post('/posttest', (req, res) => {
-    console.log('post test request');
+    //console.log('post test request');
     proxyRoundRobin(req, res);
 });
 
 app.get('/gettest', (req, res) => {
-    console.log('get test request');
+    //console.log('get test request');
     proxyByGuild(0, req, res);
 });
 
 app.post('/message', (req, res) => {
-    console.log('post message');
+    //console.log('post message');
     proxyByGuild(req.body.guild, req, res);
 });
 
 app.delete('/message/:guild/:channel/:message', (req, res) => {
-    console.log('delete message');
+    //console.log('delete message');
     proxyByGuild(req.params.guild, req, res);
 });
 
