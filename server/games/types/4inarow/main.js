@@ -25,3 +25,8 @@ class FourInARowGame extends Game {
         this.setActionModel('place', Common.place);
     }
 }
+
+module.exports = {
+    options: options,
+    Game: FourInARowGame,
+}

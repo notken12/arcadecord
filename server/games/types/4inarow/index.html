@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Four in a Row</title>
+
+    <link rel="stylesheet" href="/public/css/all-games.css">
+    <link rel="stylesheet" href="/public/css/games/4inarow.css">
 </head>
 
 <body>
@@ -18,9 +21,6 @@
 
 
             <div class="bottom">
-                <button @click="placeShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Shuffle</button>
-                <button @click="setShips" v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()">Done</button>
-                <button @click="shoot" v-if="game.data.placed[game.myIndex] && targetedCell">FEUER!</button>
             </div>
 
             <div id="game-canvas"></div>

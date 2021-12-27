@@ -439,7 +439,6 @@ const GameView = {
         'result-view': ResultView
     },
     mounted() {
-        console.log('game-view mounted');
         emitter.on('open-manual', () => {
             this.manualOpen = true;
         });

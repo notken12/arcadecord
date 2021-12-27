@@ -10,7 +10,7 @@ if(!isBrowser()) {
     GameFlow = window.GameFlow;
 }
 
-const exports = {
+var exports = {
     CELL_STATE_EMPTY: null,
     Board: function (width, height) {
         this.width = width;
