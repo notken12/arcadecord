@@ -2,6 +2,9 @@
 
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
+matthew was here
+update docs cause changes
+
 ## Todo
 
 https://github.com/notken12/arcadecord/issues
