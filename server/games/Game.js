@@ -14,6 +14,7 @@ const Emoji = require('../../Emoji');
 const db = require('../../db/db2');
 const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
 const Builders = require('@discordjs/builders');
+const Discord = require('discord.js');
 
 dotenv.config();
 
@@ -45,7 +46,7 @@ class Game {
         this.secretData = {}; // data to be kept secret from players clients
         this.turns = []; // all past turns taken by players
         this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
-        
+
         // async actionModel (action, game) {
         // action: information about action
         // game: game that the action takes place in, whether it be server or client model of game
@@ -241,7 +242,7 @@ class Game {
         this.emit('init');
     }
     async doesUserHavePermission(id) {
-        // MOVE THIS CODE OVER TO THE BOT
+        // TODO: MOVE THIS CODE OVER TO THE BOT
         // and send a request to check if user has permission to join
 
         /*var members = this.guild.members;
@@ -264,7 +265,23 @@ class Game {
             .has('SEND_MESSAGES', false);
 
         return hasPermissionInChannel;*/
-        return true;
+
+        var freeSpaces = this.maxPlayers - this.players.length;
+
+        if (freeSpaces > this.invitedUsers.length) {
+            // there are free spaces that an uninvited player can join into
+            return true;
+        } else {
+            // no more extra spaces for uninvited players, only invited users can join
+            var dbUser = await db.users.getById(id);
+            if (dbUser) {
+                if (this.invitedUsers.includes(dbUser.discordId)) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
     async canUserJoin(id) {
         if (!(await this.doesUserHavePermission(id))) return false;
@@ -279,16 +296,18 @@ class Game {
         return true;
     }
     async canUserSocketConnect(id) {
-        if (!(await this.doesUserHavePermission(id))) return false;
-
-        if (this.isPlayerInGame(id)) {
-            return true;
-        }
-
+        
         if (this.isGameFull()) {
             this.emit('error', 'Game is full');
             return false;
         }
+
+        if (this.isPlayerInGame(id)) {
+            return true;
+        }
+        if (!(await this.doesUserHavePermission(id))) return false;
+
+
         return true;
     }
     isGameFull() {
@@ -381,11 +400,35 @@ class Game {
 
 Game.eventHandlersDiscord = {
     init: async function (game) {
+        var gameCreator = game.players[0];
+        //var gameCreatorUser = new Discord.User();
+        //Object.assign(gameCreatorUser, gameCreator.discordUser);
+
+        var content = '';
+
+        for (let discordId of game.invitedUsers) {
+            content += `<@${discordId}> `;
+        }
+
         var embed = new MessageEmbed()
             .setTitle(game.name)
-            .setDescription(game.description)
             .setColor(game.color || '#0099ff')
-            .setURL(game.getURL());
+            .setURL(game.getURL())
+            /*.setAuthor({
+                name: `<@${gameCreator.discordUser.id}>`,
+                iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
+            })*/
+            /*.setFooter(
+                `<@${gameCreator.discordUser.id}>`,
+                `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
+            );*/
+        
+        if (game.invitedUsers.length > 0) {
+            embed.setDescription(`${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`);
+        } else {
+            embed.setDescription(`${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`)
+        }
+
         var startGameButton = new MessageButton()
             .setEmoji(Emoji.ICON_WHITE)
             .setLabel('Play')
@@ -394,6 +437,10 @@ Game.eventHandlersDiscord = {
 
         var row = new MessageActionRow().addComponents([startGameButton]);
         var message = { embeds: [embed], components: [row] };
+
+        if (content.length > 0) {
+            message.content = content;
+        }
 
         if (typeof (game.getThumbnail) == 'function') {
             var image = await game.getThumbnail();
@@ -437,24 +484,24 @@ Game.eventHandlersDiscord = {
         await BotApi.sendMessage(m, game.guild, game.channel);
 
         var embed = new MessageEmbed()
-        .setTitle(game.name)
-        .setDescription(`${game.description}`)
-        .setColor(game.color || '#0099ff')
-        .setURL(game.getURL());
+            .setTitle(game.name)
+            .setDescription(`${game.description}`)
+            .setColor(game.color || '#0099ff')
+            .setURL(game.getURL());
 
 
 
         var button = new MessageButton()
-        .setEmoji(Emoji.ICON_WHITE)
-        .setLabel('Play')
-        .setStyle('LINK')
-        .setURL(game.getURL());
+            .setEmoji(Emoji.ICON_WHITE)
+            .setLabel('Play')
+            .setStyle('LINK')
+            .setURL(game.getURL());
 
         var row = new MessageActionRow().addComponents([button]);
 
         var invite = {
             content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
-            embeds: [embed], 
+            embeds: [embed],
             components: [row],
         };
 

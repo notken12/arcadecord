@@ -74,9 +74,6 @@ module.exports = {
                 });
             }
 
-            console.log(discordUsers);
-            console.log(ids);
-
             var dbOptions = await db.slashCommandOptions.create({invitedUsers: ids});
             var message = getMessage(dbOptions._id, ids);
 

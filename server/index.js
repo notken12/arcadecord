@@ -362,7 +362,7 @@ app.get('/game/:id', async (req, res) => {
       var userId = user._id;
 
 
-      var status = await game.doesUserHavePermission(userId);
+      var status = await game.canUserSocketConnect(userId);
       res.clearCookie('gameId', { httpOnly: true });
 
       if (status) {
