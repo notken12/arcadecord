@@ -64,16 +64,3 @@ for (const file of buttonFiles) {
 }
 
 client.login(process.env.BOT_TOKEN);
-
-module.exports = {
-	getUserProfile: function (id) {
-		return client.users.fetch(id, {force: true}).catch((e) => {
-			console.log("Bot couldn't fetch user profile with id" + id);
-			console.log(e);
-			return null;
-		});
-	},
-	login: function () {
-		client.login(process.env.BOT_TOKEN);
-	}
-};

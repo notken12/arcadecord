@@ -242,29 +242,20 @@ class Game {
         this.emit('init');
     }
     async doesUserHavePermission(id) {
-        // TODO: MOVE THIS CODE OVER TO THE BOT
-        // and send a request to check if user has permission to join
+        var dbUser = await db.users.getById(id);
+        if (!dbUser) return false;
 
-        /*var members = this.guild.members;
+        var res = await BotApi.getUserPermissionsInChannel(this.guild, this.channel, dbUser.discordId);
 
-        //get discord user id
-        var discordUser = await discordApiUtils.fetchUser(bot, id);
-        if (!discordUser) return false;
+        if (!res.ok) return false;
 
-        try {
-            var member = await members.fetch(discordUser.id);
-        } catch (e) {
+        var perms = await res.json();
+        console.log(perms);
+
+        // must have perms to use slash commands to join games
+        if (!perms.USE_APPLICATION_COMMANDS) {
             return false;
-
         }
-
-        if (!member) return false;
-
-        const hasPermissionInChannel = this.channel
-            .permissionsFor(member)
-            .has('SEND_MESSAGES', false);
-
-        return hasPermissionInChannel;*/
 
         var freeSpaces = this.maxPlayers - this.players.length;
 
@@ -273,11 +264,8 @@ class Game {
             return true;
         } else {
             // no more extra spaces for uninvited players, only invited users can join
-            var dbUser = await db.users.getById(id);
-            if (dbUser) {
-                if (this.invitedUsers.includes(dbUser.discordId)) {
-                    return true;
-                }
+            if (this.invitedUsers.includes(dbUser.discordId)) {
+                return true;
             }
 
         }
@@ -296,15 +284,16 @@ class Game {
         return true;
     }
     async canUserSocketConnect(id) {
-        
+        if (this.isPlayerInGame(id)) {
+            return true;
+        }
+
         if (this.isGameFull()) {
             this.emit('error', 'Game is full');
             return false;
         }
 
-        if (this.isPlayerInGame(id)) {
-            return true;
-        }
+
         if (!(await this.doesUserHavePermission(id))) return false;
 
 
@@ -414,15 +403,15 @@ Game.eventHandlersDiscord = {
             .setTitle(game.name)
             .setColor(game.color || '#0099ff')
             .setURL(game.getURL())
-            /*.setAuthor({
-                name: `<@${gameCreator.discordUser.id}>`,
-                iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-            })*/
-            /*.setFooter(
-                `<@${gameCreator.discordUser.id}>`,
-                `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-            );*/
-        
+        /*.setAuthor({
+            name: `<@${gameCreator.discordUser.id}>`,
+            iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
+        })*/
+        /*.setFooter(
+            `<@${gameCreator.discordUser.id}>`,
+            `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
+        );*/
+
         if (game.invitedUsers.length > 0) {
             embed.setDescription(`${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`);
         } else {

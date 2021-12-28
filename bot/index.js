@@ -102,8 +102,8 @@ app.post('/message', (req, res) => {
     manager.broadcastEval(async (c, { channel, message }) => {
         try {
             return await c.channels.cache.get(channel).send(message);
-        } 
-        catch(e) {
+        }
+        catch (e) {
             console.log(e);
             return null;
         }
@@ -115,7 +115,6 @@ app.post('/message', (req, res) => {
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     var shard = getShardByGuild(req.params.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
-        console.log(channel, message);
         var channel = await c.channels.fetch(channel);
 
         if (!channel) return null;
@@ -128,6 +127,58 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
     }, { shard: shard, context: { channel: req.params.channel, message: req.params.message } }).then((deletedMessage => {
         res.send(deletedMessage);
     }));
+});
+
+app.get('/permissions/:guild/:channel/:user', (req, res) => {
+    try {
+        var shard = getShardByGuild(req.params.guild);
+        manager.broadcastEval(async (c, { guild, channel, user }) => {
+            var guild = await c.guilds.fetch(guild);
+
+            var channel = await guild.channels.fetch(channel);
+
+            console.log('channel');
+            console.log(channel);
+
+            if (!channel) return null;
+            
+
+            var members = guild.members;
+            console.log('members');
+            console.log(members);
+
+            //get discord user id
+
+            var member;
+
+            try {
+                member = await members.fetch(user);
+                console.log('user id');
+                console.log(user);
+                console.log('member');
+                console.log(member);
+            } catch (e) {
+                console.error(e);
+                console.log(user);
+                return null;
+
+            }
+
+            if (!member) return null;
+
+            const permissions = channel
+                .permissionsFor(member).serialize();
+            console.log('permissions');
+            console.log(permissions);
+
+            return permissions;
+        }, { shard: shard, context: { guild: req.params.guild, channel: req.params.channel, user: req.params.user } }).then((permissions => {
+            res.send(permissions);
+        }));
+    } catch (err) {
+        console.error(err);
+        res.status(500);
+    }
 });
 
 app.listen(port, () => console.log(`Bot host ${hostId} listening on port ${port}`));

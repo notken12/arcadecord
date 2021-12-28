@@ -113,6 +113,10 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
     proxyByGuild(req.params.guild, req, res);
 });
 
+app.get('/permissions/:guild/:channel/:user', (req, res) => {
+    proxyByGuild(req.params.guild, req, res);
+});
+
 app.listen(port, function () {
     console.log('Bot IPC proxy listening on port ' + port);
 });

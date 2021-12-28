@@ -115,11 +115,23 @@ function deleteMessage(guildId, channelId, messageId) {
     return fetch(url, options);
 }
 
+function getUserPermissionsInChannel(guildId, channelId, userId) {
+    var url = baseUrl + '/permissions/' + guildId + '/' + channelId + '/' + userId;
+
+    var options = {
+        method: 'GET',
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
 module.exports = {
     sendStartMessage,
     fetchUser,
     sendPostTest,
     sendGetTest,
     sendMessage,
-    deleteMessage
+    deleteMessage,
+    getUserPermissionsInChannel
 }
