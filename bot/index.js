@@ -98,7 +98,6 @@ app.get('/gettest', (req, res) => {
 });
 
 app.post('/message', (req, res) => {
-    console.log("Received message request");
     var shard = getShardByGuild(req.body.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
         try {
@@ -114,7 +113,6 @@ app.post('/message', (req, res) => {
 });
 
 app.delete('/message/:guild/:channel/:message', (req, res) => {
-    console.log("Received message delete request");
     var shard = getShardByGuild(req.params.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
         console.log(channel, message);

@@ -8,41 +8,21 @@ module.exports = {
     },
     async execute(interaction) {
         await interaction.deferUpdate();
-        var typeId = interaction.values[0];
 
-        // var embed = new MessageEmbed()
-        //     .setTitle(game.name)
-        //     .setDescription(game.description)
-        //     .setColor(game.color || '#0099ff');
-        // var startGameButton = new MessageButton()
-        //     .setCustomId('startGame')
-        //     .setLabel('Start Game')
-        //     .setStyle('PRIMARY');
-        // var backButton = new MessageButton()
-        //     .setCustomId('backToGameSelect')
-        //     .setLabel('Back')
-        //     .setStyle('SECONDARY');
+        var data = JSON.parse(interaction.values[0])
 
-        // var row = new MessageActionRow().addComponents([startGameButton, backButton]);
-        // await interaction.update({ embeds: [embed], components: [row] });
-
-        /*var game = new gameType.Game();
-        game.setGuild(interaction.guild);
-        game.setChannel(interaction.channel);
+        var typeId = data.typeId;
+        var dbOptionsId = data.dbOptionsId;
 
         var user = await db.users.getByDiscordId(interaction.user.id);
-        game.addPlayer(user._id);
-        game.init();
-
-        interaction.editReply({components: [], content: `${game.name} created`}).catch(console.error);*/
-
-        var user = await db.users.getByDiscordId(interaction.user.id);
+        var dbOptions = await db.slashCommandOptions.getById(dbOptionsId);
 
         const body = {
             options: {
                 guild: interaction.guild.id,
                 channel: interaction.channel.id,
-                typeId: typeId
+                typeId: typeId,
+                invitedUsers: dbOptions.invitedUsers,
             },
             userId: user._id
         };
@@ -60,6 +40,7 @@ module.exports = {
             // log result
             var game = await response.json();
             interaction.editReply({ components: [], content: `${game.name} created` }).catch(console.error);
+            db.slashCommandOptions.delete(dbOptionsId);
         }
     }
 }

@@ -41,9 +41,16 @@ const gameSchema = new Schema({
     sockets: Object,
     channel: String,
     guild: String,
+    invitedUsers: Array,
 });
 
 const Game = mongoose.model('Game', gameSchema);
+
+const slashCommandOptionsSchema = new Schema({
+    invitedUsers: Array,
+});
+
+const SlashCommandOptions = mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
 
 const db = {
     connect() {
@@ -163,10 +170,34 @@ const db = {
                 return null;
             }
         }
+    },
+    slashCommandOptions: {
+        async create(data) {
+            try {
+                var newSlashCommandOptions = new SlashCommandOptions(data);
+                return await newSlashCommandOptions.save();
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        },
+        async getById(id) {
+            try {
+                return await SlashCommandOptions.findById(id);
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        },
+        async delete(id) {
+            try {
+                return await SlashCommandOptions.findByIdAndRemove(id);
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        }
     }
-
-
-
 }
 
 module.exports = db;
