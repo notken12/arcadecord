@@ -6,6 +6,7 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 
 https://github.com/notken12/arcadecord/issues
 
+* Set process id for discord snowflake generator to prevent game ids from being the same
 * Add more games
 * Add settings ui
 * Log player actions to Azure Application Insights
