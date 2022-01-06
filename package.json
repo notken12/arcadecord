@@ -40,6 +40,7 @@
     "pts": "^0.10.6",
     "request": "^2.88.2",
     "sequelize": "^6.8.0",
+    "snowflake-generator": "^1.0.2",
     "socket.io": "^4.3.1",
     "socket.io-redis": "^6.1.1",
     "sqlite3": "^5.0.2",

@@ -137,15 +137,10 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
             var channel = await guild.channels.fetch(channel);
 
-            console.log('channel');
-            console.log(channel);
-
             if (!channel) return null;
             
 
             var members = guild.members;
-            console.log('members');
-            console.log(members);
 
             //get discord user id
 
@@ -153,10 +148,6 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
             try {
                 member = await members.fetch(user);
-                console.log('user id');
-                console.log(user);
-                console.log('member');
-                console.log(member);
             } catch (e) {
                 console.error(e);
                 console.log(user);
@@ -169,7 +160,6 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
             const permissions = channel
                 .permissionsFor(member).serialize();
             console.log('permissions');
-            console.log(permissions);
 
             return permissions;
         }, { shard: shard, context: { guild: req.params.guild, channel: req.params.channel, user: req.params.user } }).then((permissions => {

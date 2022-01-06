@@ -7,7 +7,6 @@ const discordApiUtils = require('../utils/discord-api');
 const Turn = require('./Turn');
 const { cloneDeep } = require('lodash');
 //const bot = require('../bot/bot'); will need to replaced with communication with the bot via http
-const bases = require('bases');
 const GameFlow = require('./GameFlow');
 const BotApi = require('../bot/api');
 const Emoji = require('../../Emoji');
@@ -31,7 +30,7 @@ class Game {
     //     "minPlayers": 0,
     // }
     constructor(typeOptions, options) {
-        this.id = bases.toBase62(SnowflakeUtil.generate());
+        this.id = null; // will be set by the server index.js
         this.players = [];
         this.eventHandlers = {};
         this.actionHandlers = {};

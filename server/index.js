@@ -6,6 +6,7 @@ dotenv.config({
 });
 
 const { cloneDeep } = require('lodash');
+const bases = require('bases');
 
 const express = require('express');
 const request = require('request');
@@ -46,6 +47,10 @@ const hostId = process.argv[2];
 const host = arch.hosts.find(host => host.id === hostId);
 
 const port = host.port;
+
+// Create snowflake generator
+const { Generator } = require('snowflake-generator');
+const SnowflakeGenerator = new Generator(946684800000, arch.hosts.indexOf(host));
 
 // Health check
 app.head('/health', function (req, res) {
@@ -415,6 +420,11 @@ app.post('/create-game', async (req, res) => {
   var Game = gameTypes[typeId].Game;
 
   var game = new Game(options);
+
+  // Set game ID
+  var snowflake = SnowflakeGenerator.generate();
+  var snowflakeNum = Number(snowflake);
+  game.id = bases.toBase62(snowflakeNum);
 
   // add player to game
   var user = await db.users.getById(req.body.userId);

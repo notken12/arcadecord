@@ -39,3 +39,8 @@ class FillerGame extends Game {
         
     }
 }
+
+module.exports = {
+    options,
+    Game: FillerGame,
+}
