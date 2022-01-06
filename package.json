@@ -25,6 +25,7 @@
     "bases": "^0.2.1",
     "cannon-es": "^0.18.0",
     "canvas": "^2.8.0",
+    "concurrently": "^7.0.0",
     "cookie-parser": "^1.4.5",
     "dat.gui": "^0.7.7",
     "discord-api-types": "^0.24.0",
