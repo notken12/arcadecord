@@ -26,9 +26,9 @@ class Board {
         for (var i = 0; i < height; i++) {
             // new row
             var row = [];
-            for (var x = 0; x < width; x) {
+            for (var x = 0; x < width; x++) {
                 // pick a random color
-                var random = Math.floor(Math.random() * COLORS.length);
+                var random = COLORS[Math.floor(Math.random() * COLORS.length)];
                 // add the colored tile to the row
                 row.push(random);
             }

@@ -33,14 +33,22 @@ class FillerGame extends Game {
         // Required
         super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
+        // Generate new board if board doesn't exist
+        // if (!this.board) {
+        //     this.data = {
+        //         board: new Common.Board(16, 9)
+        //     };
+        // }
+        
+
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
-        /*this.on('init', function (game) {
+        this.on('init', function (game) {
             game.data = {
                 board: new Common.Board(16, 9)
             };
-        });*/
+        });
     }
 }
 
