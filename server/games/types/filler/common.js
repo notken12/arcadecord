@@ -1,5 +1,7 @@
 // Common action models
 
+const { ShaderChunk } = require('three');
+
 // Import GameFlow to control game flow
 var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -61,13 +63,62 @@ class Board {
         
     }
     getColor(row, col) {
+        if (row < 0 || col < 0)
+            return null;
+        if (row >= this.height || col >= this.width)
+            return null;
+        
         return this.cells[row][col];
+    }
+    addToBlob(blob, row, col) {
+        var coord = {
+            row: row,
+            col: col
+        };
+        if (!blob.includes(coord)) {
+            blob.push(coord);
+        }
+    }
+    searchBlob(blob, row, col) {
+        var color = this.getColor(row, col);
+        // Always add center coordinate
+        this.addToBlob(blob, row, col);
+
+        // Check if tile above matches
+        if (this.checkMatch(row-1, col, color)) {
+            this.searchBlob(blob, row - 1, col);
+        };
+
+        // Check if tile below
+        if (this.checkMatch(row+1, col, color)) { 
+            this.searchBlob(blob, row + 1, col);
+        };
+
+        //check to the left
+        if (this.checkMatch(row, col-1, color)) {
+            this.searchBlob(blob, row, col - 1);
+        };
+
+        //check to the right
+        if (this.checkMatch(row, col+1, color)) {
+            this.searchBlob(blob, row, col + 1);
+        }
+
+        return blob;
     }
     getPlayerBlob(playerIndex) {
         // 1. Get the player's color
-        var playerColor = this.getPlayerColor(playerIndex);
+        var corner = this.getCorner(playerIndex);
+
 
         // 2. Get tiles in player's blob
+        var blob = this.searchBlob([], corner.row, corner.col);
+
+        // 3. Output blob (list of coords {row, col})
+        return blob;
+    }
+    checkMatch(row, col, color) {
+        return getColor(row, col) == color;
     }
 }
 
