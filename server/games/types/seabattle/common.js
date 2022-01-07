@@ -268,8 +268,4 @@ var exports = {
     setShips
 };
 
-if (typeof(module) !== 'undefined') {
-    module.exports = exports;
-} else {
-    window.Common = exports;
-}
+export default exports;

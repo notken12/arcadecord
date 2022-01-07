@@ -1,21 +1,18 @@
-const { SnowflakeUtil, MessageAttachment } = require('discord.js');
-const dotenv = require('dotenv');
-const gamesManager = require('./gamesManager');
-const Player = require('./Player');
-const Action = require('./Action');
-const discordApiUtils = require('../utils/discord-api');
-const Turn = require('./Turn');
-const { cloneDeep } = require('lodash');
-//const bot = require('../bot/bot'); will need to replaced with communication with the bot via http
-const GameFlow = require('./GameFlow');
-const BotApi = require('../bot/api');
-const Emoji = require('../../Emoji');
-const db = require('../../db/db2');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
-const Builders = require('@discordjs/builders');
-const Discord = require('discord.js');
+import { SnowflakeUtil, MessageAttachment } from 'discord.js';
+import { config } from 'dotenv';
+import Player from './Player.js';
+import Action from './Action.js';
+import Turn from './Turn.js';
+import lodash from 'lodash';
+const { cloneDeep } = lodash;
 
-dotenv.config();
+import GameFlow from './GameFlow.js';
+import BotApi from '../bot/api.js';
+import Emoji from '../../Emoji.js';
+import db from '../../db/db2.js';
+import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
+
+config();
 
 class Game {
     // options schema
@@ -516,4 +513,4 @@ Game.thumbnailDimensions = {
     height: 300,
 };
 
-module.exports = Game;
+export default Game;

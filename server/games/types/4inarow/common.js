@@ -5,7 +5,7 @@ var GameFlow;
 
 // tests if global scope is bound to window
 if(!isBrowser()) {
-    GameFlow = require('../../GameFlow.js');
+    GameFlow = await import('../../GameFlow.js');
 } else {
     GameFlow = window.GameFlow;
 }
@@ -170,9 +170,4 @@ var exports = {
     }
 }
 
-// Snippet to export Common for the server/client
-if (typeof(module) !== 'undefined') {
-    module.exports = exports; // require()
-} else {
-    window.Common = exports; // global var
-}
+export default exports;

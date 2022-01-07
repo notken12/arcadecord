@@ -32,4 +32,4 @@ var GameFlow = {
     }
 }
 
-module.exports = GameFlow;
+export default GameFlow;

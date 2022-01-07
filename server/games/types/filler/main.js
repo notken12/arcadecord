@@ -1,14 +1,14 @@
 // Import common module for this game type
-const Common = require('./common');
+import Common from './common.js';
 
 // Import Game class
-const Game = require('../../Game');
+import Game from '../../Game.js';
 
 // Import GameFlow to control game flow
-const GameFlow = require('../../GameFlow');
+import GameFlow from '../../GameFlow.js';
 
 // BotApi to tell the bot to send messages
-const BotApi = require('../../../bot/api');
+import BotApi from '../../../bot/api.js';
 
 // Game options, required. Export as options
 // README.md
@@ -36,11 +36,15 @@ class FillerGame extends Game {
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
-        
+        /*this.on('init', function (game) {
+            game.data = {
+                board: new Common.Board(16, 9)
+            };
+        });*/
     }
 }
 
-module.exports = {
+export default {
     options,
     Game: FillerGame,
 }

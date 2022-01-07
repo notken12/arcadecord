@@ -1,56 +1,66 @@
 let start = Date.now();
 
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 dotenv.config({
   'path': './server/.env'
 });
 
-const { cloneDeep } = require('lodash');
-const bases = require('bases');
+import bases from 'bases';
 
-const express = require('express');
-const request = require('request');
+import express from 'express';
+import request from 'request';
 const app = express();
 
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const cookie = require('cookie');
-const cookieParser = require('cookie-parser');
+import { createServer } from 'http';
+const server = createServer(app);
+import { Server } from "socket.io";
+import { parse } from 'cookie';
+import cookieParser from 'cookie-parser';
 
-const db = require('../db/db2');
+import db from '../db/db2.js';
 
-const discordApiUtils = require('./utils/discord-api');
-const gameTypes = require('./games/game-types');
-const Action = require('./games/Action');
-const Turn = require('./games/Turn');
+import { fetchUser, fetchUserFromAccessToken } from './utils/discord-api.js';
+import { gameTypes } from './games/game-types.js';
+import Action from './games/Action.js';
+import Turn from './games/Turn.js';
 
-const BotApi = require('./bot/api');
+import BotApi from './bot/api.js';
 
-const appInsights = require('applicationinsights');
+import appInsights from 'applicationinsights';
 
-appInsights
-  .setup(process.env.APPINSIGHTS_CONNECTIONSTRING)
+appInsights.setup(process.env.APPINSIGHTS_CONNECTIONSTRING)
   .setSendLiveMetrics(true);
 
 const appInsightsClient = appInsights.defaultClient;
 
 appInsights.start();
 
+// get __dirname
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
+
+// Connect to database
 db.connect();
 
 // get architecture from config
-const arch = require('./config/architecture.json');
+import architecture from './config/architecture.js';
+
+const { hosts } = architecture;
 
 // get the current host info
 const hostId = process.argv[2];
-const host = arch.hosts.find(host => host.id === hostId);
+const host = hosts.find(host => host.id === hostId);
 
 const port = host.port;
 
 // Create snowflake generator
-const { Generator } = require('snowflake-generator');
-const SnowflakeGenerator = new Generator(946684800000, arch.hosts.indexOf(host));
+import { Generator } from 'snowflake-generator';
+const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
 
 // Health check
 app.head('/health', function (req, res) {
@@ -65,12 +75,12 @@ app.get('/name', function (req, res) {
 const io = new Server(server);
 
 // Use redis adapter to communicate socket data with other hosts
-const redis = require('socket.io-redis');
+import redis from 'socket.io-redis';
 io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
 
 // Local lock for game actions
 // Actions are atomic, so we can use a lock to prevent multiple actions from being executed at the same time
-const Lock = require('lock').Lock;
+import { Lock } from 'lock';
 const lock = Lock();
 
 io.on('connection', (socket) => {
@@ -78,7 +88,7 @@ io.on('connection', (socket) => {
   //console.log('a user connected');
 
   socket.on('connect_socket', async function (data, callback) {
-    const cookies = cookie.parse(socket.request.headers.cookie || "");
+    const cookies = parse(socket.request.headers.cookie || "");
 
     var token = cookies.accessToken;
 
@@ -133,7 +143,7 @@ io.on('connection', (socket) => {
           callback({
             status: 'success',
             game: game.getDataForClient(userId),
-            discordUser: await discordApiUtils.fetchUser(userId)
+            discordUser: await fetchUser(userId)
           });
 
           appInsightsClient.trackEvent({ name: 'Socket connection', properties: { gameId: gameId, userId: userId } });
@@ -212,7 +222,7 @@ io.on('connection', (socket) => {
 
 // Track all HTTP requests with Application Insights
 app.use(function (req, res, next) {
-  appInsightsClient.trackNodeHttpRequest({request: req, response: res});
+  appInsightsClient.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
 
@@ -276,7 +286,7 @@ app.get('/auth', (req, res) => {
     var access_token = data.access_token;
 
     // error here, replace with bot IPC api call
-    var user = await discordApiUtils.fetchUserFromAccessToken(access_token);
+    var user = await fetchUserFromAccessToken(access_token);
     if (!user) {
       res.send('Error: could not get user from access token');
       return;
@@ -451,6 +461,6 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
 
 server.listen(port, () => {
   let duration = Date.now() - start;
-  appInsights.defaultClient.trackMetric({name: "Server startup time", value: duration});
+  appInsights.defaultClient.trackMetric({ name: "Server startup time", value: duration });
   console.log(`Server host ${hostId} listening at port ${port}`);
 });

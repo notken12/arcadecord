@@ -1,13 +1,14 @@
-const Common = require('./common');
+// Import common module for this game type
+import Common from './common.js';
 
 // Import Game class
-const Game = require('../../Game');
+import Game from '../../Game.js';
 
 // Import GameFlow to control game flow
-const GameFlow = require('../../GameFlow');
+import GameFlow from '../../GameFlow.js';
 
-// fetch used to get data from the yesno.wtf API
-const fetch = require('node-fetch');
+// BotApi to tell the bot to send messages
+import BotApi from '../../../bot/api.js';
 
 const options = {
   typeId: 'chess',
@@ -35,7 +36,7 @@ constructor(config){
 }
 
 
-module.exports = {
+export default {
   options,
   Game:Chess
 }

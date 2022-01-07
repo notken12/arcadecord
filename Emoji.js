@@ -4,4 +4,4 @@ const Emoji = {
     ICON_WHITE: '<:icon_white:919633356084375562>'
 }
 
-module.exports = Emoji;
+export default Emoji;

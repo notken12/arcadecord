@@ -1,4 +1,4 @@
-const Action = require('./Action');
+import Action from './Action.js';
 
 class Turn {
     constructor (playerIndex, actions) {
@@ -18,4 +18,4 @@ Turn.getDataForClient = function (turn, userId) {
     };
 };
 
-module.exports = Turn;
+export default Turn;

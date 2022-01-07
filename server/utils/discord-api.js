@@ -1,6 +1,6 @@
-const fetch = require('node-fetch');
-const db = require('../../db/db2');
-const BotApi = require('../bot/api');
+import fetch from 'node-fetch';
+import db from '../../db/db2.js';
+import BotApi from '../bot/api.js';
 
 
 async function getNewAccessToken(dbUser) {
@@ -76,7 +76,7 @@ async function fetchUserFromAccessToken(access_token) {
     return user;
 }
 
-module.exports = {
+export {
     fetchUser,
     fetchUserFromAccessToken
 }

@@ -1,4 +1,4 @@
-{
+export default {
     "hosts": [
         {
             "id": "1",

@@ -1,24 +1,29 @@
-const { ShardingManager } = require('discord.js');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
-const express = require('express');
+import { ShardingManager } from 'discord.js';
+import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
+import express, { json } from 'express';
 
 // load .env that will be used for all processes running shard managers
-require('dotenv').config({
+import dotenv from 'dotenv';
+dotenv.config({
     path: './bot/.env'
 });
 
 //load config for this specific host
 var hostId = process.argv[2];
 
-const authMiddleware = require('./auth-middleware');
+import authMiddleware from './auth-middleware.js';
 
-const arch = require('./config/architecture.json');
+import architecture from './config/architecture.js';
 
-const config = arch.hosts.find(host => host.id === hostId);
+var totalShards = architecture.totalShards;
+var hosts = architecture.hosts;
+
+const config = hosts.find(host => host.id === hostId);
+
 
 var shardList = config.shardList.map(id => Number(id));
 var port = config.port;
-var totalShards = Number(arch.totalShards);
+var totalShards = Number(totalShards);
 
 // load balancing for tasks that can be done on any shard
 var shardIndex = 0;
@@ -29,7 +34,7 @@ function getShardByRoundRobin() {
 }
 
 function getShardByGuild(guild_id) {
-    var num_shards = arch.totalShards;
+    var num_shards = totalShards;
 
     //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
     var shard_id = (guild_id >> 22) % num_shards;
@@ -51,7 +56,7 @@ manager.spawn();
 
 // create http server to handle requests
 var app = express();
-app.use(express.json());
+app.use(json());
 
 app.use((req, res, next) => {
     //console.log(req.path);
@@ -159,7 +164,6 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
             const permissions = channel
                 .permissionsFor(member).serialize();
-            console.log('permissions');
 
             return permissions;
         }, { shard: shard, context: { guild: req.params.guild, channel: req.params.channel, user: req.params.user } }).then((permissions => {

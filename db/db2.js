@@ -1,6 +1,6 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 
@@ -200,4 +200,4 @@ const db = {
     }
 }
 
-module.exports = db;
+export default db;

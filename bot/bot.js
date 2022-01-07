@@ -1,18 +1,17 @@
 // Require the necessary discord.js classes
-const dotenv = require('dotenv');
-const Builders = require('@discordjs/builders');
-const { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } = require('discord.js');
+import { config } from 'dotenv';
+import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
 
 
-const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+import { readdirSync } from 'fs';
+import { Client, Collection, Intents } from 'discord.js';
 
 // connect to the database
-const db = require('../db/db2');
+import db from '../db/db2.js';
 db.connect();
 
 // .env is used for all shards
-dotenv.config({
+config({
 	path: './bot/.env'
 });
 
@@ -22,11 +21,20 @@ client.commands = new Collection();
 client.selectMenus = new Collection();
 client.buttons = new Collection();
 
+// get __dirname
+import path from 'path';
+import {fileURLToPath} from 'url';
 
-const eventFiles = fs.readdirSync(__dirname + '/events').filter(file => file.endsWith('.js'));
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
+
+
+const eventFiles = readdirSync(__dirname + '/events').filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-	const event = require(`./events/${file}`);
+    let {default: event} = await import(`./events/${file}`);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	} else {
@@ -34,14 +42,14 @@ for (const file of eventFiles) {
 	}
 }
 
-const commandFiles = fs.readdirSync(__dirname + '/commands').filter(file => file.endsWith('.js'));
-const selectMenuFiles = fs.readdirSync(__dirname + '/select-menus').filter(file => file.endsWith('.js'));
+const commandFiles = readdirSync(__dirname + '/commands').filter(file => file.endsWith('.js'));
+const selectMenuFiles = readdirSync(__dirname + '/select-menus').filter(file => file.endsWith('.js'));
 //get button files
-const buttonFiles = fs.readdirSync(__dirname + '/buttons').filter(file => file.endsWith('.js'));
+const buttonFiles = readdirSync(__dirname + '/buttons').filter(file => file.endsWith('.js'));
 
 
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
+    let {default: command} = await import(`./commands/${file}`);
 	// Set a new item in the Collection
 	// With the key as the command name and the value as the exported module
 	client.commands.set(command.data.name, command);
@@ -49,7 +57,7 @@ for (const file of commandFiles) {
 
 
 for (const file of selectMenuFiles) {
-	const menu = require(`./select-menus/${file}`);
+    let {default: menu} = await import(`./select-menus/${file}`);
 	// Set a new item in the Collection
 	// With the key as the command name and the value as the exported module
 	client.selectMenus.set(menu.data.name, menu);
@@ -57,7 +65,7 @@ for (const file of selectMenuFiles) {
 
 //set buttons
 for (const file of buttonFiles) {
-	const button = require(`./buttons/${file}`);
+    let {default: button} = await import(`./buttons/${file}`);
 	// Set a new item in the Collection
 	// With the key as the command name and the value as the exported module
 	client.buttons.set(button.data.name, button);

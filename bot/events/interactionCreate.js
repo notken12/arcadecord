@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     name: 'interactionCreate',
     once: false,
     async execute(interaction) {

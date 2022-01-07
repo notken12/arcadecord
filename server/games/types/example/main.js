@@ -1,17 +1,17 @@
 // Import common module for this game type
-const Common = require('./common');
+import Common from './common.js';
 
 // Import Game class
-const Game = require('../../Game');
+import Game from '../../Game.js';
 
 // Import GameFlow to control game flow
-const GameFlow = require('../../GameFlow');
+import GameFlow from '../../GameFlow.js';
 
 // BotApi to tell the bot to send messages
-const BotApi = require('../../../bot/api');
+import BotApi from '../../../bot/api.js';
 
 // fetch used to get data from the yesno.wtf API
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 // Game options, required. Export as options
 // README.md
@@ -89,7 +89,7 @@ class ExampleGame extends Game {
     }
 }
 
-module.exports = {
+export default {
     options,
     Game: ExampleGame
 }

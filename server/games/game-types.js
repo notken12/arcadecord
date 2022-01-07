@@ -1,8 +1,20 @@
-const fs = require('fs');
+import { readdirSync } from 'fs';
 
-const gameFolders = fs.readdirSync(__dirname + '/types');
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
+
+const gameFolders = readdirSync(__dirname + '/types');
+
+var gameTypes = {};
 
 for (const folder of gameFolders) {
-    const game = require(`./types/${folder}/main`);
-    exports[game.options.typeId] = game;
+    let {default: game} = await import(`./types/${folder}/main.js`);
+    gameTypes[game.options.typeId] = game;
 }
+
+export {gameTypes};

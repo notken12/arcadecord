@@ -1,30 +1,30 @@
 // Proxy to load balance and proxy requests to the correct shard manager hosts
-const express = require('express');
-const httpProxy = require('http-proxy');
-const fetch = require('node-fetch');
+import express, { json } from 'express';
+import fetch from 'node-fetch';
 
-require('dotenv').config({
+import dotenv from 'dotenv';
+dotenv.config({
     path: './bot/.env'
 });
 
-const authMiddleware = require('./auth-middleware');
+import authMiddleware from './auth-middleware.js';
 
-const arch = require('./config/architecture.json');
+import architecture from './config/architecture.js';
 
-var port = arch.ipcApiPort;
+var {hosts, ipcApiPort, totalShards} = architecture;
 
-// create proxy
-const proxy = httpProxy.createProxyServer({});
+var port = ipcApiPort;
+
 
 var hostIndex = 0;
 function getHostByRoundRobin() {
-    var host = arch.hosts[hostIndex];
-    hostIndex = (hostIndex + 1) % arch.hosts.length;
+    var host = hosts[hostIndex];
+    hostIndex = (hostIndex + 1) % hosts.length;
     return host;
 }
 
 function getShardByGuild(guild_id) {
-    var num_shards = arch.totalShards;
+    var num_shards = totalShards;
 
     //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
     var shard_id = (guild_id >> 22) % num_shards;
@@ -34,14 +34,14 @@ function getShardByGuild(guild_id) {
 function getHostByGuild(guildId) {
     // get the host that has the shards that the guild is on
     var shard_id = getShardByGuild(guildId);
-    var host = arch.hosts.find(host => host.shardList.includes(shard_id));
+    var host = hosts.find(host => host.shardList.includes(shard_id));
     return host;
 }
 
 // create express app
 const app = express();
 
-app.use(express.json());
+app.use(json());
 
 // authentication middleware
 app.use(authMiddleware);

@@ -1,10 +1,13 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-require('dotenv').config('../../.env');
+import dotenv from 'dotenv';
+dotenv.config('../../.env');
 
-const config = require('./config.json');
+import config from './config.js';
 
-const baseUrl = config.ipcApiUrl;
+const {ipcApiUrl} = config;
+
+const baseUrl = ipcApiUrl;
 
 function getAuthHeader() {
     return {
@@ -126,7 +129,7 @@ function getUserPermissionsInChannel(guildId, channelId, userId) {
     return fetch(url, options);
 }
 
-module.exports = {
+export default {
     sendStartMessage,
     fetchUser,
     sendPostTest,

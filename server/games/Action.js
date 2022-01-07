@@ -1,8 +1,8 @@
-const crypto = require('crypto');
+import { randomUUID } from 'crypto';
 
 class Action {
     constructor(type, userId, data, game) {
-        this.id = crypto.randomUUID();
+        this.id = randomUUID();
 
         this.type = type;
         this.userId = userId; // userId of the player who made the action
@@ -29,4 +29,4 @@ Action.getDataForClient = function (action, userId) {
     }
 }
 
-module.exports = Action;
+export default Action;

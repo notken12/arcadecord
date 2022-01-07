@@ -1,7 +1,5 @@
 // Common action models
 
-const { ShaderChunk } = require('three');
-
 // Import GameFlow to control game flow
 var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -9,7 +7,7 @@ var GameFlow;
 
 // tests if global scope is bound to window
 if(!isBrowser()) {
-    GameFlow = require('../../GameFlow.js');
+    GameFlow = await import('../../GameFlow.js');
 } else {
     GameFlow = window.GameFlow;
 }
@@ -37,12 +35,12 @@ class Board {
             this.cells.push(row);
         }
     }
-    getCorner(playerIndex) {
+    static getCorner(board, playerIndex) {
         if (playerIndex === 0) {
             // player 1
             // bottom left
             return {
-                row: this.height - 1,
+                row: board.height - 1,
                 col: 0
             }
         } else {
@@ -50,27 +48,27 @@ class Board {
             // top right
             return {
                 row: 0,
-                col: this.width - 1
+                col: board.width - 1
             }
         }
     }
-    getPlayerColor(playerIndex) {
+    static getPlayerColor(board, playerIndex) {
         // finds the players corner
-        var corner = this.getCorner(playerIndex);
+        var corner = Board.getCorner(board, playerIndex);
 
         // outputs the color of said corner
-        return this.getColor(corner);
+        return Board.getColor(board, corner);
         
     }
-    getColor(row, col) {
+    static getColor(board, row, col) {
         if (row < 0 || col < 0)
             return null;
-        if (row >= this.height || col >= this.width)
+        if (row >= board.height || col >= board.width)
             return null;
         
-        return this.cells[row][col];
+        return board.cells[row][col];
     }
-    addToBlob(blob, row, col) {
+    static addToBlob(blob, row, col) {
         var coord = {
             row: row,
             col: col
@@ -79,46 +77,46 @@ class Board {
             blob.push(coord);
         }
     }
-    searchBlob(blob, row, col) {
-        var color = this.getColor(row, col);
+    static searchBlob(board, blob, row, col) {
+        var color = Board.getColor(board, row, col);
         // Always add center coordinate
-        this.addToBlob(blob, row, col);
+        Board.addToBlob(board, blob, row, col);
 
         // Check if tile above matches
-        if (this.checkMatch(row-1, col, color)) {
-            this.searchBlob(blob, row - 1, col);
+        if (Board.checkMatch(board, row-1, col, color)) {
+            Board.searchBlob(board, blob, row - 1, col);
         };
 
         // Check if tile below
-        if (this.checkMatch(row+1, col, color)) { 
-            this.searchBlob(blob, row + 1, col);
+        if (Board.checkMatch(board, row+1, col, color)) { 
+            Board.searchBlob(board, blob, row + 1, col);
         };
 
         //check to the left
-        if (this.checkMatch(row, col-1, color)) {
-            this.searchBlob(blob, row, col - 1);
+        if (Board.checkMatch(board, row, col-1, color)) {
+            Board.searchBlob(board, blob, row, col - 1);
         };
 
         //check to the right
-        if (this.checkMatch(row, col+1, color)) {
-            this.searchBlob(blob, row, col + 1);
+        if (Board.checkMatch(board, row, col+1, color)) {
+            Board.searchBlob(board, blob, row, col + 1);
         }
 
         return blob;
     }
-    getPlayerBlob(playerIndex) {
+    static getPlayerBlob(board, playerIndex) {
         // 1. Get the player's color
-        var corner = this.getCorner(playerIndex);
+        var corner = Board.getCorner(board, playerIndex);
 
 
         // 2. Get tiles in player's blob
-        var blob = this.searchBlob([], corner.row, corner.col);
+        var blob = Board.searchBlob(board, [], corner.row, corner.col);
 
         // 3. Output blob (list of coords {row, col})
         return blob;
     }
-    checkMatch(row, col, color) {
-        return getColor(row, col) == color;
+    static checkMatch(board, row, col, color) {
+        return Board.getColor(board, row, col) == color;
     }
 }
 
@@ -126,10 +124,25 @@ class Board {
 // that takes in a Game and an Action (see Game.js and Action.js)
 // and outputs the updated Game if it succeeds, and otherwise outputs false
 
-function switchColors(game, action) {
+function action_switchColors(game, action) {
     var playerIndex = action.playerIndex;
 
     var targetColor = action.data.targetColor;
 
-
+    Board.getPlayerBlob(board, playerIndex);
 }
+
+// Compatibility with browser and node
+
+var exports = {
+    COLORS: COLORS,
+    Board: Board
+}
+
+/*if (typeof(module) !== 'undefined') {
+    module.exports = exports; // require()
+} else {
+    window.Common = exports; // global var
+}*/
+
+export default exports;

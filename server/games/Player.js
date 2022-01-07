@@ -1,4 +1,3 @@
-var discordApiUtils = require('../utils/discord-api');
 
 class Player {
     constructor(id, discordUser) {
@@ -14,4 +13,4 @@ Player.getDataForClient = function (player, userId) {
     };
 };
 
-module.exports = Player;
+export default Player;

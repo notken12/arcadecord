@@ -1,7 +1,14 @@
-const Game = require("../../Game");
-const GameFlow = require("../../GameFlow");
+// Import common module for this game type
+import Common from './common.js';
 
-const Common = require("./common");
+// Import Game class
+import Game from '../../Game.js';
+
+// Import GameFlow to control game flow
+import GameFlow from '../../GameFlow.js';
+
+// BotApi to tell the bot to send messages
+import BotApi from '../../../bot/api.js';
 
 const options = {
     typeId: "4inarow",
@@ -26,7 +33,7 @@ class FourInARowGame extends Game {
     }
 }
 
-module.exports = {
+export default {
     options: options,
-    Game: FourInARowGame,
+    Game: FourInARowGame
 }

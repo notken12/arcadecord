@@ -1,6 +1,4 @@
-const db = require('../../db/db2');
-
-module.exports = {
+export default {
 	name: 'ready',
 	once: true,
 	execute(client) {
