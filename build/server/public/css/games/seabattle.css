@@ -1,0 +1,149 @@
+#app {
+    background-color: #0065C4;
+}
+
+.middle {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#players-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.ship-placer-container, .hit-board {
+    position: relative;
+    width: calc(100% - 32px);
+    height: 0;
+    max-width: 500px;
+    max-height: 500px;
+    padding-bottom: min(500px, calc(100% - 32px));
+}
+
+.ship-placer-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0.5px solid #00000055;
+    display: grid;
+}
+
+.placed-ship {
+    transition: top 0.2s, left 0.2s, transform 0.2s;
+    position: absolute;
+}
+
+.placed-ship-image {
+    width: 100%;
+    height: 100%;
+}
+
+.placed-ship-bounding-box {
+    position: absolute;
+    background: rgba(255, 0, 0, 0.2);
+    display: none;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+.hit-board {
+    position: relative;
+}
+
+
+.ship-placer-board {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border: 0.5px solid #00000055;
+}
+
+.ship-placer-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.ship-placer-cell, .hit-board-cell {
+    width: 100%;
+    height: 100%;
+    border: 0.5px solid #00000055;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+/****/
+
+.hit-board-ships {
+    opacity: 0.5;
+}
+
+.hit-board-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #00000055;
+    position: absolute;
+}
+
+.hit-board-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.hit-board-cell {
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    background-size: 100%;
+}
+
+
+
+.target-crosshair {
+    position: absolute;
+    transition: top 0.1s, left 0.1s, opacity 0.2s;
+}
+
+.target-crosshair img {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes miss {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes hit {
+    0% {
+        transform: scale(0);
+    }
+    60% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

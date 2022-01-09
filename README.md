@@ -158,17 +158,15 @@ A file that contains data and functions that are used in both the website client
 * Action models - mandatory. These will be explained later.
 * **Any variables that needs to be constant between the client and the server.**
 
-The file will be served over http at `/gamecommons/<game_type_id>`.
-
 #### `index.html`
 
 The html file for playing the game. We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
 
-Import `/public/js/client-framework.js` in the game's script. It contains all the utilities you need to implement interactivity with the server. It will be explained later.
+Import `/dist/js/client-framework.js` in the game's script. It contains all the utilities you need to implement interactivity with the server. It will be explained later.
 
 ## Website
 
-The website is served from an express server in `server.js`. All files from the `/public` folder are served. The `common.js` from every game type is served from `/gamecommons/<game_type_id>`.
+The website is served from an express server in `server.js`. All files from the `/server/public` folder are served at `/public`. Files from `/server/src` are compiled and served at `/dist`.
 
 When accessing a game, the website will check if the user has permission to join the game. If so, it will serve the game type's `index.html` file.
 

@@ -37,7 +37,7 @@ appInsights.start();
 
 // get __dirname
 import path from 'path';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -66,6 +66,9 @@ const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
 app.head('/health', function (req, res) {
   res.sendStatus(200);
 });
+
+app.use('/public', express.static(path.resolve('build/server/public')));
+app.use('/dist', express.static(path.resolve('build/server/dist')));
 
 // Check the name of the host
 app.get('/name', function (req, res) {
@@ -234,17 +237,17 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
 
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.resolve('build/server/dist/index.html'));
 });
 
-app.use('/public', express.static(__dirname + '/public'));
+app.use(express.static(path.resolve('build')));
 
 app.get('/sign-in', (req, res) => {
-  res.sendFile(__dirname + '/html/sign-in.html')
+  res.sendFile(path.resolve('build/server/dist/sign-in.html'))
 });
 
 app.get('/invite', (req, res) => {
-  res.sendFile(__dirname + '/html/invite.html')
+  res.sendFile(path.resolve('build/server/dist/invite.html'))
 });
 
 app.get('/discord-oauth', (req, res) => {
@@ -336,12 +339,6 @@ app.get('/auth', (req, res) => {
   });
 });
 
-app.use('/gamecommons', async (req, res) => {
-  var id = req.path.split('/')[1];
-
-  res.sendFile(__dirname + '/games/types/' + id + '/common.js');
-});
-
 app.use('/gameassets', async (req, res) => {
   var path = req.path.split('/');
   path.shift();
@@ -398,9 +395,15 @@ app.get('/game/:id', async (req, res) => {
   } else {
     //game does not exist
     //send  404 page
-    res.sendFile(__dirname + '/html/game-not-found.html');
+    res.sendFile(path.resolve('build/server/dist/game-not-found.html'));
   }
 
+});
+
+app.use('/gamecommons', async (req, res) => {
+  var id = req.path.split('/')[1];
+
+  res.sendFile(__dirname + '/games/types/' + id + '/common.js');
 });
 
 app.post('/create-game', async (req, res) => {
@@ -464,3 +467,5 @@ server.listen(port, () => {
   appInsights.defaultClient.trackMetric({ name: "Server startup time", value: duration });
   console.log(`Server host ${hostId} listening at port ${port}`);
 });
+
+export const handler = app;
