@@ -1,4 +1,4 @@
-import { Vector3, MOUSE, TOUCH, Quaternion, Spherical, Vector2, EventDispatcher } from '../../../../three.js';
+import { g5 as Vector3, cu as MOUSE, ft as TOUCH, dK as Quaternion, f5 as Spherical, aU as EventDispatcher, g4 as Vector2 } from '../../../../common/three.module-bbf17466.js';
 
 /**
  * @author qiao / https://github.com/qiao
@@ -1135,4 +1135,4 @@ var MapControls = function ( object, domElement ) {
 MapControls.prototype = Object.create( EventDispatcher.prototype );
 MapControls.prototype.constructor = MapControls;
 
-export { MapControls, OrbitControls };
+export { OrbitControls };

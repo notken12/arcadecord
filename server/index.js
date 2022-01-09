@@ -67,12 +67,46 @@ app.head('/health', function (req, res) {
   res.sendStatus(200);
 });
 
-app.use('/public', express.static(path.resolve('build/server/public')));
-app.use('/dist', express.static(path.resolve('build/server/dist')));
+// app.use('/public', express.static(path.resolve('build/server/public')));
+// app.use('/dist', express.static(path.resolve('build/server/dist')));
 
 // Check the name of the host
 app.get('/name', function (req, res) {
   res.send(host.name);
+});
+
+import { startServer as startSnowpackDevServer, loadConfiguration as loadSnowpackConfiguration } from 'snowpack';
+
+console.log(path.resolve('snowpack.config.mjs'));
+const snowpackConfig = await loadSnowpackConfiguration({
+  devOptions: {
+    port: host.snowpackPort
+  }
+}, path.resolve('snowpack.config.mjs'));
+
+const snowpackDevServer = await startSnowpackDevServer({ config: snowpackConfig });
+
+async function proxySnowpackDev(url, res) {
+  const buildResult = await snowpackDevServer.loadUrl(url).catch(err => { return null });
+  if (buildResult) {
+    res.contentType(buildResult.contentType);
+    res.send(buildResult.contents);
+  }
+  return buildResult;
+
+}
+
+// Example: Express
+// On request, build each file on request and respond with its built contents
+app.use(async (req, res, next) => {
+  try {
+    var proxyResult = await proxySnowpackDev(req.url, res);
+    if (!proxyResult) {
+      next();
+    }
+  } catch (err) {
+    next();
+  }
 });
 
 const io = new Server(server);
@@ -243,11 +277,11 @@ app.get('/', (req, res) => {
 app.use(express.static(path.resolve('build')));
 
 app.get('/sign-in', (req, res) => {
-  res.sendFile(path.resolve('build/server/dist/sign-in.html'))
+  proxySnowpackDev('/dist/sign-in.html', res);
 });
 
 app.get('/invite', (req, res) => {
-  res.sendFile(path.resolve('build/server/dist/invite.html'))
+  proxySnowpackDev('/dist/invite.html', res);
 });
 
 app.get('/discord-oauth', (req, res) => {
@@ -337,16 +371,6 @@ app.get('/auth', (req, res) => {
       res.redirect('/game/' + cookie);
     }
   });
-});
-
-app.use('/gameassets', async (req, res) => {
-  var path = req.path.split('/');
-  path.shift();
-
-  var id = path[0];
-
-  path.shift();
-  res.sendFile(__dirname + '/games/types/' + id + '/assets/' + path.join('/'));
 });
 
 //user is accessing game

@@ -4,6 +4,8 @@ import 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser
 
 import 'https://cdn.jsdelivr.net/npm/remarkable@2.0.1/dist/remarkable.min.js';
 
+import '../styles/all-games.scss';
+
 var emitter = mitt();
 
 var md = new remarkable.Remarkable({});

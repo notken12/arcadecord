@@ -2511,12 +2511,5 @@ var controllers = {
 var dom$1 = { dom: dom };
 var gui = { GUI: GUI };
 var GUI$1 = GUI;
-var index = {
-  color: color,
-  controllers: controllers,
-  dom: dom$1,
-  gui: gui,
-  GUI: GUI$1
-};
 
-export { GUI$1 as GUI, color, controllers, index as default, dom$1 as dom, gui };
+export { GUI$1 as GUI, color, controllers, dom$1 as dom, gui };

@@ -389,18 +389,18 @@ Object.keys(PACKET_TYPES).forEach(key => {
 });
 const ERROR_PACKET = { type: "error", data: "parser error" };
 
-const withNativeBlob$1 = typeof Blob === "function" ||
+const withNativeBlob = typeof Blob === "function" ||
     (typeof Blob !== "undefined" &&
         Object.prototype.toString.call(Blob) === "[object BlobConstructor]");
-const withNativeArrayBuffer$2 = typeof ArrayBuffer === "function";
+const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 // ArrayBuffer.isView method is not defined in IE10
-const isView$1 = obj => {
+const isView = obj => {
     return typeof ArrayBuffer.isView === "function"
         ? ArrayBuffer.isView(obj)
         : obj && obj.buffer instanceof ArrayBuffer;
 };
 const encodePacket = ({ type, data }, supportsBinary, callback) => {
-    if (withNativeBlob$1 && data instanceof Blob) {
+    if (withNativeBlob && data instanceof Blob) {
         if (supportsBinary) {
             return callback(data);
         }
@@ -408,8 +408,8 @@ const encodePacket = ({ type, data }, supportsBinary, callback) => {
             return encodeBlobAsBase64(data, callback);
         }
     }
-    else if (withNativeArrayBuffer$2 &&
-        (data instanceof ArrayBuffer || isView$1(data))) {
+    else if (withNativeArrayBuffer &&
+        (data instanceof ArrayBuffer || isView(data))) {
         if (supportsBinary) {
             return callback(data);
         }
@@ -436,11 +436,11 @@ const encodeBlobAsBase64 = (data, callback) => {
  */
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 // Use a lookup table to find the index.
-var lookup$1 = typeof Uint8Array === 'undefined' ? [] : new Uint8Array(256);
-for (var i$1 = 0; i$1 < chars.length; i$1++) {
-    lookup$1[chars.charCodeAt(i$1)] = i$1;
+var lookup = typeof Uint8Array === 'undefined' ? [] : new Uint8Array(256);
+for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
 }
-var decode$2 = function (base64) {
+var decode = function (base64) {
     var bufferLength = base64.length * 0.75, len = base64.length, i, p = 0, encoded1, encoded2, encoded3, encoded4;
     if (base64[base64.length - 1] === '=') {
         bufferLength--;
@@ -450,10 +450,10 @@ var decode$2 = function (base64) {
     }
     var arraybuffer = new ArrayBuffer(bufferLength), bytes = new Uint8Array(arraybuffer);
     for (i = 0; i < len; i += 4) {
-        encoded1 = lookup$1[base64.charCodeAt(i)];
-        encoded2 = lookup$1[base64.charCodeAt(i + 1)];
-        encoded3 = lookup$1[base64.charCodeAt(i + 2)];
-        encoded4 = lookup$1[base64.charCodeAt(i + 3)];
+        encoded1 = lookup[base64.charCodeAt(i)];
+        encoded2 = lookup[base64.charCodeAt(i + 1)];
+        encoded3 = lookup[base64.charCodeAt(i + 2)];
+        encoded4 = lookup[base64.charCodeAt(i + 3)];
         bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
         bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
         bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
@@ -491,7 +491,7 @@ const decodePacket = (encodedPacket, binaryType) => {
 };
 const decodeBase64Packet = (data, binaryType) => {
     if (withNativeArrayBuffer$1) {
-        const decoded = decode$2(data);
+        const decoded = decode(data);
         return mapBinary(decoded, binaryType);
     }
     else {
@@ -536,7 +536,7 @@ const decodePayload = (encodedPayload, binaryType) => {
     }
     return packets;
 };
-const protocol$1 = 4;
+const protocol = 4;
 
 class Transport extends Emitter_1 {
     /**
@@ -648,7 +648,7 @@ var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_
   , length = 64
   , map = {}
   , seed = 0
-  , i = 0
+  , i$1 = 0
   , prev;
 
 /**
@@ -658,7 +658,7 @@ var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_
  * @returns {String} The string representation of the number.
  * @api public
  */
-function encode$1(num) {
+function encode(num) {
   var encoded = '';
 
   do {
@@ -679,8 +679,8 @@ function encode$1(num) {
 function decode$1(str) {
   var decoded = 0;
 
-  for (i = 0; i < str.length; i++) {
-    decoded = decoded * length + map[str.charAt(i)];
+  for (i$1 = 0; i$1 < str.length; i$1++) {
+    decoded = decoded * length + map[str.charAt(i$1)];
   }
 
   return decoded;
@@ -693,21 +693,21 @@ function decode$1(str) {
  * @api public
  */
 function yeast() {
-  var now = encode$1(+new Date());
+  var now = encode(+new Date());
 
   if (now !== prev) return seed = 0, prev = now;
-  return now +'.'+ encode$1(seed++);
+  return now +'.'+ encode(seed++);
 }
 
 //
 // Map each character to its index.
 //
-for (; i < length; i++) map[alphabet[i]] = i;
+for (; i$1 < length; i$1++) map[alphabet[i$1]] = i$1;
 
 //
 // Expose the `yeast`, `encode` and `decode` functions.
 //
-yeast.encode = encode$1;
+yeast.encode = encode;
 yeast.decode = decode$1;
 var yeast_1 = yeast;
 
@@ -719,7 +719,7 @@ var yeast_1 = yeast;
  * @api private
  */
 
-var encode = function (obj) {
+var encode$1 = function (obj) {
   var str = '';
 
   for (var i in obj) {
@@ -739,7 +739,7 @@ var encode = function (obj) {
  * @api private
  */
 
-var decode = function(qs){
+var decode$2 = function(qs){
   var qry = {};
   var pairs = qs.split('&');
   for (var i = 0, l = pairs.length; i < l; i++) {
@@ -750,8 +750,8 @@ var decode = function(qs){
 };
 
 var parseqs = {
-	encode: encode,
-	decode: decode
+	encode: encode$1,
+	decode: decode$2
 };
 
 class Polling extends Transport {
@@ -1357,7 +1357,7 @@ const transports = {
     polling: XHR
 };
 
-class Socket$1 extends Emitter_1 {
+class Socket extends Emitter_1 {
     /**
      * Socket constructor.
      *
@@ -1462,7 +1462,7 @@ class Socket$1 extends Emitter_1 {
     createTransport(name) {
         const query = clone(this.opts.query);
         // append engine.io protocol identifier
-        query.EIO = protocol$1;
+        query.EIO = protocol;
         // transport name
         query.transport = name;
         // session id if we already have one
@@ -1485,7 +1485,7 @@ class Socket$1 extends Emitter_1 {
     open() {
         let transport;
         if (this.opts.rememberUpgrade &&
-            Socket$1.priorWebsocketSuccess &&
+            Socket.priorWebsocketSuccess &&
             this.transports.indexOf("websocket") !== -1) {
             transport = "websocket";
         }
@@ -1541,7 +1541,7 @@ class Socket$1 extends Emitter_1 {
     probe(name) {
         let transport = this.createTransport(name);
         let failed = false;
-        Socket$1.priorWebsocketSuccess = false;
+        Socket.priorWebsocketSuccess = false;
         const onTransportOpen = () => {
             if (failed)
                 return;
@@ -1554,7 +1554,7 @@ class Socket$1 extends Emitter_1 {
                     this.emitReserved("upgrading", transport);
                     if (!transport)
                         return;
-                    Socket$1.priorWebsocketSuccess = "websocket" === transport.name;
+                    Socket.priorWebsocketSuccess = "websocket" === transport.name;
                     this.transport.pause(() => {
                         if (failed)
                             return;
@@ -1629,7 +1629,7 @@ class Socket$1 extends Emitter_1 {
      */
     onOpen() {
         this.readyState = "open";
-        Socket$1.priorWebsocketSuccess = "websocket" === this.transport.name;
+        Socket.priorWebsocketSuccess = "websocket" === this.transport.name;
         this.emitReserved("open");
         this.flush();
         // we check for `readyState` in case an `open`
@@ -1845,7 +1845,7 @@ class Socket$1 extends Emitter_1 {
      * @api private
      */
     onError(err) {
-        Socket$1.priorWebsocketSuccess = false;
+        Socket.priorWebsocketSuccess = false;
         this.emitReserved("error", err);
         this.onClose("transport error", err);
     }
@@ -1899,7 +1899,7 @@ class Socket$1 extends Emitter_1 {
         return filteredUpgrades;
     }
 }
-Socket$1.protocol = protocol$1;
+Socket.protocol = protocol;
 function clone(obj) {
     const o = {};
     for (let i in obj) {
@@ -1910,14 +1910,14 @@ function clone(obj) {
     return o;
 }
 
-const withNativeArrayBuffer = typeof ArrayBuffer === "function";
-const isView = (obj) => {
+const withNativeArrayBuffer$2 = typeof ArrayBuffer === "function";
+const isView$1 = (obj) => {
     return typeof ArrayBuffer.isView === "function"
         ? ArrayBuffer.isView(obj)
         : obj.buffer instanceof ArrayBuffer;
 };
 const toString = Object.prototype.toString;
-const withNativeBlob = typeof Blob === "function" ||
+const withNativeBlob$1 = typeof Blob === "function" ||
     (typeof Blob !== "undefined" &&
         toString.call(Blob) === "[object BlobConstructor]");
 const withNativeFile = typeof File === "function" ||
@@ -1929,8 +1929,8 @@ const withNativeFile = typeof File === "function" ||
  * @private
  */
 function isBinary(obj) {
-    return ((withNativeArrayBuffer && (obj instanceof ArrayBuffer || isView(obj))) ||
-        (withNativeBlob && obj instanceof Blob) ||
+    return ((withNativeArrayBuffer$2 && (obj instanceof ArrayBuffer || isView$1(obj))) ||
+        (withNativeBlob$1 && obj instanceof Blob) ||
         (withNativeFile && obj instanceof File));
 }
 function hasBinary(obj, toJSON) {
@@ -2041,7 +2041,7 @@ function _reconstructPacket(data, buffers) {
  *
  * @public
  */
-const protocol = 5;
+const protocol$1 = 5;
 var PacketType;
 (function (PacketType) {
     PacketType[PacketType["CONNECT"] = 0] = "CONNECT";
@@ -2307,7 +2307,7 @@ class BinaryReconstructor {
 
 var parser = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    protocol: protocol,
+    protocol: protocol$1,
     get PacketType () { return PacketType; },
     Encoder: Encoder,
     Decoder: Decoder
@@ -2333,7 +2333,7 @@ const RESERVED_EVENTS = Object.freeze({
     newListener: 1,
     removeListener: 1,
 });
-class Socket extends Emitter_1 {
+class Socket$1 extends Emitter_1 {
     /**
      * `Socket` constructor.
      *
@@ -2985,7 +2985,7 @@ class Manager extends Emitter_1 {
     open(fn) {
         if (~this._readyState.indexOf("open"))
             return this;
-        this.engine = new Socket$1(this.uri, this.opts);
+        this.engine = new Socket(this.uri, this.opts);
         const socket = this.engine;
         const self = this;
         this._readyState = "opening";
@@ -3096,7 +3096,7 @@ class Manager extends Emitter_1 {
     socket(nsp, opts) {
         let socket = this.nsps[nsp];
         if (!socket) {
-            socket = new Socket(this, nsp, opts);
+            socket = new Socket$1(this, nsp, opts);
             this.nsps[nsp] = socket;
         }
         return socket;
@@ -3233,7 +3233,7 @@ class Manager extends Emitter_1 {
  * Managers cache.
  */
 const cache = {};
-function lookup(uri, opts) {
+function lookup$1(uri, opts) {
     if (typeof uri === "object") {
         opts = uri;
         uri = undefined;
@@ -3265,11 +3265,11 @@ function lookup(uri, opts) {
 }
 // so that "lookup" can be used both as a function (e.g. `io(...)`) and as a
 // namespace (e.g. `io.connect(...)`), for backward compatibility
-Object.assign(lookup, {
+Object.assign(lookup$1, {
     Manager,
-    Socket,
-    io: lookup,
-    connect: lookup,
+    Socket: Socket$1,
+    io: lookup$1,
+    connect: lookup$1,
 });
 
-export { Manager, Socket, lookup as connect, lookup as default, lookup as io, protocol };
+export { lookup$1 as io };

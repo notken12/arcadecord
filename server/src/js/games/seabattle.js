@@ -2,7 +2,7 @@ import * as Client from '../client-framework.js';
 
 import * as UI from '../ui.js';
 
-import Common from '/gamecommons/seabattle';
+import Common from '../../../games/types/seabattle/common.js';
 
 function getMyHitBoard(game) {
     var index = game.myIndex;

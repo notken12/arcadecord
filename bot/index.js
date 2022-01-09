@@ -102,6 +102,8 @@ app.get('/gettest', (req, res) => {
     res.send('ok');
 });
 
+//test
+
 app.post('/message', (req, res) => {
     var shard = getShardByGuild(req.body.guild);
     manager.broadcastEval(async (c, { channel, message }) => {

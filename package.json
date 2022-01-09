@@ -8,10 +8,10 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "build": "npx snowpack build --watch",
-    "startbot": "concurrently \"nodemon bot/proxy.js\" \"nodemon bot/index.js 1\" \"nodemon bot/index.js 2\"",
-    "startserver": "concurrently \"nodemon server/index.js 1\" \"nodemon server/index.js 2\" \"nodemon server/index.js 3\"",
-    "start": "concurrently \"npm run build\" \"npm run startserver\" \"npm run startbot\"",
+    "build": "npx snowpack build",
+    "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
+    "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
+    "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
     "format": "prettier --write '**/*.js'"
   },
   "engines": {
@@ -22,7 +22,9 @@
   "license": "ISC",
   "nodemonConfig": {
     "ignore": [
-      "build/*"
+      "build/*",
+      "server/src/*",
+      "server/games/*/index.html"
     ],
     "delay": 2500
   },
@@ -60,7 +62,7 @@
     "@vitejs/plugin-vue": "^2.0.1",
     "nodemon": "^2.0.15",
     "prettier": "^2.0.4",
-    "snowpack": "^3.0.13",
+    "snowpack": "^3.8.8",
     "vite": "^2.7.10",
     "vite-plugin-mix": "^0.3.1",
     "webpack": "^4.42.1",
