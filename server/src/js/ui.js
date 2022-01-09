@@ -178,7 +178,7 @@ const GameManualView = {
         } else {
             // manual not loaded yet
             // fetch and parse manual
-            var path = '/public/manuals/' + this.game.typeId + '.md';
+            var path = '/dist/manuals/' + this.game.typeId + '.md';
             fetch(path).then((response) => {
                 if (response.ok) {
                     response.text().then((text) => {

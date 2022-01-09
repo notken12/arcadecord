@@ -366,7 +366,7 @@ function connectionCallback(response) {
             imageURL() {
                 var ship = this.ship;
                 var shipType = ship.type;
-                return '/public/assets/seabattle/ships/' + shipType + '.png';
+                return '/dist/assets/seabattle/ships/' + shipType + '.png';
             }
         },
         methods: {
@@ -425,7 +425,7 @@ function connectionCallback(response) {
 
 
                 <div class="target-crosshair" v-if="target" :style="targetStyles">
-                    <img src="/public/assets/seabattle/crosshair.png" />
+                    <img src="/dist/assets/seabattle/crosshair.png" />
                 </div>
             </div>
             `,
@@ -481,7 +481,7 @@ function connectionCallback(response) {
 
             },
             imgURL() {
-                return '/public/assets/seabattle/cell-states/' + this.cell.state + '.png';
+                return '/dist/assets/seabattle/cell-states/' + this.cell.state + '.png';
             }
         },
         methods: {

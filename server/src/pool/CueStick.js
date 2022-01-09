@@ -40,7 +40,7 @@ function CueStick(scene, cannonWorld) {
     this.rotation = 0; // radians
     const loader = new GLTFLoader();
 
-    loader.load('../public/3d_models/cue_stick.glb', function (gltf) {
+    loader.load('../dist/3d_models/cue_stick.glb', function (gltf) {
 
         var model = gltf.scene;
         that.model = model;

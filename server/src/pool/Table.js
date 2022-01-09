@@ -27,7 +27,7 @@ function Table(scene, cannonWorld) {
     this.parts = [];
     const loader = new GLTFLoader();
 
-    loader.load('../public/3d_models/table.glb', function (gltf) {
+    loader.load('../dist/3d_models/table.glb', function (gltf) {
 
         var model = gltf.scene;
 
