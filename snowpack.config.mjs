@@ -31,6 +31,5 @@ export default {
   },
   buildOptions: {
     out: "build",
-    cacheDirPath: './node_modules/.cache/snowpack'
   },
 };

@@ -419,7 +419,7 @@ app.get('/game/:id', async (req, res) => {
   } else {
     //game does not exist
     //send  404 page
-    res.sendFile(path.resolve('build/server/dist/game-not-found.html'));
+    proxySnowpackDev('/dist/game-not-found.html', res);
   }
 
 });
