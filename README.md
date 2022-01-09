@@ -9,14 +9,10 @@ update docs cause changes
 
 https://github.com/notken12/arcadecord/issues
 
-* Set process id for discord snowflake generator to prevent game ids from being the same
 * Add more games
 * Add settings ui
-* Log player actions to Azure Application Insights
-* Allow players to only invite certain people to games
 * Add unique IDs to every action and turn
 * Add feedback center
-* Log actions and turns
 * Add support for turns not in order of players
 
 ## How this works
@@ -26,7 +22,7 @@ https://github.com/notken12/arcadecord/issues
 * Player
 * Discord bot `/bot`
 * Game server `/server`
-* Website `/server`, `/games/types/*/index.html`, `/server/public`
+* Website `/server`, `/games/types/*/index.html`, `/server/public`, `/server/src`
 * Database `/db`
 
 ### Gameplay process
@@ -84,8 +80,8 @@ Games automatically start when the first action is taken. Actions can only be ta
 
 #### Methods
 
-* `setGuild(String guild)`
-* `setChannel(String channel)`
+* `setGuild(String guildId)`
+* `setChannel(String channelId)`
 * `setActionModel(String action, Function model, ?String side)`
     * `action`: Action type
     * `model`: Action model function, will be explained later.
@@ -96,7 +92,7 @@ Games automatically start when the first action is taken. Actions can only be ta
 * `emit(String event, ...args)`: emit an event, ex: 'init'. Used internally.
 * `init()`: adds the game into `gameManager`'s store of games, emits `'init'` event. Used internally.
 * `getURL()`: get the URL to play the game
-* `async doesUserHavePermission(String id)`: does user have perms to join game? (message send perms in game's channel)
+* `async doesUserHavePermission(String id)`: does user have perms to join game? (slash command perms in game's channel)
 * `async canUserJoin(String id)`: can user join game? 
 * `async canUserSocketConnect(id)`: can the user's socket.io socket connect?
 * `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. Later user ids will be made available after we switch to using private keys
@@ -151,12 +147,12 @@ Optionally, a `getThumbnail` function can be defined which is used to generate a
 
 #### `common.js`
 
-A file that contains data and functions that are used in both the website client and the game server. `main.js` requires `common.js`. Common action models must be functions from `common.js`. Examples of data stored in this file are:
+A file that contains data and functions that are used in both the website client and the game server. `main.js` imports `common.js`. Common action models must be functions from `common.js`. Examples of data stored in this file are:
 
 * Numbers for tile states on a checker board, ex. `TILE_EMPTY = 0`, `TILE_WHITE = 1`, `TILE_BLACK = 2`
 * Utility functions for the game
 * Action models - mandatory. These will be explained later.
-* **Any variables that needs to be constant between the client and the server.**
+* **Any variables that needs to be consistent between the client and the server.**
 
 #### `index.html`
 
@@ -166,7 +162,7 @@ Import `/dist/js/client-framework.js` in the game's script. It contains all the 
 
 ## Website
 
-The website is served from an express server in `server.js`. All files from the `/server/public` folder are served at `/public`. Files from `/server/src` are compiled and served at `/dist`.
+The website is served from an express server in `server.js`. All files from the `/server/public` folder are served at `/dist`. Files from `/server/src` are compiled and served at `/dist`.
 
 When accessing a game, the website will check if the user has permission to join the game. If so, it will serve the game type's `index.html` file.
 
@@ -177,7 +173,7 @@ Gameplay pattern:
 - Player takes their turn
 - Waiting for opponent
 
-### `/public/js/client-framework.js`
+### `/src/js/client-framework.js`
 
 This contains everything you need to interact with the server. 
 
