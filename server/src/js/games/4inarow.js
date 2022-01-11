@@ -2,7 +2,7 @@
 import * as Client from '../client-framework.js';
 
 // Nice UI components for the basic UI
-import * as UI from '../ui.js';
+import { GameView } from '../ui.js';
 
 // Get game ID from URL address
 
@@ -23,7 +23,7 @@ function connectionCallback(response) {
             }
         },
         components: {
-            'game-view': UI.GameView
+            GameView
         },
         computed: {
             hint() {

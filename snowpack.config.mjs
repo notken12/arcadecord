@@ -12,8 +12,12 @@ export default {
       {
         // https://www.npmjs.com/package/@snowpack/plugin-sass
       }
-    ]
+    ],
   ],
+  alias: {
+    '@app': './server/src',
+    components: './server/src/components',
+  },
   routes: [
     /* Enable an SPA Fallback in development: */
     // {"match": "routes", "src": ".*", "dest": "/index.html"},
