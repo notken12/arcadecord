@@ -226,7 +226,7 @@ module.exports = function sassPlugin(snowpackConfig, {native, compilerOptions = 
 
       const {stdout, stderr} = await execa('sass', args, execaOptions);
       // Handle the output.
-      // if (stderr) throw new Error(stderr); // vscode debug creates an error here because of debugger attached
+      if (stderr) console.log(stderr); // vscode debug creates an error here because of debugger attached
       if (stdout) return stdout;
     },
   };

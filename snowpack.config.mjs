@@ -17,6 +17,8 @@ export default {
   alias: {
     '@app': './server/src',
     components: './server/src/components',
+    vue: 'vue/dist/vue.esm-bundler.js',
+    scss: './server/src/scss',
   },
   routes: [
     /* Enable an SPA Fallback in development: */

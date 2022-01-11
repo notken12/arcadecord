@@ -1,0 +1,253 @@
+/* Fonts */
+@use "./base/_theme.scss" as theme;
+
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Work+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+/* Import theme variables */
+
+html,
+body {
+    background-color: theme.$md-sys-background;
+    color: theme.$md-sys-on-background;
+    margin: 0;
+    font-family: theme.$md-sys-typescale-body1-font;
+    font-size: theme.$md-sys-typescale-body1-size;
+    height: 100%;
+    overflow: hidden;
+    user-select: none;
+}
+
+#app {
+    min-height: 100%;
+    display: flex;
+    display: grid;
+}
+
+.top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+button {
+    color: theme.$md-sys-on-primary;
+    background-color: theme.$md-sys-primary;
+    padding: 0px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 500px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex: 1 1 auto;
+    overflow: hidden;
+    height: 36px;
+    line-height: normal;
+    vertical-align: middle;
+    user-select: none;
+    line-height: inherit;
+    outline: none;
+    box-sizing: border-box;
+    min-width: 64px;
+    font-size: theme.$md-sys-typescale-button-size;
+    line-height: theme.$md-sys-typescale-button-line-height;
+    font-family: theme.$md-sys-typescale-button-font;
+    box-shadow: theme.$md-elevation-level1;
+    font-weight: theme.$md-sys-typescale-button-weight;
+    max-height: 36px;
+}
+
+.btn-icon {
+    padding: 8px;
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.btn-fab {
+    background-color: theme.$md-sys-primary-container;
+    box-shadow: theme.$md-elevation-level3;
+    color: theme.$md-sys-on-primary;
+    border-radius: 16px;
+    height: 56px;
+    width: 56px;
+    padding: 16px;
+    min-width: 56px;
+    min-height: 56px;
+    max-width: 56px;
+    max-height: 56px;
+}
+
+.btn-fab i {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.game-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.fabs {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    z-index: 10;
+}
+
+.fabs .btn-fab {
+    margin: 16px;
+}
+
+.bottom {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+}
+
+.player {
+    background-color: theme.$md-sys-surface-variant;
+    color: theme.$md-sys-on-surface-variant;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: theme.$md-elevation-level3;
+}
+
+.player img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    user-select: none;
+}
+
+.player-name span {
+    display: block;
+}
+
+.player-name .discriminator {
+    opacity: 0.7;
+}
+
+.players-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    gap: 8px;
+    max-width: 10em;
+}
+
+.player-me .username {
+    font-weight: bold;
+}
+
+.dialog-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.dialog-chip {
+    background-color: theme.$md-sys-surface-variant;
+    color: theme.$md-sys-on-surface-variant;
+    padding: 16px;
+    border-radius: 100px;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.waiting-view-chip .dots span {
+    animation: dots 2s linear infinite;
+}
+
+.waiting-view-chip .dots span:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.waiting-view-chip .dots span:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+@keyframes dots {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.win-view-chip,
+.lose-view-chip,
+.draw-view-chip {
+    background-color: white;
+    color: black;
+}
+
+.win-view {
+    --webkit-box-shadow: inset 0px 0px 50px 30px #f2ff0077;
+    -box-shadow: inset 0px 0px 50px 30px #f2ff0077;
+}
+
+.lose-view {
+    --webkit-box-shadow: inset 0px 0px 90px 10px #ff220077;
+    -box-shadow: inset 0px 0px 90px 10px #f2220077;
+}
+
+.lose-view-chip {
+    box-shadow: 0 0 32px 0px #d5000077;
+}
+
+.win-view-chip {
+    box-shadow: 0 0 32px 0px #ffea0077;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}

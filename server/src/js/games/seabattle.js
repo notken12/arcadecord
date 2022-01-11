@@ -5,7 +5,7 @@ import {GameView} from '../ui.js';
 
 import Common from '/gamecommons/seabattle';
 
-import * as Vue from 'vue/dist/vue.cjs.prod.js';
+import * as Vue from 'vue';
 
 import bus from '../vue-event-bus.js';
 
