@@ -413,7 +413,6 @@ app.get('/game/:id', async (req, res) => {
       //set cookie for game id to redirect back to
       //redirect to sign in page
       res.cookie('gameId', id, { maxAge: 900000, httpOnly: true });
-      console.log('cookie created successfully');
       res.redirect('/sign-in');
     }
   } else {

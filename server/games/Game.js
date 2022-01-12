@@ -246,7 +246,6 @@ class Game {
         if (!res.ok) return false;
 
         var perms = await res.json();
-        console.log(perms);
 
         // must have perms to use slash commands to join games
         if (!perms.USE_APPLICATION_COMMANDS) {
