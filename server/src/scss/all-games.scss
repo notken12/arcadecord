@@ -32,10 +32,22 @@ body {
     justify-content: center;
 }
 
+h3 {
+    font-family: theme.$md-sys-typescale-headline3-font;
+    font-size: theme.$md-sys-typescale-headline3-size;
+    font-weight: theme.$md-sys-typescale-headline3-weight;
+    color: theme.$md-sys-on-background;
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
 button {
     color: theme.$md-sys-on-primary;
     background-color: theme.$md-sys-primary;
-    padding: 0px 12px;
+    padding: 0px 24px;
     border: none;
     cursor: pointer;
     border-radius: 500px;
@@ -43,13 +55,9 @@ button {
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    flex: 1 1 auto;
     overflow: hidden;
-    height: 36px;
-    line-height: normal;
-    vertical-align: middle;
+    height: 40px;
     user-select: none;
-    line-height: inherit;
     outline: none;
     box-sizing: border-box;
     min-width: 64px;
@@ -59,6 +67,13 @@ button {
     box-shadow: theme.$md-elevation-level1;
     font-weight: theme.$md-sys-typescale-button-weight;
     max-height: 36px;
+    text-decoration: none;
+    gap: 8px;
+
+    .material-icons {
+        font-size: 18px;
+        margin-left: -8px;
+    }
 }
 
 .btn-icon {

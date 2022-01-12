@@ -1,0 +1,32 @@
+@use "./all-games.scss";
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+p {
+    margin: 0;
+}
+
+#connect-svg {
+    width: 100%;
+    max-width: 300px;
+}
+
+%equal-width {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 16px;
+}
+
+#left-side, #right-side {
+    @extend %equal-width;
+}
