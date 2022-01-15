@@ -1,4 +1,4 @@
-import * as Client from '/public/js/client-framework.js';
+
 var gameId = Client.utils.getGameId(window.location);
 
 // Connect the socket to the server
@@ -1400,15 +1400,12 @@ var i;
   this.showing = true;
   }
 }
-function connectionCallback(response){
-      if (!response.game) return;
-}
 function handleClick(event){
   var scrollLeft = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
 var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
 
-  pointer.x = event.clientX - gameCanvas.offsetLeft - 17 + scrollLeft;
-  pointer.y = event.clientY - gameCanvas.offsetTop - 5 + scrollTop;
+  pointer.x = event.clientX - gameCanvas.offsetLeft + scrollLeft;
+  pointer.y = event.clientY - gameCanvas.offsetTop + scrollTop;
   if(pointer.x > gameCanvas.width){
   pointer.x = gameCanvas.width;
   }
@@ -1425,7 +1422,7 @@ if(side=="black"){
 }
 var legalMoves = allChessMoves(mySide);
 var myLegalMoves = [];
-
+if(!promotionMenuBlack || !promotionMenuWhite){
 for(i=0; i<8; i++){
   for(j=0; j<8; j++){
     if(window[files[j]+ranks[i]].pointerCrash()){
@@ -1456,6 +1453,33 @@ for(i=0; i<8; i++){
   }
 }
 }
+}  else if(promotionMenuWhite){
+    if(promoWQ.pointerCrash()){
+      movePiece(selectedSquare+selectedPromotionSquare+"Q")
+    } else if(promoWR.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"R")
+    }
+    else if(promoWB.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"B")
+    }
+    else if(promoWN.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"N")
+    }
+    promotionMenuWhite = false;
+  } else if(promotionMenuBlack){
+    if(promoBQ.pointerCrash()){
+      movePiece(selectedSquare+selectedPromotionSquare+"Q")
+    } else if(promoBR.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"R")
+    }
+    else if(promoBB.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"B")
+    }
+    else if(promoBN.pointerCrash()){
+        movePiece(selectedSquare+selectedPromotionSquare+"N")
+    }
+    promotionMenuBlack = false;
+  }
 updateBoard()
 }
 function isInteger(num){
@@ -1466,6 +1490,12 @@ function isInteger(num){
 } catch(err){
 
 }
+}
+function connectionCallback(response){
+      if (!response.game) return;
+      const App = {
+
+      }
 }
 createBoard()
 updateBoard()
