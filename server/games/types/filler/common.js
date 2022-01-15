@@ -32,6 +32,10 @@ class Board {
             for (var x = 0; x < width; x++) {
                 // pick a random color
                 var randomIndex = Math.floor(Math.random() * COLORS.length);
+                var cell = {
+                    color: COLORS[randomIndex],
+                    id: `r${i}c${x}`
+                };
                 // add the colored tile to the row
                 row.push(randomIndex);
             }
@@ -69,7 +73,7 @@ class Board {
         if (row >= board.height || col >= board.width)
             return null;
 
-        return board.cells[row][col];
+        return board.cells[row][col].color;
     }
     static addToBlob(blob, row, col) {
         var coord = {
