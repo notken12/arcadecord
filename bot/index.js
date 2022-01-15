@@ -140,34 +140,39 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
     try {
         var shard = getShardByGuild(req.params.guild);
         manager.broadcastEval(async (c, { guild, channel, user }) => {
-            var guild = await c.guilds.fetch(guild);
-
-            var channel = await guild.channels.fetch(channel);
-
-            if (!channel) return null;
-            
-
-            var members = guild.members;
-
-            //get discord user id
-
-            var member;
-
             try {
-                member = await members.fetch(user);
-            } catch (e) {
-                console.error(e);
-                console.log(user);
+                var guild = await c.guilds.fetch(guild);
+
+                var channel = await guild.channels.fetch(channel);
+    
+                if (!channel) return null;
+                
+    
+                var members = guild.members;
+    
+                //get discord user id
+    
+                var member;
+    
+                try {
+                    member = await members.fetch(user);
+                } catch (e) {
+                    console.error(e);
+                    console.log(user);
+                    return null;
+    
+                }
+    
+                if (!member) return null;
+    
+                const permissions = channel
+                    .permissionsFor(member).serialize();
+    
+                return permissions;
+            } catch {
                 return null;
-
             }
-
-            if (!member) return null;
-
-            const permissions = channel
-                .permissionsFor(member).serialize();
-
-            return permissions;
+            
         }, { shard: shard, context: { guild: req.params.guild, channel: req.params.channel, user: req.params.user } }).then((permissions => {
             res.send(permissions);
         }));

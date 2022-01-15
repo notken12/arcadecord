@@ -245,7 +245,10 @@ class Game {
 
         if (!res.ok) return false;
 
-        var perms = await res.json();
+        var error;
+        var perms = await res.json().catch(() => error = true);
+
+        if (error) return false;
 
         // must have perms to use slash commands to join games
         if (!perms.USE_APPLICATION_COMMANDS) {
