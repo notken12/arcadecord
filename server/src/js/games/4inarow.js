@@ -1,8 +1,8 @@
 // Import client-framework.js, which you need to connect to the server
-import * as Client from '/public/js/client-framework.js';
+import * as Client from '../client-framework.js';
 
 // Nice UI components for the basic UI
-import * as UI from '/public/js/ui.js';
+import { GameView } from '../ui.js';
 
 // Get game ID from URL address
 
@@ -23,7 +23,7 @@ function connectionCallback(response) {
             }
         },
         components: {
-            'game-view': UI.GameView
+            GameView
         },
         computed: {
             hint() {

@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Example game</title>
 
-    <link rel="stylesheet" href="/public/css/all-games.css">
 </head>
 <body>
     <!-- Element that the vue app will be mounted on -->
@@ -45,13 +44,9 @@
 
         </game-view>
     </div>
-
-    <!-- We use vue.js for the basic UI, 
-        and it's highly recommended to use it for the game UI as well-->
-    <script src="https://unpkg.com/vue@next"></script>
     
     <!-- Script for the game. 
         Make sure to include type="module" on the script tag -->
-    <script src="/public/js/games/example.js" type="module"></script>
+    <script src="/dist/js/games/example.js" type="module"></script>
 </body>
 </html>

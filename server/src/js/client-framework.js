@@ -1,6 +1,6 @@
-import 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js';
-import '/socket.io/socket.io.js';
-import '/public/js/GameFlow.js';
+import * as lodash from 'lodash';
+import { io } from "socket.io-client";
+import './GameFlow.js';
 
 var socket = io();
 

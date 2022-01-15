@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { mode } from "../webpack.config";
 import { Ball } from "./Ball";
 import { CannonUtils } from "./CannonUtils";
 import { Table } from "./Table";
@@ -41,7 +40,7 @@ function CueStick(scene, cannonWorld) {
     this.rotation = 0; // radians
     const loader = new GLTFLoader();
 
-    loader.load('../public/3d_models/cue_stick.glb', function (gltf) {
+    loader.load('../dist/3d_models/cue_stick.glb', function (gltf) {
 
         var model = gltf.scene;
         that.model = model;

@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sea Battle</title>
 
-    <link rel="stylesheet" href="/public/css/all-games.css">
-    <link rel="stylesheet" href="/public/css/games/seabattle.css">
+    <link rel="stylesheet" href="/dist/css/games/seabattle.css">
 </head>
 
 <body>
+    <!-- dog -->
     <div id="app" v-cloak>
         <game-view :game="game" :me="me" :hint="hint" v-cloak>
             <div class="middle">
@@ -34,14 +34,10 @@
 
 
     </div>
-
-
-
-    <!--vue.js cdn-->
-    <script src="https://unpkg.com/vue@next"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/public/js/games/seabattle.js" type="module"></script>
+    <script src="/dist/js/games/seabattle.js" type="module"></script>
 </body>
 
 </html>

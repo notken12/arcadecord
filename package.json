@@ -8,8 +8,9 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "startbot": "concurrently \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
-    "startserver": "concurrently \"node server/index.js 1\" \"node server/index.js 2\" \"node server/index.js 3\"",
+    "build": "npx snowpack build",
+    "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
+    "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
     "format": "prettier --write '**/*.js'"
   },
@@ -19,6 +20,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "nodemonConfig": {
+    "ignore": [
+      "build/*",
+      "server/src/*",
+      "server/games/*/index.html"
+    ],
+    "delay": 2500
+  },
   "dependencies": {
     "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
@@ -26,6 +35,7 @@
     "bases": "^0.2.1",
     "cannon-es": "^0.18.0",
     "canvas": "^2.8.0",
+    "canvas-confetti": "^1.4.0",
     "concurrently": "^7.0.0",
     "cookie-parser": "^1.4.5",
     "dat.gui": "^0.7.7",
@@ -36,21 +46,28 @@
     "http-proxy": "^1.18.1",
     "lock": "^1.1.0",
     "lodash.clonedeep": "^4.5.0",
+    "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
-    "nodemon": "^2.0.15",
     "pts": "^0.10.6",
+    "remarkable": "^2.0.1",
     "request": "^2.88.2",
     "sequelize": "^6.8.0",
     "snowflake-generator": "^1.0.2",
     "socket.io": "^4.3.1",
+    "socket.io-client": "^4.4.1",
     "socket.io-redis": "^6.1.1",
-    "sqlite3": "^5.0.2",
-    "three": "^0.115.0"
+    "three": "^0.136.0"
   },
   "devDependencies": {
+    "@snowpack/plugin-sass": "^1.4.0",
+    "@snowpack/plugin-vue": "^2.6.2",
+    "@vitejs/plugin-vue": "^2.0.1",
+    "nodemon": "^2.0.15",
     "prettier": "^2.0.4",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.2"
+    "snowpack": "^3.8.8",
+    "snowpack-resolve-alias": "^1.2.8",
+    "vite": "^2.7.10",
+    "vite-plugin-mix": "^0.3.1",
+    "webpack": "^4.42.1"
   }
 }

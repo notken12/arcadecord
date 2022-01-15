@@ -6,7 +6,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as CANNON from "cannon-es";
 import { CannonUtils } from "./CannonUtils";
 
-import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 //import { threeToCannon, ShapeType } from 'three-to-cannon';
 
@@ -28,7 +27,7 @@ function Table(scene, cannonWorld) {
     this.parts = [];
     const loader = new GLTFLoader();
 
-    loader.load('../public/3d_models/table.glb', function (gltf) {
+    loader.load('../dist/3d_models/table.glb', function (gltf) {
 
         var model = gltf.scene;
 
