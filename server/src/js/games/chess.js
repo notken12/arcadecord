@@ -1,4 +1,5 @@
 import * as Client from '../client-framework.js';
+
 var gameId = Client.utils.getGameId(window.location);
 
 // Connect the socket to the server
@@ -1400,88 +1401,6 @@ var i;
   this.showing = true;
   }
 }
-function handleClick(event){
-  var scrollLeft = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
-var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-
-  pointer.x = event.clientX - gameCanvas.offsetLeft + scrollLeft;
-  pointer.y = event.clientY - gameCanvas.offsetTop + scrollTop;
-  if(pointer.x > gameCanvas.width){
-  pointer.x = gameCanvas.width;
-  }
-  if(pointer.y > gameCanvas.height){
-  pointer.y = gameCanvas.height;
-}
-createBoard()
-var i;
-var j;
-var l;
-var mySide = true;
-if(side=="black"){
-  mySide = false;
-}
-var legalMoves = allChessMoves(mySide);
-var myLegalMoves = [];
-if(!promotionMenuBlack || !promotionMenuWhite){
-for(i=0; i<8; i++){
-  for(j=0; j<8; j++){
-    if(window[files[j]+ranks[i]].pointerCrash()){
-      if(selectedSquareMoves.includes(files[j]+ranks[i])){
-        if((board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "P" && i==0)||(board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "p" && i==7)){
-          movePiece(selectedSquare+files[j]+ranks[i]+"P")
-          selectedPromotionSquare = files[j]+ranks[i]
-        }
-        else {
-        movePiece(selectedSquare+files[j]+ranks[i])
-              selectedSquare = "";
-      }
-      selectedSquareMoves = [];
-      }
-      else{
-      selectedSquare = files[j]+ranks[i];
-      for(l=0;l<legalMoves.length;l++){
-        if(legalMoves[l].startsWith(files[j]+ranks[i])){
-          myLegalMoves[myLegalMoves.length] = legalMoves[l][2]+legalMoves[l][3];
-        }
-      }
-      for(l=0;l<myLegalMoves.length; l++){
-        window[files[j]+ranks[i]].color = "red"
-        window[myLegalMoves[l]].color = "salmon";
-      }
-      selectedSquareMoves = myLegalMoves;
-    }
-  }
-}
-}
-}  else if(promotionMenuWhite){
-    if(promoWQ.pointerCrash()){
-      movePiece(selectedSquare+selectedPromotionSquare+"Q")
-    } else if(promoWR.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"R")
-    }
-    else if(promoWB.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"B")
-    }
-    else if(promoWN.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"N")
-    }
-    promotionMenuWhite = false;
-  } else if(promotionMenuBlack){
-    if(promoBQ.pointerCrash()){
-      movePiece(selectedSquare+selectedPromotionSquare+"Q")
-    } else if(promoBR.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"R")
-    }
-    else if(promoBB.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"B")
-    }
-    else if(promoBN.pointerCrash()){
-        movePiece(selectedSquare+selectedPromotionSquare+"N")
-    }
-    promotionMenuBlack = false;
-  }
-updateBoard()
-}
 function isInteger(num){
   try{
   if(num == Math.floor(num)){
@@ -1494,7 +1413,100 @@ function isInteger(num){
 function connectionCallback(response){
       if (!response.game) return;
       const App = {
+        data() {
+          return {
+            game: response.game,
+            me: response.discordUser
+          }
+        },
+        computed: {
 
+        },
+        methods: {
+          function handleClick(event){
+            var scrollLeft = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+          var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+
+            pointer.x = event.clientX - gameCanvas.offsetLeft + scrollLeft;
+            pointer.y = event.clientY - gameCanvas.offsetTop + scrollTop;
+            if(pointer.x > gameCanvas.width){
+            pointer.x = gameCanvas.width;
+            }
+            if(pointer.y > gameCanvas.height){
+            pointer.y = gameCanvas.height;
+          }
+          createBoard()
+          var i;
+          var j;
+          var l;
+          var mySide = true;
+          if(side=="black"){
+            mySide = false;
+          }
+          var legalMoves = allChessMoves(mySide);
+          var myLegalMoves = [];
+          if(!promotionMenuBlack || !promotionMenuWhite){
+          for(i=0; i<8; i++){
+            for(j=0; j<8; j++){
+              if(window[files[j]+ranks[i]].pointerCrash()){
+                if(selectedSquareMoves.includes(files[j]+ranks[i])){
+                  if((board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "P" && i==0)||(board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "p" && i==7)){
+                    movePiece(selectedSquare+files[j]+ranks[i]+"P")
+                    selectedPromotionSquare = files[j]+ranks[i]
+                  }
+                  else {
+                  movePiece(selectedSquare+files[j]+ranks[i])
+                        selectedSquare = "";
+                }
+                selectedSquareMoves = [];
+                }
+                else{
+                selectedSquare = files[j]+ranks[i];
+                for(l=0;l<legalMoves.length;l++){
+                  if(legalMoves[l].startsWith(files[j]+ranks[i])){
+                    myLegalMoves[myLegalMoves.length] = legalMoves[l][2]+legalMoves[l][3];
+                  }
+                }
+                for(l=0;l<myLegalMoves.length; l++){
+                  window[files[j]+ranks[i]].color = "red"
+                  window[myLegalMoves[l]].color = "salmon";
+                }
+                selectedSquareMoves = myLegalMoves;
+              }
+            }
+          }
+          }
+          }  else if(promotionMenuWhite){
+              if(promoWQ.pointerCrash()){
+                movePiece(selectedSquare+selectedPromotionSquare+"Q")
+              } else if(promoWR.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"R")
+              }
+              else if(promoWB.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"B")
+              }
+              else if(promoWN.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"N")
+              }
+              promotionMenuWhite = false;
+            } else if(promotionMenuBlack){
+              if(promoBQ.pointerCrash()){
+                movePiece(selectedSquare+selectedPromotionSquare+"Q")
+              } else if(promoBR.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"R")
+              }
+              else if(promoBB.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"B")
+              }
+              else if(promoBN.pointerCrash()){
+                  movePiece(selectedSquare+selectedPromotionSquare+"N")
+              }
+              promotionMenuBlack = false;
+            }
+          updateBoard()
+        },
+
+        }
       }
 }
 createBoard()

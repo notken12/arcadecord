@@ -30,7 +30,7 @@ function connectionCallback(response) {
                 return this.game.data.scores[this.game.myIndex] || 0;
             },
             opponentName() {
-                // Get the opponent's name or undefined 
+                // Get the opponent's name or undefined
                 // if the user is the only one in the game
                 var opponentIndex = this.game.myIndex === 0 ? 1 : 0;
 
@@ -50,7 +50,7 @@ function connectionCallback(response) {
             },
             hint() {
                 // if the question doesn't contain a question mark, it's not a question
-                if (this.question.indexOf('?') === -1 && this.question.length > 0) {
+                if (!this.question.includes("?") && this.question.length > 0) {
                     return 'Questions usually contain a question mark 🥴';
                 }
 
