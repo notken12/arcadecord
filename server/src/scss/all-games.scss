@@ -97,12 +97,13 @@ button {
     min-height: 56px;
     max-width: 56px;
     max-height: 56px;
-}
 
-.btn-fab i {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    i {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        margin-left: 0;
+    }
 }
 
 .game-container {

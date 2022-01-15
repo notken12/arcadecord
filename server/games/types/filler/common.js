@@ -1,23 +1,26 @@
 // Common action models
 
 // Import GameFlow to control game flow
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+var isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 var GameFlow;
 
 // tests if global scope is bound to window
-if(!isBrowser()) {
-    GameFlow = await import('../../GameFlow.js');
+if (!isBrowser()) {
+    let { default: g } = await import('../../GameFlow.js');
+    GameFlow = g;
 } else {
     GameFlow = window.GameFlow;
 }
 
+console.log(GameFlow)
+
 ////////
 
-var COLORS = ['red','blue','green','yellow','purple','orange'];
+var COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
 class Board {
-    constructor (width, height) {
+    constructor(width, height) {
         this.width = width;
         this.height = height;
 
@@ -28,9 +31,13 @@ class Board {
             var row = [];
             for (var x = 0; x < width; x++) {
                 // pick a random color
-                var random = COLORS[Math.floor(Math.random() * COLORS.length)];
+                var randomIndex = Math.floor(Math.random() * COLORS.length);
+                var cell = {
+                    color: COLORS[randomIndex],
+                    id: `r${i}c${x}`
+                };
                 // add the colored tile to the row
-                row.push(random);
+                row.push(randomIndex);
             }
             this.cells.push(row);
         }
@@ -58,48 +65,51 @@ class Board {
 
         // outputs the color of said corner
         return Board.getColor(board, corner);
-        
+
     }
     static getColor(board, row, col) {
         if (row < 0 || col < 0)
             return null;
         if (row >= board.height || col >= board.width)
             return null;
-        
-        return board.cells[row][col];
+
+        return board.cells[row][col].color;
     }
     static addToBlob(blob, row, col) {
         var coord = {
             row: row,
             col: col
         };
-        if (!blob.includes(coord)) {
+        if (!this.blobIncludes(blob, row, col)) {
             blob.push(coord);
         }
     }
-    static searchBlob(board, blob, row, col) {
+    static blobIncludes(blob, row, col) {
+        return blob.find(coord => coord.row === row && coord.col === col);
+    }
+    static searchBlob(board, searched, blob, row, col) {
         var color = Board.getColor(board, row, col);
         // Always add center coordinate
-        Board.addToBlob(board, blob, row, col);
+        Board.addToBlob(blob, row, col);
 
         // Check if tile above matches
-        if (Board.checkMatch(board, row-1, col, color)) {
-            Board.searchBlob(board, blob, row - 1, col);
+        if (Board.checkMatch(board, searched, row - 1, col, color)) {
+            Board.searchBlob(board, searched, blob, row - 1, col);
         };
 
         // Check if tile below
-        if (Board.checkMatch(board, row+1, col, color)) { 
-            Board.searchBlob(board, blob, row + 1, col);
+        if (Board.checkMatch(board, searched, row + 1, col, color)) {
+            Board.searchBlob(board, searched, blob, row + 1, col);
         };
 
         //check to the left
-        if (Board.checkMatch(board, row, col-1, color)) {
-            Board.searchBlob(board, blob, row, col - 1);
+        if (Board.checkMatch(board, searched, row, col - 1, color)) {
+            Board.searchBlob(board, searched,  blob, row, col - 1);
         };
 
         //check to the right
-        if (Board.checkMatch(board, row, col+1, color)) {
-            Board.searchBlob(board, blob, row, col + 1);
+        if (Board.checkMatch(board, searched, row, col + 1, color)) {
+            Board.searchBlob(board, searched, blob, row, col + 1);
         }
 
         return blob;
@@ -110,12 +120,14 @@ class Board {
 
 
         // 2. Get tiles in player's blob
-        var blob = Board.searchBlob(board, [], corner.row, corner.col);
+        var blob = Board.searchBlob(board, [], [], corner.row, corner.col);
 
         // 3. Output blob (list of coords {row, col})
         return blob;
     }
-    static checkMatch(board, row, col, color) {
+    static checkMatch(board, searched, row, col, color) {
+        if (searched.find(coord => coord.row === row && coord.col === col)) return false;
+        searched.push({row, col});
         return Board.getColor(board, row, col) == color;
     }
 }
@@ -129,14 +141,25 @@ function action_switchColors(game, action) {
 
     var targetColor = action.data.targetColor;
 
-    Board.getPlayerBlob(board, playerIndex);
+    var board = game.data.board
+
+    var playerBlob = Board.getPlayerBlob(board, playerIndex);
+
+    for (var pos of playerBlob) {
+        board.cells[pos.row][pos.col] = targetColor
+    }
+
+    GameFlow.endTurn(game);
+
+    return game;
 }
 
 // Compatibility with browser and node
 
 var exports = {
     COLORS: COLORS,
-    Board: Board
+    Board: Board,
+    action_switchColors: action_switchColors
 }
 
 /*if (typeof(module) !== 'undefined') {

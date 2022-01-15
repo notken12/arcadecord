@@ -44,6 +44,8 @@ class FillerGame extends Game {
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
+        this.setActionModel('switchColors', Common.action_switchColors);
+
         this.on('init', function (game) {
             game.data = {
                 board: new Common.Board(16, 9)

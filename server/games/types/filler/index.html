@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mango's Filler</title>
 </head>
+
 <body>
+    <!-- Element that the vue app will be mounted on -->
+    <div id="app">
+        <!-- GameView component, contains all basic game UI 
+            like settings button -->
+        <game-view :game="game" :me="me" :hint="hint">
+            <!-- Game UI goes in here -->
+            <board :board="board"></board>
+            <changer></changer>
+        </game-view>
+    </div>
+
+    <!-- Script for the game. 
+            Make sure to include type="module" on the script tag -->
     <script src="/dist/js/games/filler.js" type="module"></script>
 </body>
+
 </html>
