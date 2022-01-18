@@ -1,6 +1,7 @@
 import * as lodash from 'lodash';
 import { io } from "socket.io-client";
 import './GameFlow.js';
+import bus from './vue-event-bus.js';
 
 var socket = io();
 
@@ -76,7 +77,11 @@ const utils = {
 
 var actionEmissionQueue = [];
 
+var sending = false;
+
 function emitAction(game, actionType, actionData, actionCallback) {
+    sending = true;
+    bus.emit('sending', true);
     actionEmissionQueue.push([actionType, actionData]);
 
     var firstActionEmitted = false;
@@ -89,6 +94,10 @@ function emitAction(game, actionType, actionData, actionCallback) {
         if (actionEmissionQueue.length > 0) {
             var action = actionEmissionQueue.shift();
             socket.emit('action', action[0], action[1], callback);
+        } else {
+            sending = false;
+            bus.emit('sending', false);
+            console.log('All actions emitted');
         }
         firstActionEmitted = true;
     }
@@ -164,5 +173,6 @@ export {
     utils,
     emitAction,
     runAction,
-    connect
+    connect,
+    sending
 }

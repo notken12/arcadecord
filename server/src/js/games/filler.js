@@ -38,6 +38,11 @@ function connectionCallback(response) {
                 board: board
             }
         },
+        computed: {
+            hint() {
+                return 'Tap a color to switch to that color';
+            }
+        },
         components: {
             GameView,
             Board,
@@ -58,5 +63,9 @@ function connectionCallback(response) {
         // Update the game UI
         // Later we will replace this with a turn animation
         Client.utils.updateGame(app.game, game);
+
+        console.log('Turn received, now the turn is ' + game.turn);
     });
+
+    window.Client = Client;
 }

@@ -125,11 +125,11 @@ class Game {
         if (!this.actionHandlers[action]) this.actionHandlers[action] = [];
         this.actionHandlers[action].push(callback);
     }
-    emit(event, ...args) {
+    async emit(event, ...args) {
         if (!this.eventHandlers[event]) return;
 
         for (let callback of this.eventHandlers[event]) {
-            callback(this, ...args);
+            await callback(this, ...args);
         }
     }
     async handleAction(action) {
@@ -214,7 +214,7 @@ class Game {
 
         if (this.actionHandlers[action.type]) {
             for (let callback of this.actionHandlers[action.type]) {
-                callback(action);
+                await callback(action);
             }
         }
 
@@ -506,7 +506,7 @@ Game.eventHandlersDiscord = {
         var msg = await res.json();
         game.lastTurnInvite = msg.id;
 
-        await db.games.update(game.id, game);
+        return game;
     }
 }
 

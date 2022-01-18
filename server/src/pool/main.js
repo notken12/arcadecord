@@ -4,14 +4,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { InputHandler } from "./InputHandler";
 
-//import cannon
-import * as CANNON from "cannon-es";
-
 //import datgui
 import * as dat from "dat.gui";
-import { CannonDebugRenderer } from "./CannonDebugRenderer";
 
-const Game = require('./Game').Game;
+import {Game} from "./Game";
 
 
 
@@ -59,18 +55,14 @@ const gridHelper = new THREE.GridHelper(size, divisions);
 gridHelper.position.set(0, 5, 0);
 //scene.add( gridHelper );
 
-var cannonWorld = new CANNON.World();
-cannonWorld.gravity.y = 0;
 
-var game = new Game(scene, cannonWorld);
+var game = new Game(scene);
 game.setStickRotation(Math.PI);
 
 var inputHandler = new InputHandler(renderer, scene, game);
 
 const gui = new dat.GUI();
-gui.add(cannonWorld.gravity, 'y', -1000, 1000);
 
-var cannonDebugRenderer = new CannonDebugRenderer(scene, cannonWorld);
 
 var clock = new THREE.Clock();
 clock.start();
@@ -81,9 +73,6 @@ const animate = function () {
     var td = clock.getDelta();
 
     inputHandler.tick(td);
-    game.cannonWorld.step(td);
-
-    cannonDebugRenderer.update();
 
     game.tick();
 

@@ -1,8 +1,8 @@
-const Ball = require('./Ball').Ball;
-const Table = require('./Table').Table;
+import { Ball } from './Ball';
+import { Table } from './Table';
 
-function CueBall(scene, cannonWorld, x, y, z) {
-    Ball.call(this, scene, cannonWorld, x || CueBall.DEFAULT_POSITION.x, y || CueBall.DEFAULT_POSITION.y, z || CueBall.DEFAULT_POSITION.z, 'cueball', 0xffffff);
+function CueBall(scene, x, y, z) {
+    Ball.call(this, scene, x || CueBall.DEFAULT_POSITION.x, y || CueBall.DEFAULT_POSITION.y, z || CueBall.DEFAULT_POSITION.z, 'cueball', 0xffffff);
 }
 
 CueBall.DEFAULT_POSITION = {
@@ -14,6 +14,6 @@ CueBall.DEFAULT_POSITION = {
 CueBall.prototype = Object.create(Ball.prototype);
 CueBall.prototype.constructor = CueBall;
 
-export { 
-    CueBall 
+export {
+    CueBall
 };

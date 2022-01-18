@@ -7,13 +7,13 @@ import Game from '../../Game.js';
 // Game options, required. Export as options
 // README.md
 const options = {
-    typeId: 'filler',
-    name: 'Filler',
-    description: 'Switch the color of squares to dominate the board.',
-    aliases: ['switch', 'squaregame'],
+    typeId: '8ball',
+    name: '8 Ball',
+    description: 'Play classic 8 ball pool with your friends!',
+    aliases: ['pool'],
     minPlayers: 2,
     maxPlayers: 2,
-    emoji: '🟧',
+    emoji: '🎱',
     data: {
         
     }
@@ -21,28 +21,19 @@ const options = {
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
-class FillerGame extends Game {
+class EightBallGame extends Game {
     constructor (config) {
         // Creates a game with the options
         // Required
         super(options, config); // Config is the options given by the user, and other things like the channel and guild
-
-        // Generate new board if board doesn't exist
-        // if (!this.board) {
-        //     this.data = {
-        //         board: new Common.Board(16, 9)
-        //     };
-        // }
         
 
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
-        this.setActionModel('switchColors', Common.action_switchColors);
-
         this.on('init', function (game) {
             game.data = {
-                board: new Common.Board(16, 9)
+                test: 'mango'
             };
         });
     }
@@ -50,5 +41,5 @@ class FillerGame extends Game {
 
 export default {
     options,
-    Game: FillerGame,
+    Game: EightBallGame,
 }

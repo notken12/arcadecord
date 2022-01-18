@@ -77,7 +77,6 @@ app.get('/name', function (req, res) {
 
 import { startServer as startSnowpackDevServer, loadConfiguration as loadSnowpackConfiguration } from 'snowpack';
 
-console.log(path.resolve('snowpack.config.mjs'));
 const snowpackConfig = await loadSnowpackConfiguration({
   devOptions: {
     port: host.snowpackPort
@@ -112,8 +111,19 @@ app.use(async (req, res, next) => {
 const io = new Server(server);
 
 // Use redis adapter to communicate socket data with other hosts
-import redis from 'socket.io-redis';
-io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+// import redis from 'socket.io-redis';
+// io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
+
+import { createClient } from "redis";
+import { createAdapter } from "@socket.io/redis-adapter";
+
+const pubClient = createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT });
+const subClient = pubClient.duplicate();
+
+Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+  io.adapter(createAdapter(pubClient, subClient));
+  
+});
 
 // Local lock for game actions
 // Actions are atomic, so we can use a lock to prevent multiple actions from being executed at the same time
@@ -189,12 +199,13 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('action', async function (type, data, callback) {
+  socket.on('action', async (type, data, callback) => {
     // get which game the socket is in
     var gameId = socket.data.gameId;
     var userId = socket.data.userId;
 
     if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
+      console.log('Socket action error: gameId or userId is undefined');
       callback({
         error: "Invalid game or user"
       });
@@ -204,54 +215,57 @@ io.on('connection', (socket) => {
     }
 
     // Lock actions for this game to prevent multiple actions from being executed at the same time
-    lock(gameId, async function (release) {
+    //lock(gameId, async function (release) {
 
       // get game from db
       var dbGame = await db.games.getById(gameId);
 
-      if (dbGame) {
-        // get game type
-        var gameType = gameTypes[dbGame._doc.typeId]
+      if (!dbGame)
+        return;
 
-        // create instance of game
-        var game = new gameType.Game(dbGame._doc);
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
 
-        // listen for game flow events so that turns can be broadcasted
-        game.on('turn', function (game) {
-          console.log(`Game ${game.id} turn`);
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc);
 
-          var player = game.players[game.turn];
-          var socket = game.sockets[player.id];
+      var oldTurn = game.turn + 0;
 
-          // send turn to next user
-          if (socket) {
-            var gameData = game.getDataForClient(player.id);
-            var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
-            io.to(socket).emit('turn', gameData, turnData);
-          }
-        });
+      // perform action
+      var action = new Action(type, userId, data, game);
+      var result = await game.handleAction(action);
 
-        // perform action
-        var action = new Action(type, userId, data, game);
-        var result = await game.handleAction(action);
+      // save game to db
+      await db.games.update(gameId, game);
 
-        // save game to db
-        await db.games.update(gameId, game);
+      // send result to client
+      await callback(result);
 
-        // send result to client
-        await callback(result);
+      if (game.turn !== oldTurn) {
+        console.log(`Game ${game.id} turn`);
 
-        appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+        var player = game.players[game.turn];
+        //console.log(`Player ${player.id}`);
+        var s = game.sockets[player.id];
+        //console.log(`Socket ${s}`);
 
-        // release lock
-        release(function (err) {
-          if (err) {
-            console.error(err);
-          }
-        })();
+        // send turn to next user
+        if (s) {
+          var gameData = game.getDataForClient(player.id);
+          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+          await io.to(s).emit('turn', gameData, turnData);
+        }
       }
-    });
 
+      appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+
+      // release lock
+      /*release(function (err) {
+        if (err) {
+          console.error(err);
+        }
+      })();*/
+    //});
 
   });
 

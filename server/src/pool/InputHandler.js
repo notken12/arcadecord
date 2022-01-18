@@ -1,4 +1,3 @@
-const key = require('./lib/keymaster');
 
 function InputHandler(renderer, scene, game) {
     this.renderer = renderer;

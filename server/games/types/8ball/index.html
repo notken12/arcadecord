@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mango's Filler</title>
+    <title>Document</title>
 </head>
-
 <body>
     <!-- Element that the vue app will be mounted on -->
     <div id="app">
@@ -15,16 +13,12 @@
             like settings button -->
         <game-view :game="game" :me="me" :hint="hint">
             <!-- Game UI goes in here -->
-            <div class="middle">
-                <board :board="game.data.board"></board>
-                <changer></changer>
-            </div>
+
         </game-view>
     </div>
-
+    
     <!-- Script for the game. 
-            Make sure to include type="module" on the script tag -->
-    <script src="/dist/js/games/filler.js" type="module"></script>
+        Make sure to include type="module" on the script tag -->
+    <script src="/dist/js/games/8ball.js" type="module"></script>
 </body>
-
 </html>
