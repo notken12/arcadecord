@@ -16,6 +16,7 @@ const server = createServer(app);
 import { Server } from "socket.io";
 import { parse } from 'cookie';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
 
 import db from '../db/db2.js';
 
@@ -75,7 +76,7 @@ app.get('/name', function (req, res) {
   res.send(host.name);
 });
 
-import { startServer as startSnowpackDevServer, loadConfiguration as loadSnowpackConfiguration } from 'snowpack';
+/*import { startServer as startSnowpackDevServer, loadConfiguration as loadSnowpackConfiguration } from 'snowpack';
 
 const snowpackConfig = await loadSnowpackConfiguration({
   devOptions: {
@@ -93,11 +94,51 @@ async function proxySnowpackDev(url, res) {
   }
   return buildResult;
 
+}*/
+
+import { createServer as createViteServer } from 'vite';
+
+// Create Vite server in middleware mode. This disables Vite's own HTML
+// serving logic and let the parent server take control.
+//
+// In middleware mode, if you want to use Vite's own HTML serving logic
+// use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
+const vite = await createViteServer({
+  server: { middlewareMode: 'ssr' }
+});
+// use vite's connect instance as middleware
+app.use(vite.middlewares);
+//console.log(vite.middlewares.stack[5].handle.toString());
+
+async function proxyViteDev(pathName, req, res) {
+  try {
+    const url = req.originalUrl
+    // 1. Read html file
+    let template = fs.readFileSync(
+      path.resolve(__dirname, pathName),
+      'utf-8'
+    );
+  
+    // 2. Apply Vite HTML transforms. This injects the Vite HMR client, and
+    //    also applies HTML transforms from Vite plugins, e.g. global preambles
+    //    from @vitejs/plugin-react
+    template = await vite.transformIndexHtml(url, template)
+  
+    // 6. Send the rendered HTML back.
+    res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
+  }
+  catch (err) {
+    // Send internal server error
+    console.error(err);
+    res.status(500).end('Internal server error')
+
+  }
+
 }
 
 // Example: Express
 // On request, build each file on request and respond with its built contents
-app.use(async (req, res, next) => {
+/*app.use(async (req, res, next) => {
   try {
     var proxyResult = await proxySnowpackDev(req.url, res);
     if (!proxyResult) {
@@ -106,7 +147,7 @@ app.use(async (req, res, next) => {
   } catch (err) {
     next();
   }
-});
+});*/
 
 const io = new Server(server);
 
@@ -122,7 +163,7 @@ const subClient = pubClient.duplicate();
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
   io.adapter(createAdapter(pubClient, subClient));
-  
+
 });
 
 // Local lock for game actions
@@ -217,54 +258,54 @@ io.on('connection', (socket) => {
     // Lock actions for this game to prevent multiple actions from being executed at the same time
     //lock(gameId, async function (release) {
 
-      // get game from db
-      var dbGame = await db.games.getById(gameId);
+    // get game from db
+    var dbGame = await db.games.getById(gameId);
 
-      if (!dbGame)
-        return;
+    if (!dbGame)
+      return;
 
-      // get game type
-      var gameType = gameTypes[dbGame._doc.typeId]
+    // get game type
+    var gameType = gameTypes[dbGame._doc.typeId]
 
-      // create instance of game
-      var game = new gameType.Game(dbGame._doc);
+    // create instance of game
+    var game = new gameType.Game(dbGame._doc);
 
-      var oldTurn = game.turn + 0;
+    var oldTurn = game.turn + 0;
 
-      // perform action
-      var action = new Action(type, userId, data, game);
-      var result = await game.handleAction(action);
+    // perform action
+    var action = new Action(type, userId, data, game);
+    var result = await game.handleAction(action);
 
-      // save game to db
-      await db.games.update(gameId, game);
+    // save game to db
+    await db.games.update(gameId, game);
 
-      // send result to client
-      await callback(result);
+    // send result to client
+    await callback(result);
 
-      if (game.turn !== oldTurn) {
-        console.log(`Game ${game.id} turn`);
+    if (game.turn !== oldTurn) {
+      console.log(`Game ${game.id} turn`);
 
-        var player = game.players[game.turn];
-        //console.log(`Player ${player.id}`);
-        var s = game.sockets[player.id];
-        //console.log(`Socket ${s}`);
+      var player = game.players[game.turn];
+      //console.log(`Player ${player.id}`);
+      var s = game.sockets[player.id];
+      //console.log(`Socket ${s}`);
 
-        // send turn to next user
-        if (s) {
-          var gameData = game.getDataForClient(player.id);
-          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
-          await io.to(s).emit('turn', gameData, turnData);
-        }
+      // send turn to next user
+      if (s) {
+        var gameData = game.getDataForClient(player.id);
+        var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+        await io.to(s).emit('turn', gameData, turnData);
       }
+    }
 
-      appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+    appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
 
-      // release lock
-      /*release(function (err) {
-        if (err) {
-          console.error(err);
-        }
-      })();*/
+    // release lock
+    /*release(function (err) {
+      if (err) {
+        console.error(err);
+      }
+    })();*/
     //});
 
   });
@@ -283,19 +324,17 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
+/*app.get('/vite/:url', (req, res) => {
+  console.log(req.params.url);
+  proxyViteDev(req.params.url, res);
+})*/
 
-  res.sendFile(path.resolve('build/server/dist/index.html'));
-});
-
-app.use(express.static(path.resolve('build')));
-
-app.get('/sign-in', (req, res) => {
-  proxySnowpackDev('/dist/sign-in.html', res);
+app.get('/sign-in', async (req, res) => {
+  proxyViteDev('./src/public/sign-in.html', req, res);
 });
 
 app.get('/invite', (req, res) => {
-  proxySnowpackDev('/dist/invite.html', res);
+  proxyViteDev('./src/public/invite.html', req, res);
 });
 
 app.get('/discord-oauth', (req, res) => {
@@ -417,7 +456,9 @@ app.get('/game/:id', async (req, res) => {
 
       if (status) {
         //user has permission to join
-        res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
+        //res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
+        var pathName = './games/types/' + game.typeId + '/index.html';
+        proxyViteDev(pathName, req, res);
       } else {
         res.send('you have no permission to join');
       }
@@ -432,7 +473,7 @@ app.get('/game/:id', async (req, res) => {
   } else {
     //game does not exist
     //send  404 page
-    proxySnowpackDev('/dist/game-not-found.html', res);
+    proxyViteDev('./src/public/game-not-found.html', res);
   }
 
 });

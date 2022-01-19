@@ -13,12 +13,12 @@
             like settings button -->
         <game-view :game="game" :me="me" :hint="hint">
             <!-- Game UI goes in here -->
-
+            <canvas ref="canvas"></canvas>
         </game-view>
     </div>
     
     <!-- Script for the game. 
         Make sure to include type="module" on the script tag -->
-    <script src="/dist/js/games/8ball.js" type="module"></script>
+    <script src="/js/games/8ball/index.js" type="module"></script>
 </body>
 </html>

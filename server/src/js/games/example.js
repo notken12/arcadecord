@@ -4,6 +4,9 @@ import * as Client from '../client-framework.js';
 // Nice UI components for the basic UI: help, settings, etc.
 import { GameView } from '../ui.js';
 
+// Import Vue.js
+import * as Vue from 'vue';
+
 // Get game ID from URL address
 
 var gameId = Client.utils.getGameId(window.location);

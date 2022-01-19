@@ -34,7 +34,6 @@
     "@socket.io/redis-adapter": "^7.1.0",
     "applicationinsights": "^2.2.0",
     "bases": "^0.2.1",
-    "cannon-es": "^0.18.0",
     "canvas": "^2.8.0",
     "canvas-confetti": "^1.4.0",
     "concurrently": "^7.0.0",
@@ -43,21 +42,20 @@
     "discord-api-types": "^0.24.0",
     "discord.js": "^13.5.0",
     "dotenv": "^10.0.0",
+    "enable3d": "^0.25.0",
     "express": "^4.17.1",
-    "http-proxy": "^1.18.1",
+    "find-up": "^5.0.0",
     "lock": "^1.1.0",
     "lodash.clonedeep": "^4.5.0",
     "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
-    "pts": "^0.10.6",
     "redis": "^4.0.2",
     "remarkable": "^2.0.1",
-    "request": "^2.88.2",
     "sequelize": "^6.8.0",
     "snowflake-generator": "^1.0.2",
     "socket.io": "^4.3.1",
     "socket.io-client": "^4.4.1",
-    "three": "^0.136.0"
+    "vue": "^3.2.27"
   },
   "devDependencies": {
     "@snowpack/plugin-sass": "^1.4.0",
@@ -65,10 +63,9 @@
     "@vitejs/plugin-vue": "^2.0.1",
     "nodemon": "^2.0.15",
     "prettier": "^2.0.4",
+    "sass": "^1.48.0",
     "snowpack": "^3.8.8",
     "snowpack-resolve-alias": "^1.2.8",
-    "vite": "^2.7.10",
-    "vite-plugin-mix": "^0.3.1",
-    "webpack": "^4.42.1"
+    "vite": "^2.7.13"
   }
 }

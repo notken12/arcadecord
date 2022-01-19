@@ -1,4 +1,4 @@
-import * as lodash from 'lodash';
+import {cloneDeep} from 'lodash';
 import { io } from "socket.io-client";
 import './GameFlow.js';
 import bus from './vue-event-bus.js';
@@ -47,7 +47,7 @@ const utils = {
 
     async setUpGame(game) {
         var path = `/gamecommons/${game.typeId}`;
-        let {default: Common} = await import(path);
+        let {default: Common} = await import(/* @vite-ignore */path);
 
         game.client = client;
 
@@ -110,7 +110,7 @@ function emitAction(game, actionType, actionData, actionCallback) {
 var discordUser;
 
 async function runAction(game, type, data, callback, clone) {
-    var game = clone ? _.cloneDeep(game) : game;
+    var game = clone ? cloneDeep(game) : game;
 
     if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
         return false;
