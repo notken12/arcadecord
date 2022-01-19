@@ -6,7 +6,6 @@ import fs from 'fs'
 import { resolve } from 'path';
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
-console.log(__dirname);
 
 async function* getFiles(dir) {
   const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -45,7 +44,6 @@ var walk = function (dir) {
 }
 
 const entryPoints = walk(path.resolve(__dirname, 'server'));
-console.log(entryPoints)
 
 // https://vitejs.dev/config/
 export default defineConfig({
