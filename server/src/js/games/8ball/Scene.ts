@@ -4,14 +4,27 @@ import { Project, Scene3D, PhysicsLoader, ExtendedObject3D, ExtendedMesh } from 
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
+var width = 0
+var height = 0
+
 class MainScene extends Scene3D {
   // 1 UNIT = 1 centimeter
   constructor() {
     super()
   }
 
+  stick: ExtendedObject3D
+  width: number
+  height: number
+
   async init() {
     this.renderer.setPixelRatio(Math.max(1, window.devicePixelRatio / 2))
+
+    this.renderer.setSize(width, height)
+    this.camera.aspect = width / height
+    this.camera.updateProjectionMatrix()
+
+    console.log(width, height)
   }
 
   async preload() {
@@ -35,32 +48,42 @@ class MainScene extends Scene3D {
     this.physics.add.box({ y: 10 }, { lambert: { color: 'hotpink' } })
 
     const loader = new GLTFLoader()
-    loader.loadAsync('/dist/3d_models/table.glb').then(gltf => {
+    loader.load('/dist/3d_models/table.glb', gltf => {
       console.log(gltf.scene.children)
-      const allowedMeshes = []
 
-      allowedMeshes.push('Black_Void')
-      // allowedMeshes.push('Cushions')
-      // allowedMeshes.push('Pocket_Liners')
-      allowedMeshes.push('Rail')
-      allowedMeshes.push('Table_Bed')
 
 
       const meshes = gltf.scene.children.filter(child => {
-        return child.type == 'Mesh' /*&& allowedMeshes.includes(child.name)*/
+        return child.type == 'Mesh'
       })
-      let table = new ExtendedObject3D()
       for (let mesh of meshes) {
-        this.add.existing(mesh)
-        this.physics.add.existing(mesh, { shape: 'convex' })
-        mesh.body.setCollisionFlags(2)
-
-        //mesh.body.setCollisionFlags(2)
+        let object = new ExtendedObject3D()
+        object.add(mesh)
+        object.castShadow = false
+        object.receiveShadow = true
+        this.add.existing(object)
+        this.physics.add.existing(object, { shape: 'convex' })
+        object.body.setCollisionFlags(2)
       }
-      // this.add.existing(table)
-      // this.physics.add.existing(table, {shape: 'convex'})
-      // table.body.setCollisionFlags(2)
     })
+
+    loader.load('/dist/3d_models/cue_stick.glb', gltf => {
+      const mesh = gltf.scene.children.find(child => {
+        return child.type == 'Mesh' && child.name == 'Cue_Stick'
+      })
+      let stick = new ExtendedObject3D()
+      stick.add(mesh)
+      stick.position.setY(8)
+      stick.castShadow = true
+      stick.receiveShadow = false
+      this.add.existing(stick)
+      this.stick = stick
+      console.log(this.stick)
+    })
+  }
+
+  setUp() {
+    // set up your scene here
   }
 
   update() {
@@ -72,9 +95,11 @@ class MainScene extends Scene3D {
 // set your project configs
 const config = { scenes: [MainScene], antialias: true }
 
-export const createProject = () => {
+export const createProject = (w, h) => {
   return new Promise((resolve, reject) => {
     // load the ammo.js file from the /lib folder and start the project
+    width = w
+    height = h
     PhysicsLoader('/lib/ammo', () => {
       var project: Project = new Project(config);
       resolve(project)

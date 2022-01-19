@@ -43,7 +43,10 @@ function connectionCallback(response) {
         },
         async mounted() {
             // Create the scene
-            var project = await createProject();
+            var container = this.$refs.canvasContainer.getBoundingClientRect();
+            const newWidth = container.width;
+            const newHeight = container.height;
+            var project = await createProject(newWidth, newHeight);
             this.$refs.canvasContainer.appendChild(project.canvas);
 
             const resize = () => {
@@ -51,13 +54,14 @@ function connectionCallback(response) {
                 const newWidth = container.width;
                 const newHeight = container.height;
 
+                project.renderer.setPixelRatio(Math.max(1, window.devicePixelRatio / 2))
+
                 project.renderer.setSize(newWidth, newHeight)
                 project.camera.aspect = newWidth / newHeight
                 project.camera.updateProjectionMatrix()
             }
 
             window.onresize = resize
-            resize()
         }
     }
 

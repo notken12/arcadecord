@@ -1,4 +1,22 @@
+@use 'scss/base/_theme.scss' as theme;
+
 body {
     // literally filler so that the file can build
     box-shadow: none;
+}
+
+.middle {
+    padding: 16px;
+}
+
+.canvas-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    canvas {
+        position: absolute;
+        border-radius: 4px;
+        box-shadow: theme.$md-elevation-level3;
+    }
 }
