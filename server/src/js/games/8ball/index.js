@@ -44,7 +44,20 @@ function connectionCallback(response) {
         async mounted() {
             // Create the scene
             var project = await createProject();
-            project.canvas = this.$refs.canvas;
+            this.$refs.canvasContainer.appendChild(project.canvas);
+
+            const resize = () => {
+                var container = this.$refs.canvasContainer.getBoundingClientRect();
+                const newWidth = container.width;
+                const newHeight = container.height;
+
+                project.renderer.setSize(newWidth, newHeight)
+                project.camera.aspect = newWidth / newHeight
+                project.camera.updateProjectionMatrix()
+            }
+
+            window.onresize = resize
+            resize()
         }
     }
 
