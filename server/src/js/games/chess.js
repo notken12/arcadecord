@@ -43,79 +43,6 @@ var promoBR = new component(75,75,piecesImages[9], 125, 200, "stillimage")
 var promoBN = new component(75,75,piecesImages[7], 200,125,"stillimage")
 var promoBB = new component(75,75,piecesImages[8], 200,200,"stillimage")
 
-gameCanvas.addEventListener("click", handleClick)
-function movePiece(move, test, bot){
-if(turn || bot || test){
-var turnColor;
-var i = ranks.indexOf(move[1])
-var j = files.indexOf(move[0])
-
-if(move.endsWith("P") && !bot){
-if(side=="white"){
-  promotionMenuWhite = true;
-} else {
-  promotionMenuBlack = true;
-}
-return
-} else if(move.endsWith("Q")){
-  if(board[i][j] == "P"){
-    board[i][j] = "Q"
-  } else {
-    board[i][j] = "q"
-  }
-} else if(move.endsWith("R")){
-  if(board[i][j] == "P"){
-    board[i][j] = "R"
-  } else {
-    board[i][j] = "r"
-  }
-} else if(move.endsWith("B")){
-  if(board[i][j] == "P"){
-    board[i][j] = "B"
-  } else {
-    board[i][j] = "b"
-  }
-} else if(move.endsWith("N")){
-  if(board[i][j] == "P"){
-    board[i][j] = "N"
-  } else {
-    board[i][j] = "n"
-  }
-}
-if(board[i][j] == "P" || board[i][j] == "p"){
-  //En passant!!!!!
-if(move == files[j]+ranks[i]+files[j+1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i-2]+files[j+1]+ranks[i]){
-  board[i][j+1] = ""
-}
-if(move == files[j]+ranks[i]+files[j-1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i-2]+files[j-1]+ranks[i]){
-  board[i][j-1] = ""
-}
-if(move == files[j]+ranks[i]+files[j+1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i+2]+files[j+1]+ranks[i]){
-  board[i][j+1] = ""
-}
-if(move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i+2]+files[j-1]+ranks[i]){
-  board[i][j-1] = ""
-}
-}
-//Short Castle
-if(board[i][j] == "K" && move == "e1g1"){
-  movePiece("h1f1")
-}
-if(board[i][j] == "k" && move == "e8g8"){
-  movePiece("h8f8")
-}
-//Long Castle
-if(board[i][j] == "K" && move == "e1c1"){
-  movePiece("a1d1")
-}
-if(board[i][j] == "k" && move == "e8c8"){
-  movePiece("a8d8")
-}
-
-board[ranks.indexOf(move[3])][files.indexOf(move[2])] = board[ranks.indexOf(move[1])][files.indexOf(move[0])];
-board[ranks.indexOf(move[1])][files.indexOf(move[0])] = "";
-}
-}
 function generateFEN(){
 var i;
 var j;
@@ -268,32 +195,6 @@ function isInCheck(white){
   }
   return false;
 
-}
-function allChessMoves(white){
-  var moves = legalChessMoves(white);
-  var i;
-  for(i=0;i<moves.length;i++){
-    var oldBoard = JSON.parse(JSON.stringify(board))
-    movePiece(moves[i], true, true)
-    if(isInCheck(white)){
-      moves.splice(i,1);
-      i -= 1;
-    }
-    board = JSON.parse(JSON.stringify(oldBoard))
-  }
-  if(moves.includes("e1g1") && !moves.includes("e1f1")){
-    moves.splice(moves.indexOf("e1g1"),1)
-  }
-  if(moves.includes("e1c1") && !moves.includes("e1d1")){
-  moves.splice(moves.indexOf("e1c1"),1)
-  }
-  if(moves.includes("e8g8") && !moves.includes("e8f8")){
-    moves.splice(moves.indexOf("e8g8"),1)
-  }
-  if(moves.includes("e1c8") && !moves.includes("e1d8")){
-      moves.splice(moves.indexOf("e8c8"),1)
-    }
-  return moves;
 }
 function legalChessMoves(white){
   var moves = [];
@@ -1230,16 +1131,6 @@ else {
 }
   return moves;
 }
-function fixedPromotionForBots(white){
-  var moves = allChessMoves(white);
-  var i;
-  for(i=0; i<moves.length; i++){
-    if(moves[i].endsWith("P")){
-      moves.splice(i,1,moves[i].slice(0,4)+"Q", moves[i].slice(0,4)+"B", moves[i].slice(0,4)+"R", moves[i].slice(0,4)+"N")
-    }
-  }
-  return moves;
-}
 function drawPlayer(){
   var i;
   var j;
@@ -1423,7 +1314,8 @@ function connectionCallback(response){
 
         },
         methods: {
-          function handleClick(event){
+        handleClick(event){
+          console.log(App.data().game.myIndex)
             var scrollLeft = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
           var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
 
@@ -1443,7 +1335,7 @@ function connectionCallback(response){
           if(side=="black"){
             mySide = false;
           }
-          var legalMoves = allChessMoves(mySide);
+          var legalMoves = App.methods.allChessMoves(mySide);
           var myLegalMoves = [];
           if(!promotionMenuBlack || !promotionMenuWhite){
           for(i=0; i<8; i++){
@@ -1451,11 +1343,11 @@ function connectionCallback(response){
               if(window[files[j]+ranks[i]].pointerCrash()){
                 if(selectedSquareMoves.includes(files[j]+ranks[i])){
                   if((board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "P" && i==0)||(board[ranks.indexOf(selectedSquare[1])][files.indexOf(selectedSquare[0])] == "p" && i==7)){
-                    movePiece(selectedSquare+files[j]+ranks[i]+"P")
+                    App.methods.movePiece(selectedSquare+files[j]+ranks[i]+"P")
                     selectedPromotionSquare = files[j]+ranks[i]
                   }
                   else {
-                  movePiece(selectedSquare+files[j]+ranks[i])
+                  App.methods.movePiece(selectedSquare+files[j]+ranks[i])
                         selectedSquare = "";
                 }
                 selectedSquareMoves = [];
@@ -1478,36 +1370,162 @@ function connectionCallback(response){
           }
           }  else if(promotionMenuWhite){
               if(promoWQ.pointerCrash()){
-                movePiece(selectedSquare+selectedPromotionSquare+"Q")
+                App.methods.movePiece(selectedSquare+selectedPromotionSquare+"Q")
               } else if(promoWR.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"R")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"R")
               }
               else if(promoWB.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"B")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"B")
               }
               else if(promoWN.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"N")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"N")
               }
               promotionMenuWhite = false;
             } else if(promotionMenuBlack){
               if(promoBQ.pointerCrash()){
-                movePiece(selectedSquare+selectedPromotionSquare+"Q")
+                App.methods.movePiece(selectedSquare+selectedPromotionSquare+"Q")
               } else if(promoBR.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"R")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"R")
               }
               else if(promoBB.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"B")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"B")
               }
               else if(promoBN.pointerCrash()){
-                  movePiece(selectedSquare+selectedPromotionSquare+"N")
+                  App.methods.movePiece(selectedSquare+selectedPromotionSquare+"N")
               }
               promotionMenuBlack = false;
             }
           updateBoard()
         },
+        movePiece(move, test, bot){
+        if(App.data().game.isItMyTurn() || bot || test){
+        var turnColor;
+        var i = ranks.indexOf(move[1])
+        var j = files.indexOf(move[0])
 
+        if(move.endsWith("P") && !bot){
+        if(side=="white"){
+          promotionMenuWhite = true;
+        } else {
+          promotionMenuBlack = true;
+        }
+        return
+        } else if(move.endsWith("Q")){
+          if(board[i][j] == "P"){
+            board[i][j] = "Q"
+          } else {
+            board[i][j] = "q"
+          }
+        } else if(move.endsWith("R")){
+          if(board[i][j] == "P"){
+            board[i][j] = "R"
+          } else {
+            board[i][j] = "r"
+          }
+        } else if(move.endsWith("B")){
+          if(board[i][j] == "P"){
+            board[i][j] = "B"
+          } else {
+            board[i][j] = "b"
+          }
+        } else if(move.endsWith("N")){
+          if(board[i][j] == "P"){
+            board[i][j] = "N"
+          } else {
+            board[i][j] = "n"
+          }
+        }
+        if(board[i][j] == "P" || board[i][j] == "p"){
+          //En passant!!!!!
+        if(move == files[j]+ranks[i]+files[j+1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i-2]+files[j+1]+ranks[i]){
+          board[i][j+1] = ""
+        }
+        if(move == files[j]+ranks[i]+files[j-1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i-2]+files[j-1]+ranks[i]){
+          board[i][j-1] = ""
+        }
+        if(move == files[j]+ranks[i]+files[j+1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i+2]+files[j+1]+ranks[i]){
+          board[i][j+1] = ""
+        }
+        if(move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i+2]+files[j-1]+ranks[i]){
+          board[i][j-1] = ""
+        }
+        }
+        //Short Castle
+        if(board[i][j] == "K" && move == "e1g1"){
+          App.methods.movePiece("h1f1")
+        }
+        if(board[i][j] == "k" && move == "e8g8"){
+          App.methods.movePiece("h8f8")
+        }
+        //Long Castle
+        if(board[i][j] == "K" && move == "e1c1"){
+          App.methods.movePiece("a1d1")
+        }
+        if(board[i][j] == "k" && move == "e8c8"){
+          App.methods.movePiece("a8d8")
+        }
+
+        board[ranks.indexOf(move[3])][files.indexOf(move[2])] = board[ranks.indexOf(move[1])][files.indexOf(move[0])];
+        board[ranks.indexOf(move[1])][files.indexOf(move[0])] = "";
+
+        if(!test){
+          if(!bot){
+            console.log("client emit")
+            Client.runAction(App.data().game, "movePiece", {"move":move})
+            Client.runAction(App.data().game, "endTurn", {})
+          }
+        }
+        }
+        },
+        allChessMoves(white){
+          var moves = legalChessMoves(white);
+          var i;
+          for(i=0;i<moves.length;i++){
+            var oldBoard = JSON.parse(JSON.stringify(board))
+            App.methods.movePiece(moves[i], true, true)
+            if(isInCheck(white)){
+              moves.splice(i,1);
+              i -= 1;
+            }
+            board = JSON.parse(JSON.stringify(oldBoard))
+          }
+          if(moves.includes("e1g1") && !moves.includes("e1f1")){
+            moves.splice(moves.indexOf("e1g1"),1)
+          }
+          if(moves.includes("e1c1") && !moves.includes("e1d1")){
+          moves.splice(moves.indexOf("e1c1"),1)
+          }
+          if(moves.includes("e8g8") && !moves.includes("e8f8")){
+            moves.splice(moves.indexOf("e8g8"),1)
+          }
+          if(moves.includes("e1c8") && !moves.includes("e1d8")){
+              moves.splice(moves.indexOf("e8c8"),1)
+            }
+          return moves;
+        },
+        fixedPromotionForBots(white){
+          var moves = App.methods.allChessMoves(white);
+          var i;
+          for(i=0; i<moves.length; i++){
+            if(moves[i].endsWith("P")){
+              moves.splice(i,1,moves[i].slice(0,4)+"Q", moves[i].slice(0,4)+"B", moves[i].slice(0,4)+"R", moves[i].slice(0,4)+"N")
+            }
+          }
+          return moves;
+        }
         }
       }
+      Client.socket.on("turn", (game, turn) => {
+        Client.utils.updateGame(App.data().game, game)
+        board = game.data.board
+        updateBoard()
+      })
+      if(App.data().game.myIndex == 0){
+        side = "black"
+        createBoard();
+        updateBoard();
+      }
+        gameCanvas.addEventListener("click", App.methods.handleClick)
 }
 createBoard()
 updateBoard()

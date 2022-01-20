@@ -32,6 +32,7 @@ constructor(config){
   this.on('turn', Game.eventHandlersDiscord.turn);
 
   this.setActionModel("endTurn", Common.endTurn)
+  this.setActionModel("movePiece", Common.movePiece)
 }
 }
 
