@@ -68,76 +68,84 @@ function connectionCallback(response) {
                 cueBall
 
                 async init() {
-                    var container = vm.$refs.canvasContainer.getBoundingClientRect();
-                    const newWidth = container.width;
-                    const newHeight = container.height;
-
                     this.renderer.setPixelRatio(Math.max(1, window.devicePixelRatio / 2))
+                    this.camera = new THREE.OrthographicCamera();
 
-                    this.renderer.setSize(newWidth, newHeight)
-        
-                    const frustumSize = 100
-                    const aspect = newWidth / newHeight
-        
-                    this.camera = new THREE.OrthographicCamera(
-                        (frustumSize * aspect) / -2,
-                        (frustumSize * aspect) / 2,
-                        frustumSize / 2,
-                        frustumSize / -2
-                    );
+                    let updateSize = () => {
+                        var container = vm.$refs.canvasContainer.getBoundingClientRect();
+                        const cWidth = container.width;
+                        const cHeight = container.height;
+    
+                        var newWidth;
+                        var newHeight;
+    
+                        var mode = 'portrait';
+    
+                        if (cWidth > cHeight) {
+                            // landscape
+                            newWidth = cWidth;
+                            newHeight = cWidth * 59 / 103;
 
-                    this.camera.position.set(0, 500, 0)
-                    this.camera.lookAt(0, 0, 0)
+                            var correctionRatio = cHeight / newHeight;
+                            if (correctionRatio < 1) {
+                                newWidth *= correctionRatio;
+                                newHeight *= correctionRatio;
+                            }
+                            mode = 'landscape';
+                        } else {
+                            // portrait
+                            newHeight = cHeight;
+                            newWidth = cHeight * 59 / 103;
 
-                    this.camera.updateProjectionMatrix()
+                            var correctionRatio = cWidth / newWidth;
+                            if (correctionRatio < 1) {
+                                newWidth *= correctionRatio;
+                                newHeight *= correctionRatio;
+                            }
+                        }
+    
+                        this.renderer.setSize(newWidth, newHeight)
+    
+                        var frustumSize = 150
+
+                        if (mode == 'portrait') {
+                            frustumSize = 262;
+                        }
+                        
+                        const aspect = newWidth / newHeight
+    
+                        this.camera.left = (frustumSize * aspect) / -2;
+                        this.camera.right = (frustumSize * aspect) / 2;
+                        this.camera.top = frustumSize / 2;
+                        this.camera.bottom = frustumSize / -2;
+
+                        this.camera.position.set(0, 500, 0)
+                        this.camera.lookAt(0, 0, 0)
+
+                        if (mode == 'landscape') {
+                            // object is looking down
+                            this.camera.rotation.z = Math.PI / 2
+                        }
+
+                        this.camera.updateProjectionMatrix()
+                        
+                    }
+
+                    updateSize()
+                
 
                     // init third dimension with a custom camera
                     // https://threejs.org/docs/#api/en/cameras/OrthographicCamera
 
                     const resize = () => {
-                        var container = vm.$refs.canvasContainer.getBoundingClientRect();
-                        const newWidth = container.width;
-                        const newHeight = container.height;
-        
-                        const aspect = newWidth / newHeight
-        
-                        this.renderer.setSize(newWidth, newHeight)
-        
-                        this.camera.left = (frustumSize * aspect) / -2;
-                        this.camera.right = (frustumSize * aspect) / 2;
-                        this.camera.top = frustumSize / 2;
-                        this.camera.bottom = frustumSize / -2;
-        
-                        this.camera.updateProjectionMatrix()
-
-        
+                        updateSize();
                     }
-        
+
                     window.onresize = resize
                 }
 
                 async preload() {
                     // preload your assets here
-                }
-
-                async create() {
-                    // set up scene (light, ground, grid, sky, orbitControls)
-                    this.warpSpeed('-ground', '-orbitControls')
-
-                    // enable physics debug
-                    this.physics.debug.enable()
-
-                    // position camera
-
-                    // blue box (without physics)
-                    //this.add.box({ y: 2 }, { lambert: { color: 'deepskyblue' } })
-
-                    // pink box (with physics)
-                    //this.physics.add.box({ y: 10 }, { lambert: { color: 'hotpink' } })
-
-                    // white ball (with physics)
-                    this.cueBall = this.physics.add.sphere({ y: 10, radius: Ball.RADIUS }, { lambert: { color: 'white' } })
-
                     const loader = new GLTFLoader()
                     loader.load('/dist/3d_models/table.glb', gltf => {
 
@@ -169,6 +177,19 @@ function connectionCallback(response) {
                         this.add.existing(stick)
                         this.stick = stick
                     })
+                }
+
+                async create() {
+                    // set up scene (light, ground, grid, sky, orbitControls)
+                    this.warpSpeed('-ground', '-orbitControls', '-sky', '-fog')                        
+
+                    // enable physics debug
+                    //this.physics.debug.enable()
+
+                    // white ball (with physics)
+                    this.cueBall = this.physics.add.sphere({ y: 10, radius: Ball.RADIUS }, { lambert: { color: 'white' } })
+
+
 
                     let updateBallScreenPos = () => {
                         var ballScreenPos = this.getCueBallScreenPosition()
@@ -187,10 +208,6 @@ function connectionCallback(response) {
                             y: ballScreenPos.y
                         }
                     })
-                }
-
-                setUp() {
-                    // set up your scene here
                 }
 
                 update() {
@@ -221,7 +238,7 @@ function connectionCallback(response) {
             }
 
             // set your project configs
-            const config = { scenes: [MainScene], antialias: true }
+            const config = { scenes: [MainScene], antialias: true, alpha: true }
 
             let createProject = () => {
                 return new Promise((resolve, reject) => {

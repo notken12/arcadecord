@@ -13,16 +13,12 @@ body {
 .canvas-container {
     display: flex;
     height: 100%;
-    width: 0;
-    padding-right: math.div(59%, 103%) * 100%;
-    position: relative;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 
     canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
         border-radius: 4px;
-        box-shadow: theme.$md-elevation-level3;
     }
 }
 
@@ -30,7 +26,8 @@ body {
     position: relative;
     width: 0;
     height: 0;
-    border: 1px solid red;
+    border: 2px solid blue;
     z-index: 2;
     border-radius: 2px;
+    display: none;
 }
