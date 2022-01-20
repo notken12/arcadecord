@@ -2,13 +2,10 @@ import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Ball } from "./Ball";
-import { CannonUtils } from "./CannonUtils";
 import { Table } from "./Table";
 
 //import cannon
-import * as CANNON from "cannon-es";
 
-//import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 // obj - your object (THREE.Object3D or derived)
 // point - the point of rotation (THREE.Vector3)
@@ -33,14 +30,13 @@ function rotateAboutPoint(obj, point, axis, theta, pointIsWorld) {
     obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
 
-function CueStick(scene, cannonWorld) {
+function CueStick(scene) {
     var that = this;
     this.scene = scene;
-    this.cannonWorld = cannonWorld;
     this.rotation = 0; // radians
     const loader = new GLTFLoader();
 
-    loader.load('../dist/3d_models/cue_stick.glb', function (gltf) {
+    loader.load('../3d_models/cue_stick.glb', function (gltf) {
 
         var model = gltf.scene;
         that.model = model;
@@ -59,31 +55,14 @@ function CueStick(scene, cannonWorld) {
                 o.position.y = Ball.RADIUS;
                 o.position.z = Table.LEN_Z / -4 + (Ball.RADIUS + CueStick.BALL_DISTANCE);
 
-                var geometry = o.geometry.toNonIndexed();
-
                 //var shape = new CANNON.ConvexPolyhedron(geometry.vertices, geometry.faces);
-                var shape = CannonUtils.createTrimesh(geometry);
                 //var shape = threeToCannon(o);
 
-                var body = new CANNON.Body({
-                    mass: 1,
-                    material: new CANNON.Material('cueStickMaterial'),
-                });
-                body.addShape(shape);
-
-                body.position.copy(o.position);
-                body.quaternion.copy(o.quaternion);
-
-                that.cannonWorld.addBody(body);
-
                 that.mesh = o;
-                that.body = body;
-
-                //scene.add(o);
             };
         });
 
-        //scene.add(model);
+        scene.add(model);
 
     }, undefined, function (error) {
 
@@ -93,10 +72,10 @@ function CueStick(scene, cannonWorld) {
 }
 
 CueStick.prototype.tick = function (dt) {
-    if (this.mesh) {
+    /*if (this.mesh) {
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
-    }
+    }*/
 }
 
 CueStick.prototype.setRotation = function (rot) { // radians

@@ -1,11 +1,9 @@
 import * as THREE from "three";
 
-import * as CANNON from "cannon-es";
 
-function Ball(scene, cannonWorld, x, y, z, name, color) {
+function Ball(scene, x, y, z, name, color) {
     this.color = typeof color == 'undefined' ? 0xaa0000 : color;
     this.scene = scene;
-    this.cannonWorld = cannonWorld;
     //this.texture = 'images/balls/' + name + '.png';
 
     this.mesh = this.createMesh(x, y, z);
@@ -17,13 +15,10 @@ function Ball(scene, cannonWorld, x, y, z, name, color) {
     this.name = name;
     this.fallen = false;
 
-    this.body = this.createBody(x, y, z);
-    this.cannonWorld.addBody(this.body);
 }
 
 Ball.RADIUS = 5.715 / 2; // cm
 Ball.MASS = 0.170; // kg
-Ball.contactMaterial = new CANNON.Material('ballMaterial');
 
 Ball.prototype.createMesh = function (x, y, z) {
     var geometry = new THREE.SphereGeometry(Ball.RADIUS, 16, 16);
@@ -56,7 +51,7 @@ Ball.prototype.createMesh = function (x, y, z) {
     return sphere;
 };
 
-Ball.prototype.createBody = function (x, y, z) {
+/*Ball.prototype.createBody = function (x, y, z) {
     var body = new CANNON.Body({
         mass: Ball.MASS,
         material: Ball.contactMaterial,
@@ -72,11 +67,11 @@ Ball.prototype.createBody = function (x, y, z) {
 
 
     return body;
-};
+};*/
 
 Ball.prototype.tick = function (dt) {
-    this.mesh.position.copy(this.body.position);
-    this.mesh.quaternion.copy(this.body.quaternion);
+    // this.mesh.position.copy(this.body.position);
+    // this.mesh.quaternion.copy(this.body.quaternion);
 };
 
 export {

@@ -1,0 +1,33 @@
+@use 'scss/base/_theme.scss' as theme;
+@use "sass:math";
+
+body {
+    // literally filler so that the file can build
+    box-shadow: none;
+}
+
+.middle {
+    padding: 16px;
+}
+
+.canvas-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    canvas {
+        border-radius: 4px;
+    }
+}
+
+.point {
+    position: relative;
+    width: 0;
+    height: 0;
+    border: 2px solid blue;
+    z-index: 2;
+    border-radius: 2px;
+    display: none;
+}

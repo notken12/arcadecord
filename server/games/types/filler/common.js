@@ -13,8 +13,6 @@ if (!isBrowser()) {
     GameFlow = window.GameFlow;
 }
 
-console.log(GameFlow)
-
 ////////
 
 var COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
@@ -33,11 +31,11 @@ class Board {
                 // pick a random color
                 var randomIndex = Math.floor(Math.random() * COLORS.length);
                 var cell = {
-                    color: COLORS[randomIndex],
+                    color: randomIndex,
                     id: `r${i}c${x}`
                 };
                 // add the colored tile to the row
-                row.push(randomIndex);
+                row.push(cell);
             }
             this.cells.push(row);
         }
@@ -136,7 +134,7 @@ class Board {
 // that takes in a Game and an Action (see Game.js and Action.js)
 // and outputs the updated Game if it succeeds, and otherwise outputs false
 
-function action_switchColors(game, action) {
+async function action_switchColors(game, action) {
     var playerIndex = action.playerIndex;
 
     var targetColor = action.data.targetColor;
@@ -146,10 +144,10 @@ function action_switchColors(game, action) {
     var playerBlob = Board.getPlayerBlob(board, playerIndex);
 
     for (var pos of playerBlob) {
-        board.cells[pos.row][pos.col] = targetColor
+        board.cells[pos.row][pos.col].color = targetColor
     }
 
-    GameFlow.endTurn(game);
+    await GameFlow.endTurn(game);
 
     return game;
 }

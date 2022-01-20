@@ -1,5 +1,5 @@
 $red: #eb2121;
-$orange: rgb(255, 166, 0);
+$orange: rgb(255, 102, 0);
 $yellow: rgb(255, 208, 0);
 $green: green;
 $blue: rgb(11, 53, 243);
@@ -27,4 +27,8 @@ $purple: rgb(132, 11, 148);
 
 .purple {
   background: $purple;
+}
+
+.middle {
+  gap: 16px;
 }

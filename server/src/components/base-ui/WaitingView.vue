@@ -1,27 +1,23 @@
 <template>
-    <transition name="fade" appear mode="out-in">
-
+  <transition name="fade" appear mode="out-in">
     <div class="waiting-view dialog-container">
-        <div class="waiting-view-chip dialog-chip">
-            <span>Waiting for opponent</span>
-            <span class="dots">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-            </span>
-        </div>
+      <div class="waiting-view-chip dialog-chip">
+        <span>Waiting for opponent</span>
+        <span class="dots">
+          <span>.</span>
+          <span>.</span>
+          <span>.</span>
+        </span>
+      </div>
     </div>
-
-    </transition>
+  </transition>
 </template>
 
 <script>
 export default {
-    data() {
-        return {
-
-        }
-    },
-    props: [],
+  data() {
+    return {}
+  },
+  props: [],
 }
 </script>

@@ -35,8 +35,13 @@ export default {
 </script>
 
 <style lang="scss">
+@use '../../../scss/base/_theme.scss' as theme;
+
 .changer-button {
-    width: 96px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    box-shadow: theme.$md-elevation-level2;
+    cursor: pointer;
 }
 </style>
