@@ -42,7 +42,7 @@ function connectionCallback(response) {
         },
         computed: {
             hint() {
-                return 'Tap a color to switch to that color';
+                return '';
             },
             ballCoordsStyles() {
                 return {
