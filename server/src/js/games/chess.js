@@ -1315,7 +1315,7 @@ function connectionCallback(response){
         },
         methods: {
         handleClick(event){
-          console.log(App.data().game.myIndex)
+
             var scrollLeft = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
           var scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
 
@@ -1337,7 +1337,7 @@ function connectionCallback(response){
           }
           var legalMoves = App.methods.allChessMoves(mySide);
           var myLegalMoves = [];
-          if(!promotionMenuBlack || !promotionMenuWhite){
+          if(!promotionMenuBlack && !promotionMenuWhite){
           for(i=0; i<8; i++){
             for(j=0; j<8; j++){
               if(window[files[j]+ranks[i]].pointerCrash()){
@@ -1512,12 +1512,17 @@ function connectionCallback(response){
             }
           }
           return moves;
+        },
+        updateOnOpen(){
+          board = App.data().game.data.board;
+          updateBoard();
         }
         }
       }
       Client.socket.on("turn", (game, turn) => {
         Client.utils.updateGame(App.data().game, game)
-        board = game.data.board
+        board = game.data.board;
+        console.log(game)
         updateBoard()
       })
       if(App.data().game.myIndex == 0){
@@ -1525,6 +1530,7 @@ function connectionCallback(response){
         createBoard();
         updateBoard();
       }
+      App.methods.updateOnOpen();
         gameCanvas.addEventListener("click", App.methods.handleClick)
 }
 createBoard()

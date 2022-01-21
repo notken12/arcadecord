@@ -13,7 +13,14 @@ if (!isBrowser()) {
 } else {
   GameFlow = window.GameFlow;
 }
+function isGameOver(board, player){
 
+  if(player == 1){//White Pieces
+
+  } else if(player == 0){//Black Pieces
+
+  }
+}
 function movePiece(game, action){
   var turnColor;
   var i = ranks.indexOf(action.data.move[1])
@@ -77,9 +84,18 @@ if(action.data.move.endsWith("Q")){
   }
 */
   game.data.board[ranks.indexOf(action.data.move[3])][files.indexOf(action.data.move[2])] = game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])];
-
   game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])] = "";
+  if(isGameOver(game.data.board, action.playerIndex)==1){
+    GameFlow.end(game, {
+      winner: action.playerIndex
+    })
+  } else if(isGameOver(game.data.board, action.playerIndex) == 0){
+    GameFlow.end(game, {
+      winner: -1
+    })
+  } else {
   return endTurn(game);
+}
 }
 function endTurn(game, action){
   GameFlow.endTurn(game);
