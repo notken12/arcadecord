@@ -1,18 +1,20 @@
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
-
-var GameFlow;
+import GameFlow from '../../GameFlow.js';
 
 var files = "abcdefgh";
 var otherFiles = "hgfedcba"
 var ranks = "87654321";
 
-// tests if global scope is bound to window
-if (!isBrowser()) {
-  let { default: g } = await import('../../GameFlow.js');
-  GameFlow = g;
-} else {
-  GameFlow = window.GameFlow;
-}
+// var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+// var GameFlow;
+
+// // tests if global scope is bound to window
+// if (!isBrowser()) {
+//   let { default: g } = await import('../../GameFlow.js');
+//   GameFlow = g;
+// } else {
+//   GameFlow = window.GameFlow;
+// }
+
 function isGameOver(board, player){
 
   if(player == 1){//White Pieces

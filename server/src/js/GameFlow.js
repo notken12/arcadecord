@@ -32,4 +32,4 @@ const GameFlow = {
     }
 };
 
-window.GameFlow = GameFlow;
+export default GameFlow;

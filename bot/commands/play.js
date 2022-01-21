@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, SlashCommandUserOption, SlashCommandStringOption } from '@discordjs/builders';
-import {gameTypes as games} from '../../server/games/game-types.js';
+import {gameTypes as games} from '../../server/src/games/game-types.js';
 import { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } from 'discord.js';
 import db from '../../db/db2.js';
 import Emoji from '../../Emoji.js';

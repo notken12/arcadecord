@@ -46,8 +46,7 @@ const utils = {
     },
 
     async setUpGame(game) {
-        var path = `/gamecommons/${game.typeId}`;
-        let {default: Common} = await import(/* @vite-ignore */path);
+        let {default: Common} = await import(`../games/types/${game.typeId}/common.js`);
 
         game.client = client;
 

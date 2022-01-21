@@ -8,7 +8,7 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "build": "npx snowpack build",
+    "build": "npx vite build",
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
@@ -58,6 +58,8 @@
     "vue": "^3.2.27"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-dynamic-import-vars": "^1.4.2",
     "@snowpack/plugin-sass": "^1.4.0",
     "@snowpack/plugin-vue": "^2.6.2",
     "@vitejs/plugin-vue": "^2.0.1",

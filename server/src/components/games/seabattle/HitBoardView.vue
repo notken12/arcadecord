@@ -27,7 +27,7 @@
     </div>
 
     <div class="target-crosshair" v-if="target" :style="targetStyles">
-      <img src="/dist/assets/seabattle/crosshair.png" />
+      <img src="@app/public/assets/seabattle/crosshair.png" />
     </div>
   </div>
 </template>

@@ -1,15 +1,6 @@
 // Snippet to import GameFlow for the server/client
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+import GameFlow from '../../GameFlow.js';
 
-var GameFlow;
-
-// tests if global scope is bound to window
-if (!isBrowser()) {
-    let { default: g } = await import('../../GameFlow.js');
-    GameFlow = g;
-} else {
-    GameFlow = window.GameFlow;
-}
 
 var exports = {
     CELL_STATE_EMPTY: null,

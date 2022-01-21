@@ -7,9 +7,6 @@ import Game from '../../Game.js';
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js';
 
-// BotApi to tell the bot to send messages
-import BotApi from '../../../bot/api.js';
-
 const options = {
   typeId: 'chess',
   name: 'Chess',

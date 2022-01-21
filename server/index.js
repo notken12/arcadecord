@@ -21,11 +21,10 @@ import fs from 'fs';
 import db from '../db/db2.js';
 
 import { fetchUser, fetchUserFromAccessToken } from './utils/discord-api.js';
-import { gameTypes } from './games/game-types.js';
-import Action from './games/Action.js';
-import Turn from './games/Turn.js';
+import { gameTypes } from './src/games/game-types.js';
+import Action from './src/games/Action.js';
+import Turn from './src/games/Turn.js';
 
-import BotApi from './bot/api.js';
 
 import appInsights from 'applicationinsights';
 
@@ -98,34 +97,56 @@ async function proxySnowpackDev(url, res) {
 
 import { createServer as createViteServer } from 'vite';
 
-// Create Vite server in middleware mode. This disables Vite's own HTML
-// serving logic and let the parent server take control.
-//
-// In middleware mode, if you want to use Vite's own HTML serving logic
-// use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
-const vite = await createViteServer({
-  server: { middlewareMode: 'ssr' }
-});
-// use vite's connect instance as middleware
-app.use(vite.middlewares);
+var vite;
+
+if (process.env.NODE_ENV !== 'production') {
+  // IF DEVELOPMENT
+
+  // Create Vite server in middleware mode. This disables Vite's own HTML
+  // serving logic and let the parent server take control.
+  //
+  // In middleware mode, if you want to use Vite's own HTML serving logic
+  // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
+  vite = await createViteServer({
+    server: { middlewareMode: 'ssr' }
+  });
+  // use vite's connect instance as middleware
+  app.use(vite.middlewares);
+} else {
+  // IF PRODUCTION
+  app.use('/dist', express.static(path.resolve(__dirname, 'dist')));
+}
+
 //console.log(vite.middlewares.stack[5].handle.toString());
 
-async function proxyViteDev(pathName, req, res) {
+async function useBuiltFile(pathName, req, res) {
   try {
-    const url = req.originalUrl
-    // 1. Read html file
-    let template = fs.readFileSync(
-      path.resolve(__dirname, pathName),
-      'utf-8'
-    );
-  
-    // 2. Apply Vite HTML transforms. This injects the Vite HMR client, and
-    //    also applies HTML transforms from Vite plugins, e.g. global preambles
-    //    from @vitejs/plugin-react
-    template = await vite.transformIndexHtml(url, template)
-  
-    // 6. Send the rendered HTML back.
-    res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
+    if (process.env.NODE_ENV !== 'production') {
+      // Dev mode, use Vite dev server
+      const url = req.originalUrl
+      // 1. Read html file
+      let template = fs.readFileSync(
+        path.resolve(__dirname, pathName),
+        'utf-8'
+      );
+
+      // 2. Apply Vite HTML transforms. This injects the Vite HMR client, and
+      //    also applies HTML transforms from Vite plugins, e.g. global preambles
+      //    from @vitejs/plugin-react
+      template = await vite.transformIndexHtml(url, template)
+
+      // 6. Send the rendered HTML back.
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
+    } else {
+      // Production, use static built files
+      console.log('resolved path: ' +  path.resolve(__dirname, pathName))
+      var prefix = path.resolve(__dirname, './src');
+      var filePath = path.resolve(__dirname, pathName)
+        .replace(path.resolve(prefix, './public'), `${__dirname}/dist`)
+        .replace(prefix, `${__dirname}/dist`);
+      console.log('filePath: ' + filePath);
+      res.sendFile(filePath);
+    }
   }
   catch (err) {
     // Send internal server error
@@ -330,11 +351,11 @@ app.use(express.json());
 })*/
 
 app.get('/sign-in', async (req, res) => {
-  proxyViteDev('./src/public/sign-in.html', req, res);
+  useBuiltFile('./src/public/sign-in.html', req, res);
 });
 
 app.get('/invite', (req, res) => {
-  proxyViteDev('./src/public/invite.html', req, res);
+  useBuiltFile('./src/public/invite.html', req, res);
 });
 
 app.get('/discord-oauth', (req, res) => {
@@ -456,9 +477,9 @@ app.get('/game/:id', async (req, res) => {
 
       if (status) {
         //user has permission to join
-        //res.sendFile(__dirname + '/games/types/' + game.typeId + '/index.html');
-        var pathName = './games/types/' + game.typeId + '/index.html';
-        proxyViteDev(pathName, req, res);
+        //res.sendFile(__dirname + '/src/games/types/' + game.typeId + '/index.html');
+        var pathName = './src/games/types/' + game.typeId + '/index.html';
+        useBuiltFile(pathName, req, res);
       } else {
         res.send('you have no permission to join');
       }
@@ -473,7 +494,7 @@ app.get('/game/:id', async (req, res) => {
   } else {
     //game does not exist
     //send  404 page
-    proxyViteDev('./src/public/game-not-found.html', res);
+    useBuiltFile('./src/public/game-not-found.html', res);
   }
 
 });
@@ -481,7 +502,7 @@ app.get('/game/:id', async (req, res) => {
 app.use('/gamecommons', async (req, res) => {
   var id = req.path.split('/')[1];
 
-  res.sendFile(__dirname + '/games/types/' + id + '/common.js');
+  res.sendFile(__dirname + '/src/games/types/' + id + '/common.js');
 });
 
 app.post('/create-game', async (req, res) => {

@@ -1,17 +1,8 @@
 // Common action models
 
 // Import GameFlow to control game flow
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+import GameFlow from '../../GameFlow.js';
 
-var GameFlow;
-
-// tests if global scope is bound to window
-if (!isBrowser()) {
-    let { default: g } = await import('../../GameFlow.js');
-    GameFlow = g;
-} else {
-    GameFlow = window.GameFlow;
-}
 
 // An action model is a function...
 // that takes in a Game and an Action (see Game.js and Action.js)

@@ -8,7 +8,7 @@ import Game from '../../Game.js';
 import GameFlow from '../../GameFlow.js';
 
 // BotApi to tell the bot to send messages
-import BotApi from '../../../bot/api.js';
+import BotApi from '../../../../bot/api.js';
 
 // fetch used to get data from the yesno.wtf API
 import fetch from 'node-fetch';

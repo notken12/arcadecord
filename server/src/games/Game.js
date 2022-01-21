@@ -7,9 +7,9 @@ import lodash from 'lodash';
 const { cloneDeep } = lodash;
 
 import GameFlow from './GameFlow.js';
-import BotApi from '../bot/api.js';
-import Emoji from '../../Emoji.js';
-import db from '../../db/db2.js';
+import BotApi from '../../bot/api.js';
+import Emoji from '../../../Emoji.js';
+import db from '../../../db/db2.js';
 import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
 
 config();

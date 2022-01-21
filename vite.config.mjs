@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs'
 import { resolve } from 'path';
+import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
+import commonjs from '@rollup/plugin-commonjs';
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,8 +36,8 @@ var walk = function (dir) {
       results = results.concat(walk(file));
     } else {
       /* Is a file */
-      // get .html files only
-      if (file.endsWith('.html')) {
+      // Get html files and common.js
+      if (file.endsWith('.html') || file.match(/(^.*)common./)) {
         results.push(file);
       }
     }
@@ -43,7 +45,7 @@ var walk = function (dir) {
   return results;
 }
 
-const entryPoints = walk(path.resolve(__dirname, 'server'));
+const entryPoints = walk(path.resolve(__dirname, 'server/src'));
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -55,16 +57,44 @@ export default defineConfig({
     port: 5000
   },
   resolve: {
-    alias: {
-      '@app/': `${path.resolve(__dirname, 'server/src')}/`,
-      'components/': `${path.resolve(__dirname, 'server/src/components')}/`,
-      'vue': 'vue/dist/vue.esm-bundler.js',
-      'scss/': `${path.resolve(__dirname, 'server/src/scss')}/`,
-    },
+    alias: [
+      {
+        find: '@app/',
+        replacement: `${path.resolve(__dirname, 'server/src')}/`
+      },
+      {
+        find: 'components/',
+        replacement: `${path.resolve(__dirname, 'server/src/components')}/`
+      },
+      {
+        find: 'vue',
+        replacement: 'vue/dist/vue.esm-bundler.js'
+      },
+      {
+        find: 'scss/',
+        replacement: `${path.resolve(__dirname, 'server/src/scss')}/`
+      },
+      { find: /\/gamecommons\/(.*)/, replacement: path.resolve(__dirname, 'server/src/games/types/$1/common.js') },
+      {
+        find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
+      }
+    ]
   },
   build: {
     rollupOptions: {
-      input: entryPoints
-    }
+      input: entryPoints,
+      output: {
+        assetFileNames: "assets/[name]-[hash][extname]",
+        format: 'es'
+      },
+      external: [
+        /^server\/src\/games\/types\/(.*)main.(.*)$/
+      ],
+      plugins: [
+        commonjs(),
+      ]
+    },
+    outDir: '../dist',
+    emptyOutDir: true,
   }
 })
