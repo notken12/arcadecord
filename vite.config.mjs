@@ -70,6 +70,10 @@ export default defineConfig({
         find: 'vue',
         replacement: 'vue/dist/vue.esm-bundler.js'
       },
+      /*{
+        find: 'enable3d',
+        replacement: 'enable3d/dist/bundle.d.ts'
+      },*/
       {
         find: 'scss/',
         replacement: `${path.resolve(__dirname, 'server/src/scss')}/`
@@ -78,6 +82,11 @@ export default defineConfig({
       {
         find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
       }
+    ]
+  },
+  optimizeDeps: {
+    exclude: [
+      '@enable3d/ammo-physics',
     ]
   },
   build: {
@@ -91,7 +100,11 @@ export default defineConfig({
         /^server\/src\/games\/types\/(.*)main.(.*)$/
       ],
       plugins: [
-        commonjs(),
+        commonjs({
+          dynamicRequireTargets: [
+          ],
+          transformMixedEsModules: true,
+        }),
       ]
     },
     outDir: '../dist',
