@@ -15,39 +15,39 @@ var ranks = "87654321";
 //   GameFlow = window.GameFlow;
 // }
 
-function isGameOver(board, player){
+function isGameOver(board, player) {
 
-  if(player == 1){//White Pieces
+  if (player == 1) {//White Pieces
 
-  } else if(player == 0){//Black Pieces
+  } else if (player == 0) {//Black Pieces
 
   }
 }
-function movePiece(game, action){
+async function movePiece(game, action) {
   var turnColor;
   var i = ranks.indexOf(action.data.move[1])
   var j = files.indexOf(action.data.move[0])
 
-if(action.data.move.endsWith("Q")){
-    if(game.data.board[i][j] == "P"){
+  if (action.data.move.endsWith("Q")) {
+    if (game.data.board[i][j] == "P") {
       game.data.board[i][j] = "Q"
     } else {
       game.data.board[i][j] = "q"
     }
-  } else if(action.data.move.endsWith("R")){
-    if(game.data.board[i][j] == "P"){
+  } else if (action.data.move.endsWith("R")) {
+    if (game.data.board[i][j] == "P") {
       game.data.board[i][j] = "R"
     } else {
       game.data.board[i][j] = "r"
     }
-  } else if(action.data.move.endsWith("B")){
-    if(game.data.board[i][j] == "P"){
+  } else if (action.data.move.endsWith("B")) {
+    if (game.data.board[i][j] == "P") {
       game.data.board[i][j] = "B"
     } else {
       game.data.board[i][j] = "b"
     }
-  } else if(action.data.move.endsWith("N")){
-    if(game.data.board[i][j] == "P"){
+  } else if (action.data.move.endsWith("N")) {
+    if (game.data.board[i][j] == "P") {
       game.data.board[i][j] = "N"
     } else {
       game.data.board[i][j] = "n"
@@ -87,27 +87,27 @@ if(action.data.move.endsWith("Q")){
 */
   game.data.board[ranks.indexOf(action.data.move[3])][files.indexOf(action.data.move[2])] = game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])];
   game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])] = "";
-  if(isGameOver(game.data.board, action.playerIndex)==1){
-    GameFlow.end(game, {
+  if (isGameOver(game.data.board, action.playerIndex) == 1) {
+    await GameFlow.end(game, {
       winner: action.playerIndex
     })
-  } else if(isGameOver(game.data.board, action.playerIndex) == 0){
-    GameFlow.end(game, {
+  } else if (isGameOver(game.data.board, action.playerIndex) == 0) {
+    await GameFlow.end(game, {
       winner: -1
     })
   } else {
-  return endTurn(game);
+    return endTurn(game);
+  }
 }
-}
-function endTurn(game, action){
-  GameFlow.endTurn(game);
+async function endTurn(game, action) {
+  await GameFlow.endTurn(game);
 
   return game;
 }
 
 var exports = {
   movePiece,
- endTurn
+  endTurn
 }
 
 export default exports;

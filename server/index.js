@@ -139,12 +139,10 @@ async function useBuiltFile(pathName, req, res) {
       res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
     } else {
       // Production, use static built files
-      console.log('resolved path: ' +  path.resolve(__dirname, pathName))
       var prefix = path.resolve(__dirname, './src');
       var filePath = path.resolve(__dirname, pathName)
         .replace(path.resolve(prefix, './public'), `${__dirname}/dist`)
         .replace(prefix, `${__dirname}/dist`);
-      console.log('filePath: ' + filePath);
       res.sendFile(filePath);
     }
   }

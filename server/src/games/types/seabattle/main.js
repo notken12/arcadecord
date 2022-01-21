@@ -100,7 +100,7 @@ class SeaBattleGame extends Game {
 
         this.setActionModel('set_ships', Common.setShips);
 
-        this.setActionModel('set_ships', (game, action) => {
+        this.setActionModel('set_ships', async (game, action) => {
             var board = action.data.shipPlacementBoard;
             var ships = action.data.ships;
             var playerIndex = action.playerIndex;
@@ -112,7 +112,7 @@ class SeaBattleGame extends Game {
             if (Common.isBoardValid(board)) {
                 boards[playerIndex] = board;
                 game.data.placed[playerIndex] = true;
-                GameFlow.endTurn(game);
+                await GameFlow.endTurn(game);
                 return game;
             }
             return false;
@@ -120,7 +120,7 @@ class SeaBattleGame extends Game {
 
         this.setActionModel('shoot', Common.shoot);
 
-        this.setActionModel('shoot', (game, action) => {
+        this.setActionModel('shoot', async (game, action) => {
             var board = boards[(action.playerIndex + 1) % game.players.length]; // the other player's board
             var hitBoard = game.data.hitBoards[action.playerIndex];
 
@@ -139,7 +139,7 @@ class SeaBattleGame extends Game {
                 hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
 
                 // missed, end turn
-                GameFlow.endTurn(game);
+                await GameFlow.endTurn(game);
 
                 return game;
             }
@@ -174,7 +174,7 @@ class SeaBattleGame extends Game {
                 }
             }
             if (allSunk) {
-                GameFlow.end(
+                await GameFlow.end(
                     game,
                     {
                         winner: action.playerIndex
