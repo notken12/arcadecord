@@ -54,7 +54,7 @@ const SlashCommandOptions = mongoose.model('SlashCommandOptions', slashCommandOp
 
 const db = {
     connect() {
-        mongoose.connect('mongodb://localhost:27017/');
+        mongoose.connect(process.env.MONGODB_URI);
     },
     users: {
         getHash: function (token) {

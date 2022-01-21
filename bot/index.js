@@ -4,9 +4,7 @@ import express, { json } from 'express';
 
 // load .env that will be used for all processes running shard managers
 import dotenv from 'dotenv';
-dotenv.config({
-    path: './bot/.env'
-});
+dotenv.config();
 
 //load config for this specific host
 var hostId = process.argv[2];

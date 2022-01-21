@@ -11,9 +11,7 @@ import db from '../db/db2.js';
 db.connect();
 
 // .env is used for all shards
-config({
-	path: './bot/.env'
-});
+config();
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
