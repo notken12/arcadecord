@@ -1,4 +1,4 @@
-import { Scene3D } from "enable3d";
+import { ExtendedObject3D, Scene3D } from "enable3d";
 import * as THREE from "three";
 
 export class Ball {
@@ -26,13 +26,16 @@ export class Ball {
         this.name = name ?? 'Ball';
 
         this.mesh = this.createMesh();
+        this.scene.add.existing(this.mesh);
+        this.scene.physics.add.existing(this.mesh as ExtendedObject3D, { shape: 'sphere', radius: Ball.RADIUS });
+        (this.mesh as ExtendedObject3D).body.setCollisionFlags(0)
         this.sphere = new THREE.Sphere(this.mesh.position, Ball.RADIUS); //used for guiding line intersection detecting
 
         this.fallen = false;
     }
 
-    createMesh() : THREE.Mesh {
-        var geometry = new THREE.SphereGeometry(Ball.RADIUS, 16, 16);
+    createMesh(): THREE.Mesh {
+        var geometry = new THREE.SphereGeometry(Ball.RADIUS, 8, 8);
         var material = new THREE.MeshPhongMaterial({
             specular: 0xffffff,
             shininess: 140,

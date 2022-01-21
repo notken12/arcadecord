@@ -17,6 +17,8 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 import { Ball } from './Ball'
+import { Table } from './Table';
+import { CueBall } from './CueBall';
 
 // Get game ID from URL address
 
@@ -66,21 +68,24 @@ function connectionCallback(response) {
 
                 stick
                 cueBall
+                balls
+                debugCam = false
 
                 async init() {
                     this.renderer.setPixelRatio(Math.max(1, window.devicePixelRatio / 2))
-                    this.camera = new THREE.OrthographicCamera();
+                    // this.camera = new THREE.OrthographicCamera();
+                    this.camera.position.set(0, 500, 0)
 
                     let updateSize = () => {
                         var container = vm.$refs.canvasContainer.getBoundingClientRect();
                         const cWidth = container.width;
                         const cHeight = container.height;
-    
+
                         var newWidth;
                         var newHeight;
-    
+
                         var mode = 'portrait';
-    
+
                         if (cWidth > cHeight) {
                             // landscape
                             newWidth = cWidth;
@@ -103,17 +108,17 @@ function connectionCallback(response) {
                                 newHeight *= correctionRatio;
                             }
                         }
-    
+
                         this.renderer.setSize(newWidth, newHeight)
-    
+
                         var frustumSize = 150
 
                         if (mode == 'portrait') {
                             frustumSize = 262;
                         }
-                        
+
                         const aspect = newWidth / newHeight
-    
+
                         this.camera.left = (frustumSize * aspect) / -2;
                         this.camera.right = (frustumSize * aspect) / 2;
                         this.camera.top = frustumSize / 2;
@@ -124,15 +129,17 @@ function connectionCallback(response) {
 
                         if (mode == 'landscape') {
                             // object is looking down
-                            this.camera.rotation.z = Math.PI / 2
+                            this.camera.rotation.z = Math.PI / 2 * 3;
+                        } else {
+                            this.camera.rotation.z = Math.PI;
                         }
 
                         this.camera.updateProjectionMatrix()
-                        
+
                     }
 
                     updateSize()
-                
+
 
                     // init third dimension with a custom camera
                     // https://threejs.org/docs/#api/en/cameras/OrthographicCamera
@@ -142,28 +149,17 @@ function connectionCallback(response) {
                     }
 
                     window.onresize = resize
+
+                    bus.on('debugcam', () => {
+                        this.debugCam = !this.debugCam;
+                    });
                 }
 
                 async preload() {
                     // preload your assets here
-                    const loader = new GLTFLoader()
-                    loader.load('/dist/3d_models/table.glb', gltf => {
+                    this.table = new Table(this);
 
-
-
-                        const meshes = gltf.scene.children.filter(child => {
-                            return child.type == 'Mesh'
-                        })
-                        for (let mesh of meshes) {
-                            let object = new ExtendedObject3D()
-                            object.add(mesh)
-                            object.castShadow = false
-                            object.receiveShadow = true
-                            this.add.existing(object)
-                            this.physics.add.existing(object, { shape: 'convex' })
-                            object.body.setCollisionFlags(2)
-                        }
-                    })
+                    let loader = new GLTFLoader();
 
                     loader.load('/dist/3d_models/cue_stick.glb', gltf => {
                         const mesh = gltf.scene.children.find(child => {
@@ -181,15 +177,52 @@ function connectionCallback(response) {
 
                 async create() {
                     // set up scene (light, ground, grid, sky, orbitControls)
-                    this.warpSpeed('-ground', '-orbitControls', '-sky', '-fog')                        
+                    this.warpSpeed('-ground', '-sky', '-fog')
 
                     // enable physics debug
-                    //this.physics.debug.enable()
+                    this.physics.debug.enable()
 
-                    // white ball (with physics)
-                    this.cueBall = this.physics.add.sphere({ y: 10, radius: Ball.RADIUS }, { lambert: { color: 'white' } })
+                    var apex = Table.PLAY_AREA.LEN_Z / 4;
+ 
+                    var xo = Ball.RADIUS * 1;
+                    var zo = 1 * Ball.RADIUS * Math.cos(Math.PI / 6); //how far the balls are spaced apart on z axis
 
+                    var y = CueBall.DEFAULT_POSITION.y;
+                    
 
+                    this.balls = [
+                        new CueBall(this),
+
+                        //first row
+                        new Ball(this, 0, y, apex, '9ball'),
+
+                        //second row
+                        new Ball(this, 1 * xo, y, apex + zo, '7ball'),
+                        new Ball(this, -1 * xo, y, apex + zo, '12ball'),
+
+                        //third row
+                        new Ball(this, 2 * xo, y, apex + 2 * zo, '15ball'),
+                        new Ball(this, 0 * xo, y, apex + 2 * zo, '8ball'),
+                        new Ball(this, -2 * xo, y, apex + 2 * zo, '1ball'),
+
+                        //fourth row
+                        new Ball(this, 3 * xo, y, apex + 3 * zo, '6ball'),
+                        new Ball(this, 1 * xo, y, apex + 3 * zo, '10ball'),
+                        new Ball(this, -1 * xo, y, apex + 3 * zo, '3ball'),
+                        new Ball(this, -3 * xo, y, apex + 3 * zo, '14ball'),
+
+                        //fifth row
+                        new Ball(this, 4 * xo, y, apex + 4 * zo, '11ball'),
+                        new Ball(this, 2 * xo, y, apex + 4 * zo, '2ball'),
+                        new Ball(this, 0 * xo, y, apex + 4 * zo, '13ball'),
+                        new Ball(this, -2 * xo, y, apex + 4 * zo, '4ball'),
+                        new Ball(this, -4 * xo, y, apex + 4 * zo, '5ball'),
+
+                    ];
+
+                    this.cueBall = this.balls[0];
+                    console.log(this.cueBall)
+                    this.cueBall.mesh.body.applyForceX(5);
 
                     let updateBallScreenPos = () => {
                         var ballScreenPos = this.getCueBallScreenPosition()
@@ -231,7 +264,7 @@ function connectionCallback(response) {
                 }
 
                 getCueBallScreenPosition() {
-                    var ballCoords = this.cueBall.position.clone();
+                    var ballCoords = this.cueBall.mesh.position.clone();
                     var vector = this.createVector(ballCoords.x, ballCoords.y, ballCoords.z);
                     return vector;
                 }
