@@ -58,7 +58,7 @@ const host = hosts.find(host => host.id === hostId);
 
 var port;
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && process.env.HOSTED_ON === 'heroku') {
   port = process.env.PORT;
 } else {
   port = host.port;
@@ -356,11 +356,11 @@ app.use(express.json());
 })*/
 
 app.get('/sign-in', async (req, res) => {
-  useBuiltFile('./src/public/sign-in.html', req, res);
+  useBuiltFile('./src/sign-in.html', req, res);
 });
 
 app.get('/invite', (req, res) => {
-  useBuiltFile('./src/public/invite.html', req, res);
+  useBuiltFile('./src/invite.html', req, res);
 });
 
 app.get('/discord-oauth', (req, res) => {

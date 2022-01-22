@@ -40,10 +40,11 @@ class FillerGame extends Game {
 
         this.setActionModel('switchColors', Common.action_switchColors);
 
-        this.on('init', function (game) {
+        this.on('init', async function (game) {
             game.data = {
                 board: new Common.Board(16, 9)
             };
+            return game;
         });
     }
 }

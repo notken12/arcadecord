@@ -131,6 +131,7 @@ class Game {
         for (let callback of this.eventHandlers[event]) {
             await callback(this, ...args);
         }
+        return true;
     }
     async handleAction(action) {
         if (this.hasEnded) return {
@@ -234,8 +235,8 @@ class Game {
 
         return true;
     }
-    init() {
-        this.emit('init');
+    async init() {
+        await this.emit('init');
     }
     async doesUserHavePermission(id) {
         var dbUser = await db.users.getById(id);
@@ -446,8 +447,7 @@ Game.eventHandlersDiscord = {
         game.startMessage = msg.id;
         //console.log('start message: ' + game.startMessage);
 
-        await db.games.update(game.id, game);
-
+        return game;
     },
     turn: async function (game) {
         if (game.startMessage) {

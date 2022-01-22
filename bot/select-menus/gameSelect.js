@@ -33,6 +33,9 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.GAME_SERVER_TOKEN}`
             }
+        }).catch(e => {
+            console.error(e);
+            return {ok: false};
         });
     
         if (response.ok) {

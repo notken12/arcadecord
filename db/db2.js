@@ -35,7 +35,11 @@ const gameSchema = new Schema({
     lastTurnInvite: String,
     startMessage: String,
     winner: Number,
-    data: Object,
+    data: {
+        type: Object,
+        default: {},
+        required: true
+    },
     secretData: Object,
     turns: Array,
     sockets: Object,
