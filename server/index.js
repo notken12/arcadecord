@@ -56,7 +56,7 @@ const { hosts } = architecture;
 const hostId = process.argv[2];
 const host = hosts.find(host => host.id === hostId);
 
-const port;
+var port;
 
 if (process.env.NODE_ENV === 'production') {
   port = process.env.PORT;
