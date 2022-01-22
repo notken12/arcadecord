@@ -95,7 +95,6 @@ async function proxySnowpackDev(url, res) {
 
 }*/
 
-import { createServer as createViteServer } from 'vite';
 
 var vite;
 
@@ -107,6 +106,8 @@ if (process.env.NODE_ENV !== 'production') {
   //
   // In middleware mode, if you want to use Vite's own HTML serving logic
   // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
+  let { createServer: createViteServer } = await import('vite');
+
   vite = await createViteServer({
     server: { middlewareMode: 'ssr' }
   });
