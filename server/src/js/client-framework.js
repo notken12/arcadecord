@@ -1,6 +1,6 @@
 import {cloneDeep} from 'lodash';
 import { io } from "socket.io-client";
-import './GameFlow.js';
+import GameFlow from './GameFlow.js';
 import bus from './vue-event-bus.js';
 
 var socket = io();
