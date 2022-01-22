@@ -178,12 +178,8 @@ const io = new Server(server);
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 
-const pubClient = createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT });
+const pubClient = createClient({ url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD });
 const subClient = pubClient.duplicate();
-
-console.log(pubClient);
-console.log(process.env.REDIS_HOST)
-console.log(process.env.REDIS_PORT)
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
   io.adapter(createAdapter(pubClient, subClient));
