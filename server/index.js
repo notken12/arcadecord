@@ -177,7 +177,12 @@ async function useBuiltFile(pathName, req, res) {
   }
 });*/
 
-const io = new Server(server);
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: ["http://localhost:3000", "arcadecord.herokuapp.com"],
+  }
+});
 
 // Use redis adapter to communicate socket data with other hosts
 // import redis from 'socket.io-redis';
