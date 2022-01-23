@@ -177,8 +177,13 @@ async function useBuiltFile(pathName, req, res) {
   }
 });*/
 
+server.listen(port, () => {
+  let duration = Date.now() - start;
+  appInsights.defaultClient.trackMetric({ name: "Server startup time", value: duration });
+  console.log(`Server host ${hostId} listening at port ${port}`);
+});
+
 const io = new Server(server, {
-  pingTimeout: 60000,
   cors: {
     origin: ["http://localhost:3000", "arcadecord.herokuapp.com"],
   }
@@ -573,12 +578,6 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
   res.redirect('https://discord.com/api/oauth2/authorize?client_id=' + process.env.BOT_CLIENT_ID + '&redirect_uri=' +
     encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
     '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write');
-});
-
-server.listen(port, () => {
-  let duration = Date.now() - start;
-  appInsights.defaultClient.trackMetric({ name: "Server startup time", value: duration });
-  console.log(`Server host ${hostId} listening at port ${port}`);
 });
 
 export const handler = app;
