@@ -6,6 +6,7 @@ import fs from 'fs'
 import { resolve } from 'path';
 import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 import commonjs from '@rollup/plugin-commonjs';
+import { babel } from '@rollup/plugin-babel';
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -105,6 +106,7 @@ export default defineConfig({
           ],
           transformMixedEsModules: true,
         }),
+        babel({ babelHelpers: 'bundled' })
       ]
     },
     outDir: '../dist',

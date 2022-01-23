@@ -65,6 +65,7 @@
     "vue": "^3.2.27"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-dynamic-import-vars": "^1.4.2",
     "@snowpack/plugin-sass": "^1.4.0",

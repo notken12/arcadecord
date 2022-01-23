@@ -13,6 +13,8 @@ import bus from '../vue-event-bus.js';
 import ShipPlacer from '@app/components/games/seabattle/ShipPlacer.vue';
 import HitBoardView from '@app/components/games/seabattle/HitBoardView.vue';
 
+import {cloneDeep} from 'lodash';
+
 function getMyHitBoard(game) {
     var index = game.myIndex;
     if (index == -1) {
@@ -65,7 +67,7 @@ function connectionCallback(response) {
         methods: {
             placeShips() {
                 var t1 = performance.now();
-                this.shipPlacementBoard = Common.PlaceShips(_.cloneDeep(availableShips), new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height));
+                this.shipPlacementBoard = Common.PlaceShips(cloneDeep(availableShips), new Common.ShipPlacementBoard(myHitBoard.width, myHitBoard.height));
                 var t2 = performance.now();
                 console.log(this.shipPlacementBoard);
                 console.log("Placing ships took " + Math.round(t2 - t1) + " milliseconds.");

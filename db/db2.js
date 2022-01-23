@@ -135,7 +135,7 @@ const db = {
             // update user with new token
 
             user.accessTokenHash = hash;
-            user.save();
+            await user.save();
             return token;
         }
     },
