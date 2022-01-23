@@ -17,6 +17,7 @@ import { Server } from "socket.io";
 import { parse } from 'cookie';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import cors from 'cors';
 
 import db from '../db/db2.js';
 
@@ -24,7 +25,6 @@ import { fetchUser, fetchUserFromAccessToken } from './utils/discord-api.js';
 import { gameTypes } from './src/games/game-types.js';
 import Action from './src/games/Action.js';
 import Turn from './src/games/Turn.js';
-
 
 import appInsights from 'applicationinsights';
 
@@ -67,6 +67,8 @@ if (process.env.NODE_ENV === 'production' && process.env.HOSTED_ON === 'heroku')
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
 const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
+
+app.use(cors());
 
 // Health check
 app.head('/health', function (req, res) {
