@@ -2,13 +2,6 @@
     background-color: #0065C4;
 }
 
-#players-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
 .ship-placer-container, .hit-board {
     position: relative;
     width: calc(100% - 32px);

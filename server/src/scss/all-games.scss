@@ -8,22 +8,32 @@
 
 html,
 body {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    /*optional but incase it still doesn't work.*/
+    min-width: 100%;
+    min-height: 100%;
+    /*further optional still incase elements case overflows*/
+    max-width: 100%;
+    max-height: 100%;
     background-color: theme.$md-sys-background;
     color: theme.$md-sys-on-background;
-    margin: 0;
     font-family: theme.$md-sys-typescale-body1-font;
     font-size: theme.$md-sys-typescale-body1-size;
-    height: 100%;
-    overflow: hidden;
     user-select: none;
+    box-sizing: border-box;
+    display: flex;
 }
 
 #app {
-    height: 100vh;
+    height: 100%;
     display: flex;
-    max-height: 100vh;
-    width: 100vw;
-    max-width: 100vw;
+    max-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .top {
@@ -120,16 +130,6 @@ button {
     }
 }
 
-.game-container {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    flex-direction: column;
-    align-items: center;
-}
-
 .fabs {
     width: 100%;
     display: flex;
@@ -143,13 +143,13 @@ button {
 }
 
 .bottom {
-    margin-top: auto;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100px;
+    align-self: flex-end;
 }
 
 .player {

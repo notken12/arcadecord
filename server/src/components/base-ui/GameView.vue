@@ -1,8 +1,15 @@
 <template>
   <div class="game-container">
-    <game-header :game="game" :me="me" :hint="hint" :isitmyturn="isItMyTurn"></game-header>
+    <game-header
+      :game="game"
+      :me="me"
+      :hint="hint"
+      :isitmyturn="isItMyTurn"
+    ></game-header>
     <slot></slot>
-    <waiting-view v-if="!isItMyTurn && !game.hasEnded && !sending"></waiting-view>
+    <waiting-view
+      v-if="!isItMyTurn && !game.hasEnded && !sending"
+    ></waiting-view>
     <result-view v-if="game.hasEnded" :game="game"></result-view>
     <sending-view v-if="!isItMyTurn && sending"></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
@@ -10,7 +17,7 @@
 </template>
 
 <script>
-import bus from '@app/js/vue-event-bus.js';
+import bus from '@app/js/vue-event-bus.js'
 import * as Client from '@app/js/client-framework.js'
 
 import GameHeader from './GameHeader.vue'
@@ -25,7 +32,7 @@ export default {
       manualOpen: false,
       isItMyTurn: false,
       sending: false,
-      sendingAnimationLength: 500
+      sendingAnimationLength: 500,
     }
   },
   props: ['game', 'me', 'hint'],
@@ -34,7 +41,7 @@ export default {
     WaitingView,
     GameManualView,
     ResultView,
-    SendingView
+    SendingView,
   },
   mounted() {
     bus.on('open-manual', () => {
@@ -47,7 +54,7 @@ export default {
       if (!sending) {
         setTimeout(() => {
           this.sending = false
-        }, this.sendingAnimationLength);
+        }, this.sendingAnimationLength)
       } else {
         this.sending = true
       }
@@ -62,3 +69,15 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+.game-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+</style>
