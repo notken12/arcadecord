@@ -416,6 +416,8 @@ app.get('/auth', (req, res) => {
 
     var userFromDiscord = await db.users.getByDiscordId(dId);
 
+    var tenYears = (1000*60*60*24*365*10);
+
     var existingUserId;
     if (userFromDiscord) {
       existingUserId = userFromDiscord._id;
@@ -430,7 +432,7 @@ app.get('/auth', (req, res) => {
         }
       ))._id;
       var token = await db.users.generateAccessToken(id);
-      res.cookie('accessToken', token, { httpOnly: true });
+      res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
     }
     else {
       // existing user
@@ -440,7 +442,7 @@ app.get('/auth', (req, res) => {
         discordAccessToken: access_token
       });
       var token = await db.users.generateAccessToken(existingUserId);
-      res.cookie('accessToken', token, { httpOnly: true });
+      res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
     }
 
     var cookie = req.cookies.gameId;
@@ -478,7 +480,7 @@ app.get('/game/:id', async (req, res) => {
 
 
       var status = await game.canUserSocketConnect(userId);
-      res.clearCookie('gameId', { httpOnly: true });
+      res.clearCookie('gameId');
 
       if (status) {
         //user has permission to join
@@ -493,7 +495,7 @@ app.get('/game/:id', async (req, res) => {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
-      res.cookie('gameId', id, { maxAge: 900000, httpOnly: true });
+      res.cookie('gameId', id, { maxAge: 10000000 });
       res.redirect('/sign-in');
     }
   } else {
