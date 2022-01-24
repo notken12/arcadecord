@@ -212,9 +212,26 @@ io.on('connection', (socket) => {
   socket.on('connect_socket', async function (data, callback) {
     const cookies = parse(socket.request.headers.cookie || "");
 
-    var token = cookies.accessToken;
+    let cookie = cookies.accessToken;
 
-    var user = await db.users.getByAccessToken(token);
+    let userId;
+    let token;
+    try {
+      token = JWT.verify(cookie, process.env.JWT_SECRET);
+      userId = token.id;
+    } catch (e) {
+      //user is not signed in. or has an invalid access token
+      //set cookie for game id to redirect back to
+      //redirect to sign in page
+      console.error(e)
+      callback({
+        error: "Invalid access token"
+      });
+      appInsightsClient.trackEvent({ name: 'Socket connection error', properties: { error: 'Invalid access token' } });
+      return;
+    }
+
+    var user = await db.users.getById(userId);
     if (!user) {
       callback({
         error: "Invalid access token"

@@ -62,7 +62,7 @@ export default (req, res) => {
                         discordAccessToken: access_token
                     }
                 ))._id;
-                let token = generateAccessToken(id);
+                let token = generateAccessToken(id.toString());
                 res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
             }
             else {
@@ -72,7 +72,7 @@ export default (req, res) => {
                     discordRefreshToken: refresh_token,
                     discordAccessToken: access_token
                 });
-                let token = generateAccessToken(existingUserId);
+                let token = generateAccessToken(existingUserId.toString());
                 res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
             }
 
