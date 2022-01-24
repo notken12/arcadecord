@@ -30,7 +30,6 @@ export default {
   data() {
     return {
       manualOpen: false,
-      isItMyTurn: false,
       sending: false,
       sendingAnimationLength: 500,
     }
@@ -51,7 +50,9 @@ export default {
       this.manualOpen = false
     })
     bus.on('sending', (sending) => {
+      console.log(sending);
       if (!sending) {
+        console.log('No longer sending')
         navigator.vibrate ?? navigator.vibrate(100)
         setTimeout(() => {
           this.sending = false
@@ -60,14 +61,18 @@ export default {
         this.sending = true
       }
     })
-    this.isItMyTurn = this.game.isItMyTurn()
   },
-  watch: {
-    'game.turn': function (newTurn) {
-      console.log('Turn changed to ' + newTurn)
-      this.isItMyTurn = this.game.isItMyTurn()
-    },
-  },
+  computed: {
+    isItMyTurn() {
+      if (this.game.turn == this.game.myIndex && !this.game.hasEnded) {
+        return true
+      }
+      if (this.game.players.length < this.game.maxPlayers && this.game.myIndex == -1) {
+        return true
+      }
+      return false
+    }
+  }
 }
 </script>
 

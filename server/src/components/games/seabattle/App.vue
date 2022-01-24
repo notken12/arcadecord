@@ -63,13 +63,9 @@ function getMyHitBoard(game) {
 export default {
   props: ['game', 'me'],
   data() {
-      var myHitBoard = this.game.data.hitBoards[this.game.myIndex];
+    var myHitBoard = getMyHitBoard(this.game)
     return {
-        myHitBoard,
-      shipPlacementBoard: new Common.ShipPlacementBoard(
-        myHitBoard.width,
-        myHitBoard.height
-      ),
+      shipPlacementBoard: null,
       targetedCell: null,
       availableShips: this.game.data.availableShips[myHitBoard.playerIndex]
     }
@@ -99,6 +95,7 @@ export default {
           console.log(response)
           if (response.success) {
             clientUtils.updateGame(this.game, response.game)
+            this.game.turn = response.game.turn
           }
         }
       )
@@ -155,6 +152,9 @@ export default {
         }
       }
       return ''
+    },
+    myHitBoard() {
+      return getMyHitBoard(this.game)
     },
   },
   created() {
