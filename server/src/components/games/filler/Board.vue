@@ -3,9 +3,10 @@
     <div v-for="row in board.cells" :key="board.cells.indexOf(row)" class="row">
       <cell
         v-for="cell in row"
-        :key="cell.id"
+        :key="cell.row + '-' + cell.col"
         :board="board"
         :cell="cell"
+        :isblob="isCellBlob(cell)"
       ></cell>
     </div>
   </div>
@@ -13,14 +14,36 @@
 
 <script>
 import Cell from './Cell.vue'
+import Common from '/gamecommons/filler'
+import store from '@app/js/store.js'
 
 export default {
-  props: ['board'],
   data() {
-    return {}
+    return {
+      game: store.state.game,
+    }
   },
   components: {
     Cell,
+  },
+  computed: {
+    playerBlob() {
+      return Common.Board.getPlayerBlob(this.board, this.game.myIndex)
+    },
+    board() {
+      return store.state.game.data.board
+    },
+  },
+  methods: {
+    isCellBlob(cell) {
+      if (!this.game.isItMyTurn()) return false
+      for (let coord of this.playerBlob) {
+        if (cell.row === coord.row && cell.col === coord.col) {
+          return true
+        }
+      }
+      return false
+    },
   },
 }
 </script>
@@ -31,10 +54,10 @@ export default {
 $gap: 0px;
 
 .board {
-    display:flex;
-    flex-direction: column;
-    gap: $gap;
-    box-shadow: theme.$md-elevation-level2;
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  box-shadow: theme.$md-elevation-level4;
 }
 
 .row {

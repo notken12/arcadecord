@@ -11,7 +11,7 @@
       v-if="!isItMyTurn && !game.hasEnded && !sending"
     ></waiting-view>
     <result-view v-if="game.hasEnded" :game="game"></result-view>
-    <sending-view v-if="!isItMyTurn && sending"></sending-view>
+    <sending-view v-if="!isItMyTurn && sending && !game.hasEnded"></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
   </div>
 </template>

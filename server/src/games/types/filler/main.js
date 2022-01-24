@@ -42,7 +42,7 @@ class FillerGame extends Game {
 
         this.on('init', async function (game) {
             game.data = {
-                board: new Common.Board(16, 9)
+                board: new Common.Board(8, 7)
             };
             return game;
         });

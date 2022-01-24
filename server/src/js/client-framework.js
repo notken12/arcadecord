@@ -12,6 +12,7 @@ const appInsights = new ApplicationInsights({ config: {
 appInsights.loadAppInsights();
 appInsights.trackPageView();
 
+console.log(`[arcadecord] running in ${process.env.NODE_ENV} mode`);
 
 var socket = io();
 
@@ -176,6 +177,14 @@ async function connect(gameId, callback) {
         });
     });
 }
+
+function unloadPage(){ 
+    if(sending){
+        return "Your turn has not been sent yet. Are you sure you want to leave?";
+    }
+}
+
+window.onbeforeunload = unloadPage;
 
 export {
     socket,

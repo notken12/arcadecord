@@ -11,15 +11,7 @@
 <body>
     <!-- Element that the vue app will be mounted on -->
     <div id="app">
-        <!-- GameView component, contains all basic game UI 
-            like settings button -->
-        <game-view :game="game" :me="me" :hint="hint">
-            <!-- Game UI goes in here -->
-            <div class="middle">
-                <board :board="game.data.board"></board>
-                <changer></changer>
-            </div>
-        </game-view>
+
     </div>
 
     <!-- Script for the game. 

@@ -23,7 +23,8 @@ class Board {
                 var randomIndex = Math.floor(Math.random() * COLORS.length);
                 var cell = {
                     color: randomIndex,
-                    id: `r${i}c${x}`
+                    row: i,
+                    col: x
                 };
                 // add the colored tile to the row
                 row.push(cell);
@@ -53,7 +54,7 @@ class Board {
         var corner = Board.getCorner(board, playerIndex);
 
         // outputs the color of said corner
-        return Board.getColor(board, corner);
+        return Board.getColor(board, corner.row, corner.col);
 
     }
     static getColor(board, row, col) {
@@ -129,14 +130,42 @@ async function action_switchColors(game, action) {
     var playerIndex = action.playerIndex;
 
     var targetColor = action.data.targetColor;
+    var board = game.data.board;
 
-    var board = game.data.board
+    var opponentColor = Board.getPlayerColor(board, playerIndex === 0 ? 1 : 0);
+    var playerColor = Board.getPlayerColor(board, playerIndex);
+
+    if (playerColor === targetColor || opponentColor === targetColor) {
+        return false;
+    }
 
     var playerBlob = Board.getPlayerBlob(board, playerIndex);
 
     for (var pos of playerBlob) {
         board.cells[pos.row][pos.col].color = targetColor
     }
+
+    var newBlob = Board.getPlayerBlob(board, playerIndex);
+    var opponentBlob = Board.getPlayerBlob(board, playerIndex === 0 ? 1 : 0);
+    if (newBlob.length + opponentBlob.length >= board.width * board.height) {
+        // Game over
+        // Whoever has the most tiles wins
+        let winner;
+        if (newBlob.length > opponentBlob.length) {
+            // Player wins
+            winner = playerIndex;
+        } else if (newBlob.length < opponentBlob.length) {
+            // Opponent wins
+            winner = playerIndex ^ 1;
+        } else {
+            // Tie
+            winner = -1;
+        }
+        await GameFlow.end(game, {
+            winner: winner
+        });
+        return game;
+    } 
 
     await GameFlow.endTurn(game);
 

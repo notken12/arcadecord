@@ -30,5 +30,7 @@ export default {
   display: flex;
   flex-direction: row;
   gap: 16px;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -6,13 +6,10 @@ import * as Vue from 'vue';
 
 import { GameView, createApp } from '@app/js/ui.js'
 
-import Board from '@app/components/games/filler/Board.vue';
-
-import Changer from '@app/components/games/filler/Changer.vue';
-
-import bus from '@app/js/vue-event-bus.js';
+import App from '@app/components/games/filler/App.vue';
 
 import 'scss/games/filler.scss';
+import store from '@app/js/store.js';
 
 // Get game ID from URL address
 
@@ -27,33 +24,8 @@ function connectionCallback(response) {
 
     // Nice UI components for the basic UI
 
-
-    const App = {
-        data() {
-            var board = response.game.data.board;
-
-            return {
-                game: response.game,
-                me: response.discordUser,
-                board: board
-            }
-        },
-        computed: {
-            hint() {
-                return 'Tap a color to switch to that color';
-            }
-        },
-        components: {
-            GameView,
-            Board,
-            Changer,
-        },
-        mounted() {
-            bus.on('switch colors', (data) => { // data is a local var that has the data that was transmitted
-                Client.runAction(this.game, 'switchColors', data); // data contains the targetColor, which is the action data
-            });
-        }
-    }
+    store.state.game = response.game;
+    store.state.me = response.discordUser;
 
     const app = createApp(App).mount('#app');
     window.app = app;

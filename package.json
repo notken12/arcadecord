@@ -25,10 +25,10 @@
     "ignore": [
       "build/*",
       "server/src/*",
-      "server/games/*/index.html"
+      "server/games/types/*/index.html"
     ],
     "watch": [
-      "server/src/games/"
+      "server/src/games/**"
     ],
     "delay": 2500
   },
