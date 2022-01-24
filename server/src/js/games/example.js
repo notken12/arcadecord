@@ -2,7 +2,7 @@
 import * as Client from '../client-framework.js';
 
 // Nice UI components for the basic UI: help, settings, etc.
-import { GameView } from '../ui.js';
+import { GameView, createApp } from '../ui.js';
 
 // Import Vue.js
 import * as Vue from 'vue';
@@ -91,7 +91,7 @@ function connectionCallback(response) {
         }
     };
 
-    const app = Vue.createApp(App).mount('#app');
+    const app = createApp(App).mount('#app');
     window.app = app;
 
     // Receive turn events whenever another player finishes their turn

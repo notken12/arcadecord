@@ -183,5 +183,6 @@ export {
     emitAction,
     runAction,
     connect,
-    sending
+    sending,
+    appInsights
 }

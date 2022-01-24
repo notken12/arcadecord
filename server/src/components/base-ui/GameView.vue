@@ -1,4 +1,4 @@
-<template>
+<template v-if="game">
   <div class="game-container">
     <game-header
       :game="game"
@@ -52,6 +52,7 @@ export default {
     })
     bus.on('sending', (sending) => {
       if (!sending) {
+        navigator.vibrate ?? navigator.vibrate(100)
         setTimeout(() => {
           this.sending = false
         }, this.sendingAnimationLength)

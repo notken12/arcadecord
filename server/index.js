@@ -513,7 +513,7 @@ app.get('/game/:id', async (req, res) => {
   } else {
     //game does not exist
     //send  404 page
-    useBuiltFile('./src/public/game-not-found.html', res);
+    useBuiltFile('./src/game-not-found.html', req, res);
   }
 
 });

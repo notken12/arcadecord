@@ -4,7 +4,7 @@ import * as Client from '@app/js/client-framework.js';
 // Use vue
 import * as Vue from 'vue';
 
-import { GameView } from '@app/js/ui.js'
+import { GameView, createApp } from '@app/js/ui.js'
 
 import Board from '@app/components/games/filler/Board.vue';
 
@@ -55,7 +55,7 @@ function connectionCallback(response) {
         }
     }
 
-    const app = Vue.createApp(App).mount('#app');
+    const app = createApp(App).mount('#app');
     window.app = app;
 
     // Receive turn events whenever another player finishes their turn

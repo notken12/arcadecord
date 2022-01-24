@@ -37,6 +37,7 @@
 import bus from '@app/js/vue-event-bus'
 import Common from '/gamecommons/seabattle';
 import PlacedShip from './PlacedShip.vue'
+import {cloneDeep} from 'lodash'
 
 export default {
   data() {
@@ -123,7 +124,7 @@ export default {
     },
     moveShip(pos) {
       var ship = this.dragTarget
-      var board = _.cloneDeep(this.board)
+      var board = cloneDeep(this.board)
       board.ships.forEach((element) => {
         if (element.id == ship.id) {
           if (pos.x !== undefined) element.x = pos.x
