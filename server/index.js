@@ -18,6 +18,7 @@ import { parse } from 'cookie';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import cors from 'cors';
+import JWT from 'jsonwebtoken';
 
 import db from '../db/db2.js';
 
@@ -204,10 +205,6 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
 
 });
 
-// Local lock for game actions
-// Actions are atomic, so we can use a lock to prevent multiple actions from being executed at the same time
-import { Lock } from 'lock';
-const lock = Lock();
 
 io.on('connection', (socket) => {
   appInsightsClient.trackEvent({ name: 'Socket opened' });
@@ -361,11 +358,17 @@ app.use(function (req, res, next) {
 app.use(cookieParser());
 
 app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
 
 /*app.get('/vite/:url', (req, res) => {
   console.log(req.params.url);
   proxyViteDev(req.params.url, res);
 })*/
+
+// Use controllers to handle requests
+import authController from './controllers/auth.controller.js';
 
 app.get('/sign-in', async (req, res) => {
   useBuiltFile('./src/sign-in.html', req, res);
@@ -380,140 +383,73 @@ app.get('/discord-oauth', (req, res) => {
 });
 
 //get authorization code
-app.get('/auth', (req, res) => {
-  const code = req.query.code;
-
-  const options = {
-    method: 'POST',
-    uri: 'https://discord.com/api/oauth2/token',
-    form: {
-      client_id: process.env.BOT_CLIENT_ID,
-      client_secret: process.env.BOT_CLIENT_SECRET,
-      grant_type: 'authorization_code',
-      code: code,
-      redirect_uri: process.env.GAME_SERVER_URL + '/auth'
-    },
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  };
-
-
-  //send post request
-  request(options, async (error, response, body) => {
-    if (error) {
-      console.log(error);
-      res.send('Error');
-    };
-
-
-    var data = JSON.parse(body);
-
-
-    var refresh_token = data.refresh_token;
-    var access_token = data.access_token;
-
-    // error here, replace with bot IPC api call
-    var user = await fetchUserFromAccessToken(access_token);
-    if (!user) {
-      res.send('Error: could not get user from access token');
-      return;
-    }
-
-    var dId = user.id;
-
-    //create user in db
-
-    // check if user exists
-
-    var userFromDiscord = await db.users.getByDiscordId(dId);
-
-    var tenYears = (1000*60*60*24*365*10);
-
-    var existingUserId;
-    if (userFromDiscord) {
-      existingUserId = userFromDiscord._id;
-    }
-    if (!existingUserId) {
-      // new user
-      var id = (await db.users.create(
-        {
-          discordId: dId,
-          discordRefreshToken: refresh_token,
-          discordAccessToken: access_token
-        }
-      ))._id;
-      var token = await db.users.generateAccessToken(id);
-      res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
-    }
-    else {
-      // existing user
-      db.users.update(existingUserId, {
-        discordId: dId,
-        discordRefreshToken: refresh_token,
-        discordAccessToken: access_token
-      });
-      var token = await db.users.generateAccessToken(existingUserId);
-      res.cookie('accessToken', token, { httpOnly: true, maxAge: tenYears });
-    }
-
-    var cookie = req.cookies.gameId;
-    if (cookie === undefined) {
-      res.send('logged in from sign in page, no game to redirect to');
-    } else {
-      res.redirect('/game/' + cookie);
-    }
-  });
-});
+app.get('/auth', authController);
 
 //user is accessing game
 app.get('/game/:id', async (req, res) => {
-  var id = req.params.id;
+  try {
+    var id = req.params.id;
 
-  var dbGame = await db.games.getById(id);
+    var dbGame = await db.games.getById(id);
 
-  if (dbGame) {
-    // get game type
-    var gameType = gameTypes[dbGame.typeId];
+    if (dbGame) {
+      // get game type
+      var gameType = gameTypes[dbGame.typeId];
 
-    // create instance of game, var game
-    var game = new gameType.Game(dbGame._doc);
+      // create instance of game, var game
+      var game = new gameType.Game(dbGame._doc);
 
-    var cookie = req.cookies.accessToken;
+      var cookie = req.cookies.accessToken;
 
-    //check database if user is signed in
-    var user = await db.users.getByAccessToken(cookie);
+      //check database if user is signed in
+      let userId;
+      let token;
+      try {
+        token = JWT.verify(cookie, process.env.JWT_SECRET);
+        userId = token.id;
+      } catch (e) {
+        //user is not signed in. or has an invalid access token
+        //set cookie for game id to redirect back to
+        //redirect to sign in page
+        console.error(e)
+        res.cookie('gameId', id, { maxAge: 10000000 });
+        res.redirect('/sign-in');
 
-    if (user) {
-      //user is signed in. 
-      //redirect to game
-
-      var userId = user._id;
-
-
-      var status = await game.canUserSocketConnect(userId);
-      res.clearCookie('gameId');
-
-      if (status) {
-        //user has permission to join
-        //res.sendFile(__dirname + '/src/games/types/' + game.typeId + '/index.html');
-        var pathName = './src/games/types/' + game.typeId + '/index.html';
-        useBuiltFile(pathName, req, res);
-      } else {
-        res.send('you have no permission to join');
+        return;
       }
+      var user = await db.users.getById(userId);
 
+      if (user) {
+        //user is signed in. 
+        //redirect to game
+
+        var status = await game.canUserSocketConnect(userId);
+        res.clearCookie('gameId');
+
+        if (status) {
+          //user has permission to join
+          //res.sendFile(__dirname + '/src/games/types/' + game.typeId + '/index.html');
+          var pathName = './src/games/types/' + game.typeId + '/index.html';
+          useBuiltFile(pathName, req, res);
+        } else {
+          res.send('you have no permission to join');
+        }
+
+      } else {
+        //user is not signed in. or has an invalid access token
+        //set cookie for game id to redirect back to
+        //redirect to sign in page
+        res.cookie('gameId', id, { maxAge: 10000000 });
+        res.redirect('/sign-in');
+      }
     } else {
-      //user is not signed in. or has an invalid access token
-      //set cookie for game id to redirect back to
-      //redirect to sign in page
-      res.cookie('gameId', id, { maxAge: 10000000 });
-      res.redirect('/sign-in');
+      //game does not exist
+      //send  404 page
+      useBuiltFile('./src/game-not-found.html', req, res);
     }
-  } else {
-    //game does not exist
-    //send  404 page
-    useBuiltFile('./src/game-not-found.html', req, res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('500: Internal Server Error');
   }
 
 });

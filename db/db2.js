@@ -10,7 +10,6 @@ const userSchema = new Schema({
     /*discordUser: Object,*/
     discordAccessToken: String,
     discordRefreshToken: String,
-    accessTokenHash: String,
     joined: {
         type: Date,
         default: Date.now
