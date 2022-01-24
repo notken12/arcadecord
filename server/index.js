@@ -8,7 +8,6 @@ dotenv.config({
 import bases from 'bases';
 
 import express from 'express';
-import request from 'request';
 const app = express();
 
 import { createServer } from 'http';
