@@ -12,6 +12,7 @@ import bus from '../vue-event-bus.js';
 import App from 'components/games/seabattle/App.vue';
 
 import {cloneDeep} from 'lodash';
+import {reactive} from 'vue'
 
 
 
@@ -31,8 +32,8 @@ function connectionCallback(response) {
     });
 
     var vm = createApp(App, {
-        game: game,
-        me: discordUser,
+        game: reactive(game),
+        me: reactive(discordUser),
     });
 
     var app = vm.mount('#app');
@@ -41,10 +42,6 @@ function connectionCallback(response) {
 
     Client.socket.on('turn', (g, turn) => {
         Client.utils.updateGame(app.game, g);
-
-        if (!app.game.data.placed[app.game.myIndex] && app.game.isItMyTurn()) {
-            app.placeShips();
-        }
 
     });
 

@@ -1,4 +1,4 @@
-<template v-if="game">
+<template>
   <div class="game-container">
     <game-header
       :game="game"
@@ -11,7 +11,7 @@
       v-if="!isItMyTurn && !game.hasEnded && !sending"
     ></waiting-view>
     <result-view v-if="game.hasEnded" :game="game"></result-view>
-    <sending-view v-if="!isItMyTurn && sending && !game.hasEnded"></sending-view>
+    <sending-view v-if="!isItMyTurn && sending"></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
   </div>
 </template>
@@ -19,17 +19,16 @@
 <script>
 import bus from '@app/js/vue-event-bus.js'
 import * as Client from '@app/js/client-framework.js'
-
 import GameHeader from './GameHeader.vue'
 import WaitingView from './WaitingView.vue'
 import ResultView from './ResultView.vue'
 import GameManualView from './GameManualView.vue'
 import SendingView from './SendingView.vue'
-
 export default {
   data() {
     return {
       manualOpen: false,
+      isItMyTurn: false,
       sending: false,
       sendingAnimationLength: 500,
     }
@@ -50,10 +49,7 @@ export default {
       this.manualOpen = false
     })
     bus.on('sending', (sending) => {
-      console.log(sending);
       if (!sending) {
-        console.log('No longer sending')
-        navigator.vibrate ?? navigator.vibrate(100)
         setTimeout(() => {
           this.sending = false
         }, this.sendingAnimationLength)
@@ -61,18 +57,15 @@ export default {
         this.sending = true
       }
     })
+    this.isItMyTurn = this.game.isItMyTurn()
   },
-  computed: {
-    isItMyTurn() {
-      if (this.game.turn == this.game.myIndex && !this.game.hasEnded) {
-        return true
-      }
-      if (this.game.players.length < this.game.maxPlayers && this.game.myIndex == -1) {
-        return true
-      }
-      return false
-    }
-  }
+  watch: {
+    'game.turn': function (newTurn) {
+      var player = this.game.players[newTurn]
+      console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
+      this.isItMyTurn = this.game.isItMyTurn()
+    },
+  },
 }
 </script>
 
