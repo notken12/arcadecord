@@ -214,11 +214,11 @@ io.on('connection', (socket) => {
 
     let cookie = cookies.accessToken;
 
-    let userId;
+    let tokenUserId;
     let token;
     try {
       token = JWT.verify(cookie, process.env.JWT_SECRET);
-      userId = token.id;
+      tokenUserId = token.id;
     } catch (e) {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
@@ -231,7 +231,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    var user = await db.users.getById(userId);
+    var user = await db.users.getById(tokenUserId);
     if (!user) {
       callback({
         error: "Invalid access token"
