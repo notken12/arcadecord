@@ -143,7 +143,7 @@ class Game {
                 await this.addPlayer(action.userId);
                 action.playerIndex = this.getPlayerIndex(action.userId);
 
-                GameFlow.start(this);
+                await GameFlow.start(this);
 
             }
         }
@@ -466,7 +466,7 @@ Game.eventHandlersDiscord = {
             }
         }
 
-        m.content = `${Emoji.ICON_ROUND}  **${game.name}**`;
+        m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`;
 
         await BotApi.sendMessage(m, game.guild, game.channel);
 

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, SlashCommandUserOption, SlashCommandStringOption } from '@discordjs/builders';
 import {gameTypes as games} from '../../server/src/games/game-types.js';
-import { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector } from 'discord.js';
+import { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector, MessageButton } from 'discord.js';
 import db from '../../db/db2.js';
 import Emoji from '../../Emoji.js';
 
@@ -80,7 +80,14 @@ export default {
     
             await interaction.editReply(message);
         } else {
-            await interaction.editReply({ content: 'Sign in to play: ' + process.env.GAME_SERVER_URL + '/sign-in', ephemeral: true });
+            let row = new MessageActionRow();
+            let button = new MessageButton({
+                label: 'Sign in',
+                style: 'LINK',
+                emoji: '🔑',
+                url: process.env.GAME_SERVER_URL + '/sign-in'
+            });
+            await interaction.editReply({ content: '**Sign in to play**', ephemeral: true, components: [row] });
         }
     
     }
