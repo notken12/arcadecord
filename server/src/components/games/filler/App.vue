@@ -35,10 +35,7 @@ export default {
     Changer,
   },
   mounted() {
-    bus.on('switch colors', (data) => {
       // data is a local var that has the data that was transmitted
-      runAction(this.game, 'switchColors', data) // data contains the targetColor, which is the action data
-    })
   },
 }
 </script>

@@ -14,6 +14,8 @@ import bus from '@app/js/vue-event-bus.js'
 import Common from '/gamecommons/filler'
 import store from '@app/js/store.js'
 
+import {runAction} from '@app/js/client-framework.js'
+
 // Create a button that will set the player's blob to the target color
 export default {
   props: ['colorid'],
@@ -25,9 +27,7 @@ export default {
   },
   methods: {
     changeBlob() {
-      bus.emit('switch colors', {
-        targetColor: this.colorid,
-      })
+      runAction(this.game, 'switchColors', { targetColor: this.colorid }) // data contains the targetColor, which is the action data
     },
   },
   computed: {
@@ -40,14 +40,17 @@ export default {
       // the class will be set to the color name
     },
     isDisabled() {
-      var myColor = Common.Board.getPlayerColor(this.game.data.board, this.game.myIndex)
+      var myColor = Common.Board.getPlayerColor(
+        this.game.data.board,
+        this.game.myIndex
+      )
       var opponentColor = Common.Board.getPlayerColor(
         this.game.data.board,
         this.game.myIndex ^ 1
       )
       return myColor === this.colorid || opponentColor === this.colorid
     },
-  }
+  },
 }
 </script>
 

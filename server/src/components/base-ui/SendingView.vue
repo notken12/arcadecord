@@ -19,7 +19,6 @@ export default {
     return {}
   },
   mounted() {
-    console.log('SendingView mounted')
   },
 }
 </script>
