@@ -7,6 +7,9 @@ import { resolve } from 'path';
 import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 import commonjs from '@rollup/plugin-commonjs';
 import { babel } from '@rollup/plugin-babel';
+import { visualizer } from 'rollup-plugin-visualizer';
+import graph from 'rollup-plugin-graph';
+import brotli from "rollup-plugin-brotli";
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,7 +54,6 @@ const entryPoints = walk(path.resolve(__dirname, 'server/src'));
 // https://vitejs.dev/config/
 export default defineConfig({
   root: './server/src',
-  plugins: [vue()],
   base: '/dist/',
   publicDir: 'public',
   server: {
@@ -71,10 +73,6 @@ export default defineConfig({
         find: 'vue',
         replacement: 'vue/dist/vue.esm-bundler.js'
       },
-      /*{
-        find: 'enable3d',
-        replacement: 'enable3d/dist/bundle.d.ts'
-      },*/
       {
         find: 'scss/',
         replacement: `${path.resolve(__dirname, 'server/src/scss')}/`
@@ -95,21 +93,36 @@ export default defineConfig({
       input: entryPoints,
       output: {
         assetFileNames: "assets/[name]-[hash][extname]",
-        format: 'es'
+        format: 'es',
+        /*manualChunks: {
+          enable3d: ['enable3d'],
+          three: ['three'],
+        }*/
       },
       external: [
         /^server\/src\/games\/types\/(.*)main.(.*)$/
       ],
-      plugins: [
-        commonjs({
-          dynamicRequireTargets: [
-          ],
-          transformMixedEsModules: true,
-        }),
-        babel({ babelHelpers: 'bundled' })
-      ]
     },
     outDir: '../dist',
     emptyOutDir: true,
-  }
+  },
+  plugins: [
+    vue(),
+    commonjs({
+      dynamicRequireTargets: [
+      ],
+      transformMixedEsModules: true,
+    }),
+    babel({ babelHelpers: 'bundled' }),
+    brotli(/*{
+      asset: '[path].br[query]',
+			test: /\.(js|css|html|svg)$/,
+			threshold: 10240,
+			minRatio: 0.8
+    }*/),
+    visualizer(),
+    /*graph({
+      prune: true
+    })*/
+  ]
 })
