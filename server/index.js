@@ -18,6 +18,7 @@ import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import cors from 'cors';
 import JWT from 'jsonwebtoken';
+import shrinkRay from 'shrink-ray-current';
 
 import db from '../db/db2.js';
 
@@ -69,6 +70,8 @@ import { Generator } from 'snowflake-generator';
 const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
 
 app.use(cors());
+
+app.use(shrinkRay());
 
 // Health check
 app.head('/health', function (req, res) {

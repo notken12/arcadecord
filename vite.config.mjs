@@ -94,10 +94,10 @@ export default defineConfig({
       output: {
         assetFileNames: "assets/[name]-[hash][extname]",
         format: 'es',
-        /*manualChunks: {
+        manualChunks: {
           enable3d: ['enable3d'],
           three: ['three'],
-        }*/
+        }
       },
       external: [
         /^server\/src\/games\/types\/(.*)main.(.*)$/
@@ -120,7 +120,9 @@ export default defineConfig({
 			threshold: 10240,
 			minRatio: 0.8
     }*/),
-    visualizer(),
+    visualizer({
+      template: 'network'
+    }),
     /*graph({
       prune: true
     })*/

@@ -2,14 +2,16 @@
 import * as Client from '@app/js/client-framework.js';
 
 // Use vue
-import * as Vue from 'vue';
-
-import { GameView, createApp } from '@app/js/ui.js'
+import { createApp } from '@app/js/ui.js'
 
 import App from '@app/components/games/filler/App.vue';
+import Loading from '@app/components/base-ui/Loading.vue';
 
 import 'scss/games/filler.scss';
 import store from '@app/js/store.js';
+
+// Display a loading screen while we wait for the game to load
+const loading = createApp(Loading).mount('#loading');
 
 // Get game ID from URL address
 
@@ -28,6 +30,9 @@ function connectionCallback(response) {
     store.state.me = response.discordUser;
 
     const app = createApp(App).mount('#app');
+
+    // Remove loading screen
+    loading.loading = false;
     window.app = app;
 
     // Receive turn events whenever another player finishes their turn

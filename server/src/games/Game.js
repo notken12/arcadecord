@@ -3,8 +3,7 @@ import { config } from 'dotenv';
 import Player from './Player.js';
 import Action from './Action.js';
 import Turn from './Turn.js';
-import lodash from 'lodash';
-const { cloneDeep } = lodash;
+import cloneDeep from 'lodash.clonedeep';
 
 import GameFlow from './GameFlow.js';
 import BotApi from '../../bot/api.js';
