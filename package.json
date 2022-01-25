@@ -39,7 +39,6 @@
     "@socket.io/redis-adapter": "^7.1.0",
     "applicationinsights": "^2.2.0",
     "bases": "^0.2.1",
-    "canvas": "^2.8.0",
     "canvas-confetti": "^1.4.0",
     "concurrently": "^7.0.0",
     "cookie-parser": "^1.4.5",
