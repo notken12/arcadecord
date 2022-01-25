@@ -12,9 +12,9 @@ const appInsights = new ApplicationInsights({ config: {
 appInsights.loadAppInsights();
 appInsights.trackPageView();
 
-console.log(`[arcadecord] running in ${process.env.NODE_ENV} mode`);
+console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
-var socket = io();
+var socket = io(`${window.location.origin}`);
 
 class Action {
     constructor(type, data, playerIndex) {
