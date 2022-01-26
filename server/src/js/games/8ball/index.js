@@ -13,7 +13,7 @@ import 'scss/games/8ball.scss';
 // import the UMD bundle enable3d.framework.min.js
 // or from npm enable3d
 import { Project, Scene3D, PhysicsLoader, ExtendedObject3D, ExtendedMesh } from 'enable3d'
-import * as THREE from 'three'
+import { Vector3, OrthographicCamera } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 import { Ball } from './Ball'
@@ -73,7 +73,7 @@ function connectionCallback(response) {
 
                 async init() {
                     this.renderer.setPixelRatio(Math.max(1, window.devicePixelRatio / 2))
-                    // this.camera = new THREE.OrthographicCamera();
+                    // this.camera = new OrthographicCamera();
                     this.camera.position.set(0, 500, 0)
 
                     let updateSize = () => {
@@ -183,12 +183,12 @@ function connectionCallback(response) {
                     this.physics.debug.enable()
 
                     var apex = Table.PLAY_AREA.LEN_Z / 4;
- 
+
                     var xo = Ball.RADIUS * 1;
                     var zo = 1 * Ball.RADIUS * Math.cos(Math.PI / 6); //how far the balls are spaced apart on z axis
 
                     var y = CueBall.DEFAULT_POSITION.y;
-                    
+
 
                     this.balls = [
                         new CueBall(this),
@@ -253,7 +253,7 @@ function connectionCallback(response) {
                 }
 
                 createVector(x, y, z) {
-                    var p = new THREE.Vector3(x, y, z);
+                    var p = new Vector3(x, y, z);
                     var vector = p.project(this.camera);
 
                     vector.x = (vector.x + 1) / 2 * this.canvas.width;

@@ -43,7 +43,7 @@
 import Common from '/gamecommons/seabattle'
 import ShipPlacer from './ShipPlacer.vue'
 import HitBoardView from './HitBoardView.vue'
-import {cloneDeep} from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 import {runAction, utils as clientUtils} from '@app/js/client-framework.js'
 
 function getMyHitBoard(game) {

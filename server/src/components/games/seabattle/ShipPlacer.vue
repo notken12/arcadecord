@@ -37,7 +37,7 @@
 import bus from '@app/js/vue-event-bus'
 import Common from '/gamecommons/seabattle';
 import PlacedShip from './PlacedShip.vue'
-import {cloneDeep} from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 
 export default {
   data() {

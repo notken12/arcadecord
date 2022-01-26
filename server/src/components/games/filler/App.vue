@@ -14,15 +14,15 @@
 import Board from './Board.vue'
 import Changer from './Changer.vue'
 import { runAction } from '@app/js/client-framework.js'
-import bus from '@app/js/vue-event-bus.js';
-import store from '@app/js/store.js';
+import bus from '@app/js/vue-event-bus.js'
+import store from '@app/js/store.js'
 
 export default {
   data() {
     return {
-        game: store.state.game,
-        me: store.state.me,
-        board: store.state.game.data.board,
+      game: store.state.game,
+      me: store.state.me,
+      board: store.state.game.data.board,
     }
   },
   computed: {
@@ -35,7 +35,7 @@ export default {
     Changer,
   },
   mounted() {
-      // data is a local var that has the data that was transmitted
+    // data is a local var that has the data that was transmitted
   },
 }
 </script>

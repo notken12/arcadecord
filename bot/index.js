@@ -46,11 +46,7 @@ const manager = new ShardingManager('./bot/bot.js', {
     totalShards: totalShards
 });
 
-console.log("Starting shard manager " + hostId + " with " + shardList.length + " shards out of " + totalShards + " total shards");
-
 manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
-
-manager.spawn();
 
 // create http server to handle requests
 var app = express();
@@ -181,3 +177,7 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 });
 
 app.listen(port, () => console.log(`Bot host ${hostId} listening on port ${port}`));
+
+console.log("Starting shard manager " + hostId + " with " + shardList.length + " shards out of " + totalShards + " total shards");
+
+manager.spawn();

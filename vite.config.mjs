@@ -41,7 +41,7 @@ var walk = function (dir) {
     } else {
       /* Is a file */
       // Get html files and common.js
-      if (file.endsWith('.html') || file.match(/(^.*)common./)) {
+      if (file.endsWith('.html')/*  || file.match(/(^.*)common./) */) {
         results.push(file);
       }
     }
@@ -50,6 +50,19 @@ var walk = function (dir) {
 }
 
 const entryPoints = walk(path.resolve(__dirname, 'server/src'));
+
+const nonSharedModules = ['enable3d', 'three'];
+
+const { dependencies } = JSON.parse(fs.readFileSync('./package.json'));
+const nodeDependencies = Object.keys(dependencies);
+const sharedModules = [];
+
+for (let key of nodeDependencies) {
+  if (nonSharedModules.includes(key)) {
+    continue;
+  }
+  sharedModules.push(key);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -82,22 +95,33 @@ export default defineConfig({
         find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
       }
     ]
-  },
+  },/* 
   optimizeDeps: {
     exclude: [
       '@enable3d/ammo-physics',
     ]
-  },
+  }, */
   build: {
     rollupOptions: {
       input: entryPoints,
       output: {
-        assetFileNames: "assets/[name]-[hash][extname]",
         format: 'es',
-        manualChunks: {
-          enable3d: ['enable3d'],
-          three: ['three'],
+        manualChunks(id) {
+          // add shared modules to the vendor chunk
+          if (id.includes('node_modules')) {
+            for (let i = 0; i < sharedModules.length; i++) {
+              if (id.includes(sharedModules[i])) {
+                return 'vendor';
+              }
+            }
+            for (let i = 0; i < nonSharedModules.length; i++) {
+              if (id.includes(nonSharedModules[i])) {
+                return nonSharedModules[i];
+              }
+            }
+          }
         }
+        //sourcemap: true,
       },
       external: [
         /^server\/src\/games\/types\/(.*)main.(.*)$/
@@ -113,7 +137,10 @@ export default defineConfig({
       ],
       transformMixedEsModules: true,
     }),
-    babel({ babelHelpers: 'bundled' }),
+    babel({
+      babelHelpers: 'bundled',
+      exclude: 'node_modules/**'
+    }),
     brotli(/*{
       asset: '[path].br[query]',
 			test: /\.(js|css|html|svg)$/,

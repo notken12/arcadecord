@@ -11,7 +11,7 @@ import bus from '../vue-event-bus.js';
 // import vue components
 import App from 'components/games/seabattle/App.vue';
 
-import {cloneDeep} from 'lodash';
+import cloneDeep from 'lodash.clonedeep'
 import {reactive} from 'vue'
 
 

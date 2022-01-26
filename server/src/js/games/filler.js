@@ -29,6 +29,7 @@ function connectionCallback(response) {
     store.state.game = response.game;
     store.state.me = response.discordUser;
 
+
     const app = createApp(App).mount('#app');
 
     // Remove loading screen
