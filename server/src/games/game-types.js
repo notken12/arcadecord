@@ -3,12 +3,12 @@ import { readdirSync } from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
+const _filename = fileURLToPath(import.meta.url);
 
 // 👇️ "/home/john/Desktop/javascript"
-const __dirname = path.dirname(__filename);
+const _dirname = path.dirname(_filename);
 
-const gameFolders = readdirSync(__dirname + '/types');
+const gameFolders = readdirSync(_dirname + '/types');
 
 var gameTypes = {};
 

@@ -4,12 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs'
 import { resolve } from 'path';
-import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 import commonjs from '@rollup/plugin-commonjs';
 import { babel } from '@rollup/plugin-babel';
 import { visualizer } from 'rollup-plugin-visualizer';
 import graph from 'rollup-plugin-graph';
 import brotli from "rollup-plugin-brotli";
+import handlebars from 'vite-plugin-handlebars';
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -64,6 +64,15 @@ for (let key of nodeDependencies) {
   sharedModules.push(key);
 }
 
+import { gameTypes } from './server/src/games/game-types.js';
+const pageData = {};
+for (let type in gameTypes) {
+  let game = gameTypes[type];
+  pageData[`/games/types/${game.options.typeId}/index.html`] = {
+    ...game.options
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   root: './server/src',
@@ -83,24 +92,18 @@ export default defineConfig({
         replacement: `${path.resolve(__dirname, 'server/src/components')}/`
       },
       {
-        find: 'vue',
-        replacement: 'vue/dist/vue.esm-bundler.js'
-      },
-      {
         find: 'scss/',
         replacement: `${path.resolve(__dirname, 'server/src/scss')}/`
       },
-      { find: /\/gamecommons\/(.*)/, replacement: path.resolve(__dirname, 'server/src/games/types/$1/common.js') },
+      {
+        find: /\/gamecommons\/(.*)/,
+        replacement: path.resolve(__dirname, 'server/src/games/types/$1/common.js')
+      },
       {
         find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
       }
     ]
-  },/* 
-  optimizeDeps: {
-    exclude: [
-      '@enable3d/ammo-physics',
-    ]
-  }, */
+  },
   build: {
     rollupOptions: {
       input: entryPoints,
@@ -133,22 +136,40 @@ export default defineConfig({
   plugins: [
     vue(),
     commonjs({
-      dynamicRequireTargets: [
-      ],
       transformMixedEsModules: true,
     }),
     babel({
       babelHelpers: 'bundled',
       exclude: 'node_modules/**'
     }),
-    brotli(/*{
-      asset: '[path].br[query]',
-			test: /\.(js|css|html|svg)$/,
-			threshold: 10240,
-			minRatio: 0.8
-    }*/),
+    handlebars({
+      context(pagePath) {
+        console.log(pagePath)
+        let data = pageData[pagePath];
+        if (data) {
+          let aliases;
+          if (typeof data.aliases === 'object') {
+            aliases = (data.aliases.join(' ') + ' ' + data.name).toLowerCase();
+          } else {
+            aliases = data.name.toLowerCase();
+          }
+          return {
+            metaTemplate:
+              `
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link rel="preconnect" href="https://cdn.discordapp.com">
+              <meta name="theme-color" content="${data.color || '#0063ff'}">
+              <meta name="description" content="${data.description || ''}">
+              <meta name="keywords" content="${aliases}">
+            `
+          }
+        }
+      }
+    }),
+    brotli(),
     visualizer({
-      template: 'network'
+      template: 'treemap'
     }),
     /*graph({
       prune: true
