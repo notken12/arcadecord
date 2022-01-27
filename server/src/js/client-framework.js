@@ -5,10 +5,12 @@ import bus from './vue-event-bus.js';
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
-const appInsights = new ApplicationInsights({ config: {
-  connectionString: 'InstrumentationKey=54ef4b41-2e52-4be2-bf3f-02471829b486;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com/'
-  /* ...Other Configuration Options... */
-} });
+const appInsights = new ApplicationInsights({
+    config: {
+        connectionString: 'InstrumentationKey=54ef4b41-2e52-4be2-bf3f-02471829b486;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com/'
+        /* ...Other Configuration Options... */
+    }
+});
 appInsights.loadAppInsights();
 appInsights.trackPageView();
 
@@ -57,7 +59,7 @@ const utils = {
     },
 
     async setUpGame(game) {
-        let {default: Common} = await import(`../games/types/${game.typeId}/common.js`);
+        let { default: Common } = await import(`../games/types/${game.typeId}/common.js`);
 
         game.client = client;
 
@@ -91,6 +93,7 @@ let sending = false;
 
 function emitAction(game, actionType, actionData, actionCallback) {
     sending = true;
+    onPageHasUnsavedChanges();
     bus.emit('sending', true);
     actionEmissionQueue.push([actionType, actionData]);
 
@@ -102,12 +105,13 @@ function emitAction(game, actionType, actionData, actionCallback) {
             socket.emit('action', action[0], action[1], callback);
         } else {
             sending = false;
+            onAllChangesSaved();
             bus.emit('sending', false);
             console.log('[arcadecord] all actions emitted');
         }
-        if (firstActionEmitted) { 
-            if (typeof actionCallback === 'function') 
-                actionCallback(...args) 
+        if (firstActionEmitted) {
+            if (typeof actionCallback === 'function')
+                actionCallback(...args)
         };
         firstActionEmitted = true;
     }
@@ -178,13 +182,20 @@ async function connect(gameId, callback) {
     });
 }
 
-function unloadPage(){ 
-    if(sending){
-        return "Your turn has not been sent yet. Are you sure you want to leave?";
-    }
-}
+const beforeUnloadListener = (event) => {
+    event.preventDefault();
+    return event.returnValue = "Your turn has not been sent yet. Are you sure you want to leave?";
+};
 
-window.onbeforeunload = unloadPage;
+// A function that invokes a callback when the page has unsaved changes.
+let onPageHasUnsavedChanges = () => {
+    window.addEventListener('beforeunload', beforeUnloadListener, { capture: true });
+};
+
+// A function that invokes a callback when the page's unsaved changes are resolved.
+let onAllChangesSaved = () => {
+    window.removeEventListener('beforeunload', beforeUnloadListener, { capture: true });
+};
 
 export {
     socket,
