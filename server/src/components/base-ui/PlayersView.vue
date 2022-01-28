@@ -9,6 +9,7 @@
       v-for="player in players"
       :key="player.discordUser.id"
       :player="player"
+      :playerindex="players.indexOf(player)"
     ></player-view>
   </div>
 </template>

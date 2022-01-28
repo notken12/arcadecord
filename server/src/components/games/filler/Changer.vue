@@ -1,5 +1,5 @@
 <template>
-  <div class="changer">
+  <div class="changer" :class="{hidden}">
     <changer-button
       v-for="colorId in colors.length"
       :key="colorId"
@@ -12,11 +12,17 @@
 // FOR every COLOR in the COMMON COLORS, display a CHANGER BUTTON with its prop COLOR ID set to that COLOR
 import ChangerButton from './ChangerButton.vue'
 import Common from '/gamecommons/filler'
+import GameFlow from '@app/js/GameFlow'
 
 export default {
   data() {
     return {
       colors: Common.COLORS,
+    }
+  },
+  computed: {
+    hidden() {
+      return !GameFlow.isItMyTurn(this.game)
     }
   },
   components: {
@@ -32,5 +38,21 @@ export default {
   gap: 16px;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition-delay: 0.3s;
+}
+
+.hidden {
+  transform: scale(0);
+  opacity: 0;
+}
+
+@keyframes popOut {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

@@ -26,7 +26,7 @@ export default {
   methods: {
     changeBlob() {
       runAction(this.game, 'switchColors', { targetColor: this.colorid }); // data contains the targetColor, which is the action data
-      this.$endAnimation(750);
+      this.$endAnimation(1000);
     },
   },
   computed: {
@@ -62,9 +62,11 @@ export default {
   border-radius: 4px;
   box-shadow: theme.$md-elevation-level2;
   cursor: pointer;
+  transition-property: width, height, opacity;
+  transition-duration: 0.2s;
 }
 
-.changer-button[disabled='true'] {
+.changer-button[disabled=true] {
   width: 20px;
   height: 20px;
   cursor: default;
