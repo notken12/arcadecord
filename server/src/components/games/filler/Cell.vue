@@ -1,11 +1,16 @@
 <template>
-  <div class="cell" :class="classes"></div>
+  <div class="cell" :class="classes" @animationend="animated = false"></div>
 </template>
 
 <script>
 import Common from '/gamecommons/filler'
 
 export default {
+  data() {
+    return {
+      animated: false,
+    }
+  },
   props: ['board', 'cell', 'isblob'],
   computed: {
     classes() {
@@ -14,15 +19,20 @@ export default {
       // color is a string containing the name of the desired color
       // mogo was here
 
-      var classes = [color];
+      var classes = [color]
 
-      if (this.isblob) {
-        classes.push('partofblob');
-      }
+      if (this.isblob && !this.replaying) classes.push('partofblob')
+      if (this.animated) classes.push('animated')
 
       return classes // an array with one string; the string is the color's name.
       // the class will be set to the color name
-    }
+    },
+  },
+  watch: {
+    'cell.color': function (newVal, oldVal) {
+      // Play css animation when the color of the cell changes
+      this.animated = true
+    },
   },
 }
 </script>
@@ -43,6 +53,10 @@ $width: 40px;
   animation: pulse 1s infinite;
 }
 
+.animated {
+  animation: pop 0.5s;
+}
+
 @keyframes pulse {
   /* brighten and darken the color */
   0% {
@@ -53,6 +67,19 @@ $width: 40px;
   }
   100% {
     filter: brightness(0.8);
+  }
+}
+
+@keyframes pop {
+  /* pop animation */
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 </style>

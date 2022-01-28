@@ -34,7 +34,7 @@ export default {
     // data is a local var that has the data that was transmitted
     this.$replayTurn(() => {
       replayAction(this.game, this.previousTurn.actions[0])
-      this.$endReplay(500)
+      this.$endReplay(750) // ms
     })
   },
   methods: {},

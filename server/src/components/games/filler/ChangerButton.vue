@@ -25,7 +25,8 @@ export default {
   },
   methods: {
     changeBlob() {
-      runAction(this.game, 'switchColors', { targetColor: this.colorid }) // data contains the targetColor, which is the action data
+      runAction(this.game, 'switchColors', { targetColor: this.colorid }); // data contains the targetColor, which is the action data
+      this.$endAnimation(750);
     },
   },
   computed: {

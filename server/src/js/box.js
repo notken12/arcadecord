@@ -9,6 +9,7 @@ export default {
         game: null,
         me: null,
         error: null,
-        replaying: false
+        replaying: false,
+        runningAction: false
     }),
 };

@@ -29,6 +29,9 @@ export default {
         },
         me() {
             return facade.state.me;
+        },
+        runningAction() {
+            return facade.state.runningAction;
         }
     },
     methods: {
@@ -53,7 +56,18 @@ export default {
             if (this.replaying && this.replayTurnFuncSet) {
                 console.log('[arcadecord.facade] replaying turn');
                 setTimeout(this.$replayTurnFunc, turnReplayDelay);
+
             }
+        },
+        $endAnimation(delayMS) {
+            facade.state.runningAction = true;
+            if (delayMS == undefined) {
+                delayMS = 0;
+            }
+            setTimeout(() => {
+                facade.state.runningAction = false;
+                // console.log('[arcadecord.facade] finished running action animations');
+            }, delayMS);
         }
     },
     mounted() {
