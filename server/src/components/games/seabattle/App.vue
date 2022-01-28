@@ -61,7 +61,6 @@ function getMyHitBoard(game) {
 }
 
 export default {
-  props: ['game', 'me'],
   data() {
     var myHitBoard = getMyHitBoard(this.game)
     return {

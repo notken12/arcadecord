@@ -18,7 +18,6 @@ export default {
 
         }
     },
-    props: ['game'],
     computed: {
         resultText() {
             if (this.game.winner === -1) {

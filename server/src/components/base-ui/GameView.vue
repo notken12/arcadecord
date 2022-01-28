@@ -24,6 +24,8 @@ import WaitingView from './WaitingView.vue'
 import ResultView from './ResultView.vue'
 import GameManualView from './GameManualView.vue'
 import SendingView from './SendingView.vue'
+import GameFlow from '@app/js/GameFlow.js'
+
 export default {
   data() {
     return {
@@ -33,13 +35,16 @@ export default {
       sendingAnimationLength: 500,
     }
   },
-  props: ['game', 'me', 'hint'],
+  props: ['hint'],
   components: {
     GameHeader,
     WaitingView,
     GameManualView,
     ResultView,
     SendingView,
+  },
+  created() {
+    this.isItMyTurn = GameFlow.isItMyTurn(this.game)
   },
   mounted() {
     bus.on('open-manual', () => {
@@ -57,13 +62,12 @@ export default {
         this.sending = true
       }
     })
-    this.isItMyTurn = this.game.isItMyTurn()
   },
   watch: {
     'game.turn': function (newTurn) {
       var player = this.game.players[newTurn]
       console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
-      this.isItMyTurn = this.game.isItMyTurn()
+      this.isItMyTurn = GameFlow.isItMyTurn(this.game)
     },
   },
 }

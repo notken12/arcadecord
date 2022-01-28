@@ -25,7 +25,7 @@ export default {
   data() {
     return {}
   },
-  props: ['player', 'me', 'alwaysshow'],
+  props: ['player', 'alwaysshow'],
   computed: {
     avatarURL() {
       return (

@@ -11,6 +11,5 @@ export default {
   data() {
     return {}
   },
-  props: ['game', 'me'],
 }
 </script>

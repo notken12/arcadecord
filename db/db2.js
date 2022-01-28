@@ -39,6 +39,11 @@ const gameSchema = new Schema({
         default: {},
         required: true
     },
+    previousData: {
+        type: Object,
+        default: {},
+        required: true
+    },
     secretData: Object,
     turns: Array,
     sockets: Object,

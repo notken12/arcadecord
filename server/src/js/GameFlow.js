@@ -29,6 +29,16 @@ const GameFlow = {
         game.turn = (game.turn + 1) % game.players.length;
 
         game.client.emit('turn');
+    },
+    isItMyTurn(game) {
+        return !game.hasEnded && this.isItUsersTurn(game, game.myIndex);
+    },
+    isItUsersTurn(game, userIndex) {
+        let i = userIndex;
+        return game.turn == i || (!game.hasStarted && !game.isGameFull() && i == -1);
+    },
+    isGameFull(game) {
+        return game.players.length >= game.maxPlayers;
     }
 };
 

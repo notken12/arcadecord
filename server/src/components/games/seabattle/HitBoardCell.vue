@@ -11,7 +11,7 @@ export default {
       animation: 'none',
     }
   },
-  props: ['cell', 'board', 'game'],
+  props: ['cell', 'board'],
   computed: {
     cellStyles() {
       var board = this.board

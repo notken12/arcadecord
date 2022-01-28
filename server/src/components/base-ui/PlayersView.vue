@@ -3,14 +3,12 @@
     <player-view
       :key="me"
       :player="me"
-      :me="me"
       :alwaysshow="true"
     ></player-view>
     <player-view
       v-for="player in players"
       :key="player.discordUser.id"
       :player="player"
-      :me="me"
     ></player-view>
   </div>
 </template>
@@ -22,7 +20,11 @@ export default {
   data() {
     return {}
   },
-  props: ['players', 'me'],
+  computed: {
+    players() {
+      return this.game.players;
+    }
+  },
   components: {
     PlayerView,
   },

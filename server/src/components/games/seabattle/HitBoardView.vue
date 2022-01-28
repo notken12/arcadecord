@@ -37,7 +37,7 @@ import HitBoardCell from './HitBoardCell.vue'
 import PlacedShip from './PlacedShip.vue'
 
 export default {
-  props: ['board', 'target', 'game'],
+  props: ['board', 'target'],
   data() {
     return {}
   },

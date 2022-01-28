@@ -12,7 +12,7 @@
       </button>
     </div>
     <div>
-      <players-view :players="game.players" :me="me"></players-view>
+      <players-view></players-view>
     </div>
   </div>
 </template>
@@ -25,7 +25,7 @@ export default {
   data() {
     return {}
   },
-  props: ['game', 'me', 'hint', 'isitmyturn'],
+  props: ['hint', 'isitmyturn'],
   components: {
     PlayersView,
   },

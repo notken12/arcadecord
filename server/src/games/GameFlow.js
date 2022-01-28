@@ -1,4 +1,5 @@
-var GameFlow = {
+
+const GameFlow = {
     async start(game) {
         //once first action has been made, start the game
         //first start and then handle first action

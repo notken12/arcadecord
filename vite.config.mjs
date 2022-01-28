@@ -127,7 +127,8 @@ export default defineConfig({
         //sourcemap: true,
       },
       external: [
-        /^server\/src\/games\/types\/(.*)main.(.*)$/
+        /server\/src\/games\/types\/(.*)main.(.*)$/,
+        /server\/src\/games\/([^\/]*)$/,
       ],
     },
     outDir: '../dist',
@@ -144,7 +145,6 @@ export default defineConfig({
     }),
     handlebars({
       context(pagePath) {
-        console.log(pagePath)
         let data = pageData[pagePath];
         if (data) {
           let aliases;

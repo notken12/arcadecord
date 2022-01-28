@@ -41,6 +41,7 @@ class Game {
         this.secretData = {}; // data to be kept secret from players clients
         this.turns = []; // all past turns taken by players
         this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+        this.previousData = {}; // snapshot of game data before the last turn
 
         // async actionModel (action, game) {
         // action: information about action
@@ -147,15 +148,18 @@ class Game {
             }
         }
 
+        // It isn't your turn bruh
         if (this.turn !== action.playerIndex) return {
             success: false,
         };
 
-        if (this.turns.length == 0) {
-            // first turn
-            this.turns.push(new Turn(action.playerIndex));
-        } else if (this.turns[this.turns.length - 1].playerIndex != action.playerIndex) {
-            // begin new turn
+        if (this.turns.length == 0 || this.turns[this.turns.length - 1].playerIndex != action.playerIndex) {
+            // First action in a new turn
+
+            // Take a snapshot of the game data
+            this.previousData = cloneDeep(this.data);
+
+            // Create a new turn
             this.turns.push(new Turn(action.playerIndex));
         }
 
@@ -369,6 +373,7 @@ class Game {
             winner: this.winner,
             hasEnded: this.hasEnded,
             typeId: this.typeId,
+            previousData: this.previousData,
         };
         for (let key in this.actionModels) {
             game.actionModels[key] = this.actionModels[key].name;

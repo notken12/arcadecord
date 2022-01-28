@@ -36,7 +36,6 @@ export default {
       parsedMarkdown: undefined,
     }
   },
-  props: ['game'],
   methods: {
     closeManual() {
       bus.emit('close-manual')

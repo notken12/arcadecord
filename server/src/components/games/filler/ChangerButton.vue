@@ -21,8 +21,6 @@ export default {
   props: ['colorid'],
   data() {
     return {
-      game: store.state.game,
-      me: store.state.me,
     }
   },
   methods: {

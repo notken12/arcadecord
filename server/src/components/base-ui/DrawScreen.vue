@@ -11,7 +11,6 @@ export default {
   data() {
     return {}
   },
-  props: ['game', 'me'],
   mounted() {},
 }
 </script>

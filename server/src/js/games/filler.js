@@ -2,16 +2,17 @@
 import * as Client from '@app/js/client-framework.js';
 
 // Use vue
-import { createApp } from '@app/js/ui.js'
+import { createApp, setupFacade } from '@app/js/ui.js'
 
 import App from '@app/components/games/filler/App.vue';
 import Loading from '@app/components/base-ui/Loading.vue';
 
 import 'scss/games/filler.scss';
 import store from '@app/js/store.js';
+import box from '@app/js/box.js';
 
 // Display a loading screen while we wait for the game to load
-const loading = createApp(Loading).mount('#loading');
+//const loading = createApp(Loading).mount('#loading');
 
 // Get game ID from URL address
 
@@ -26,9 +27,7 @@ function connectionCallback(response) {
 
     // Nice UI components for the basic UI
 
-    store.state.game = response.game;
-    store.state.me = response.discordUser;
-
+    store.setup(response);
 
     const app = createApp(App).mount('#app');
 
@@ -40,7 +39,8 @@ function connectionCallback(response) {
     Client.socket.on('turn', (game, turn) => {
         // Update the game UI
         // Later we will replace this with a turn animation
-        Client.utils.updateGame(app.game, game);
+        store.updateGame(game);
+        setupFacade();
 
         console.log('Turn received, now the turn is ' + game.turn);
     });

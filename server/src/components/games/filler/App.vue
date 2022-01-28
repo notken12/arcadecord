@@ -4,7 +4,7 @@
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
     <div class="middle">
-      <board :board="game.data.board"></board>
+      <board></board>
       <changer></changer>
     </div>
   </game-view>
@@ -19,11 +19,7 @@ import store from '@app/js/store.js'
 
 export default {
   data() {
-    return {
-      game: store.state.game,
-      me: store.state.me,
-      board: store.state.game.data.board,
-    }
+    return {}
   },
   computed: {
     hint() {
@@ -36,6 +32,10 @@ export default {
   },
   mounted() {
     // data is a local var that has the data that was transmitted
+    this.$replayTurn(() => {
+      setTimeout(this.$endReplay, 3000)
+    })
   },
+  methods: {},
 }
 </script>

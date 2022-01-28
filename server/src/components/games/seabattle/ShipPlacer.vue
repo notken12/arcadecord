@@ -47,7 +47,7 @@ export default {
       targetMoved: false,
     }
   },
-  props: ['board', 'game'],
+  props: ['board'],
   computed: {
     gridStyles() {
       var board = this.board

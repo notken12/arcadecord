@@ -48,12 +48,15 @@ const utils = {
     propertiesToIgnore: ['client', 'actionModels'],
     functionsToApplyToGame: {
         isItUsersTurn(a, i) {
+            console.warn('game.isItUsersTurn is deprecated. Use GameFlow.isItUsersTurn(game, index) instead.');
             return this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1);
         },
         isItMyTurn() {
+            console.warn('game.isItMyTurn is deprecated. Use GameFlow.isItMyTurn(game) instead.');
             return !this.hasEnded && this.isItUsersTurn(undefined, this.myIndex);
         },
         isGameFull() {
+            console.warn('game.isGameFull is deprecated. Use GameFlow.isGameFull(game) instead.');
             return this.players.length >= this.maxPlayers;
         }
     },
@@ -126,7 +129,7 @@ var discordUser;
 async function runAction(game, type, data, callback, clone) {
     var game = clone ? cloneDeep(game) : game;
 
-    if (game.hasEnded || !game.isItUsersTurn(undefined, game.myIndex)) {
+    if (game.hasEnded || !GameFlow.isItUsersTurn(game, game.myIndex)) {
         return false;
     }
 

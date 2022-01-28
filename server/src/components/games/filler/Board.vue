@@ -16,11 +16,11 @@
 import Cell from './Cell.vue'
 import Common from '/gamecommons/filler'
 import store from '@app/js/store.js'
+import GameFlow from '@app/js/GameFlow.js'
 
 export default {
   data() {
     return {
-      game: store.state.game,
     }
   },
   components: {
@@ -31,12 +31,12 @@ export default {
       return Common.Board.getPlayerBlob(this.board, this.game.myIndex)
     },
     board() {
-      return store.state.game.data.board
+      return this.game.data.board
     },
   },
   methods: {
     isCellBlob(cell) {
-      if (!this.game.isItMyTurn()) return false
+      if (!GameFlow.isItMyTurn(this.game)) return false
       for (let coord of this.playerBlob) {
         if (cell.row === coord.row && cell.col === coord.col) {
           return true

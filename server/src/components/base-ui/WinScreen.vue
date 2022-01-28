@@ -134,7 +134,6 @@ export default {
   data() {
     return {}
   },
-  props: ['game', 'me'],
   methods: {
     showConfetti() {
       showConfetti2()
