@@ -35,6 +35,7 @@ $width: 40px;
 .cell {
   width: $width;
   height: $width;
+  transition: background-color 0.5s;
 }
 
 .cell.partofblob {

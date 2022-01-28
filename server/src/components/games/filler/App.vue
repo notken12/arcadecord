@@ -13,7 +13,7 @@
 <script>
 import Board from './Board.vue'
 import Changer from './Changer.vue'
-import { runAction } from '@app/js/client-framework.js'
+import { replayAction } from '@app/js/client-framework.js'
 import bus from '@app/js/vue-event-bus.js'
 import store from '@app/js/store.js'
 
@@ -33,7 +33,8 @@ export default {
   mounted() {
     // data is a local var that has the data that was transmitted
     this.$replayTurn(() => {
-      setTimeout(this.$endReplay, 3000)
+      replayAction(this.game, this.previousTurn.actions[0])
+      this.$endReplay(500)
     })
   },
   methods: {},

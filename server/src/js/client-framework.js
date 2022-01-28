@@ -2,6 +2,9 @@ import cloneDeep from 'lodash.clonedeep'
 import { io } from "socket.io-client";
 import GameFlow from './GameFlow.js';
 import bus from './vue-event-bus.js';
+import store from './store.js';
+import { replayTurn } from './ui.js';
+import facade from './box';
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
@@ -127,19 +130,30 @@ function emitAction(game, actionType, actionData, actionCallback) {
 var discordUser;
 
 async function runAction(game, type, data, callback, clone) {
+    if (facade.state.replaying) return;
+    var game = await simulateAction(game, type, data, game.myIndex, false, clone);
+    emitAction(game, type, data, callback);
+    return game;
+}
+
+async function replayAction(game, action, clone) {
+    let {type, data, playerIndex} = action;
+    var game = await simulateAction(game, type, data, playerIndex, true, clone);
+    return game;
+}
+
+async function simulateAction(game, type, data, playerIndex, disableTurnCheck, clone) {
     var game = clone ? cloneDeep(game) : game;
 
-    if (game.hasEnded || !GameFlow.isItUsersTurn(game, game.myIndex)) {
+    if ((game.hasEnded || !GameFlow.isItUsersTurn(game, playerIndex)) && !disableTurnCheck) {
         return false;
     }
 
-    var index = game.myIndex;
-
-    if (game.myIndex == -1) { // same code as in handleAction in Game.js: if game hasn't started, start game with this action
+    if (playerIndex == -1) { // same code as in handleAction in Game.js: if game hasn't started, start game with this action
         if (game.hasStarted == false) {
             game.players.push({ discordUser: discordUser });
-            index = game.players.length - 1;
-            game.myIndex = index;
+            playerIndex = game.players.length - 1;
+            game.myIndex = playerIndex;
 
             GameFlow.start(game);
         }
@@ -150,17 +164,17 @@ async function runAction(game, type, data, callback, clone) {
         return false;
     }
 
-    var success = await game.actionModels[type](game, new Action(type, data, index));
+    var success = await game.actionModels[type](game, new Action(type, data, playerIndex));
     if (!success) {
         return false;
     }
 
     if (game.clientActionModels[type]) {
-        var success = await game.clientActionModels[type](game, new Action(type, data, index));
+        var success = await game.clientActionModels[type](game, new Action(type, data, playerIndex));
 
         if (!success) return false;
     }
-    emitAction(game, type, data, callback);
+
     return game;
 }
 
@@ -185,6 +199,18 @@ async function connect(gameId, callback) {
     });
 }
 
+function listen() {
+    // Receive turn events whenever another player finishes their turn
+    socket.on('turn', (game, turn) => {
+        // Update the game UI
+        store.updateGame(game);
+        // Replay the turn
+        replayTurn();
+
+        console.log('[arcadecord.socket] turn received, now the turn is ' + game.turn);
+    });
+}
+
 const beforeUnloadListener = (event) => {
     event.preventDefault();
     return event.returnValue = "Your turn has not been sent yet. Are you sure you want to leave?";
@@ -205,7 +231,10 @@ export {
     utils,
     emitAction,
     runAction,
+    simulateAction,
+    replayAction,
     connect,
     sending,
-    appInsights
+    appInsights,
+    listen
 }

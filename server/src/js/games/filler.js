@@ -2,7 +2,7 @@
 import * as Client from '@app/js/client-framework.js';
 
 // Use vue
-import { createApp, setupFacade } from '@app/js/ui.js'
+import { createApp, replayTurn, setupUI } from '@app/js/ui.js'
 
 import App from '@app/components/games/filler/App.vue';
 import Loading from '@app/components/base-ui/Loading.vue';
@@ -27,23 +27,12 @@ function connectionCallback(response) {
 
     // Nice UI components for the basic UI
 
-    store.setup(response);
+    setupUI(response);
 
     const app = createApp(App).mount('#app');
 
-    // Remove loading screen
-    loading.loading = false;
+    // Listen for events from the server
+    Client.listen();
+
     window.app = app;
-
-    // Receive turn events whenever another player finishes their turn
-    Client.socket.on('turn', (game, turn) => {
-        // Update the game UI
-        // Later we will replace this with a turn animation
-        store.updateGame(game);
-        setupFacade();
-
-        console.log('Turn received, now the turn is ' + game.turn);
-    });
-
-    window.Client = Client;
 }

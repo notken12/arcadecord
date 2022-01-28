@@ -44,7 +44,7 @@ export default {
     SendingView,
   },
   created() {
-    this.isItMyTurn = GameFlow.isItMyTurn(this.game)
+    this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying
   },
   mounted() {
     bus.on('open-manual', () => {
@@ -67,7 +67,10 @@ export default {
     'game.turn': function (newTurn) {
       var player = this.game.players[newTurn]
       console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
-      this.isItMyTurn = GameFlow.isItMyTurn(this.game)
+      this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying;
+    },
+    replaying: function (newValue) {
+      this.isItMyTurn = GameFlow.isItMyTurn(this.game) || newValue;
     },
   },
 }

@@ -4,6 +4,8 @@ import store from '@app/js/store';
 import facade from '@app/js/box';
 import bus from '@app/js/vue-event-bus';
 
+const turnReplayDelay = 250;
+
 export default {
     data() {
         return {
@@ -33,10 +35,15 @@ export default {
         $replayTurnFunc() {
 
         },
-        $endReplay() {
-            facade.state.game = store.state.game;
-            facade.state.replaying = false;
-            console.log('[arcadecord] finished replaying turn');
+        $endReplay(delayMS) {
+            if (delayMS == undefined) {
+                delayMS = 0;
+            }
+            setTimeout(() => {
+                facade.state.game = store.state.game;
+                facade.state.replaying = false;
+                console.log('[arcadecord.facade] finished replaying turn');
+            }, delayMS);
         },
         $replayTurn(func) {
             if (typeof func === 'function') {
@@ -44,8 +51,8 @@ export default {
                 this.replayTurnFuncSet = true;
             }
             if (this.replaying && this.replayTurnFuncSet) {
-                console.log('[arcadecord] replaying turn');
-                this.$replayTurnFunc();
+                console.log('[arcadecord.facade] replaying turn');
+                setTimeout(this.$replayTurnFunc, turnReplayDelay);
             }
         }
     },
