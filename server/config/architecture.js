@@ -1,22 +1,24 @@
 export default {
-    "hosts": [
+    hosts: [
         {
-            "id": "1",
-            "name": "host1",
-            "port": 3001,
-            "snowpackPort": 4001
+            id: '1',
+            name: 'host1',
+            port: 3001,
         },
         {
-            "id": "2",
-            "name": "host2",
-            "port": 3002,
-            "snowpackPort": 4002
+            id: '2',
+            name: 'host2',
+            port: 3002,
         },
         {
-            "id": "3",
-            "name": "host3",
-            "port": 3003,
-            "snowpackPort": 4003
-        }
-    ]
+            id: '3',
+            name: 'host3',
+            port: 3003,
+        },
+        {
+            id: 'single',
+            name: 'host',
+            port: 3000,
+        },
+    ],
 }
