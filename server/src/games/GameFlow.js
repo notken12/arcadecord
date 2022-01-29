@@ -17,10 +17,6 @@ const GameFlow = {
             game.winner = -1;
         }
 
-        // end the current turn
-        game.turn = (game.turn + 1) % game.players.length;
-        
-        await game.emit('turn');
         await game.emit('end', result);
     },
     async endTurn(game) {

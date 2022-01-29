@@ -15,11 +15,7 @@ const GameFlow = {
             // draw
             game.winner = -1;
         }
-
-        // end the current turn
-        game.turn = (game.turn + 1) % game.players.length;
         
-        game.client.emit('turn');
         game.client.emit('end', result);
     },
     endTurn(game) {
