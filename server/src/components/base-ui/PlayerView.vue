@@ -75,7 +75,7 @@ export default {
 @use '../../scss/base/_theme.scss' as theme;
 
 .pointer {
-  height: 14px;
+  height: 20px;
   padding-top: 8px;
 }
 

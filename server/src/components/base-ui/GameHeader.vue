@@ -11,9 +11,7 @@
         <i class="material-icons">settings</i>
       </button>
     </div>
-    <div>
-      <players-view></players-view>
-    </div>
+    <players-view></players-view>
   </div>
 </template>
 
@@ -38,12 +36,20 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .hint {
   width: 100%;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
 }
 </style>

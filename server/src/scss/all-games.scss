@@ -37,14 +37,6 @@ body {
     box-sizing: border-box;
 }
 
-.top {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-}
-
 .middle {
     width: 100%;
     height: 100%;
@@ -198,17 +190,6 @@ button:active {
     justify-content: center;
     height: 100px;
     align-self: flex-end;
-}
-
-.players-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    gap: 8px;
-    max-width: 10em;
 }
 
 .dialog-container {

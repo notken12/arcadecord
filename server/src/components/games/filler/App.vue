@@ -3,6 +3,11 @@
             like settings button -->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
+    <scores-view>
+      <template v-slot="scoreView">
+        <score-badge :scoreview="scoreView"></score-badge>
+      </template>
+    </scores-view>
     <div class="middle">
       <board></board>
       <changer></changer>
@@ -11,15 +16,24 @@
 </template>
 
 <script>
+import ScoreBadge from './ScoreBadge.vue'
 import Board from './Board.vue'
 import Changer from './Changer.vue'
 import { replayAction } from '@app/js/client-framework.js'
 import bus from '@app/js/vue-event-bus.js'
 import store from '@app/js/store.js'
+import Common from '/gamecommons/filler'
+
 
 export default {
   data() {
     return {}
+  },
+  methods: {
+    getBlobSize(playerIndex) {
+      var blob = Common.Board.getPlayerBlob(this.game.data.board, playerIndex)
+      return blob.length
+    },
   },
   computed: {
     hint() {
@@ -27,6 +41,7 @@ export default {
     },
   },
   components: {
+    ScoreBadge,
     Board,
     Changer,
   },
@@ -40,3 +55,19 @@ export default {
   methods: {},
 }
 </script>
+
+<style lang="scss" scoped>
+@use 'scss/base/_theme.scss' as theme;
+
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  box-shadow: theme.$md-elevation-level3;
+  border-radius: 4px;
+}
+</style>
