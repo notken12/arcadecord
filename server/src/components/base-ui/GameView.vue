@@ -10,7 +10,7 @@
     <waiting-view
       v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
     ></waiting-view>
-    <result-view v-if="game.hasEnded" :game="game && !runningAction"></result-view>
+    <result-view v-if="game.hasEnded && !replaying && !runningAction" :game="game"></result-view>
     <sending-view v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
   </div>
