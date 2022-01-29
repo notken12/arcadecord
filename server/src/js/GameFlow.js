@@ -26,8 +26,8 @@ const GameFlow = {
 
         game.client.emit('turn');
     },
-    isItMyTurn(game) {
-        return !game.hasEnded && this.isItUsersTurn(game, game.myIndex);
+    isItMyTurn(game, ignoreGameEnd) {
+        return (!game.hasEnded || ignoreGameEnd) && this.isItUsersTurn(game, game.myIndex);
     },
     isItUsersTurn(game, userIndex) {
         let i = userIndex;

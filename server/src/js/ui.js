@@ -21,12 +21,13 @@ import bus from './vue-event-bus';
 function setupFacade() {
     facade.state.me = store.state.me;
     facade.state.error = store.state.error;
-    if (!GameFlow.isItMyTurn(store.state.game) || store.state.game.turns.length == 0) {
+    
+    if (!GameFlow.isItMyTurn(store.state.game, true) || store.state.game.turns.length == 0) {
         // If it isn't my turn or I'm the first player, use data as is
         facade.state.game = store.state.game;
         facade.state.replaying = false;
     } else {
-        if (store.state.game.turns[store.state.game.turns.length - 1].playerIndex === store.state.game.myIndex) {
+        if (store.state.game.turns[store.state.game.turns.length - 1].playerIndex === store.state.game.myIndex && !game.hasEnded) {
             // If I already played an action, use data as is
             facade.state.game = store.state.game;
             facade.state.replaying = false;
