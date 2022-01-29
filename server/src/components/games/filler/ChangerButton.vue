@@ -43,9 +43,13 @@ export default {
         this.game.data.board,
         this.game.myIndex
       )
+      let opponentIndex = this.game.myIndex ^ 1;
+      if (this.game.myIndex === -1) {
+        opponentIndex = 0;
+      }
       var opponentColor = Common.Board.getPlayerColor(
         this.game.data.board,
-        this.game.myIndex ^ 1
+        opponentIndex
       )
       return myColor === this.colorid || opponentColor === this.colorid
     },
