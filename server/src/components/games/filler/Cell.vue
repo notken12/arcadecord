@@ -69,17 +69,4 @@ $width: 40px;
     filter: brightness(0.8);
   }
 }
-
-@keyframes pop {
-  /* pop animation */
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 </style>

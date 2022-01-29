@@ -6,7 +6,7 @@ import GameFlow from '../../GameFlow.js';
 
 ////////
 
-var COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+var COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
 
 class Board {
     constructor(width, height) {

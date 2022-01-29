@@ -55,19 +55,3 @@ export default {
   methods: {},
 }
 </script>
-
-<style lang="scss" scoped>
-@use 'scss/base/_theme.scss' as theme;
-
-.score {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  font-weight: bold;
-  text-align: center;
-  color: white;
-  box-shadow: theme.$md-elevation-level3;
-  border-radius: 4px;
-}
-</style>
