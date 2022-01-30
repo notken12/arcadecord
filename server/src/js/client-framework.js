@@ -129,20 +129,24 @@ function emitAction(game, actionType, actionData, actionCallback) {
 
 var discordUser;
 
-async function runAction(game, type, data, callback, clone) {
-    if (facade.state.replaying) return;
-    var game = await simulateAction(game, type, data, game.myIndex, false, clone);
+function runAction(game, type, data, callback, clone) {
+    if (facade.state.replaying) {
+        console.log('Still replaying last turn! Not running action.');
+        console.log(facade.state);
+        return;
+    }
+    var game = simulateAction(game, type, data, game.myIndex, false, clone);
     emitAction(game, type, data, callback);
     return game;
 }
 
-async function replayAction(game, action, clone) {
+function replayAction(game, action, clone) {
     let {type, data, playerIndex} = action;
-    var game = await simulateAction(game, type, data, playerIndex, true, clone);
+    var game = simulateAction(game, type, data, playerIndex, true, clone);
     return game;
 }
 
-async function simulateAction(game, type, data, playerIndex, disableTurnCheck, clone) {
+function simulateAction(game, type, data, playerIndex, disableTurnCheck, clone) {
     var game = clone ? cloneDeep(game) : game;
 
     if ((game.hasEnded || !GameFlow.isItUsersTurn(game, playerIndex)) && !disableTurnCheck) {
@@ -164,13 +168,13 @@ async function simulateAction(game, type, data, playerIndex, disableTurnCheck, c
         return false;
     }
 
-    var success = await game.actionModels[type](game, new Action(type, data, playerIndex));
+    var success = game.actionModels[type](game, new Action(type, data, playerIndex));
     if (!success) {
         return false;
     }
 
     if (game.clientActionModels[type]) {
-        var success = await game.clientActionModels[type](game, new Action(type, data, playerIndex));
+        var success = game.clientActionModels[type](game, new Action(type, data, playerIndex));
 
         if (!success) return false;
     }

@@ -2,7 +2,7 @@
   <div
     class="changer-button"
     :class="classes"
-    v-on:click="changeBlob"
+    v-on:click="changeBlob()"
     :disabled="isDisabled"
   ></div>
 </template>
@@ -13,20 +13,21 @@ import * as Client from '@app/js/client-framework.js'
 import bus from '@app/js/vue-event-bus.js'
 import Common from '/gamecommons/filler'
 import store from '@app/js/store.js'
+import facade from '@app/js/box.js'
 
-import {runAction} from '@app/js/client-framework.js'
+import { runAction } from '@app/js/client-framework.js'
+import GameFlow from '@app/js/GameFlow'
 
 // Create a button that will set the player's blob to the target color
 export default {
   props: ['colorid'],
   data() {
-    return {
-    }
+    return {}
   },
   methods: {
     changeBlob() {
-      runAction(this.game, 'switchColors', { targetColor: this.colorid }); // data contains the targetColor, which is the action data
-      this.$endAnimation(1000);
+      runAction(store.state.game, 'switchColors', { targetColor: this.colorid }) // data contains the targetColor, which is the action data
+      this.$endAnimation(1000)
     },
   },
   computed: {
@@ -43,9 +44,9 @@ export default {
         this.game.data.board,
         this.game.myIndex
       )
-      let opponentIndex = this.game.myIndex ^ 1;
+      let opponentIndex = this.game.myIndex ^ 1
       if (this.game.myIndex === -1) {
-        opponentIndex = 0;
+        opponentIndex = 0
       }
       var opponentColor = Common.Board.getPlayerColor(
         this.game.data.board,
@@ -70,7 +71,7 @@ export default {
   transition-duration: 0.2s;
 }
 
-.changer-button[disabled=true] {
+.changer-button[disabled='true'] {
   width: 20px;
   height: 20px;
   cursor: default;

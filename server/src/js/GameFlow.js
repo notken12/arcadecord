@@ -31,7 +31,7 @@ const GameFlow = {
     },
     isItUsersTurn(game, userIndex) {
         let i = userIndex;
-        return game.turn == i || (!game.hasStarted && !game.isGameFull() && i == -1);
+        return game.turn == i || (!game.hasStarted && !this.isGameFull(game) && i == -1);
     },
     isGameFull(game) {
         return game.players.length >= game.maxPlayers;
