@@ -289,7 +289,17 @@ io.on('connection', (socket) => {
 
           appInsightsClient.trackEvent({ name: 'Socket connection', properties: { gameId: gameId, userId: userId } });
         }
+      } else {
+        callback({
+          status: 'error',
+          error: 'Game not found',
+        });
       }
+    } else {
+      callback({
+        status: 'error',
+        error: 'Game not found',
+      });
     }
   });
 

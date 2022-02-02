@@ -23,6 +23,7 @@ import { replayAction } from '@app/js/client-framework.js'
 import bus from '@app/js/vue-event-bus.js'
 import store from '@app/js/store.js'
 import Common from '/gamecommons/filler'
+import 'scss/games/filler.scss'
 
 
 export default {

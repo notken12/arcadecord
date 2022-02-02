@@ -5,14 +5,11 @@ import * as Client from '@app/js/client-framework.js';
 import { createApp, replayTurn, setupUI } from '@app/js/ui.js'
 import {createApp as createVueApp} from 'vue';
 
-import Loading from '@app/components/base-ui/Loading.vue';
-
 import 'scss/games/filler.scss';
 import store from '@app/js/store.js';
 import box from '@app/js/box.js';
 
-// Display a loading screen while we wait for the game to load
-const loadingView = createVueApp(Loading).mount('#loading');
+import ErrorScreen from 'components/base-ui/ErrorScreen.vue';
 
 // Get game ID from URL address
 
@@ -26,12 +23,19 @@ async function connectionCallback(response) {
     // Nice UI components for the basic UI
 
     store.setup(response);
+
+    if (response.status !== 'success') {
+        console.log(`[arcadecord] error: ${response.error}`);
+
+        const errorScreen = createVueApp(ErrorScreen, {error: response.error}).mount('#error');
+        return;
+    }
+
     const gameType = response.game.typeId;
     document.title = `${response.game.name}`
     let {default: App} = await import(`../components/games/${gameType}/App.vue`);
 
     const app = createApp(App).mount('#app');
-    loadingView.loading = false;
 
     // Listen for events from the server
     Client.listen();

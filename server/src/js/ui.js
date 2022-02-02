@@ -1,8 +1,6 @@
 import { createApp as createVueApp } from 'vue';
 import cloneDeep from 'lodash.clonedeep';
 
-import 'scss/all-games.scss';
-
 import GameView from 'components/base-ui/GameView.vue';
 import ScoresView from 'components/base-ui/ScoresView.vue';
 

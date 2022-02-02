@@ -32,6 +32,9 @@ export default {
         },
         runningAction() {
             return facade.state.runningAction;
+        },
+        error() {
+            return facade.state.error;
         }
     },
     methods: {
