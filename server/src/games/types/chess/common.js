@@ -82,7 +82,7 @@ async function movePiece(game, action) {
     action.data.movePiece("a1d1")
   }
   if(game.data.board[i][j] == "k" && action.data.move == "e8c8"){
-    action.data.movePiece("a8d8")
+    action.data.movePiece("a8d8");
   }
 */
   game.data.board[ranks.indexOf(action.data.move[3])][files.indexOf(action.data.move[2])] = game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])];
