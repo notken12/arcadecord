@@ -85,5 +85,15 @@ export default {
   max-height: 100%;
   flex-direction: column;
   align-items: center;
+  animation: fadein 0.5s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

@@ -226,7 +226,6 @@ io.on('connection', (socket) => {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
-      console.error(e)
       callback({
         error: "Invalid access token"
       });
@@ -407,70 +406,45 @@ app.get('/auth', authController);
 //user is accessing game
 app.get('/game/:id', async (req, res) => {
   try {
-    var id = req.params.id;
+    let cookie = req.cookies.accessToken;
 
-    var dbGame = await db.games.getById(id);
+    //check database if user is signed in
+    let userId;
+    let token;
+    try {
+      token = JWT.verify(cookie, process.env.JWT_SECRET);
+      userId = token.id;
+    } catch (e) {
+      //user is not signed in. or has an invalid access token
+      //set cookie for game id to redirect back to
+      //redirect to sign in page
+      res.cookie('gameId', id, { maxAge: 10000000 });
+      res.redirect('/sign-in');
 
-    if (dbGame) {
-      // get game type
-      var gameType = gameTypes[dbGame.typeId];
-
-      // create instance of game, var game
-      var game = new gameType.Game(dbGame._doc);
-
-      var cookie = req.cookies.accessToken;
-
-      //check database if user is signed in
-      let userId;
-      let token;
-      try {
-        token = JWT.verify(cookie, process.env.JWT_SECRET);
-        userId = token.id;
-      } catch (e) {
-        //user is not signed in. or has an invalid access token
-        //set cookie for game id to redirect back to
-        //redirect to sign in page
-        console.error(e)
-        res.cookie('gameId', id, { maxAge: 10000000 });
-        res.redirect('/sign-in');
-
-        return;
-      }
-      var user = await db.users.getById(userId);
-
-      if (user) {
-        //user is signed in. 
-        //redirect to game
-
-        var status = await game.canUserSocketConnect(userId);
-        res.clearCookie('gameId');
-
-        if (status) {
-          //user has permission to join
-          //res.sendFile(__dirname + '/src/games/types/' + game.typeId + '/index.html');
-          var pathName = './src/games/types/' + game.typeId + '/index.html';
-          useBuiltFile(pathName, req, res);
-        } else {
-          res.send('you have no permission to join');
-        }
-
-      } else {
-        //user is not signed in. or has an invalid access token
-        //set cookie for game id to redirect back to
-        //redirect to sign in page
-        res.cookie('gameId', id, { maxAge: 10000000 });
-        res.redirect('/sign-in');
-      }
-    } else {
-      //game does not exist
-      //send  404 page
-      useBuiltFile('./src/game-not-found.html', req, res);
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('500: Internal Server Error');
-  }
+    let user = await db.users.getById(userId);
 
+    if (user) {
+      //user is signed in. 
+      //redirect to game
+
+      //user has permission to join
+      var pathName = './src/game-index.html';
+      useBuiltFile(pathName, req, res);
+
+    } else {
+      //user is not signed in. or has an invalid access token
+      //set cookie for game id to redirect back to
+      //redirect to sign in page
+      res.cookie('gameId', id, { maxAge: 10000000 });
+      res.redirect('/sign-in');
+    }
+  }
+  catch (e) {
+    console.error(e);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.use('/gamecommons', async (req, res) => {
