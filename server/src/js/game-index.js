@@ -22,7 +22,7 @@ Client.connect(gameId, connectionCallback);
 async function connectionCallback(response) {
     // Nice UI components for the basic UI
 
-    store.setup(response);
+    setupUI(response);
 
     if (response.status !== 'success') {
         console.log(`[arcadecord] error: ${response.error}`);

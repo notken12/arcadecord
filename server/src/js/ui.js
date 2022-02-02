@@ -48,16 +48,16 @@ function setupFacade() {
 function replayTurn() {
     // Replay the last player's turn
     // Use Facade to manage the game state for animations
-    setupFacade();
+    facade.commit('REPLAY_TURN');
 }
 
 function setupUI(serverResponse) {
     // Add server response data to the internal store
-    store.setup(serverResponse);
+    store.commit('SETUP', serverResponse);
 }
 
 const createApp = (...options) => {
-    setupFacade();
+    facade.commit('REPLAY_TURN');
     /*var newOptions = options[0];
     // add mixin
     if (newOptions.mixins) {
@@ -66,8 +66,9 @@ const createApp = (...options) => {
         newOptions.mixins = [baseMixin];
     }*/
     const app = createVueApp(...options);
-    app.mixin(baseMixin);
     app.use(VueAppInsights, { appInsights });
+    app.use(facade);
+    app.mixin(baseMixin);
     app.component('scores-view', ScoresView);
     app.component('game-view', GameView);
     return app;

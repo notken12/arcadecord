@@ -304,72 +304,83 @@ io.on('connection', (socket) => {
   });
 
   socket.on('action', async (type, data, callback) => {
-    // get which game the socket is in
-    var gameId = socket.data.gameId;
-    var userId = socket.data.userId;
+    try {
+      // get which game the socket is in
+      var gameId = socket.data.gameId;
+      var userId = socket.data.userId;
 
-    if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
-      console.log('Socket action error: gameId or userId is undefined');
+      if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
+        console.log('Socket action error: gameId or userId is undefined');
+        callback({
+          error: "Invalid game or user"
+        });
+
+        appInsightsClient.trackEvent({ name: 'Socket action error', properties: { error: 'Invalid game or user' } });
+        return;
+      }
+
+      // Lock actions for this game to prevent multiple actions from being executed at the same time
+      //lock(gameId, async function (release) {
+
+      // get game from db
+      var dbGame = await db.games.getById(gameId);
+
+      if (!dbGame)
+        return;
+
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
+
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc);
+
+      var oldTurn = game.turn + 0;
+
+      // perform action
+      var action = new Action(type, userId, data, game);
+      var result = await game.handleAction(action);
+
+      // save game to db
+      await db.games.update(gameId, game);
+
+      // send result to client
+      await callback(result);
+
+      if (game.turn !== oldTurn) {
+        console.log(`Game ${game.id} turn`);
+
+        var player = game.players[game.turn];
+        //console.log(`Player ${player.id}`);
+        var s = game.sockets[player.id];
+        //console.log(`Socket ${s}`);
+
+        // send turn to next user
+        if (s) {
+          var gameData = game.getDataForClient(player.id);
+          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+          await io.to(s).emit('turn', gameData, turnData);
+        }
+      }
+
+      appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+
+      // release lock
+      /*release(function (err) {
+        if (err) {
+          console.error(err);
+        }
+      })();*/
+      //});
+    }
+    catch(e){
+      console.error(e);
+
+      appInsightsClient.trackEvent({ name: 'Action error', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id, action: action } });
+
       callback({
-        error: "Invalid game or user"
+        error: "Error handling action"
       });
-
-      appInsightsClient.trackEvent({ name: 'Socket action error', properties: { error: 'Invalid game or user' } });
-      return;
     }
-
-    // Lock actions for this game to prevent multiple actions from being executed at the same time
-    //lock(gameId, async function (release) {
-
-    // get game from db
-    var dbGame = await db.games.getById(gameId);
-
-    if (!dbGame)
-      return;
-
-    // get game type
-    var gameType = gameTypes[dbGame._doc.typeId]
-
-    // create instance of game
-    var game = new gameType.Game(dbGame._doc);
-
-    var oldTurn = game.turn + 0;
-
-    // perform action
-    var action = new Action(type, userId, data, game);
-    var result = await game.handleAction(action);
-
-    // save game to db
-    await db.games.update(gameId, game);
-
-    // send result to client
-    await callback(result);
-
-    if (game.turn !== oldTurn) {
-      console.log(`Game ${game.id} turn`);
-
-      var player = game.players[game.turn];
-      //console.log(`Player ${player.id}`);
-      var s = game.sockets[player.id];
-      //console.log(`Socket ${s}`);
-
-      // send turn to next user
-      if (s) {
-        var gameData = game.getDataForClient(player.id);
-        var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
-        await io.to(s).emit('turn', gameData, turnData);
-      }
-    }
-
-    appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
-
-    // release lock
-    /*release(function (err) {
-      if (err) {
-        console.error(err);
-      }
-    })();*/
-    //});
 
   });
 
@@ -428,7 +439,7 @@ app.get('/game/:id', async (req, res) => {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
-      res.cookie('gameId', id, { maxAge: 10000000 });
+      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
       res.redirect('/sign-in');
 
       return;
@@ -447,7 +458,7 @@ app.get('/game/:id', async (req, res) => {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
-      res.cookie('gameId', id, { maxAge: 10000000 });
+      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
       res.redirect('/sign-in');
     }
   }
