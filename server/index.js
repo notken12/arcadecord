@@ -226,7 +226,6 @@ io.on('connection', (socket) => {
       //user is not signed in. or has an invalid access token
       //set cookie for game id to redirect back to
       //redirect to sign in page
-      console.error(e)
       callback({
         error: "Invalid access token"
       });
@@ -290,77 +289,98 @@ io.on('connection', (socket) => {
 
           appInsightsClient.trackEvent({ name: 'Socket connection', properties: { gameId: gameId, userId: userId } });
         }
+      } else {
+        callback({
+          status: 'error',
+          error: 'Game not found',
+        });
       }
+    } else {
+      callback({
+        status: 'error',
+        error: 'Game not found',
+      });
     }
   });
 
   socket.on('action', async (type, data, callback) => {
-    // get which game the socket is in
-    var gameId = socket.data.gameId;
-    var userId = socket.data.userId;
+    try {
+      // get which game the socket is in
+      var gameId = socket.data.gameId;
+      var userId = socket.data.userId;
 
-    if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
-      console.log('Socket action error: gameId or userId is undefined');
+      if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
+        console.log('Socket action error: gameId or userId is undefined');
+        callback({
+          error: "Invalid game or user"
+        });
+
+        appInsightsClient.trackEvent({ name: 'Socket action error', properties: { error: 'Invalid game or user' } });
+        return;
+      }
+
+      // Lock actions for this game to prevent multiple actions from being executed at the same time
+      //lock(gameId, async function (release) {
+
+      // get game from db
+      var dbGame = await db.games.getById(gameId);
+
+      if (!dbGame)
+        return;
+
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
+
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc);
+
+      var oldTurn = game.turn + 0;
+
+      // perform action
+      var action = new Action(type, userId, data, game);
+      var result = await game.handleAction(action);
+
+      // save game to db
+      await db.games.update(gameId, game);
+
+      // send result to client
+      await callback(result);
+
+      if (game.turn !== oldTurn) {
+        console.log(`Game ${game.id} turn`);
+
+        var player = game.players[game.turn];
+        //console.log(`Player ${player.id}`);
+        var s = game.sockets[player.id];
+        //console.log(`Socket ${s}`);
+
+        // send turn to next user
+        if (s) {
+          var gameData = game.getDataForClient(player.id);
+          var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
+          await io.to(s).emit('turn', gameData, turnData);
+        }
+      }
+
+      appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
+
+      // release lock
+      /*release(function (err) {
+        if (err) {
+          console.error(err);
+        }
+      })();*/
+      //});
+    }
+    catch(e){
+      console.error(e);
+
+      appInsightsClient.trackEvent({ name: 'Action error', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id, action: action } });
+
       callback({
-        error: "Invalid game or user"
+        error: "Error handling action"
       });
-
-      appInsightsClient.trackEvent({ name: 'Socket action error', properties: { error: 'Invalid game or user' } });
-      return;
     }
-
-    // Lock actions for this game to prevent multiple actions from being executed at the same time
-    //lock(gameId, async function (release) {
-
-    // get game from db
-    var dbGame = await db.games.getById(gameId);
-
-    if (!dbGame)
-      return;
-
-    // get game type
-    var gameType = gameTypes[dbGame._doc.typeId]
-
-    // create instance of game
-    var game = new gameType.Game(dbGame._doc);
-
-    var oldTurn = game.turn + 0;
-
-    // perform action
-    var action = new Action(type, userId, data, game);
-    var result = await game.handleAction(action);
-
-    // save game to db
-    await db.games.update(gameId, game);
-
-    // send result to client
-    await callback(result);
-
-    if (game.turn !== oldTurn) {
-      console.log(`Game ${game.id} turn`);
-
-      var player = game.players[game.turn];
-      //console.log(`Player ${player.id}`);
-      var s = game.sockets[player.id];
-      //console.log(`Socket ${s}`);
-
-      // send turn to next user
-      if (s) {
-        var gameData = game.getDataForClient(player.id);
-        var turnData = Turn.getDataForClient(game.turns[game.turns.length - 1], player.id);
-        await io.to(s).emit('turn', gameData, turnData);
-      }
-    }
-
-    appInsightsClient.trackEvent({ name: 'Action', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id } });
-
-    // release lock
-    /*release(function (err) {
-      if (err) {
-        console.error(err);
-      }
-    })();*/
-    //});
 
   });
 
@@ -407,70 +427,45 @@ app.get('/auth', authController);
 //user is accessing game
 app.get('/game/:id', async (req, res) => {
   try {
-    var id = req.params.id;
+    let cookie = req.cookies.accessToken;
 
-    var dbGame = await db.games.getById(id);
+    //check database if user is signed in
+    let userId;
+    let token;
+    try {
+      token = JWT.verify(cookie, process.env.JWT_SECRET);
+      userId = token.id;
+    } catch (e) {
+      //user is not signed in. or has an invalid access token
+      //set cookie for game id to redirect back to
+      //redirect to sign in page
+      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
+      res.redirect('/sign-in');
 
-    if (dbGame) {
-      // get game type
-      var gameType = gameTypes[dbGame.typeId];
-
-      // create instance of game, var game
-      var game = new gameType.Game(dbGame._doc);
-
-      var cookie = req.cookies.accessToken;
-
-      //check database if user is signed in
-      let userId;
-      let token;
-      try {
-        token = JWT.verify(cookie, process.env.JWT_SECRET);
-        userId = token.id;
-      } catch (e) {
-        //user is not signed in. or has an invalid access token
-        //set cookie for game id to redirect back to
-        //redirect to sign in page
-        console.error(e)
-        res.cookie('gameId', id, { maxAge: 10000000 });
-        res.redirect('/sign-in');
-
-        return;
-      }
-      var user = await db.users.getById(userId);
-
-      if (user) {
-        //user is signed in. 
-        //redirect to game
-
-        var status = await game.canUserSocketConnect(userId);
-        res.clearCookie('gameId');
-
-        if (status) {
-          //user has permission to join
-          //res.sendFile(__dirname + '/src/games/types/' + game.typeId + '/index.html');
-          var pathName = './src/games/types/' + game.typeId + '/index.html';
-          useBuiltFile(pathName, req, res);
-        } else {
-          res.send('you have no permission to join');
-        }
-
-      } else {
-        //user is not signed in. or has an invalid access token
-        //set cookie for game id to redirect back to
-        //redirect to sign in page
-        res.cookie('gameId', id, { maxAge: 10000000 });
-        res.redirect('/sign-in');
-      }
-    } else {
-      //game does not exist
-      //send  404 page
-      useBuiltFile('./src/game-not-found.html', req, res);
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('500: Internal Server Error');
-  }
+    let user = await db.users.getById(userId);
 
+    if (user) {
+      //user is signed in. 
+      //redirect to game
+
+      //user has permission to join
+      var pathName = './src/game-index.html';
+      useBuiltFile(pathName, req, res);
+
+    } else {
+      //user is not signed in. or has an invalid access token
+      //set cookie for game id to redirect back to
+      //redirect to sign in page
+      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
+      res.redirect('/sign-in');
+    }
+  }
+  catch (e) {
+    console.error(e);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.use('/gamecommons', async (req, res) => {

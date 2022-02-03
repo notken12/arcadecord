@@ -15,7 +15,7 @@ async function getNewAccessToken(dbUser) {
     var access_token = json.access_token;
     var refresh_token = json.refresh_token;
 
-    await db.updateUser(dbUser.id, {
+    await db.users.update(dbUser._id, {
         discordAccessToken: access_token,
         discordRefreshToken: refresh_token
     });

@@ -3,6 +3,8 @@ import cloneDeep from 'lodash.clonedeep';
 import store from '@app/js/store';
 import facade from '@app/js/box';
 import bus from '@app/js/vue-event-bus';
+import { mapState } from 'vuex'
+import { runAction } from '../../js/client-framework';
 
 const turnReplayDelay = 250;
 
@@ -21,18 +23,7 @@ export default {
             }
             return null
         },
-        game() {
-            return facade.state.game;
-        },
-        replaying() {
-            return facade.state.replaying;
-        },
-        me() {
-            return facade.state.me;
-        },
-        runningAction() {
-            return facade.state.runningAction;
-        }
+        ...mapState(['game', 'me', 'error', 'replaying', 'runningAction'])
     },
     methods: {
         $replayTurnFunc() {
@@ -43,8 +34,7 @@ export default {
                 delayMS = 0;
             }
             setTimeout(() => {
-                facade.state.game = store.state.game;
-                facade.state.replaying = false;
+                this.$store.commit('END_TURN_REPLAY');
                 console.log('[arcadecord.facade] finished replaying turn');
             }, delayMS);
         },
@@ -60,14 +50,19 @@ export default {
             }
         },
         $endAnimation(delayMS) {
-            facade.state.runningAction = true;
+            this.$store.commit('START_ACTION_ANIMATION');
             if (delayMS == undefined) {
                 delayMS = 0;
             }
             setTimeout(() => {
-                facade.state.runningAction = false;
-                // console.log('[arcadecord.facade] finished running action animations');
+                this.$store.commit('END_ACTION_ANIMATION');
             }, delayMS);
+        },
+        $runAction(actionType, actionData) {
+            this.$store.commit('RUN_ACTION', {
+                type: actionType,
+                data: actionData
+            });
         }
     },
     mounted() {

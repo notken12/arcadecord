@@ -187,7 +187,12 @@ async function connect(gameId, callback) {
         gameId: gameId
     }, async (response) => {
         if (response.status != 'success') {
-            console.log(response.status);
+            console.log(`[arcadecord] connection failed with status ${response.status}`);
+
+            callback({
+                status: response.status,
+                error: response.error
+            })
             return;
         }
 
@@ -198,6 +203,7 @@ async function connect(gameId, callback) {
         discordUser = response.discordUser;
 
         callback({
+            status: response.status,
             game, discordUser
         });
     });
