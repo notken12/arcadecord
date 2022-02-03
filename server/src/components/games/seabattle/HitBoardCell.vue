@@ -1,5 +1,5 @@
 <template>
-  <div class="hit-board-cell" :style="cellStyles" @click="cellClicked"></div>
+  <div class="hit-board-cell" :style="cellStyles" @click="cellClicked" @animationend="animation = 'none'"></div>
 </template>
 
 <script>
@@ -53,11 +53,22 @@ export default {
       }
     },
   },
-  mounted() {
-    this.game.client.on('set_animation', (pos, animation) => {
-      if (this.cell.x === pos.x && this.cell.y === pos.y)
-        this.animation = animation
-    })
+  watch: {
+    'cell.state': {
+      handler: function (newVal, oldVal) {
+        switch (newVal) {
+          case Common.CELL_STATE_HIT:
+            this.animation = 'hit 0.5s'
+            break
+          case Common.CELL_STATE_MISS:
+            this.animation = 'miss 1s'
+            break
+          default:
+            this.animation = 'none'
+            break
+        }
+      },
+    },
   },
 }
 </script>

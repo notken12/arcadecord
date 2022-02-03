@@ -70,7 +70,6 @@ export default {
     return {
       shipPlacementBoard: null,
       targetedCell: null,
-      myHitBoard: null,
     }
   },
   methods: {
@@ -107,9 +106,9 @@ export default {
     shoot() {
       var cell = this.targetedCell
 
-      var y = cell.y
-      var x = cell.x
       if (cell) {
+        var y = cell.y
+        var x = cell.x
         runAction(
           this.game,
           'shoot',
@@ -117,31 +116,13 @@ export default {
           (response) => {
             console.log(response)
             if (response.success) {
-              // play shooting animation
-              var responseCell =
-                response.game.data.hitBoards[response.game.myIndex].cells[y][x]
-
               this.targetedCell = null
-
-              if (responseCell.state === Common.BOARD_STATE_MISS) {
-                this.game.client.emit('set_animation', { y, x }, 'miss 1s')
-
-                setTimeout(() => {
-                  console.log('updating game from cell miss')
-                  store.commit('UPDATE_GAME', response.game)
-                }, 1000)
-              } else if (responseCell.state === Common.BOARD_STATE_HIT) {
-                this.game.client.emit('set_animation', { y, x }, 'hit 0.5s')
-
-                setTimeout(() => {
-                  console.log('updating game from cell hit')
-                  store.commit('UPDATE_GAME', response.game)
-                }, 500)
-              }
+              store.commit('UPDATE_GAME', response.game)
+              this.$endAnimation(1500);
             }
           },
           true
-        )
+        );
       }
     },
   },
@@ -156,9 +137,20 @@ export default {
     isItMyTurn() {
       return GameFlow.isItMyTurn(this.game)
     },
+    myHitBoard() {
+      var index = this.game.myIndex
+      if (index == -1) {
+        if (GameFlow.isItUsersTurn(this.game, index)) {
+          // game hasn't started yet but i can start the game by placing ships
+          index = this.game.turn 
+        }
+      }
+
+      var myHitBoard = this.game.data.hitBoards[index]
+      return myHitBoard
+    },
   },
-  created() {
-    this.myHitBoard = getMyHitBoard(this.game)
+  mounted() {
     this.availableShips =
       this.game.data.availableShips[this.myHitBoard.playerIndex]
 
