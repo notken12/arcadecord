@@ -3,12 +3,17 @@
             like settings button -->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
+
+    <!-- Using the scores-view component, create the score badges -->
     <scores-view>
+      <!-- Display a score badge for each player -->
       <template v-slot="scoreView">
         <score-badge :scoreview="scoreView"></score-badge>
       </template>
     </scores-view>
+
     <div class="middle">
+      <!-- Game UI just for filler -->
       <board></board>
       <changer></changer>
     </div>
@@ -16,15 +21,25 @@
 </template>
 
 <script>
+// Import Vue components
 import ScoreBadge from './ScoreBadge.vue'
 import Board from './Board.vue'
 import Changer from './Changer.vue'
-import { replayAction } from '@app/js/client-framework.js'
-import bus from '@app/js/vue-event-bus.js'
-import store from '@app/js/store.js'
-import Common from '/gamecommons/filler'
+// game-view, scores-view are automatically imported
+
+// Import scss styles
 import 'scss/games/filler.scss'
 
+import { replayAction } from '@app/js/client-framework.js'
+import Common from '/gamecommons/filler'
+
+// Export Vue component
+
+// The properties this.game and this.me, and the $ functions
+// are automatically injected by Arcadecord
+// and available to use on all components
+
+// ** See ChangerButton.vue for an example of how to run an action **
 
 export default {
   data() {
@@ -47,9 +62,15 @@ export default {
     Changer,
   },
   mounted() {
-    // data is a local var that has the data that was transmitted
+    // Define how turn replays should be handled
     this.$replayTurn(() => {
+      // Replay opponent's first (and only) action, which is switching colors
+
+      // In other games you would want to loop through all actions and 
+      // replay them at a given interval for the animations to play out
       replayAction(this.game, this.previousTurn.actions[0])
+
+      // End the turn replay after 750 ms, which is how long the css animation takes
       this.$endReplay(750) // ms
     })
   },
