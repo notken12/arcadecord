@@ -288,6 +288,12 @@ io.on('connection', (socket) => {
           });
 
           appInsightsClient.trackEvent({ name: 'Socket connection', properties: { gameId: gameId, userId: userId } });
+        } else {
+          // For some reason user isn't allowed to join (isn't in same server, game full, etc)
+          callback({
+            status: 'error',
+            error: `No permission to join game (isn't in same server, game full, etc)`
+          });
         }
       } else {
         callback({
@@ -372,7 +378,7 @@ io.on('connection', (socket) => {
       })();*/
       //});
     }
-    catch(e){
+    catch (e) {
       console.error(e);
 
       appInsightsClient.trackEvent({ name: 'Action error', properties: { gameId: gameId, userId: userId, type: type, result: result, id: action.id, action: action } });

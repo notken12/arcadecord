@@ -4,6 +4,7 @@
 
 <script>
 import Common from '/gamecommons/seabattle'
+import GameFlow from '@app/js/GameFlow.js'
 
 export default {
   data() {
@@ -35,7 +36,7 @@ export default {
     cellClicked() {
       if (
         this.cell.state === Common.BOARD_STATE_EMPTY &&
-        this.$root.game.isItMyTurn()
+        GameFlow.isItMyTurn(this.game)
       )
         this.$root.targetedCell = this.cell
     },

@@ -4,7 +4,7 @@
       <ship-placer
         :board="shipPlacementBoard"
         :game="game"
-        v-if="!game.data.placed[game.myIndex]"
+        v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
       ></ship-placer>
       <hit-board-view
         :board="myHitBoard"
@@ -17,13 +17,13 @@
     <div class="bottom">
       <button
         @click="placeShips"
-        v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()"
+        v-if="!game.data.placed[game.myIndex] && isItMyTurn"
       >
         Shuffle
       </button>
       <button
         @click="setShips"
-        v-if="!game.data.placed[game.myIndex] && game.isItMyTurn()"
+        v-if="!game.data.placed[game.myIndex] && isItMyTurn"
       >
         Done
       </button>
@@ -40,16 +40,21 @@
 </template>
 
 <script>
+import '@app/scss/games/seabattle.scss'
+
 import Common from '/gamecommons/seabattle'
 import ShipPlacer from './ShipPlacer.vue'
 import HitBoardView from './HitBoardView.vue'
 import cloneDeep from 'lodash.clonedeep'
-import {runAction, utils as clientUtils} from '@app/js/client-framework.js'
+import { runAction, utils as clientUtils } from '@app/js/client-framework.js'
+import GameFlow from '@app/js/GameFlow.js'
+
+import store from '@app/js/store'
 
 function getMyHitBoard(game) {
   var index = game.myIndex
   if (index == -1) {
-    if (game.isItUsersTurn(undefined, index)) {
+    if (GameFlow.isItUsersTurn(game, index)) {
       // game hasn't started yet but i can start the game by placing ships
       index = game.turn //dog
     }
@@ -62,15 +67,15 @@ function getMyHitBoard(game) {
 
 export default {
   data() {
-    var myHitBoard = getMyHitBoard(this.game)
     return {
       shipPlacementBoard: null,
       targetedCell: null,
-      availableShips: this.game.data.availableShips[myHitBoard.playerIndex]
+      myHitBoard: null,
     }
   },
   methods: {
     placeShips() {
+      console.log('placing ships')
       var t1 = performance.now()
       this.shipPlacementBoard = Common.PlaceShips(
         cloneDeep(this.availableShips),
@@ -116,21 +121,21 @@ export default {
               var responseCell =
                 response.game.data.hitBoards[response.game.myIndex].cells[y][x]
 
-              this.game.data.hitBoards[this.game.myIndex].cells[y][x] =
-                responseCell
               this.targetedCell = null
 
               if (responseCell.state === Common.BOARD_STATE_MISS) {
                 this.game.client.emit('set_animation', { y, x }, 'miss 1s')
 
                 setTimeout(() => {
-                  clientUtils.updateGame(this.game, response.game)
+                  console.log('updating game from cell miss')
+                  store.commit('UPDATE_GAME', response.game)
                 }, 1000)
               } else if (responseCell.state === Common.BOARD_STATE_HIT) {
                 this.game.client.emit('set_animation', { y, x }, 'hit 0.5s')
 
                 setTimeout(() => {
-                  clientUtils.updateGame(this.game, response.game)
+                  console.log('updating game from cell hit')
+                  store.commit('UPDATE_GAME', response.game)
                 }, 500)
               }
             }
@@ -142,24 +147,24 @@ export default {
   },
   computed: {
     hint() {
-      if (!this.game) return ''
-      if (this.game.isItMyTurn()) {
-        if (!this.game.data.placed[this.game.myIndex]) {
-          return 'Drag ships around or tap to rotate them'
-        } else {
-          return 'Tap on a tile'
-        }
+      if (!this.game.data.placed[this.game.myIndex]) {
+        return 'Drag ships around or tap to rotate them'
+      } else {
+        return 'Tap on a tile'
       }
-      return ''
     },
-    myHitBoard() {
-      return getMyHitBoard(this.game)
+    isItMyTurn() {
+      return GameFlow.isItMyTurn(this.game)
     },
   },
   created() {
+    this.myHitBoard = getMyHitBoard(this.game)
+    this.availableShips =
+      this.game.data.availableShips[this.myHitBoard.playerIndex]
+
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
-      this.game.isItMyTurn()
+      this.isItMyTurn
     ) {
       this.placeShips()
     }
@@ -167,6 +172,21 @@ export default {
   components: {
     ShipPlacer,
     HitBoardView,
+  },
+  mounted() {
+    this.$replayTurn(() => {
+      this.$endReplay()
+    })
+  },
+  watch: {
+    replaying() {
+      if (
+        !this.game.data.placed[this.myHitBoard.playerIndex] &&
+        this.isItMyTurn
+      ) {
+        this.placeShips()
+      }
+    },
   },
 }
 </script>

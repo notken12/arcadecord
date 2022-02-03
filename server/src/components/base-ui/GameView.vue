@@ -30,7 +30,6 @@ export default {
   data() {
     return {
       manualOpen: false,
-      isItMyTurn: false,
       sending: false,
       sendingAnimationLength: 500,
     }
@@ -43,8 +42,10 @@ export default {
     ResultView,
     SendingView,
   },
-  created() {
-    this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying
+  computed: {
+    isItMyTurn() {
+      return GameFlow.isItMyTurn(this.game) || this.replaying
+    }
   },
   mounted() {
     bus.on('open-manual', () => {
@@ -64,14 +65,14 @@ export default {
     })
   },
   watch: {
-    'game.turn': function (newTurn) {
-      var player = this.game.players[newTurn]
-      console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
-      this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying;
-    },
-    replaying: function (newValue) {
-      this.isItMyTurn = GameFlow.isItMyTurn(this.game) || newValue;
-    },
+    // 'game.turn': function (newTurn) {
+    //   var player = this.game.players[newTurn]
+    //   console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
+    //   this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying;
+    // },
+    // replaying: function (newValue) {
+    //   this.isItMyTurn = GameFlow.isItMyTurn(this.game) || newValue;
+    // },
   },
 }
 </script>
