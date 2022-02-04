@@ -387,7 +387,64 @@ io.on('connection', (socket) => {
         error: "Error handling action"
       });
     }
+  });
 
+  socket.on('resend invite', async () => {
+    try {
+      // get which game the socket is in
+      var gameId = socket.data.gameId;
+      var userId = socket.data.userId;
+
+      if (gameId === undefined || userId === undefined || gameId === null || userId === null) {
+        console.log('Socket action error: gameId or userId is undefined');
+        callback({
+          error: "Invalid game or user"
+        });
+
+        appInsightsClient.trackEvent({ name: 'Socket resend invite error', properties: { error: 'Invalid game or user' } });
+        return;
+      }
+
+      // get game from db
+      var dbGame = await db.games.getById(gameId);
+
+      if (!dbGame)
+        return;
+
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
+
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc);
+
+      // trigger turn event handler to resend invite
+      await game.emit('turn');
+
+      // save game to db
+      await db.games.update(gameId, game);
+
+      // send result to client
+      await callback({status: 'success'});
+
+      appInsightsClient.trackEvent({ name: 'Resend game invite', properties: { gameId: gameId, userId: userId } });
+
+      // release lock
+      /*release(function (err) {
+        if (err) {
+          console.error(err);
+        }
+      })();*/
+      //});
+    }
+    catch (e) {
+      console.error(e);
+
+      appInsightsClient.trackEvent({ name: 'Resend game invite error', properties: { gameId: gameId, userId: userId, error: e } });
+
+      callback({
+        status: 'error'
+      });
+    }
   });
 
 });
