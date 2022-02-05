@@ -11,7 +11,7 @@
       </template>
     </scores-view>
 
-    <div class="middle">
+    <div class="middle"   v-on:click="cellClick">
       <!-- Game UI just for filler -->
       <board>
           <div class="grid-container">
@@ -85,20 +85,120 @@
   </game-view>
 </template>
 <script>
-
+import "@app/scss/base/_theme.scss"
+import "@app/scss/games/chess.scss"
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
     data(){
         return {
+          selectedSquare: undefined,
+          ranks:"87654321",
+          files:"abcdefgh",
+          otherFiles:"hgfedcba"
         }
     },
     methods:{
+      cellClick: function(event){
+        var cell = event.srcElement.id.replace("cell", "");
+        if(!event.srcElement.id.includes("cell")){
+          if(document.getElementsByClassName("selected-square")[0]){
+          document.getElementsByClassName("selected-square")[0].classList.remove('selected-square')
+          this.selectedCell = undefined;
+          this.cellHighlights();
+          }
+        } else {
+          //Clicked on a valid cell
+          this.selectedCell = cell;
+if(document.getElementsByClassName("selected-square")[0]){
+          document.getElementsByClassName("selected-square")[0].classList.remove('selected-square')
+}
+          document.getElementById("cell" + this.selectedCell).classList.add("selected-square")
+          this.game.data.board = this.movePiece("e2e4", undefined, undefined, this.game.data.board)
+          this.cellHighlights();
+        
+        }
+      },
+      cellHighlights: function(){
 
+      },
+      movePiece: function(move, test, bot, board){
+        if(this.game.isItMyTurn() || bot || test){
+var turnColor;
+var i = this.ranks.indexOf(move[1])
+var j = this.files.indexOf(move[0])
+
+/*
+if(move.endsWith("P") && !bot){
+if(side=="white"){
+  promotionMenuWhite = true;
+} else {
+  promotionMenuBlack = true;
+}
+return
+} else if(move.endsWith("Q")){
+  if(board[i][j] == "P"){
+    board[i][j] = "Q"
+  } else {
+    board[i][j] = "q"
+  }
+} else if(move.endsWith("R")){
+  if(board[i][j] == "P"){
+    board[i][j] = "R"
+  } else {
+    board[i][j] = "r"
+  }
+} else if(move.endsWith("B")){
+  if(board[i][j] == "P"){
+    board[i][j] = "B"
+  } else {
+    board[i][j] = "b"
+  }
+} else if(move.endsWith("N")){
+  if(board[i][j] == "P"){
+    board[i][j] = "N"
+  } else {
+    board[i][j] = "n"
+  }
+}
+
+if(board[i][j] == "P" || board[i][j] == "p"){
+  //En passant!!!!!
+if(move == files[j]+ranks[i]+files[j+1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i-2]+files[j+1]+ranks[i]){
+  board[i][j+1] = ""
+}
+if(move == files[j]+ranks[i]+files[j-1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i-2]+files[j-1]+ranks[i]){
+  board[i][j-1] = ""
+}
+if(move == files[j]+ranks[i]+files[j+1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i+2]+files[j+1]+ranks[i]){
+  board[i][j+1] = ""
+}
+if(move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i+2]+files[j-1]+ranks[i]){
+  board[i][j-1] = ""
+}
+}
+*/
+//Short Castle
+if(board[i][j] == "K" && move == "e1g1"){
+  this.movePiece("h1f1", undefined, undefined, board)
+}
+if(board[i][j] == "k" && move == "e8g8"){
+  this.movePiece("h8f8", undefined, undefined, board)
+}
+//Long Castle
+if(board[i][j] == "K" && move == "e1c1"){
+  this.movePiece("a1d1", undefined, undefined, board)
+}
+if(board[i][j] == "k" && move == "e8c8"){
+  this.movePiece("a8d8", undefined, undefined, board)
+}
+
+board[this.ranks.indexOf(move[3])][this.files.indexOf(move[2])] = board[this.ranks.indexOf(move[1])][this.files.indexOf(move[0])];
+board[this.ranks.indexOf(move[1])][this.files.indexOf(move[0])] = "";
+return board;
+}
+      }
     }, 
     computed:{
-        toUnicode(){
-
-        }, 
         board(){
           var board = this.game.data.board;
           var i;
@@ -123,25 +223,14 @@ export default {
         }
     },
     mounted(){
-
+      console.log(this.game)
+      if(!this.game.isItMyTurn()){
+      var parent = document.getElementsByClassName("grid-container")[0];
+ for (var i = 1; i < parent.childNodes.length; i++){
+        parent.insertBefore(parent.childNodes[i], parent.firstChild);
+    }
+      }
     },
 
 }
 </script>
-<style lang="scss">
-.grid-container{
-    display:grid;
-    background-color: white;
-     grid-gap: 0px;
-    grid-template-columns: 80px 80px 80px 80px 80px 80px 80px 80px;
-    grid-template-rows: 80px 80px 80px 80px 80px 80px 80px 80px;
-    text-align: center;
-    font-size:  50px
-}
-.grid-container div:not(.darkCell){
-
-}
-.darkCell{
-  background-color: rgb(224, 199, 228);
-}
-</style>
