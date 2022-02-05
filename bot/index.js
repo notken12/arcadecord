@@ -83,6 +83,8 @@ app.get('/users/:id', (req, res) => {
         }
 
 
+    }).catch(err => {
+        res.status(404).send("User not found");
     });
 });
 

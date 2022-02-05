@@ -1,9 +1,10 @@
 <template>
-  <div class="hit-board-cell" :style="cellStyles" @click="cellClicked"></div>
+  <div class="hit-board-cell" :style="cellStyles" @click="cellClicked" @animationend="animation = 'none'"></div>
 </template>
 
 <script>
 import Common from '/gamecommons/seabattle'
+import GameFlow from '@app/js/GameFlow.js'
 
 export default {
   data() {
@@ -35,7 +36,7 @@ export default {
     cellClicked() {
       if (
         this.cell.state === Common.BOARD_STATE_EMPTY &&
-        this.$root.game.isItMyTurn()
+        GameFlow.isItMyTurn(this.game)
       )
         this.$root.targetedCell = this.cell
     },
@@ -52,11 +53,22 @@ export default {
       }
     },
   },
-  mounted() {
-    this.game.client.on('set_animation', (pos, animation) => {
-      if (this.cell.x === pos.x && this.cell.y === pos.y)
-        this.animation = animation
-    })
+  watch: {
+    'cell.state': {
+      handler: function (newVal, oldVal) {
+        switch (newVal) {
+          case Common.CELL_STATE_HIT:
+            this.animation = 'hit 0.5s'
+            break
+          case Common.CELL_STATE_MISS:
+            this.animation = 'miss 1s'
+            break
+          default:
+            this.animation = 'none'
+            break
+        }
+      },
+    },
   },
 }
 </script>

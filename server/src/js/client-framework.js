@@ -213,7 +213,7 @@ function listen() {
     // Receive turn events whenever another player finishes their turn
     socket.on('turn', (game, turn) => {
         // Update the game UI
-        store.updateGame(game);
+        store.commit('UPDATE_GAME', game);
         // Replay the turn
         replayTurn();
 
