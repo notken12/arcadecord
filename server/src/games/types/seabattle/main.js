@@ -65,9 +65,7 @@ const options = {
             new HitBoard(1, 10, 10)
         ],
         availableShips: [],
-        placed: [false, false]
-    },
-    secretData: {
+        placed: [false, false],
         boards: [ // the map of ships
             new Common.ShipPlacementBoard(10, 10),
             new Common.ShipPlacementBoard(10, 10)
@@ -92,99 +90,99 @@ class SeaBattleGame extends Game {
             this.data.availableShips.push(ships);
         }
 
-        var boards = this.secretData.boards;
-
         this.on('init', Game.eventHandlersDiscord.init);
 
         this.on('turn', Game.eventHandlersDiscord.turn);
 
+        var boards = this.data.boards;
+
         this.setActionModel('set_ships', Common.setShips);
 
-        this.setActionModel('set_ships', async (game, action) => {
-            var board = action.data.shipPlacementBoard;
-            var ships = action.data.ships;
-            var playerIndex = action.playerIndex;
+        // this.setActionModel('set_ships', async (game, action) => {
+        //     var board = action.data.shipPlacementBoard;
+        //     var ships = action.data.ships;
+        //     var playerIndex = action.playerIndex;
 
-            if (game.data.placed[playerIndex]) {
-                return false;
-            }
+        //     if (game.data.placed[playerIndex]) {
+        //         return false;
+        //     }
 
-            if (Common.isBoardValid(board)) {
-                boards[playerIndex] = board;
-                game.data.placed[playerIndex] = true;
-                await GameFlow.endTurn(game);
-                return game;
-            }
-            return false;
-        }, 'server');
+        //     if (Common.isBoardValid(board)) {
+        //         boards[playerIndex] = board;
+        //         game.data.placed[playerIndex] = true;
+        //         await GameFlow.endTurn(game);
+        //         return game;
+        //     }
+        //     return false;
+        // }, 'server');
 
         this.setActionModel('shoot', Common.shoot);
 
-        this.setActionModel('shoot', async (game, action) => {
-            var board = boards[(action.playerIndex + 1) % game.players.length]; // the other player's board
-            var hitBoard = game.data.hitBoards[action.playerIndex];
+        // this.setActionModel('shoot', async (game, action) => {
+        //     var board = boards[(action.playerIndex + 1) % game.players.length]; // the other player's board
+        //     var hitBoard = game.data.hitBoards[action.playerIndex];
 
 
-            if (!game.data.placed[action.playerIndex] || !board) {
-                return false;
-            }
+        //     if (!game.data.placed[action.playerIndex] || !board) {
+        //         return false;
+        //     }
 
-            var x = action.data.x;
-            var y = action.data.y;
-
-
-            // get ship at x, y
-            var ship = Common.getShipAt(board, x, y);
-            if (!ship) {
-                hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
-
-                // missed, end turn
-                await GameFlow.endTurn(game);
-
-                return game;
-            }
-
-            // hit, give another chance
-            hitBoard.cells[y][x].state = Common.BOARD_STATE_HIT;
-
-            // check if ship is sunk
-            var sunk = true;
-            for (var i = 0; i < ship.length; i++) {
-                var shipX = ship.x + i * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
-                var shipY = ship.y + i * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
-                if (hitBoard.cells[shipY][shipX].state !== Common.BOARD_STATE_HIT) {
-                    sunk = false;
-                    break;
-                }
+        //     var x = action.data.x;
+        //     var y = action.data.y;
 
 
-            }
-            if (sunk) {
-                ship.sunk = true;
-                console.log(board);
-                hitBoard.revealedShips.push(ship);
-            }
+        //     // get ship at x, y
+        //     var ship = Common.getShipAt(board, x, y);
+        //     if (!ship) {
+        //         hitBoard.cells[y][x].state = Common.BOARD_STATE_MISS;
 
-            // check if all ships are sunk
-            var allSunk = true;
-            for (var ship of board.ships) {
-                if (!ship.sunk) {
-                    allSunk = false;
-                    break;
-                }
-            }
-            if (allSunk) {
-                await GameFlow.end(
-                    game,
-                    {
-                        winner: action.playerIndex
-                    }
-                );
-            }
+        //         // missed, end turn
+        //         await GameFlow.endTurn(game);
 
-            return game;
+        //         return game;
+        //     }
 
-        }, 'server');
+        //     // hit, give another chance
+        //     hitBoard.cells[y][x].state = Common.BOARD_STATE_HIT;
+
+        //     // check if ship is sunk
+        //     var sunk = true;
+        //     for (var i = 0; i < ship.length; i++) {
+        //         var shipX = ship.x + i * (ship.direction == Common.SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
+        //         var shipY = ship.y + i * (ship.direction == Common.SHIP_DIRECTION_VERTICAL ? 1 : 0);
+        //         if (hitBoard.cells[shipY][shipX].state !== Common.BOARD_STATE_HIT) {
+        //             sunk = false;
+        //             break;
+        //         }
+
+
+        //     }
+        //     if (sunk) {
+        //         ship.sunk = true;
+        //         console.log(board);
+        //         hitBoard.revealedShips.push(ship);
+        //     }
+
+        //     // check if all ships are sunk
+        //     var allSunk = true;
+        //     for (var ship of board.ships) {
+        //         if (!ship.sunk) {
+        //             allSunk = false;
+        //             break;
+        //         }
+        //     }
+        //     if (allSunk) {
+        //         await GameFlow.end(
+        //             game,
+        //             {
+        //                 winner: action.playerIndex
+        //             }
+        //         );
+        //     }
+
+        //     return game;
+
+        // }, 'server');
     }
 
     getThumbnail() {
