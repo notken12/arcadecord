@@ -81,6 +81,8 @@
 <script>
 import '@app/scss/base/_theme.scss'
 import '@app/scss/games/chess.scss'
+
+import GameFlow from '@app/js/GameFlow'
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
   data() {
@@ -122,7 +124,7 @@ export default {
     },
     cellHighlights: function () {},
     movePiece: function (move, test, bot, board) {
-      if (this.game.isItMyTurn() || bot || test) {
+      if (GameFlow.isItMyTurn(this.game) || bot || test) {
         var turnColor
         var i = this.ranks.indexOf(move[1])
         var j = this.files.indexOf(move[0])
