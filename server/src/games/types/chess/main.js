@@ -36,7 +36,7 @@ constructor(config){
         let frontRowRank = color === 0 ? 1 : 6;
         let backRowRank = color === 0 ? 0 : 7;
         game.data.board.push(new Common.Piece(`${frontRow[file]}${color}:${file}-${frontRowRank}`, color, frontRow[file], file, frontRowRank));
-        game.data.board.push(new Common.Piece(`${backRow[file]}${color}:${file}-${backRowRank}`, backRow[file], file, backRowRank));
+        game.data.board.push(new Common.Piece(`${backRow[file]}${color}:${file}-${backRowRank}`, color, backRow[file], file, backRowRank));
       }
     }
     return game;

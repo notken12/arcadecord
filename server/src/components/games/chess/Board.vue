@@ -7,22 +7,17 @@
       :class="{ darkCell: isCellDark(i) }"
       :title="i"
     ></div>
-    <div v-for="piece in board" :key="piece.id" class="piece">{{pieceIcons[piece.type]}}</div>
+    <piece v-for="piece in board" :key="piece.id" :piece="piece"></piece>
   </div>
 </template>
 
 <script>
+import Piece from './Piece.vue'
+
 export default {
   data() {
     return {
-      pieceIcons: {
-        p: '♟︎',
-        r: '♜',
-        n: '♞',
-        b: '♝',
-        q: '♛',
-        k: '♚',
-      },
+      
     }
   },
   computed: {
@@ -40,6 +35,9 @@ export default {
         return (i % 8) % 2 === 1
       }
     },
+  },
+  components: {
+    Piece,
   },
 }
 </script>
@@ -63,9 +61,5 @@ export default {
 
 .darkCell {
   background-color: rgb(224, 199, 228);
-}
-
-.piece {
-    position: absolute;
 }
 </style>

@@ -32,6 +32,9 @@ export default {
     },
   },
   computed: {
+    hint() {
+      return ''
+    },
     board: function () {
       return this.game.data.board
     },
