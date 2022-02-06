@@ -20,6 +20,7 @@
         :key="piece.id"
         :piece="piece"
         :selected="piece === selectedPiece"
+        :incheck="isInCheck && piece.type === 'k' && piece.color === myColor"
       ></piece>
 
       <div
@@ -67,6 +68,12 @@ export default {
       }
       return Common.getMoves(this.game, this.selectedPiece)
     },
+    isInCheck() {
+      let king = this.game.data.board.find(
+        (piece) => piece.type === 'k' && piece.color === this.myColor
+      )
+      return Common.isInCheck(this.game, king)
+    },
   },
   methods: {
     isCellDark(i) {
@@ -84,9 +91,21 @@ export default {
         left: (move.to[0] / 8) * 100 + '%',
       }
     },
+    promotePawn(move) {
+
+    },
     makeMove(move) {
-      this.selectedPiece = null
+      if (this.selectedPiece.type === 'p') {
+        let isPromotion =
+          this.myColor === 0 ? move.to[1] === 7 : move.to[1] === 1
+        if (isPromotion) {
+          this.promotePawn(move)
+          return
+        }
+      }
       this.$runAction('movePiece', { move: move })
+      this.$endAnimation(800)
+      this.selectedPiece = null
     },
   },
   components: {

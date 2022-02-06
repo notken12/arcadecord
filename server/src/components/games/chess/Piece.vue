@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  props: ['piece', 'selected'],
+  props: ['piece', 'selected', 'incheck'],
   data() {
     return {
       pieceIcons: {
@@ -51,6 +51,9 @@ export default {
       if (this.piece.color === 1) {
         classes.push('black')
       }
+      if (this.incheck) {
+        classes.push('incheck')
+      }
       return classes
     },
   },
@@ -85,5 +88,9 @@ export default {
 
 .selected {
   background-color: #ffffff88;
+}
+
+.incheck {
+  background-color: #ff000088;
 }
 </style>

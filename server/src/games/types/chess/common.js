@@ -337,7 +337,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
 
       let attackedSquares = []
       for (let move of kingMoves) {
-        if (isUnderAttack(board, move, king.color)) {
+        if (isUnderAttack(game, move, king.color)) {
           attackedSquares.push(move)
         }
       }
@@ -359,7 +359,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
   return moves
 }
 
-function checkAttack(game, location, offset, friendlyColor, pieceType) {
+function checkAttack(game, location, offset, friendlyColor, pieceType, singleMove) {
   let board = game.data.board
 
   let [file, rank] = location
@@ -381,21 +381,24 @@ function checkAttack(game, location, offset, friendlyColor, pieceType) {
     }
   }
 
-  return checkAttack(game, [newFile, newRank], offset, friendlyColor, pieceType)
+  if (!singleMove)
+    return checkAttack(game, [newFile, newRank], offset, friendlyColor, pieceType)
+  
+  return false
 }
 
 function isUnderAttack(game, square, friendlyColor) {
   for (let pieceType in offsets) {
     let pieceOffsets = offsets[pieceType]
     for (let offset of pieceOffsets) {
-      if (checkAttack(game, square, offset, friendlyColor, pieceType)) {
+      if (checkAttack(game, square, offset, friendlyColor, pieceType, singleMovePieces.includes(pieceType))) {
         return true
       }
     }
   }
 
   // Check for pawn attacks
-  let forward = friendlyColor === 0 ? -1 : 1
+  let forward = friendlyColor === 0 ? 1 : -1
   let pawn1 = game.data.board.find(
     (piece) =>
       piece.type === 'p' &&
@@ -483,10 +486,8 @@ function doMovePiece(game, move) {
     board.splice(board.indexOf(capturedPiece), 1);
   }
   if (castleSide === 0 && !queensRook.moved) {//Queen-side castle
-    //Castling Animation
     queensRook.file += 3;
   } else if (castleSide === 1 && !kingsRook.moved) {//King-side castle
-    //Castling Animation
     kingsRook.file -= 2;
   } else if (piece.type === "p" && previousMove) {//En passant
     if (previousMove.double) {
@@ -499,9 +500,9 @@ function doMovePiece(game, move) {
       }
     }
   } else if (move.promotion) {
-    piece.type = move.promotion;
+    if (move.promotion !== 'p' && move.promotion !== 'k')
+      piece.type = move.promotion;
   }
-  //Animation here
   piece.file = move.to[0], piece.rank = move.to[1];
 
 
