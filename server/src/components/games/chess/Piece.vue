@@ -1,12 +1,12 @@
 <template>
-  <div class="piece" :style="styles">
+  <div class="piece" :style="styles" @click="selectPiece" :class="classes">
     {{ pieceIcons[piece.type] }}
   </div>
 </template>
 
 <script>
 export default {
-  props: ['piece'],
+  props: ['piece', 'selected'],
   data() {
     return {
       pieceIcons: {
@@ -27,20 +27,38 @@ export default {
     styles() {
       let transform = 'none'
       if (this.myColor === 1) {
-        transform = 'scale(1, -1)'
+        transform = 'rotate(180deg)'
       }
       let top = ((7 - this.piece.rank) / 8) * 100 + '%'
       let left = (this.piece.file / 8) * 100 + '%'
 
       let color = this.piece.color === 0 ? 'white' : 'black'
-      let textShadow = this.piece.color === 0 ? '0 0 4px black' : 'none'
+      let cursor = this.piece.color === this.myColor ? 'pointer' : 'default'
+
       return {
         transform,
         top,
         left,
         color,
-        textShadow,
+        cursor
       }
+    },
+    classes() {
+      let classes = []
+      if (this.selected) {
+        classes.push('selected')
+      }
+      if (this.piece.color === 1) {
+        classes.push('black')
+      }
+      return classes
+    },
+  },
+  methods: {
+    selectPiece() {
+      if (this.piece.color === this.myColor)
+        this.$parent.selectedPiece = this.piece
+      else this.$parent.selectedPiece = null
     },
   },
 }
@@ -53,5 +71,18 @@ export default {
   position: absolute;
   width: 12.5%;
   height: 12.5%;
+  cursor: pointer;
+  text-align: center;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.black {
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+.selected {
+  background-color: #ffffff88;
 }
 </style>

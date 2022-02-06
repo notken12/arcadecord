@@ -25,38 +25,48 @@ function recurse(board, moves, piece, location, offset, singleMove) {
     return moves
   }
 
-  // Add move
-  moves.push({
-    from: [piece.file, piece.rank],
-    to: [newFile, newRank],
-  })
-
-  if (singleMove) {
-    // Piece can only move one space
-    // End recursion
-
-    return moves
-  }
+  var pieceAtLocation = board.find((piece) => piece.file === newFile && piece.rank === newRank)
 
   if (
-    board.find(
-      (piece) => piece.rank === newRank && piece.file === newFile
-    )
+    pieceAtLocation
   ) {
     // There's a piece here
-    // End recursion
-
-    return moves
+    if (pieceAtLocation.color === piece.color) {
+      // Same color piece
+      // End recursion
+      return moves
+    } else {
+      // Opponent piece
+      // Can capture
+      // End recursion
+      moves.push({
+        from: [piece.file, piece.rank],
+        to: [newFile, newRank],
+      })
+      return moves
+    }
   } else {
     // No piece here
     // Recurse
-    return recurse(
-      board,
-      moves,
-      piece,
-      { rank: newRank, file: newFile },
-      offset
-    )
+
+    // Add move
+    moves.push({
+      from: [piece.file, piece.rank],
+      to: [newFile, newRank],
+    })
+
+    if (!singleMove) {
+      return recurse(
+        board,
+        moves,
+        piece,
+        { rank: newRank, file: newFile },
+        offset
+      )
+    } else {
+      return moves
+    }
+
   }
 }
 
@@ -99,22 +109,34 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
       [0, 1],
       [0, -1],
     ],
+    n: [
+      [1, 2],
+      [2, 1],
+      [2, -1],
+      [1, -2],
+      [-1, -2],
+      [-2, -1],
+      [-2, 1],
+      [-1, 2],
+    ]
   }
 
-  let singleMovePieces = ['k']
+  let singleMovePieces = ['k', 'n']
 
   let moves = []
 
   let offset = offsets[piece.type]
   if (offset) {
-    recurse(
-      board,
-      moves,
-      piece,
-      { rank: piece.rank, file: piece.file },
-      offset,
-      singleMovePieces.includes(piece.type)
-    )
+    for (let i = 0; i < offset.length; i++) {
+      recurse(
+        board,
+        moves,
+        piece,
+        { rank: piece.rank, file: piece.file },
+        offset[i],
+        singleMovePieces.includes(piece.type)
+      )
+    }
   } else {
     // One of the oddball pieces
     // Pawn, Knight
@@ -133,31 +155,46 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
           return moves
         }
 
-        // Moving 1 space forward is valid
-        moves.push({
-          from: [piece.file, piece.rank],
-          to: [newFile, newRank1],
-        })
+        if (!board.find((piece) => piece.file === newFile && piece.rank === newRank1)) {
+          // No piece here
+          // Moving 1 space forward is valid
+          moves.push({
+            from: [piece.file, piece.rank],
+            to: [newFile, newRank1],
+          })
+        }
+
+
 
         if (piece.color === 0) {
           // White Pawn
           if (piece.rank === 1) {
             // Pawn can move 2 spaces
-            moves.push({
-              from: [piece.file, piece.rank],
-              to: [newFile, newRank2],
-              double: true,
-            })
+
+            if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
+              // No piece at new location, can move 2 spaces
+              moves.push({
+                from: [piece.file, piece.rank],
+                to: [newFile, newRank2],
+                double: true,
+              })
+            }
+
+
           }
         } else {
           // Black Pawn
           if (piece.rank === 6) {
             // Pawn can move 2 spaces
-            moves.push({
-              from: [piece.file, piece.rank],
-              to: [newFile, newRank2],
-              double: true,
-            })
+
+            if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
+              // No piece at new location, can move 2 spaces
+              moves.push({
+                from: [piece.file, piece.rank],
+                to: [newFile, newRank2],
+                double: true,
+              })
+            }
           }
         }
 
@@ -193,35 +230,6 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
               to: [newFile2, newRank1],
             })
           }
-        }
-        break
-      case 'n':
-        // Knight
-        let knightOffsets = [
-          [1, 2],
-          [2, 1],
-          [2, -1],
-          [1, -2],
-          [-1, -2],
-          [-2, -1],
-          [-2, 1],
-          [-1, 2],
-        ]
-
-        for (let offset of knightOffsets) {
-          let newFile = piece.file + offset[0]
-          let newRank = piece.rank + offset[1]
-
-          if (newFile < 0 || newFile > 7 || newRank < 0 || newRank > 7) {
-            // Out of bounds
-            continue
-          }
-
-          // Add move
-          moves.push({
-            from: [piece.file, piece.rank],
-            to: [newFile, newRank],
-          })
         }
         break
     }
