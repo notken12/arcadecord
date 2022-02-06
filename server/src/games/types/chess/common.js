@@ -50,7 +50,8 @@ async function doMovePiece(game, move){
       let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1]-1))
       board.splice(board.indexOf(pessantedPiece), 1);
     } else if(piece.color == 1){//Black
-
+      let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1]+1))
+      board.splice(board.indexOf(pessantedPiece), 1);
     }
   } else if(move.promotion){
     piece.type = move.promotion;
