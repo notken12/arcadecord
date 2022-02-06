@@ -17,6 +17,54 @@ var ranks = "87654321";
 //   GameFlow = window.GameFlow;
 // }
 
+const offsets = {
+  // [file, rank]
+  r: [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ],
+  b: [
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+  ],
+  q: [
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ],
+  k: [
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ],
+  n: [
+    [1, 2],
+    [2, 1],
+    [2, -1],
+    [1, -2],
+    [-1, -2],
+    [-2, -1],
+    [-2, 1],
+    [-1, 2],
+  ]
+}
+
+let singleMovePieces = ['k', 'n']
+
 function willMoveResultInCheck(game, move, color) {
   // Returns true if the move will result in check
   let newGame = cloneDeep(game)
@@ -26,6 +74,7 @@ function willMoveResultInCheck(game, move, color) {
 
 function addMove(game, moves, move, color) {
   if (!willMoveResultInCheck(game, move, color)) {
+    // debugger
     moves.push(move)
   }
 }
@@ -78,7 +127,7 @@ function recurse(game, moves, piece, location, offset, singleMove) {
         moves,
         piece,
         { rank: newRank, file: newFile },
-        offset
+        offset,
       )
     } else {
       return moves
@@ -94,54 +143,6 @@ function isOutOfBounds(file, rank) {
 function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, type: lowercase letter, id, moved: bool}*/) {
   let board = game.data.board;
 
-  const offsets = {
-    // [file, rank]
-    r: [
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-    ],
-    b: [
-      [1, 1],
-      [-1, -1],
-      [1, -1],
-      [-1, 1],
-    ],
-    q: [
-      [1, 1],
-      [-1, -1],
-      [1, -1],
-      [-1, 1],
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-    ],
-    k: [
-      [1, 1],
-      [-1, -1],
-      [1, -1],
-      [-1, 1],
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-    ],
-    n: [
-      [1, 2],
-      [2, 1],
-      [2, -1],
-      [1, -2],
-      [-1, -2],
-      [-2, -1],
-      [-2, 1],
-      [-1, 2],
-    ]
-  }
-
-  let singleMovePieces = ['k', 'n']
-
   let moves = []
 
   let offset = offsets[piece.type]
@@ -153,7 +154,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
         piece,
         { rank: piece.rank, file: piece.file },
         offset[i],
-        singleMovePieces.includes(piece.type)
+        singleMovePieces.includes(piece.type),
       )
     }
   } else {
@@ -161,6 +162,8 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
     // Pawn, Knight
     switch (piece.type) {
       case 'p':
+        //debugger
+
         // Pawn
         let forward = piece.color === 0 ? 1 : -1
 
@@ -356,18 +359,65 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
   return moves
 }
 
-function isUnderAttack(game, square, friendlyColor) {
-  let board = game.data.board;
-  // Returns true if the square is under attack by a piece of the opposite color
-  let pieces = board.filter((piece) => piece.color !== friendlyColor)
+function checkAttack(game, location, offset, friendlyColor, pieceType) {
+  let board = game.data.board
 
-  for (let piece of pieces) {
-    let moves = getMoves(game, piece)
-    for (let move of moves) {
-      if (move.to[0] === square[0] && move.to[1] === square[1]) {
+  let [file, rank] = location
+  let [fileOffset, rankOffset] = offset
+
+  let newFile = file + fileOffset
+  let newRank = rank + rankOffset
+
+  if (isOutOfBounds(newFile, newRank)) {
+    return false
+  }
+
+  let piece = board.find((piece) => piece.file === newFile && piece.rank === newRank)
+  if (piece) {
+    if (piece.color === friendlyColor || piece.type !== pieceType) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  return checkAttack(game, [newFile, newRank], offset, friendlyColor, pieceType)
+}
+
+function isUnderAttack(game, square, friendlyColor) {
+  for (let pieceType in offsets) {
+    let pieceOffsets = offsets[pieceType]
+    for (let offset of pieceOffsets) {
+      if (checkAttack(game, square, offset, friendlyColor, pieceType)) {
         return true
       }
     }
+  }
+
+  // Check for pawn attacks
+  let forward = friendlyColor === 0 ? -1 : 1
+  let pawn1 = game.data.board.find(
+    (piece) =>
+      piece.type === 'p' &&
+      piece.color !== friendlyColor &&
+      piece.file === square[0] - 1 &&
+      piece.rank === square[1] + forward
+  )
+
+  if (pawn1) {
+    return true
+  }
+
+  let pawn2 = game.data.board.find(
+    (piece) =>
+      piece.type === 'p' &&
+      piece.color !== friendlyColor &&
+      piece.file === square[0] + 1 &&
+      piece.rank === square[1] + forward
+  )
+
+  if (pawn2) {
+    return true
   }
 
   return false
