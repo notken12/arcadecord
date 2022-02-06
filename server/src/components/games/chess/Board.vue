@@ -13,7 +13,7 @@
           :style="getHighlightStyles(move)"
         ></div>
       </transition-group>
-      
+
       <!-- 1-indexed -->
       <piece
         v-for="piece in board"
@@ -27,7 +27,7 @@
         v-for="move in selectedPieceMoves"
         :key="move.to"
         :style="getHighlightStyles(move)"
-        @click="selectedPiece = null"
+        @click="makeMove(move)"
       ></div>
     </div>
   </div>
@@ -83,6 +83,9 @@ export default {
         top: ((7 - move.to[1]) / 8) * 100 + '%',
         left: (move.to[0] / 8) * 100 + '%',
       }
+    },
+    makeMove(move) {
+      this.$runAction('movePiece', { move: move })
     },
   },
   components: {
