@@ -13,6 +13,9 @@
             "scss/*": [
                 "server/src/scss/*"
             ],
+            "/gamecommons/*": [
+                "server/src/games/types/*/common"
+            ],
         }
     },
     "include": [
