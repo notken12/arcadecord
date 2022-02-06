@@ -127,83 +127,6 @@ export default {
       }
     },
     cellHighlights: function () {},
-    movePiece: function (move, test, bot, board) {
-      if (this.game.isItMyTurn() || bot || test) {
-        var turnColor
-        var i = this.ranks.indexOf(move[1])
-        var j = this.files.indexOf(move[0])
-
-        /*
-if(move.endsWith("P") && !bot){
-if(side=="white"){
-  promotionMenuWhite = true;
-} else {
-  promotionMenuBlack = true;
-}
-return
-} else if(move.endsWith("Q")){
-  if(board[i][j] == "P"){
-    board[i][j] = "Q"
-  } else {
-    board[i][j] = "q"
-  }
-} else if(move.endsWith("R")){
-  if(board[i][j] == "P"){
-    board[i][j] = "R"
-  } else {
-    board[i][j] = "r"
-  }
-} else if(move.endsWith("B")){
-  if(board[i][j] == "P"){
-    board[i][j] = "B"
-  } else {
-    board[i][j] = "b"
-  }
-} else if(move.endsWith("N")){
-  if(board[i][j] == "P"){
-    board[i][j] = "N"
-  } else {
-    board[i][j] = "n"
-  }
-}
-
-if(board[i][j] == "P" || board[i][j] == "p"){
-  //En passant!!!!!
-if(move == files[j]+ranks[i]+files[j+1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i-2]+files[j+1]+ranks[i]){
-  board[i][j+1] = ""
-}
-if(move == files[j]+ranks[i]+files[j-1]+ranks[i-1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i-2]+files[j-1]+ranks[i]){
-  board[i][j-1] = ""
-}
-if(move == files[j]+ranks[i]+files[j+1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j+1]+ranks[i+2]+files[j+1]+ranks[i]){
-  board[i][j+1] = ""
-}
-if(move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousMoves[previousMoves.length-1] == files[j-1]+ranks[i+2]+files[j-1]+ranks[i]){
-  board[i][j-1] = ""
-}
-}
-*/
-        //Short Castle
-        if (board[i][j] == 'K' && move == 'e1g1') {
-          this.movePiece('h1f1', undefined, undefined, board)
-        }
-        if (board[i][j] == 'k' && move == 'e8g8') {
-          this.movePiece('h8f8', undefined, undefined, board)
-        }
-        //Long Castle
-        if (board[i][j] == 'K' && move == 'e1c1') {
-          this.movePiece('a1d1', undefined, undefined, board)
-        }
-        if (board[i][j] == 'k' && move == 'e8c8') {
-          this.movePiece('a8d8', undefined, undefined, board)
-        }
-
-        board[this.ranks.indexOf(move[3])][this.files.indexOf(move[2])] =
-          board[this.ranks.indexOf(move[1])][this.files.indexOf(move[0])]
-        board[this.ranks.indexOf(move[1])][this.files.indexOf(move[0])] = ''
-        return board
-      }
-    },
     legalChessMoves: function (white, board) {
       var moves = []
       var i
@@ -1631,9 +1554,7 @@ if(move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousMoves[previousMove
     },
   },
   mounted() {
-    console.log(
-      this.allChessMoves(true, JSON.parse(JSON.stringify(this.game.data.board)))
-    )
+    
     if (this.game.myIndex == 0) {
       var parent = document.getElementsByClassName('grid-container')[0]
       for (var i = 1; i < parent.childNodes.length; i++) {

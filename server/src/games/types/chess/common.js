@@ -23,82 +23,46 @@ function isGameOver(board, player) {
 
   }
 }
-async function movePiece(game, action) {
-  var turnColor;
-  var i = ranks.indexOf(action.data.move[1])
-  var j = files.indexOf(action.data.move[0])
-
-  if (action.data.move.endsWith("Q")) {
-    if (game.data.board[i][j] == "P") {
-      game.data.board[i][j] = "Q"
-    } else {
-      game.data.board[i][j] = "q"
-    }
-  } else if (action.data.move.endsWith("R")) {
-    if (game.data.board[i][j] == "P") {
-      game.data.board[i][j] = "R"
-    } else {
-      game.data.board[i][j] = "r"
-    }
-  } else if (action.data.move.endsWith("B")) {
-    if (game.data.board[i][j] == "P") {
-      game.data.board[i][j] = "B"
-    } else {
-      game.data.board[i][j] = "b"
-    }
-  } else if (action.data.move.endsWith("N")) {
-    if (game.data.board[i][j] == "P") {
-      game.data.board[i][j] = "N"
-    } else {
-      game.data.board[i][j] = "n"
-    }
-  }
-  /*
-  if(game.data.board[i][j] == "P" || game.data.board[i][j] == "p"){
-    //En passant!!!!!
-  if(action.data.move == files[j]+ranks[i]+files[j+1]+ranks[i-1] && previousaction.data.moves[previousaction.data.moves.length-1] == files[j+1]+ranks[i-2]+files[j+1]+ranks[i]){
-    game.data.board[i][j+1] = ""
-  }
-  if(action.data.move == files[j]+ranks[i]+files[j-1]+ranks[i-1] && previousaction.data.moves[previousaction.data.moves.length-1] == files[j-1]+ranks[i-2]+files[j-1]+ranks[i]){
-    game.data.board[i][j-1] = ""
-  }
-  if(action.data.move == files[j]+ranks[i]+files[j+1]+ranks[i+1] && previousaction.data.moves[previousaction.data.moves.length-1] == files[j+1]+ranks[i+2]+files[j+1]+ranks[i]){
-    game.data.board[i][j+1] = ""
-  }
-  if(action.data.move == files[j]+ranks[i]+files[j-1]+ranks[i+1] && previousaction.data.moves[previousaction.data.moves.length-1] == files[j-1]+ranks[i+2]+files[j-1]+ranks[i]){
-    game.data.board[i][j-1] = ""
-  }
-  }
-
-  //Short Castle
-  if(game.data.board[i][j] == "K" && action.data.move == "e1g1"){
-    action.data.movePiece("h1f1")
-  }
-  if(game.data.board[i][j] == "k" && action.data.move == "e8g8"){
-    action.data.movePiece("h8f8")
-  }
-  //Long Castle
-  if(game.data.board[i][j] == "K" && action.data.move == "e1c1"){
-    action.data.movePiece("a1d1")
-  }
-  if(game.data.board[i][j] == "k" && action.data.move == "e8c8"){
-    action.data.movePiece("a8d8");
-  }
-*/
-  game.data.board[ranks.indexOf(action.data.move[3])][files.indexOf(action.data.move[2])] = game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])];
-  game.data.board[ranks.indexOf(action.data.move[1])][files.indexOf(action.data.move[0])] = "";
-  if (isGameOver(game.data.board, action.playerIndex) == 1) {
-    await GameFlow.end(game, {
-      winner: action.playerIndex
-    })
-  } else if (isGameOver(game.data.board, action.playerIndex) == 0) {
-    await GameFlow.end(game, {
-      winner: -1
-    })
-  } else {
-    return endTurn(game);
-  }
+async function movePiece(action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/, game) {
+  let move = action.data.move;
+  game = doMovePiece(game, move)
+  game.data.previousMoves.push(action.data.move);
+  return game;
 }
+async function doMovePiece(game, move){
+  let piece = game.data.board.find(piece => piece.file === move.from[0] && piece.rank === move.from[1]);
+  let capturedPiece = game.data.board.find(capturedPiece => capturedPiece.file === move.to[0] && capturedPiece.rank === move.to[1]);
+  if(castleSide){
+  let kingsRook = game.data.board.find(kingsRook => kingsRook.file === piece.file + 3 && kingsRook.rank === piece.rank);
+  let queensRook = game.data.board.find(queensRook => queensRook.file === piece.file - 4 && queensRook.rank == piece.rank);
+  }
+  if(capturedPiece){
+    board.splice(board.indexOf(capturedPiece), 1);
+  }
+  if(castleSide === 0 && !queensRook.moved){//Queen-side castle
+    //Castling Animation
+    queensRook.file += 3;
+  } else if(castleSide === 1 && !kingsRook.moved){//King-side castle
+    //Castling Animation
+    kingsRook.file -= 2;
+  } else if(piece.type === "p" && game.data.previousMoves[game.data.previousMoves.length].double){//En passant
+    if(piece.color == 0){//White
+      let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1]-1))
+      board.splice(board.indexOf(pessantedPiece), 1);
+    } else if(piece.color == 1){//Black
+
+    }
+  } else if(move.promotion){
+    piece.type = move.promotion;
+  }
+  //Animation here
+  piece.file = move.to[0], piece.rank = move.to[1];
+
+  
+  piece.moved = true;
+  return game;
+}
+
 async function endTurn(game, action) {
   await GameFlow.endTurn(game);
 
