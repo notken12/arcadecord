@@ -70,6 +70,7 @@ export default {
     return {
       shipPlacementBoard: null,
       targetedCell: null,
+      availableShips: null
     }
   },
   methods: {
@@ -90,18 +91,10 @@ export default {
       )
     },
     setShips() {
-      runAction(
-        this.game,
-        'set_ships',
-        { shipPlacementBoard: this.shipPlacementBoard },
-        (response) => {
-          console.log(response)
-          if (response.success) {
-            clientUtils.updateGame(this.game, response.game)
-            this.game.turn = response.game.turn
-          }
-        }
-      )
+      this.$runAction('set_ships', {
+        shipPlacementBoard: this.shipPlacementBoard,
+      })
+      this.$endAnimation(500)
     },
     shoot() {
       var cell = this.targetedCell
@@ -109,20 +102,9 @@ export default {
       if (cell) {
         var y = cell.y
         var x = cell.x
-        runAction(
-          this.game,
-          'shoot',
-          { y, x },
-          (response) => {
-            console.log(response)
-            if (response.success) {
-              this.targetedCell = null
-              store.commit('UPDATE_GAME', response.game)
-              this.$endAnimation(1500);
-            }
-          },
-          true
-        );
+        this.$runAction('shoot', { y, x })
+        this.targetedCell = null;
+        this.$endAnimation(1500)
       }
     },
   },
@@ -142,7 +124,7 @@ export default {
       if (index == -1) {
         if (GameFlow.isItUsersTurn(this.game, index)) {
           // game hasn't started yet but i can start the game by placing ships
-          index = this.game.turn 
+          index = this.game.turn
         }
       }
 
@@ -151,9 +133,13 @@ export default {
     },
   },
   mounted() {
+    this.$replayTurn(() => {
+      this.$endReplay()
+    })
     this.availableShips =
       this.game.data.availableShips[this.myHitBoard.playerIndex]
-
+    console.log('mounted')
+  
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
       this.isItMyTurn
@@ -164,11 +150,6 @@ export default {
   components: {
     ShipPlacer,
     HitBoardView,
-  },
-  mounted() {
-    this.$replayTurn(() => {
-      this.$endReplay()
-    })
   },
   watch: {
     replaying() {

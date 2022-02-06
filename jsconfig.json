@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "esnext",
+        "baseUrl": "./",
+        "paths": {
+            "@app/*": [
+                "server/src/*"
+            ],
+            "components/*": [
+                "server/src/components/*"
+            ],
+            "scss/*": [
+                "server/src/scss/*"
+            ],
+            "/gamecommons/*": [
+                "server/src/games/types/*/common"
+            ],
+        }
+    },
+    "include": [
+        "server/src/**/*.vue",
+        "server/src/**/*.js"
+    ]
+}

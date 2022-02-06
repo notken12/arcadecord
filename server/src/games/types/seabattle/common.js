@@ -38,7 +38,7 @@ const CELL_SIZE = 40;
 //             return false;
 //         }
 //     }
-    
+
 //     board.shipsPlaced = true;
 //     return board;
 // }
@@ -46,7 +46,7 @@ const CELL_SIZE = 40;
 // function placeShips(game, action) {
 //     var ships = action.ships;
 //     var board = game.data.boards[action.playerIndex];
-    
+
 //     if (!setShipsForBoard(board, ships)) {
 //         return false;
 //     }
@@ -54,18 +54,78 @@ const CELL_SIZE = 40;
 //     return game;
 // }
 
-function shoot(game, action) {
+async function shoot(game, action) {
     var playerIndex = action.playerIndex;
-    var board = game.data.hitBoards[playerIndex];
+    var hitBoard = game.data.hitBoards[playerIndex];
     var x = action.data.x;
     var y = action.data.y;
-    
-    if (board.cells[y][x].state !== BOARD_STATE_EMPTY) {
+
+    if (hitBoard.cells[y][x].state !== BOARD_STATE_EMPTY) {
         return false; // already shot
     }
-    
-    return game;
 
+    var board = game.data.boards[(action.playerIndex + 1) % game.players.length]; // the other player's board
+    var hitBoard = game.data.hitBoards[action.playerIndex];
+
+
+    if (!game.data.placed[action.playerIndex] || !board) {
+        return false;
+    }
+
+    var x = action.data.x;
+    var y = action.data.y;
+
+
+    // get ship at x, y
+    var ship = getShipAt(board, x, y);
+    if (!ship) {
+        hitBoard.cells[y][x].state = BOARD_STATE_MISS;
+
+        // missed, end turn
+        await GameFlow.endTurn(game);
+
+        return game;
+    }
+
+    // hit, give another chance
+    hitBoard.cells[y][x].state = BOARD_STATE_HIT;
+
+    // check if ship is sunk
+    var sunk = true;
+    for (var i = 0; i < ship.length; i++) {
+        var shipX = ship.x + i * (ship.direction == SHIP_DIRECTION_HORIZONTAL ? 1 : 0);
+        var shipY = ship.y + i * (ship.direction == SHIP_DIRECTION_VERTICAL ? 1 : 0);
+        if (hitBoard.cells[shipY][shipX].state !== BOARD_STATE_HIT) {
+            sunk = false;
+            break;
+        }
+
+
+    }
+    if (sunk) {
+        ship.sunk = true;
+        console.log(board);
+        hitBoard.revealedShips.push(ship);
+    }
+
+    // check if all ships are sunk
+    var allSunk = true;
+    for (var ship of board.ships) {
+        if (!ship.sunk) {
+            allSunk = false;
+            break;
+        }
+    }
+    if (allSunk) {
+        await GameFlow.end(
+            game,
+            {
+                winner: action.playerIndex
+            }
+        );
+    }
+
+    return game;
 }
 
 function ShipPlacementBoard(width, height) {
@@ -240,10 +300,21 @@ function getShipAt(board, x, y) {
     return null;
 }
 
-function setShips(game, action) {
-    // nothing, just a placeholder
-    // setting ships is done in the server and result is sent to the client
-    return game;
+async function setShips(game, action) {
+    var board = action.data.shipPlacementBoard;
+    var playerIndex = action.playerIndex;
+
+    if (game.data.placed[playerIndex]) {
+        return false;
+    }
+
+    if (isBoardValid(board)) {
+        game.data.boards[playerIndex] = board;
+        game.data.placed[playerIndex] = true;
+        await GameFlow.endTurn(game);
+        return game;
+    }
+    return false;
 }
 
 

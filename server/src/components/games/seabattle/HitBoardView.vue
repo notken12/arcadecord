@@ -26,9 +26,11 @@
       </div>
     </div>
 
-    <div class="target-crosshair" v-if="target" :style="targetStyles">
-      <img src="@app/public/assets/seabattle/crosshair.png" />
-    </div>
+    <transition name="fade">
+      <div class="target-crosshair" v-if="target" :style="targetStyles">
+        <img src="@app/public/assets/seabattle/crosshair.png" />
+      </div>
+    </transition>
   </div>
 </template>
 
