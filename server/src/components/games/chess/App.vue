@@ -18,6 +18,7 @@ import Board from './Board.vue'
 
 import GameFlow from '@app/js/GameFlow'
 import Common from '/gamecommons/chess'
+import { replayAction } from '@app/js/client-framework'
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
   data() {
@@ -50,7 +51,10 @@ export default {
     },
   },
   mounted() {
-    
+    this.$replayTurn(() => {
+      replayAction(this.game, this.game.turns[this.game.turns.length - 1].actions[0])
+      this.$endReplay(1000)
+    })
   },
   components: {
     Board
