@@ -19,6 +19,11 @@ export default {
       },
     }
   },
+  computed: {
+    styles() {
+        let top = this.piece.
+    },
+  },
 }
 </script>
 
