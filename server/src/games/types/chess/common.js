@@ -155,7 +155,9 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
           return moves
         }
 
-        if (!board.find((piece) => piece.file === newFile && piece.rank === newRank1)) {
+        let pieceAtRank1 = board.find((piece) => piece.file === newFile && piece.rank === newRank1)
+
+        if (!pieceAtRank1) {
           // No piece here
           // Moving 1 space forward is valid
           moves.push({
@@ -168,7 +170,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
 
         if (piece.color === 0) {
           // White Pawn
-          if (piece.rank === 1) {
+          if (piece.rank === 1 && !pieceAtRank1) {
             // Pawn can move 2 spaces
 
             if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
@@ -184,7 +186,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
           }
         } else {
           // Black Pawn
-          if (piece.rank === 6) {
+          if (piece.rank === 6 && !pieceAtRank1) {
             // Pawn can move 2 spaces
 
             if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
@@ -206,7 +208,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
           // Right
           if (
             board.find(
-              (piece) => piece.rank === newRank1 && piece.file === newFile1
+              (p) => p.rank === newRank1 && p.file === newFile1 && p.color !== piece.color
             )
           ) {
             // There's a piece here
@@ -221,7 +223,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
           // Left
           if (
             board.find(
-              (piece) => piece.rank === newRank1 && piece.file === newFile2
+              (p) => p.rank === newRank1 && p.file === newFile2 && p.color !== piece.color
             )
           ) {
             // There's a piece here
