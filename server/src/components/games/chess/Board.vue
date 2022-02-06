@@ -7,20 +7,24 @@
       :class="{ darkCell: isCellDark(i) }"
       :title="i"
     ></div>
+    <div v-for="piece in board" :key="piece.id" class="piece">{{pieceIcons[piece.type]}}</div>
   </div>
 </template>
 
 <script>
-let pieceIcons = {
-  p: '♟︎',
-  r: '♜',
-  n: '♞',
-  b: '♝',
-  q: '♛',
-  k: '♚',
-}
-
 export default {
+  data() {
+    return {
+      pieceIcons: {
+        p: '♟︎',
+        r: '♜',
+        n: '♞',
+        b: '♝',
+        q: '♛',
+        k: '♚',
+      },
+    }
+  },
   computed: {
     board() {
       return this.game.data.board
@@ -54,9 +58,14 @@ export default {
   text-align: center;
   font-size: 50px;
   color: black;
+  position: relative;
 }
 
 .darkCell {
   background-color: rgb(224, 199, 228);
+}
+
+.piece {
+    position: absolute;
 }
 </style>

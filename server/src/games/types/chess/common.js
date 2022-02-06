@@ -343,12 +343,14 @@ function isInCheck(board, king) {
 }
 
 class Piece {
+  id // arbitrary ID for the piece
   color // 0 = white, 1 = black
   type // k = king, q = queen, r = rook, b = bishop, n = knight, p = pawn
   file // 0-7 (a-h)
   rank // 0-7
   moved // true if the piece has moved, only used for castling
-  constructor(color, type, file, rank) {
+  constructor(id, color, type, file, rank) {
+    this.id = id
     this.color = color
     this.type = type
     this.file = file
