@@ -342,6 +342,21 @@ function isInCheck(board, king) {
   return isUnderAttack(board, [king.file, king.rank], king.color)
 }
 
+class Piece {
+  color // 0 = white, 1 = black
+  type // k = king, q = queen, r = rook, b = bishop, n = knight, p = pawn
+  file // 0-7 (a-h)
+  rank // 0-7
+  moved // true if the piece has moved, only used for castling
+  constructor(color, type, file, rank) {
+    this.color = color
+    this.type = type
+    this.file = file
+    this.rank = rank
+    this.moved = false
+  }
+}
+
 function isGameOver(board, player) {
 
   if (player == 1) {//White Pieces
@@ -438,6 +453,7 @@ var exports = {
   getMoves,
   isInCheck,
   isUnderAttack,
+  Piece
 }
 
 export default exports;
