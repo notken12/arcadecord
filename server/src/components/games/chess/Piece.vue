@@ -40,7 +40,7 @@ export default {
         top,
         left,
         color,
-        cursor
+        cursor,
       }
     },
     classes() {
@@ -75,6 +75,7 @@ export default {
   text-align: center;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
     1px 1px 0 #000;
+  transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
 }
 
 .black {

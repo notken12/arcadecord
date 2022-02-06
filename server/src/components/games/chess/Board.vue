@@ -65,7 +65,7 @@ export default {
       if (!this.selectedPiece) {
         return []
       }
-      return Common.getMoves(this.board, this.selectedPiece)
+      return Common.getMoves(this.game, this.selectedPiece)
     },
   },
   methods: {
@@ -85,6 +85,7 @@ export default {
       }
     },
     makeMove(move) {
+      this.selectedPiece = null
       this.$runAction('movePiece', { move: move })
     },
   },

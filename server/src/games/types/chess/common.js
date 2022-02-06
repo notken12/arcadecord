@@ -1,4 +1,6 @@
 import GameFlow from '../../GameFlow.js';
+import cloneDeep from 'lodash.clonedeep'
+
 //f
 var files = "abcdefgh";
 var otherFiles = "hgfedcba"
@@ -15,7 +17,22 @@ var ranks = "87654321";
 //   GameFlow = window.GameFlow;
 // }
 
-function recurse(board, moves, piece, location, offset, singleMove) {
+function willMoveResultInCheck(game, move, color) {
+  // Returns true if the move will result in check
+  let newGame = cloneDeep(game)
+  doMovePiece(newGame, move);
+  return isInCheck(newGame, newGame.data.board.find((piece) => piece.type === "k" && piece.color === color))
+}
+
+function addMove(game, moves, move, color) {
+  if (!willMoveResultInCheck(game, move, color)) {
+    moves.push(move)
+  }
+}
+
+function recurse(game, moves, piece, location, offset, singleMove) {
+  let board = game.data.board;
+
   let { rank, file } = location
   let newFile = file + offset[0]
   let newRank = rank + offset[1]
@@ -39,10 +56,10 @@ function recurse(board, moves, piece, location, offset, singleMove) {
       // Opponent piece
       // Can capture
       // End recursion
-      moves.push({
+      addMove(game, moves, {
         from: [piece.file, piece.rank],
         to: [newFile, newRank],
-      })
+      }, piece.color)
       return moves
     }
   } else {
@@ -50,14 +67,14 @@ function recurse(board, moves, piece, location, offset, singleMove) {
     // Recurse
 
     // Add move
-    moves.push({
+    addMove(game, moves, {
       from: [piece.file, piece.rank],
       to: [newFile, newRank],
-    })
+    }, piece.color)
 
     if (!singleMove) {
       return recurse(
-        board,
+        game,
         moves,
         piece,
         { rank: newRank, file: newFile },
@@ -70,10 +87,12 @@ function recurse(board, moves, piece, location, offset, singleMove) {
   }
 }
 
-function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, type: lowercase letter, id, moved: bool}*/) {
-  function isOutOfBounds(file, rank) {
-    return rank < 0 || rank > 7 || file < 0 || file > 7
-  }
+function isOutOfBounds(file, rank) {
+  return rank < 0 || rank > 7 || file < 0 || file > 7
+}
+
+function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, type: lowercase letter, id, moved: bool}*/) {
+  let board = game.data.board;
 
   const offsets = {
     // [file, rank]
@@ -129,7 +148,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
   if (offset) {
     for (let i = 0; i < offset.length; i++) {
       recurse(
-        board,
+        game,
         moves,
         piece,
         { rank: piece.rank, file: piece.file },
@@ -160,10 +179,10 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
         if (!pieceAtRank1) {
           // No piece here
           // Moving 1 space forward is valid
-          moves.push({
+          addMove(game, moves, {
             from: [piece.file, piece.rank],
             to: [newFile, newRank1],
-          })
+          }, piece.color)
         }
 
 
@@ -175,11 +194,11 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
 
             if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
               // No piece at new location, can move 2 spaces
-              moves.push({
+              addMove(game, moves, {
                 from: [piece.file, piece.rank],
                 to: [newFile, newRank2],
                 double: true,
-              })
+              }, piece.color)
             }
 
 
@@ -191,11 +210,11 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
 
             if (!board.find((piece) => piece.file === newFile && piece.rank === newRank2)) {
               // No piece at new location, can move 2 spaces
-              moves.push({
+              addMove(game, moves, {
                 from: [piece.file, piece.rank],
                 to: [newFile, newRank2],
                 double: true,
-              })
+              }, piece.color)
             }
           }
         }
@@ -212,10 +231,10 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
             )
           ) {
             // There's a piece here
-            moves.push({
+            addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile1, newRank1],
-            })
+            }, piece.color)
           }
         }
 
@@ -227,10 +246,10 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
             )
           ) {
             // There's a piece here
-            moves.push({
+            addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile2, newRank1],
-            })
+            }, piece.color)
           }
         }
         break
@@ -293,7 +312,7 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
       }
 
       // Check if the king is in check
-      if (isInCheck(board, king)) {
+      if (isInCheck(game, king)) {
         // King is in check
         continue
       }
@@ -326,23 +345,24 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
       }
 
       // King and rook are clear to castle
-      moves.push({
+      addMove(game, moves, {
         from: [king.file, king.rank],
         to: [i === 0 ? 2 : 6, king.rank],
         castle: i,
-      })
+      }, king.color)
     }
   }
 
   return moves
 }
 
-function isUnderAttack(board, square, friendlyColor) {
+function isUnderAttack(game, square, friendlyColor) {
+  let board = game.data.board;
   // Returns true if the square is under attack by a piece of the opposite color
   let pieces = board.filter((piece) => piece.color !== friendlyColor)
 
   for (let piece of pieces) {
-    let moves = getMoves(board, piece)
+    let moves = getMoves(game, piece)
     for (let move of moves) {
       if (move.to[0] === square[0] && move.to[1] === square[1]) {
         return true
@@ -353,8 +373,11 @@ function isUnderAttack(board, square, friendlyColor) {
   return false
 }
 
-function isInCheck(board, king) {
-  return isUnderAttack(board, [king.file, king.rank], king.color)
+function isInCheck(game, king) {
+  if (king)
+    return isUnderAttack(game, [king.file, king.rank], king.color)
+  else
+    return false
 }
 
 class Piece {
@@ -399,9 +422,12 @@ function doMovePiece(game, move) {
   let castleSide = move.castle;
 
   let previousMove = game.data.previousMoves[game.data.previousMoves.length - 1]
+
+  let kingsRook;
+  let queensRook;
   if (castleSide !== undefined && castleSide !== null) {
-    let kingsRook = game.data.board.find(kingsRook => kingsRook.file === piece.file + 3 && kingsRook.rank === piece.rank);
-    let queensRook = game.data.board.find(queensRook => queensRook.file === piece.file - 4 && queensRook.rank == piece.rank);
+    kingsRook = game.data.board.find(kingsRook => kingsRook.file === piece.file + 3 && kingsRook.rank === piece.rank);
+    queensRook = game.data.board.find(queensRook => queensRook.file === piece.file - 4 && queensRook.rank == piece.rank);
   }
   if (capturedPiece) {
     board.splice(board.indexOf(capturedPiece), 1);
