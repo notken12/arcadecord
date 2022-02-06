@@ -434,7 +434,10 @@ async function endTurn(game, action) {
 
 var exports = {
   movePiece,
-  endTurn
+  endTurn,
+  getMoves,
+  isInCheck,
+  isUnderAttack,
 }
 
 export default exports;
