@@ -24,6 +24,19 @@ export default {
     board() {
       return this.game.data.board
     },
+    myColor() {
+        let index = this.game.myIndex === -1 ? 1 : this.game.myIndex
+        return this.game.data.colors[index]
+    },
+    styles() {
+        let transform = 'none'
+        if (this.myColor === 1) {
+            transform = 'scale(1, -1)'
+        }
+        return {
+            transform,
+        }
+    }
   },
   methods: {
     isCellDark(i) {
