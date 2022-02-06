@@ -273,11 +273,16 @@ function getMoves(board, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, 
       let piecesBetween = []
       let file = king.file
       let rank = king.rank
+
+      file = i === 0 ? file - 1 : file + 1
+
       while (file !== rook.file && piecesBetween.length < 1) {
-        file = i === 0 ? file + 1 : file - 1
-        piecesBetween.push(board.find(
+        let pieceBetween = board.find(
           (piece) => piece.rank === rank && piece.file === file
-        ))
+        )
+        if (pieceBetween)
+          piecesBetween.push(pieceBetween)
+        file = i === 0 ? file - 1 : file + 1
       }
 
       if (piecesBetween.length > 0) {
