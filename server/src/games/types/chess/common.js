@@ -382,7 +382,7 @@ function isGameOver(board, player) {
 
   }
 }
-async function movePiece(action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/, game) {
+async function movePiece(game, action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/) {
   let move = action.data.move;
   game = doMovePiece(game, move)
   game.data.previousMoves.push(action.data.move);
