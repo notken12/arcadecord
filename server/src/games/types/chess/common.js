@@ -516,25 +516,36 @@ function doMovePiece(game, move) {
 
   let kingsRook;
   let queensRook;
-  if (castleSide !== undefined && castleSide !== null) {
-    kingsRook = game.data.board.find(kingsRook => kingsRook.file === piece.file + 3 && kingsRook.rank === piece.rank);
-    queensRook = game.data.board.find(queensRook => queensRook.file === piece.file - 4 && queensRook.rank == piece.rank);
+  if (castleSide !== undefined && castleSide !== null && !piece.moved && piece.type === 'k') {
+    kingsRook = game.data.board.find(p => p.file === 7 && p.rank === piece.rank);
+    queensRook = game.data.board.find(p => p.file === 0 && p.rank == piece.rank);
+
+    if (castleSide === 0) {
+      if (!queensRook)
+        return false
+      queensRook.file += 3;
+
+    } else if (castleSide === 1) {
+      if (!kingsRook)
+        return false
+      kingsRook.file -= 2;
+    }
   }
+
   if (capturedPiece) {
     board.splice(board.indexOf(capturedPiece), 1);
   }
-  if (castleSide === 0 && !queensRook.moved) {//Queen-side castle
-    queensRook.file += 3;
-  } else if (castleSide === 1 && !kingsRook.moved) {//King-side castle
-    kingsRook.file -= 2;
-  } else if (piece.type === "p" && previousMove) {//En passant
+
+  if (piece.type === "p" && previousMove) {//En passant
     if (previousMove.double) {
       if (piece.color == 0) {//White
-        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] - 1))
-        board.splice(board.indexOf(pessantedPiece), 1);
+        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] - 1) && pessantedPiece.type === "p");
+        if (pessantedPiece)
+          board.splice(board.indexOf(pessantedPiece), 1);
       } else if (piece.color == 1) {//Black
-        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] + 1))
-        board.splice(board.indexOf(pessantedPiece), 1);
+        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] + 1) && pessantedPiece.type === "p");
+        if (pessantedPiece)
+          board.splice(board.indexOf(pessantedPiece), 1);
       }
     }
   }
