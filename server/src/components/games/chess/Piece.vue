@@ -1,7 +1,5 @@
 <template>
-  <div class="piece" :style="styles" @click="selectPiece" :class="classes">
-    {{ pieceIcons[piece.type] }}
-  </div>
+  <div class="piece" :style="styles" @click="selectPiece" :class="classes"></div>
 </template>
 
 <script>
@@ -32,15 +30,25 @@ export default {
       let top = ((7 - this.piece.rank) / 8) * 100 + '%'
       let left = (this.piece.file / 8) * 100 + '%'
 
-      let color = this.piece.color === 0 ? 'white' : 'black'
       let cursor = this.piece.color === this.myColor ? 'pointer' : 'default'
+
+      let texturePositions = {
+        p: 0,
+        r: 1,
+        n: 2,
+        b: 3,
+        q: 4,
+        k: 5,
+      }
+
+      let backgroundPositionX = (texturePositions[this.piece.type] / 6) * 100 + '%'
 
       return {
         transform,
         top,
         left,
-        color,
         cursor,
+        backgroundPositionX
       }
     },
     classes() {
@@ -73,14 +81,13 @@ export default {
   height: 12.5%;
   cursor: pointer;
   text-align: center;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-    1px 1px 0 #000;
   transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
+  background-image: url('/dist/assets/chess/white_pieces.svg');
+  background-size: contain;
 }
 
 .black {
-  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
-    1px 1px 0 #fff;
+  background-image: url('/dist/assets/chess/black_pieces.svg');
 }
 
 .selected {
