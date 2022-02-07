@@ -146,6 +146,11 @@ export default {
       this.selectedPiece = null
     },
   },
+  watch: {
+    selectedPiece(piece) {
+      bus.emit('piece-selected', piece)
+    },
+  },
   components: {
     Piece,
     PromotionMenu,

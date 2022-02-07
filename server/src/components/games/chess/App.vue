@@ -15,6 +15,7 @@
 import '@app/scss/base/_theme.scss'
 import '@app/scss/games/chess.scss'
 import Board from './Board.vue'
+import bus from '@app/js/vue-event-bus'
 
 import GameFlow from '@app/js/GameFlow'
 import Common from '/gamecommons/chess'
@@ -23,8 +24,7 @@ import { replayAction } from '@app/js/client-framework'
 export default {
   data() {
     return {
-      selectedSquare: undefined,
-      selectedSquareMoves: [],
+      selectedPiece: null,
     }
   },
   methods: {
@@ -34,7 +34,11 @@ export default {
   },
   computed: {
     hint() {
-      return ''
+      if (this.selectedPiece) {
+        return 'Tap a square to move to'
+      } else {
+        return 'Tap a piece to select it'
+      }
     },
     board: function () {
       return this.game.data.board
@@ -43,17 +47,15 @@ export default {
       let index = this.game.myIndex === -1 ? 1 : this.game.myIndex
       return this.game.data.colors[index]
     },
-    isInCheck() {
-      let king = this.board.find(
-        (piece) => piece.type === 'k' && piece.color === this.myColor
-      )
-      return Common.isInCheck(this.board, king)
-    },
   },
   mounted() {
     this.$replayTurn(() => {
       replayAction(this.game, this.game.turns[this.game.turns.length - 1].actions[0])
       this.$endReplay(1000)
+    })
+
+    bus.on('piece-selected', (piece) => {
+      this.selectedPiece = piece
     })
   },
   components: {
