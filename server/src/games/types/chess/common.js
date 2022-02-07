@@ -502,7 +502,8 @@ function doMovePiece(game, move) {
         board.splice(board.indexOf(pessantedPiece), 1);
       }
     }
-  } else if (move.promotion) {
+  }
+  if (piece.type === "p" && move.promotion) {
     if (move.promotion !== 'p' && move.promotion !== 'k')
       piece.type = move.promotion;
   }

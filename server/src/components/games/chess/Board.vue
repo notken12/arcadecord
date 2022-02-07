@@ -37,12 +37,21 @@
         :style="getHighlightStyles(move)"
         @click="makeMove(move)"
       ></div>
+
+      <transition name="fade">
+        <promotion-menu
+          v-if="promotionMenuOpen"
+          :move="promotionMove"
+        ></promotion-menu>
+      </transition>
     </div>
   </div>
 </template>
 
 <script>
 import Piece from './Piece.vue'
+import PromotionMenu from './PromotionMenu.vue'
+
 import bus from '@app/js/vue-event-bus'
 import Common from '/gamecommons/chess'
 
@@ -50,6 +59,8 @@ export default {
   data() {
     return {
       selectedPiece: null,
+      promotionMenuOpen: false,
+      promotionMove: null,
     }
   },
   computed: {
@@ -117,11 +128,14 @@ export default {
         left: (square[0] / 8) * 100 + '%',
       }
     },
-    promotePawn(move) {},
+    promotePawn(move) {
+      this.promotionMove = move
+      this.promotionMenuOpen = true
+    },
     makeMove(move) {
       if (this.selectedPiece.type === 'p') {
         let isPromotion =
-          this.myColor === 0 ? move.to[1] === 7 : move.to[1] === 1
+          this.myColor === 0 ? move.to[1] === 7 : move.to[1] === 0
         if (isPromotion) {
           this.promotePawn(move)
           return
@@ -134,8 +148,16 @@ export default {
   },
   components: {
     Piece,
+    PromotionMenu,
   },
-  mounted() {},
+  mounted() {
+    bus.on('close-promotion-menu', () => {
+      this.promotionMenuOpen = false
+    })
+    bus.on('deselect piece', () => {
+      this.selectedPiece = null
+    })
+  },
 }
 </script>
 
