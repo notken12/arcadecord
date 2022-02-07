@@ -10,7 +10,14 @@
           class="highlight"
           v-for="move in selectedPieceMoves"
           :key="move.to"
+          :class="{ capture: move.capture }"
           :style="getHighlightStyles(move)"
+        ></div>
+        <div
+          class="selected-square"
+          v-for="square in selectedSquares"
+          :key="square[0] + ',' + square[1]"
+          :style="getSquareStyles(square)"
         ></div>
       </transition-group>
 
@@ -68,6 +75,19 @@ export default {
       }
       return Common.getMoves(this.game, this.selectedPiece)
     },
+    selectedSquares() {
+      let squares = []
+      if (this.selectedPiece) {
+        squares.push([this.selectedPiece.file, this.selectedPiece.rank])
+      }
+      let previousMove =
+        this.game.data.previousMoves[this.game.data.previousMoves.length - 1]
+      if (previousMove) {
+        squares.push([previousMove.to[0], previousMove.to[1]])
+        squares.push([previousMove.from[0], previousMove.from[1]])
+      }
+      return squares
+    },
     isInCheck() {
       let king = this.game.data.board.find(
         (piece) => piece.type === 'k' && piece.color === this.myColor
@@ -91,9 +111,13 @@ export default {
         left: (move.to[0] / 8) * 100 + '%',
       }
     },
-    promotePawn(move) {
-
+    getSquareStyles(square) {
+      return {
+        top: ((7 - square[1]) / 8) * 100 + '%',
+        left: (square[0] / 8) * 100 + '%',
+      }
     },
+    promotePawn(move) {},
     makeMove(move) {
       if (this.selectedPiece.type === 'p') {
         let isPromotion =
@@ -142,7 +166,8 @@ export default {
 }
 
 .highlight,
-.highlight-click {
+.highlight-click,
+.selected-square {
   position: absolute;
   width: 12.5%;
   height: 12.5%;
@@ -152,5 +177,15 @@ export default {
 .highlight-click {
   background: none;
   cursor: pointer;
+}
+
+.highlight {
+  background: url('/dist/assets/chess/highlight.svg');
+  background-size: contain;
+}
+
+.capture {
+  background: url('/dist/assets/chess/capture.svg');
+  background-size: contain;
 }
 </style>

@@ -45,9 +45,6 @@ export default {
     },
     classes() {
       let classes = []
-      if (this.selected) {
-        classes.push('selected')
-      }
       if (this.piece.color === 1) {
         classes.push('black')
       }

@@ -108,6 +108,7 @@ function recurse(game, moves, piece, location, offset, singleMove) {
       addMove(game, moves, {
         from: [piece.file, piece.rank],
         to: [newFile, newRank],
+        capture: true
       }, piece.color)
       return moves
     }
@@ -237,6 +238,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
             addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile1, newRank1],
+              capture: true
             }, piece.color)
           }
         }
@@ -252,6 +254,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
             addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile2, newRank1],
+              capture: true
             }, piece.color)
           }
         }
