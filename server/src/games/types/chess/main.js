@@ -30,8 +30,7 @@ class Chess extends Game {
     this.on('init', (game) => {
       game.data.previousMoves = [];
       game.data.board = [];
-      let randomColor = Math.round(Math.random())
-      game.data.colors = [randomColor, randomColor === 0 ? 1 : 0];
+      game.data.colors = [1, 0];
 
       for (let color = 0; color < 2; color++) {
         for (let file = 0; file < 8; file++) {

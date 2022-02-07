@@ -74,7 +74,6 @@ function willMoveResultInCheck(game, move, color) {
 
 function addMove(game, moves, move, color) {
   if (!willMoveResultInCheck(game, move, color)) {
-    // debugger
     moves.push(move)
   }
 }
@@ -163,7 +162,6 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
     // Pawn, Knight
     switch (piece.type) {
       case 'p':
-        //debugger
 
         // Pawn
         let forward = piece.color === 0 ? 1 : -1
@@ -465,8 +463,7 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
   let move = action.data.move;
   doMovePiece(game, move);
   game.data.previousMoves.push(action.data.move);
-
-  let situation = getSituation(game, game.data.colors[game.turn + 1 % 2])
+  let situation = getSituation(game, game.data.colors[(game.turn + 1) % 2])
 
   // TODO: add 3 fold repetition
 
