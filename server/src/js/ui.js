@@ -16,35 +16,6 @@ import GameFlow from './GameFlow.js';
 
 import bus from './vue-event-bus';
 
-function setupFacade() {
-    facade.state.me = store.state.me;
-    facade.state.error = store.state.error;
-
-    if (!GameFlow.isItMyTurn(store.state.game, true) || store.state.game.turns.length == 0) {
-        // If it isn't my turn or I'm the first player, use data as is
-        facade.state.game = store.state.game;
-        facade.state.replaying = false;
-    } else {
-        if (store.state.game.turns[store.state.game.turns.length - 1].playerIndex === store.state.game.myIndex && !store.state.game.hasEnded) {
-            // If I already played an action, use data as is
-            facade.state.game = store.state.game;
-            facade.state.replaying = false;
-            return;
-        }
-        // If it is my turn, use the previous data to replay the last player's turn
-        // Create a facade game state from the previous turn, go back in time to the last turn
-        // Create clone of the game state
-        facade.state.game = cloneDeep(store.state.game);
-        // Change data to the previous turn's initial data
-        facade.state.game.data = cloneDeep(store.state.game.previousData);
-        // Set turn back to the last turn
-        facade.state.game.turn = cloneDeep(facade.state.game.turns[facade.state.game.turns.length - 1].playerIndex);
-        // Tell Vue app to handle turn replay animations
-        facade.state.replaying = true;
-        bus.emit('facade:replay-turn');
-    }
-}
-
 function replayTurn() {
     // Replay the last player's turn
     // Use Facade to manage the game state for animations
@@ -78,7 +49,6 @@ export {
     GameView,
     createApp,
     store,
-    setupFacade,
     replayTurn,
     setupUI
 }

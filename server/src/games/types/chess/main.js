@@ -46,14 +46,6 @@ class Chess extends Game {
 
     this.on('init', Game.eventHandlersDiscord.init);
     this.on('turn', Game.eventHandlersDiscord.turn);
-    this.on('end', (game) => {
-      var winner = game.players[game.winner];
-      if (winner) {
-        BotApi.sendMessage('Chess game ended and ' + winner.discordUser.username + ' won!', game.guild, game.channel);
-      } else {
-        BotApi.sendMessage('Chess game ended in a tie', game.guild, game.channel);
-      }
-    })
 
     this.setActionModel("movePiece", Common.movePiece)
   }

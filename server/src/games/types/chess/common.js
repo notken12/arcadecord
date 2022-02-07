@@ -386,7 +386,7 @@ function checkAttack(game, location, offset, friendlyColor, pieceType, singleMov
 
   if (!singleMove)
     return checkAttack(game, [newFile, newRank], offset, friendlyColor, pieceType)
-  
+
   return false
 }
 
@@ -466,9 +466,47 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
   doMovePiece(game, move);
   game.data.previousMoves.push(action.data.move);
 
-  await GameFlow.endTurn(game);
-  return game;
+  let situation = getSituation(game, game.data.colors[game.turn + 1 % 2])
+
+  // TODO: add 3 fold repetition
+
+  if (!situation) {
+    await GameFlow.endTurn(game);
+    return game;
+  } else if (situation === 'checkmate') {
+    await GameFlow.end(game, {
+      winner: game.turn
+    })
+    return game;
+  } else if (situation === 'stalemate') {
+    await GameFlow.end(game, {
+      winner: -1
+    })
+    return game
+  }
 }
+
+function getSituation(game, color) {
+  let king = game.data.board.find((piece) => piece.type === 'k' && piece.color === color)
+
+  let board = game.data.board;
+  let pieces = board.filter((piece) => piece.color === color);
+  let legalMoves = [];
+  for (let piece of pieces) {
+    legalMoves = legalMoves.concat(getMoves(game, piece));
+  }
+
+  if (legalMoves.length === 0) {
+    if (isInCheck(game, king)) {
+      return 'checkmate';
+    } else {
+      return 'stalemate';
+    }
+  }
+
+  return null;
+}
+
 function doMovePiece(game, move) {
   let board = game.data.board;
 

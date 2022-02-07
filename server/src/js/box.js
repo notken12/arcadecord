@@ -26,7 +26,7 @@ const facade = createStore({
             state.me = store.state.me;
             state.error = store.state.error;
 
-            if (!GameFlow.isItMyTurn(store.state.game, true) || store.state.game.turns.length == 0) {
+            if ((!GameFlow.isItMyTurn(store.state.game, true) && !store.state.game.hasEnded) || store.state.game.turns.length == 0) {
                 // If it isn't my turn or I'm the first player, use data as is
                 state.game = store.state.game;
                 state.replaying = false;
