@@ -225,11 +225,20 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
         let newFile1 = piece.file + 1
         let newFile2 = piece.file - 1
 
+        let previousMove = game.data.previousMoves[game.data.previousMoves.length - 1]
+        let offset = 0
+        if (previousMove) {
+          if (previousMove.double) {
+            offset = piece.color === 0 ? -1 : 1
+          }
+        }
+
         if (!isOutOfBounds(newFile1, newRank1)) {
           // Right
           if (
             board.find(
-              (p) => p.rank === newRank1 && p.file === newFile1 && p.color !== piece.color
+              (p) => (p.rank === newRank1 && p.file === newFile1 && p.color !== piece.color) ||
+                (p.rank === newRank1 + offset && p.file === newFile1 && p.color !== piece.color && p.type === 'p') // en passant
             )
           ) {
             // There's a piece here
@@ -245,7 +254,8 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
           // Left
           if (
             board.find(
-              (p) => p.rank === newRank1 && p.file === newFile2 && p.color !== piece.color
+              (p) => (p.rank === newRank1 && p.file === newFile2 && p.color !== piece.color) ||
+                (p.rank === newRank1 + offset && p.file === newFile2 && p.color !== piece.color && p.type === 'p') // en passant
             )
           ) {
             // There's a piece here
@@ -538,15 +548,10 @@ function doMovePiece(game, move) {
 
   if (piece.type === "p" && previousMove) {//En passant
     if (previousMove.double) {
-      if (piece.color == 0) {//White
-        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] - 1) && pessantedPiece.type === "p");
-        if (pessantedPiece)
-          board.splice(board.indexOf(pessantedPiece), 1);
-      } else if (piece.color == 1) {//Black
-        let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] + 1) && pessantedPiece.type === "p");
-        if (pessantedPiece)
-          board.splice(board.indexOf(pessantedPiece), 1);
-      }
+      let offset = piece.color === 0 ? -1 : 1;
+      let pessantedPiece = game.data.board.find(pessantedPiece => pessantedPiece.file === move.to[0] && pessantedPiece.rank === (move.to[1] + offset) && pessantedPiece.type === "p" && pessantedPiece.color !== piece.color);
+      if (pessantedPiece)
+        board.splice(board.indexOf(pessantedPiece), 1);
     }
   }
   if (piece.type === "p" && move.promotion) {
