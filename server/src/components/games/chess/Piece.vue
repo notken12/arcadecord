@@ -41,7 +41,7 @@ export default {
         k: 5,
       }
 
-      let backgroundPositionX = (texturePositions[this.piece.type] / 6) * -100 + '%'
+      let backgroundPositionX = (texturePositions[this.piece.type] / 5) * 100 + '%'
 
       return {
         transform,
