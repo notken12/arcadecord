@@ -64,7 +64,62 @@ const offsets = {
 }
 
 let singleMovePieces = ['k', 'n']
+function newToOld(game){
+  var nums = [7,6,5,4,3,2,1,0];
+  var oldBoardVer = []
+  var i;
+  var j;
+  //Setup Board
+  for(i=0;i<8;i++){
+    oldBoardVer[i] = []
+    for(j=0;j<8;j++){
+      oldBoardVer[i][j] = "";
+    }
+  }
+  ////////////////
 
+  //Individually Adds Pieces to the Board
+  var i;
+  for(i=0;i<game.data.board.length;i++){
+    if(game.data.board[i].color == 0){//White
+      oldBoardVer[nums[game.data.board[i].rank]][game.data.board[i].file] = game.data.board[i].type.toUpperCase();
+    } else {//Black
+      oldBoardVer[nums[game.data.board[i].rank]][game.data.board[i].file] = game.data.board[i].type;
+    }
+  }
+  return oldBoardVer
+}
+function generateFEN(board){
+  var i;
+  var j;
+  var fen = "";
+  for(i=0; i<8; i++){
+    for(j=0; j<8; j++){
+      if(board[i][j] == ""){
+        var l;
+        var space=1;
+        var pieceYet = false;
+        for(l=0; l<8; l++){
+          if(!pieceYet){
+            if(board[i][j+1+l] == ""){
+              space+=1;
+            } else {
+              pieceYet = true;
+            }
+          }
+        }
+        j+=space-1;
+        fen=fen+space;
+      } else {
+        fen = fen+board[i][j];
+      }
+    }
+    if(i != 7){
+      fen = fen+"/";
+  }
+  }
+  return fen;
+  }
 function willMoveResultInCheck(game, move, color) {
   // Returns true if the move will result in check
   let newGame = cloneDeep(game)
@@ -460,19 +515,11 @@ class Piece {
     this.moved = false
   }
 }
-
-function isGameOver(board, player) {
-
-  if (player == 1) {//White Pieces
-
-  } else if (player == 0) {//Black Pieces
-
-  }
-}
 async function movePiece(game, action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/) {
   let move = action.data.move;
   doMovePiece(game, move);
   game.data.previousMoves.push(action.data.move);
+  game.data.previousBoardPos.push(generateFEN(newToOld(game)))
   let situation = getSituation(game, game.data.colors[(game.turn + 1) % 2])
 
   // TODO: add 3 fold repetition
@@ -487,9 +534,14 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
     return game;
   } else if (situation === 'stalemate') {
     await GameFlow.end(game, {
-      winner: -1
+      winner: -1 //Draw
     })
-    return game
+    return game;
+  } else if(situation === 'repitition'){
+    await GameFlow.end(game, {
+      winner: -1 //Draw
+    })
+    return game;
   }
 }
 
@@ -510,7 +562,23 @@ function getSituation(game, color) {
       return 'stalemate';
     }
   }
-
+  var i;
+  for(i=0;i<game.data.previousBoardPos.length;i++){
+    var keepSearching = true;
+    var startFrom = i+1;
+    var occurences = 1;
+    while(keepSearching){
+      if(game.data.previousBoardPos.includes(game.data.previousBoardPos[i], startFrom)){
+        startFrom = game.data.previousBoardPos.indexOf(game.data.previousBoardPos[i], startFrom) + 1;
+        occurences += 1;
+      } else {
+        keepSearching = false;
+      }
+      if(occurences >= 3){
+        return 'repitition'
+      }
+    }
+  }
   return null;
 }
 

@@ -29,6 +29,7 @@ class Chess extends Game {
 
     this.on('init', (game) => {
       game.data.previousMoves = [];
+      game.data.previousBoardPos = [];
       game.data.board = [];
       game.data.colors = [1, 0];
 
