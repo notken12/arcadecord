@@ -41,14 +41,14 @@ export default {
         k: 5,
       }
 
-      let backgroundPositionX = (texturePositions[this.piece.type] / 6) * 100 + '%'
+      let backgroundPositionX = (texturePositions[this.piece.type] / 6) * -100 + '%'
 
       return {
         transform,
         top,
         left,
         cursor,
-        backgroundPositionX
+        'background-position-x': backgroundPositionX,
       }
     },
     classes() {
@@ -83,7 +83,7 @@ export default {
   text-align: center;
   transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
   background-image: url('/dist/assets/chess/white_pieces.svg');
-  background-size: contain;
+  background-size: auto 100%;
 }
 
 .black {
