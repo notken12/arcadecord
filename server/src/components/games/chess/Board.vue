@@ -55,6 +55,8 @@ import PromotionMenu from './PromotionMenu.vue'
 import bus from '@app/js/vue-event-bus'
 import Common from '/gamecommons/chess'
 
+import gsap from 'gsap'
+
 export default {
   data() {
     return {
@@ -175,7 +177,7 @@ export default {
   width: min(calc(100% - 32px), 500px);
   height: 0;
   padding-top: min(calc(100% - 32px), 500px);
-  box-shadow: theme.$md-elevation-level4;
+  box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
   position: relative;
   max-width: 500px;
