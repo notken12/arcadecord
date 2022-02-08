@@ -28,6 +28,7 @@ class Chess extends Game {
     const backRow = 'rnbqkbnr'
 
     this.on('init', (game) => {
+      game.data.drawoffered = [false, undefined] //[Draw offered or not: bool, Player who offered draw: 0 or 1]
       game.data.previousMoves = [];
       game.data.previousBoardPos = [];
       game.data.board = [];
@@ -48,6 +49,10 @@ class Chess extends Game {
     this.on('turn', Game.eventHandlersDiscord.turn);
 
     this.setActionModel("movePiece", Common.movePiece)
+    this.setActionModel("resign", Common.resign)
+    this.setActionModel("offerDraw", Common.offerDraw)
+    this.setActionModel("drawDecision", Common.drawDecision)
+    this.setActionModel("cancelDraw", Common.cancelDraw)
   }
 }
 
