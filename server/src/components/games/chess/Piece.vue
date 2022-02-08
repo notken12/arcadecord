@@ -1,8 +1,29 @@
 <template>
-  <div class="piece" :style="styles" @click="selectPiece" :class="classes"></div>
+  <div
+    class="piece"
+    :style="styles"
+    @click="selectPiece"
+    :class="classes"
+    ref="pieceEl"
+  ></div>
 </template>
 
 <script>
+import gsap from 'gsap'
+
+const animate = function () {
+  let top = ((7 - this.piece.rank) / 1) * 100 + '%'
+  let left = (this.piece.file / 1) * 100 + '%'
+
+  gsap.to(this.$refs.pieceEl, {
+    x: left,
+    y: top,
+    ease: 'power3.inOut',
+    duration: 0.25,
+    rotation: this.myColor === 1 ? 180 : 0,
+  })
+}
+
 export default {
   props: ['piece', 'selected', 'incheck'],
   data() {
@@ -23,13 +44,6 @@ export default {
       return this.game.data.colors[index]
     },
     styles() {
-      let transform = 'none'
-      if (this.myColor === 1) {
-        transform = 'rotate(180deg)'
-      }
-      let top = ((7 - this.piece.rank) / 8) * 100 + '%'
-      let left = (this.piece.file / 8) * 100 + '%'
-
       let cursor = this.piece.color === this.myColor ? 'pointer' : 'default'
 
       let texturePositions = {
@@ -41,12 +55,10 @@ export default {
         k: 5,
       }
 
-      let backgroundPositionX = (texturePositions[this.piece.type] / 5) * 100 + '%'
+      let backgroundPositionX =
+        (texturePositions[this.piece.type] / 5) * 100 + '%'
 
       return {
-        transform,
-        top,
-        left,
         cursor,
         'background-position-x': backgroundPositionX,
       }
@@ -69,6 +81,28 @@ export default {
       else this.$parent.selectedPiece = null
     },
   },
+  watch: {
+    'piece.rank': {
+      handler(newValue, oldValue) {
+        animate.call(this)
+      },
+    },
+    'piece.file': {
+      handler(newValue, oldValue) {
+        animate.call(this)
+      },
+    },
+  },
+  mounted() {
+    let top = ((7 - this.piece.rank) / 1) * 100 + '%'
+    let left = (this.piece.file / 1) * 100 + '%'
+
+    gsap.set(this.$refs.pieceEl, {
+      x: left,
+      y: top,
+      rotation: this.myColor === 1 ? 180 : 0,
+    })
+  },
 }
 </script>
 
@@ -76,14 +110,17 @@ export default {
 @use 'scss/base/_theme' as theme;
 
 .piece {
-  position: absolute;
-  width: 12.5%;
-  height: 12.5%;
-  cursor: pointer;
-  text-align: center;
-  transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
   background-image: url('/dist/assets/chess/white_pieces.svg');
   background-size: auto 100%;
+  cursor: pointer;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  touch-action: none;
+  width: 12.5%;
+  height: 12.5%;
+  box-sizing: border-box;
 }
 
 .black {

@@ -74,7 +74,7 @@ export default {
     styles() {
       let transform = 'none'
       if (this.myColor === 1) {
-        transform = 'rotate(180deg)'
+        transform = 'rotate(180.001deg)'
       }
       return {
         transform,
@@ -172,24 +172,27 @@ export default {
 .board {
   background-color: white;
   display: flex;
-  width: calc(100% - 32px);
+  width: min(calc(100% - 32px), 500px);
   height: 0;
+  padding-top: min(calc(100% - 32px), 500px);
+  box-shadow: theme.$md-elevation-level4;
+  box-sizing: border-box;
+  position: relative;
   max-width: 500px;
   max-height: 500px;
-  padding-bottom: min(500px, calc(100% - 32px));
-  box-shadow: theme.$md-elevation-level4;
 }
 
 .grid-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  color: black;
-  font-size: 50px;
-  background-image: url('/dist/assets/chess/board.svg');
-  position: relative;
+  background-image: url(/dist/assets/chess/board.svg);
   background-size: contain;
-  padding-top: 100%;
+  background-color: red;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 100%;
 }
 
 .highlight,
