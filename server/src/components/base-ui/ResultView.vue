@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade" appear mode="out-in">
+  <transition name="fade" appear>
     <win-screen v-if="result === 'win'"></win-screen>
     <lose-screen v-else-if="result === 'lose'"></lose-screen>
     <draw-screen v-else-if="result === 'draw'"></draw-screen>

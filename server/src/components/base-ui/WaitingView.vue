@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade" appear mode="out-in">
+  <transition name="fade" appear>
     <div class="waiting-view dialog-container">
       <div class="waiting-view-chip dialog-chip">
         <span>Waiting for opponent</span>

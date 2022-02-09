@@ -135,10 +135,10 @@ export default {
           let file = Math.round(point.x / increment)
           let rank = 7 - Math.round(point.y / increment)
 
-          if (file === this.piece.file && rank === this.piece.rank) {
+          if (file === vm.piece.file && rank === vm.piece.rank) {
+            vm.animate()
             return
           }
-          bus.emit('piece-pointer-up')
 
           let moves = vm.moves
           let move = moves.find(
@@ -158,7 +158,6 @@ export default {
           vm.$refs.pieceEl.style.zIndex = 'initial'
         },
         onPress: function (e) {
-          this.bounds = vm.$parent.$refs.grid
           bus.emit('piece-pointer-down', vm.piece)
         },
         zIndexBoost: true,
