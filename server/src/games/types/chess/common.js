@@ -515,8 +515,29 @@ class Piece {
     this.moved = false
   }
 }
+
+function validateMove(game, move) {
+  let piece = game.data.board.find((piece) => piece.file === move.from[0] && piece.rank === move.from[1])
+  let moves = getMoves(game, piece)
+  if (moves.find((m) => m.to[0] === move.to[0] && m.to[1] === move.to[1] && m.castle === move.castle)) {
+    if (move.promotion) {
+      if (piece.type === 'p' && !(['p', 'k'].includes(move.promotion))) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function movePiece(game, action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/) {
   let move = action.data.move;
+
+  if (!validateMove(game, move)) {
+    return false;
+  }
+
   doMovePiece(game, move);
   game.data.previousMoves.push(action.data.move);
   game.data.previousBoardPos.push(generateFEN(newToOld(game)))

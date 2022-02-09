@@ -29,6 +29,7 @@
         :piece="piece"
         :selected="piece === selectedPiece"
         :incheck="isInCheck && piece.type === 'k' && piece.color === myColor"
+        :moves="selectedPieceMoves"
       ></piece>
 
       <div
@@ -175,12 +176,6 @@ export default {
     })
   },
 }
-</script>
-
-<script setup>
-import { useMouse } from '@app/js/mouse.js'
-
-const { x, y } = useMouse()
 </script>
 
 <style lang="scss" scoped>

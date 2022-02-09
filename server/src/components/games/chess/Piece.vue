@@ -9,21 +9,25 @@ import bus from '@app/js/vue-event-bus'
 
 gsap.registerPlugin(Draggable)
 
-const animate = function () {
-  let top = ((7 - this.piece.rank) / 1) * 100 + '%'
-  let left = (this.piece.file / 1) * 100 + '%'
-
-  gsap.to(this.$refs.pieceEl, {
-    x: left,
-    y: top,
-    ease: 'power3.inOut',
-    duration: 0.25,
-    rotation: this.myColor === 1 ? 180 : 0,
-  })
-}
-
 export default {
-  props: ['piece', 'selected', 'incheck'],
+  props: {
+    piece: {
+      type: Object,
+      required: true,
+    },
+    selected: {
+      type: Boolean,
+      default: false,
+    },
+    moves: {
+      type: Array,
+      default: () => [],
+    },
+    incheck: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       pieceIcons: {
@@ -72,35 +76,45 @@ export default {
       return classes
     },
   },
-  methods: {},
-  watch: {
-    'piece.rank': {
-      handler(newValue, oldValue) {
-        animate.call(this)
-      },
+  methods: {
+    animate() {
+      let top = ((7 - this.piece.rank) / 1) * 100
+      let left = (this.piece.file / 1) * 100
+
+      gsap.to(this.$refs.pieceEl, {
+        x: left + '%',
+        y: top + '%',
+        ease: 'power3.inOut',
+        duration: 0.25,
+        rotation: this.myColor === 1 ? 180 : 0,
+      })
     },
-    'piece.file': {
+  },
+  watch: {
+    piece: {
       handler(newValue, oldValue) {
-        animate.call(this)
+        this.animate()
       },
+      deep: true,
     },
   },
   mounted() {
     let vm = this
 
-    let top = ((7 - this.piece.rank) / 1) * 100 + '%'
-    let left = (this.piece.file / 1) * 100 + '%'
+    let top = ((7 - this.piece.rank) / 1) * 100
+    let left = (this.piece.file / 1) * 100
 
     gsap.set(this.$refs.pieceEl, {
-      x: left,
-      y: top,
+      x: left + '%',
+      y: top + '%',
+      ease: 'power3.inOut',
       rotation: this.myColor === 1 ? 180 : 0,
     })
 
     if (this.piece.color === this.myColor) {
       Draggable.create(this.$refs.pieceEl, {
         type: 'x,y',
-        bounds: this.$parent.$refs.grid,
+        // bounds: this.$parent.$refs.grid,
         snap: {
           points: (point) => {
             let grid = this.$parent.$refs.grid
@@ -117,24 +131,34 @@ export default {
           let grid = vm.$parent.$refs.grid
           let increment = grid.offsetWidth / 8
           let point = { x: this.endX, y: this.endY }
-          gsap.to(this.target, {
-            x: Math.round(point.x / increment) * increment,
-            y: Math.round(point.y / increment) * increment,
-            ease: 'power3.inOut',
-            duration: 0.25,
-          })
 
           let file = Math.round(point.x / increment)
           let rank = 7 - Math.round(point.y / increment)
 
+          let moves = vm.moves
+          let move = moves.find(
+            (m) =>
+              m.to[0] === file &&
+              m.to[1] === rank &&
+              m.from[0] === vm.piece.file &&
+              m.from[1] === vm.piece.rank
+          )
+          if (!move) {
+            vm.animate()
+            return
+          }
+
           vm.$runAction('movePiece', {
-            move: { from: [vm.piece.file, vm.piece.rank], to: [file, rank] },
+            move,
           })
+
           vm.$endAnimation(800)
         },
-        onPress: () => {
+        onPress: function (e) {
+          this.bounds = vm.$parent.$refs.grid
           bus.emit('piece-pointer-down', vm.piece)
         },
+        zIndexBoost: false,
       })
     }
   },
