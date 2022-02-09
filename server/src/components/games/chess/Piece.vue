@@ -128,13 +128,17 @@ export default {
         },
         snap: 'AFTER',
         onDragEnd: function (e) {
-          bus.emit('piece-pointer-up')
           let grid = vm.$parent.$refs.grid
           let increment = grid.offsetWidth / 8
           let point = { x: this.endX, y: this.endY }
 
           let file = Math.round(point.x / increment)
           let rank = 7 - Math.round(point.y / increment)
+
+          if (file === this.piece.file && rank === this.piece.rank) {
+            return
+          }
+          bus.emit('piece-pointer-up')
 
           let moves = vm.moves
           let move = moves.find(
@@ -149,13 +153,9 @@ export default {
             return
           }
 
-          vm.$runAction('movePiece', {
-            move,
-          })
+          bus.emit('make-move', move)
 
-          vm.$endAnimation(800)
-
-          vm.$refs.pieceEl.style.zIndex = 'initial';
+          vm.$refs.pieceEl.style.zIndex = 'initial'
         },
         onPress: function (e) {
           this.bounds = vm.$parent.$refs.grid

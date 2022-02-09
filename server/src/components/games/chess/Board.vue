@@ -174,6 +174,9 @@ export default {
     bus.on('piece-pointer-up', () => {
       this.selectedPiece = null
     })
+    bus.on('make-move', (move) => {
+      this.makeMove(move)
+    })
   },
 }
 </script>

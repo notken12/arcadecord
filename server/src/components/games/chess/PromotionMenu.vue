@@ -7,12 +7,6 @@ export default {
   data() {
     return {
       promotionPieces: ['q', 'r', 'b', 'n'],
-      pieces: {
-        q: '♛',
-        r: '♜',
-        b: '♝',
-        n: '♞',
-      },
     }
   },
   methods: {
@@ -29,12 +23,27 @@ export default {
     },
   },
   computed: {
-    styles() {
-      if (this.game.myIndex === -1 || this.game.myIndex === 1) {
-        return {
-          transform: 'rotate(180deg)',
-        }
+    promotionPieceStyles(piece) {
+      let texturePositions = {
+        p: 0,
+        r: 1,
+        n: 2,
+        b: 3,
+        q: 4,
+        k: 5,
       }
+
+      let backgroundPositionX = (texturePositions[piece.type] / 5) * 100 + '%'
+
+      return {
+        backgroundPositionX,
+      }
+    },
+    promotionPieceClasses(piece) {
+      if (this.game.myIndex === -1 || this.game.myIndex === 1) {
+        return ['black']
+      }
+      return []
     },
   },
 }
@@ -48,9 +57,9 @@ export default {
         v-for="piece in promotionPieces"
         @click="makeMove(piece)"
         :key="piece"
-      >
-        {{ pieces[piece] }}
-      </div>
+        :style="promotionPieceStyles(piece)"
+        :class="promotionPieceClasses(piece)"
+      ></div>
     </div>
   </div>
 </template>
@@ -91,8 +100,14 @@ h1 {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.25s;
   border-radius: 4px;
+  background-image: url('/dist/assets/chess/white_pieces.svg');
+  background-size: auto 100%;
+}
+
+.promotion-piece.black {
+  background-image: url('/dist/assets/chess/black_pieces.svg');
+  transform: rotate(180deg);
 }
 
 .promotion-piece:hover {
