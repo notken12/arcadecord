@@ -4,6 +4,7 @@
       class="grid-container"
       :style="styles"
       @click.self="selectedPiece = null"
+      ref="grid"
     >
       <transition-group name="fade">
         <div
@@ -164,8 +165,22 @@ export default {
     bus.on('deselect piece', () => {
       this.selectedPiece = null
     })
+    bus.on('piece-pointer-down', (piece) => {
+      if (piece.color === this.myColor) {
+        this.selectedPiece = piece
+      }
+    })
+    bus.on('piece-pointer-up', () => {
+      this.selectedPiece = null
+    })
   },
 }
+</script>
+
+<script setup>
+import { useMouse } from '@app/js/mouse.js'
+
+const { x, y } = useMouse()
 </script>
 
 <style lang="scss" scoped>

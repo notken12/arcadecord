@@ -1,15 +1,13 @@
 <template>
-  <div
-    class="piece"
-    :style="styles"
-    @click="selectPiece"
-    :class="classes"
-    ref="pieceEl"
-  ></div>
+  <div class="piece" :style="styles" :class="classes" ref="pieceEl"></div>
 </template>
 
 <script>
 import gsap from 'gsap'
+import { Draggable } from 'gsap/dist/Draggable.js'
+import bus from '@app/js/vue-event-bus'
+
+gsap.registerPlugin(Draggable)
 
 const animate = function () {
   let top = ((7 - this.piece.rank) / 1) * 100 + '%'
@@ -44,7 +42,7 @@ export default {
       return this.game.data.colors[index]
     },
     styles() {
-      let cursor = this.piece.color === this.myColor ? 'pointer' : 'default'
+      let cursor = this.piece.color === this.myColor ? 'grab' : 'default'
 
       let texturePositions = {
         p: 0,
@@ -74,13 +72,7 @@ export default {
       return classes
     },
   },
-  methods: {
-    selectPiece() {
-      if (this.piece.color === this.myColor)
-        this.$parent.selectedPiece = this.piece
-      else this.$parent.selectedPiece = null
-    },
-  },
+  methods: {},
   watch: {
     'piece.rank': {
       handler(newValue, oldValue) {
@@ -94,6 +86,8 @@ export default {
     },
   },
   mounted() {
+    let vm = this
+
     let top = ((7 - this.piece.rank) / 1) * 100 + '%'
     let left = (this.piece.file / 1) * 100 + '%'
 
@@ -102,6 +96,47 @@ export default {
       y: top,
       rotation: this.myColor === 1 ? 180 : 0,
     })
+
+    if (this.piece.color === this.myColor) {
+      Draggable.create(this.$refs.pieceEl, {
+        type: 'x,y',
+        bounds: this.$parent.$refs.grid,
+        snap: {
+          points: (point) => {
+            let grid = this.$parent.$refs.grid
+            let increment = grid.offsetWidth / 8
+            return {
+              x: Math.round(point.x / increment) * increment,
+              y: Math.round(point.y / increment) * increment,
+            }
+          },
+        },
+        snap: 'AFTER',
+        onDragEnd: function (e) {
+          bus.emit('piece-pointer-up')
+          let grid = vm.$parent.$refs.grid
+          let increment = grid.offsetWidth / 8
+          let point = { x: this.endX, y: this.endY }
+          gsap.to(this.target, {
+            x: Math.round(point.x / increment) * increment,
+            y: Math.round(point.y / increment) * increment,
+            ease: 'power3.inOut',
+            duration: 0.25,
+          })
+
+          let file = Math.round(point.x / increment)
+          let rank = 7 - Math.round(point.y / increment)
+
+          vm.$runAction('movePiece', {
+            move: { from: [vm.piece.file, vm.piece.rank], to: [file, rank] },
+          })
+          vm.$endAnimation(800)
+        },
+        onPress: () => {
+          bus.emit('piece-pointer-down', vm.piece)
+        },
+      })
+    }
   },
 }
 </script>
