@@ -21,8 +21,6 @@ export default {
     closeMenu() {
       bus.emit('close-promotion-menu')
     },
-  },
-  computed: {
     promotionPieceStyles(piece) {
       let texturePositions = {
         p: 0,
@@ -33,14 +31,16 @@ export default {
         k: 5,
       }
 
-      let backgroundPositionX = (texturePositions[piece.type] / 5) * 100 + '%'
+      let backgroundPositionX = (texturePositions[piece] / 5) * 100 + '%'
 
       return {
-        backgroundPositionX,
+        'background-position-x': backgroundPositionX,
       }
     },
-    promotionPieceClasses(piece) {
-      if (this.game.myIndex === -1 || this.game.myIndex === 1) {
+  },
+  computed: {
+    promotionPieceClasses() {
+      if (this.game.myIndex === 0) {
         return ['black']
       }
       return []
@@ -50,15 +50,19 @@ export default {
 </script>
 
 <template>
-  <div class="dialog-backdrop" :style="styles" @click.self="closeMenu">
+  <div
+    class="dialog-backdrop"
+    :class="promotionPieceClasses"
+    @click.self="closeMenu"
+  >
     <div class="dialog">
       <div
         class="promotion-piece"
         v-for="piece in promotionPieces"
         @click="makeMove(piece)"
-        :key="piece"
         :style="promotionPieceStyles(piece)"
-        :class="promotionPieceClasses(piece)"
+        :key="piece"
+        :class="promotionPieceClasses"
       ></div>
     </div>
   </div>
@@ -71,12 +75,14 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .dialog {
@@ -85,6 +91,19 @@ export default {
   padding: 16px;
   border-radius: 4px;
   box-shadow: theme.$md-elevation-level3;
+  width: 50%;
+  min-width: 160px;
+  min-height: 40px;
+  height: 12.5%;
+}
+
+@media screen and (max-width: 500px) {
+  .dialog {
+    width: 100%;
+    min-width: 0;
+    height: 25%;
+    min-height: 0;
+  }
 }
 
 h1 {
@@ -94,8 +113,6 @@ h1 {
 
 .promotion-piece {
   display: flex;
-  width: 1em;
-  height: 1em;
   text-align: center;
   align-items: center;
   justify-content: center;
@@ -103,14 +120,21 @@ h1 {
   border-radius: 4px;
   background-image: url('/dist/assets/chess/white_pieces.svg');
   background-size: auto 100%;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s ease;
 }
 
 .promotion-piece.black {
   background-image: url('/dist/assets/chess/black_pieces.svg');
-  transform: rotate(180deg);
 }
 
 .promotion-piece:hover {
-  background: #eee;
+  transform: scale(1.1);
+}
+
+.dialog-backdrop.black {
+  transform: rotate(180deg);
 }
 </style>

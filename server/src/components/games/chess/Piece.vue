@@ -155,7 +155,7 @@ export default {
 
           bus.emit('make-move', move)
 
-          vm.$refs.pieceEl.style.zIndex = 'initial'
+          window.requestAnimationFrame(() => {vm.$refs.pieceEl.style.zIndex = 'initial'})
         },
         onPress: function (e) {
           bus.emit('piece-pointer-down', vm.piece)
@@ -171,6 +171,7 @@ export default {
 @use 'scss/base/_theme' as theme;
 
 .piece {
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
   background-image: url('/dist/assets/chess/white_pieces.svg');
   background-size: auto 100%;
   cursor: pointer;

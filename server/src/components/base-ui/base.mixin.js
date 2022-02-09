@@ -45,8 +45,9 @@ export default {
             }
             if (this.replaying && this.replayTurnFuncSet) {
                 console.log('[arcadecord.facade] replaying turn');
-                setTimeout(this.$replayTurnFunc, turnReplayDelay);
-
+                setTimeout(() => {
+                    window.requestAnimationFrame(this.$replayTurnFunc)
+                }, turnReplayDelay);
             }
         },
         $endAnimation(delayMS) {
