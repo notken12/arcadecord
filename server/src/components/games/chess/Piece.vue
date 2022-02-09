@@ -127,7 +127,7 @@ export default {
           },
         },
         snap: 'AFTER',
-        onDragEnd: function (e) {
+        onRelease: function (e) {
           let grid = vm.$parent.$refs.grid
           let increment = grid.offsetWidth / 8
           let point = { x: this.endX, y: this.endY }
@@ -137,6 +137,7 @@ export default {
 
           if (file === vm.piece.file && rank === vm.piece.rank) {
             vm.animate()
+            vm.$refs.pieceEl.style.zIndex = 'initial'
             return
           }
 
@@ -150,12 +151,13 @@ export default {
           )
           if (!move) {
             vm.animate()
+            vm.$refs.pieceEl.style.zIndex = 'initial'
             return
           }
 
           bus.emit('make-move', move)
 
-          window.requestAnimationFrame(() => {vm.$refs.pieceEl.style.zIndex = 'initial'})
+          vm.$refs.pieceEl.style.zIndex = 'initial'
         },
         onPress: function (e) {
           bus.emit('piece-pointer-down', vm.piece)
