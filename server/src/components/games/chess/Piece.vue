@@ -7,6 +7,7 @@ import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable.js'
 import bus from '@app/js/vue-event-bus'
 
+Draggable.zIndex = 1001
 gsap.registerPlugin(Draggable)
 
 export default {
@@ -153,12 +154,14 @@ export default {
           })
 
           vm.$endAnimation(800)
+
+          vm.$refs.pieceEl.style.zIndex = 'initial';
         },
         onPress: function (e) {
           this.bounds = vm.$parent.$refs.grid
           bus.emit('piece-pointer-down', vm.piece)
         },
-        zIndexBoost: false,
+        zIndexBoost: true,
       })
     }
   },
