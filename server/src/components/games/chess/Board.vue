@@ -1,51 +1,61 @@
 <template>
-  <div class="board">
-    <div
-      class="grid-container"
-      :style="styles"
-      @click.self="selectedPiece = null"
-      ref="grid"
-    >
-      <transition-group name="fade">
-        <div
-          class="highlight"
-          v-for="move in selectedPieceMoves"
-          :key="move.to"
-          :class="{ capture: move.capture }"
-          :style="getHighlightStyles(move)"
-        ></div>
-        <div
-          class="selected-square"
-          v-for="square in selectedSquares"
-          :key="square[0] + ',' + square[1]"
-          :style="getSquareStyles(square)"
-        ></div>
-      </transition-group>
+  <div class="ratio vertical">
+    <canvas width="9" height="9"></canvas>
+    <div>
+      <div class="ratio horizontal">
+        <canvas width="9" height="9"></canvas>
+        <div class="board">
+          <div
+            class="grid-container"
+            :style="styles"
+            @click.self="selectedPiece = null"
+            ref="grid"
+          >
+            <transition-group name="fade">
+              <div
+                class="highlight"
+                v-for="move in selectedPieceMoves"
+                :key="move.to"
+                :class="{ capture: move.capture }"
+                :style="getHighlightStyles(move)"
+              ></div>
+              <div
+                class="selected-square"
+                v-for="square in selectedSquares"
+                :key="square[0] + ',' + square[1]"
+                :style="getSquareStyles(square)"
+              ></div>
+            </transition-group>
 
-      <!-- 1-indexed -->
-      <piece
-        v-for="piece in board"
-        :key="piece.id"
-        :piece="piece"
-        :selected="piece === selectedPiece"
-        :incheck="isInCheck && piece.type === 'k' && piece.color === myColor"
-        :moves="selectedPieceMoves"
-      ></piece>
+            <!-- 1-indexed -->
+            <piece
+              v-for="piece in board"
+              :key="piece.id"
+              :piece="piece"
+              :selected="piece === selectedPiece"
+              :incheck="
+                isInCheck && piece.type === 'k' && piece.color === myColor
+              "
+              :moves="selectedPieceMoves"
+            ></piece>
 
-      <div
-        class="highlight-click"
-        v-for="move in selectedPieceMoves"
-        :key="move.to"
-        :style="getHighlightStyles(move)"
-        @click="makeMove(move)"
-      ></div>
+            <div
+              class="highlight-click"
+              v-for="move in selectedPieceMoves"
+              :key="move.to"
+              :style="getHighlightStyles(move)"
+              @click="makeMove(move)"
+            ></div>
 
-      <transition name="fade">
-        <promotion-menu
-          v-if="promotionMenuOpen"
-          :move="promotionMove"
-        ></promotion-menu>
-      </transition>
+            <transition name="fade">
+              <promotion-menu
+                v-if="promotionMenuOpen"
+                :move="promotionMove"
+              ></promotion-menu>
+            </transition>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -145,7 +155,7 @@ export default {
           return
         }
       }
-      this.$runAction('movePiece', { move: move })
+      this.$runAction('movePiece', { move: move, mog: 'mogsogdog' })
       this.$endAnimation(800)
       this.selectedPiece = null
     },
@@ -187,27 +197,19 @@ export default {
 .board {
   background-color: white;
   display: flex;
-  width: min(calc(100% - 32px), 500px);
-  height: 0;
-  padding-top: min(calc(100% - 32px), 500px);
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
-  position: relative;
-  max-width: 500px;
-  max-height: 500px;
 }
 
 .grid-container {
   background-image: url(/dist/assets/chess/board.svg);
   background-size: contain;
-  background-color: red;
   box-sizing: border-box;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: 100%;
 }
 
 .highlight,

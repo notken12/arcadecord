@@ -10,8 +10,13 @@
     <waiting-view
       v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
     ></waiting-view>
-    <result-view v-if="game.hasEnded && !replaying && !runningAction" :game="game"></result-view>
-    <sending-view v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"></sending-view>
+    <result-view
+      v-if="game.hasEnded && !replaying && !runningAction"
+      :game="game"
+    ></result-view>
+    <sending-view
+      v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"
+    ></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
   </div>
 </template>
@@ -45,7 +50,7 @@ export default {
   computed: {
     isItMyTurn() {
       return GameFlow.isItMyTurn(this.game) || this.replaying
-    }
+    },
   },
   mounted() {
     bus.on('open-manual', () => {
@@ -87,6 +92,11 @@ export default {
   flex-direction: column;
   align-items: center;
   animation: fadein 0.5s;
+  // position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 @keyframes fadein {
