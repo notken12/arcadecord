@@ -576,6 +576,11 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
       winner: -1 //Draw
     })
     return game;
+  } else if(situation === 'insufficiantMaterial'){
+    await GameFlow.end(game, {
+      winner: -1 //Draw
+    })
+    return game;
   }
 }
 
@@ -658,25 +663,35 @@ function getSituation(game, color) {
       return '50move'
     }
   }
-  
+
   var i;
   var amountOfMaterialWhite = {
     "p":0,
     "b":0,
     "n":0,
     "r":0,
-    "n":0
+    "q":0
   }
   var amountOfMaterialBlack = {
     "p":0,
     "b":0,
     "n":0,
     "r":0,
-    "n":0
+    "q":0
   }
   for(i=0;i<game.data.board;i++){
-    
+      if(game.data.board[i].color = 0){//White
+        amountOfMaterialWhite[game.data.board[i].piecetype] += 1;
+      } else {//Black
+        amountOfMaterialBlack[game.data.board[i].piecetype] += 1;
+      }
   }
+  if(amountOfMaterialWhite.p === 0 && amountOfMaterialWhite.r === 0 && amountOfMaterialWhite.q === 0 && amountOfMaterialBlack.p === 0 && amountOfMaterialBlack.r === 0 && amountOfMaterialBlack.q === 0){
+    if(( (amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1) ) || ( (amountOfMaterialBlack.n >= 3) || (amountOfMaterialBlack.b >= 2) || (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1) )){
+      return 'insufficiantMaterial';
+    }
+  }
+
   return null;
 }
 
