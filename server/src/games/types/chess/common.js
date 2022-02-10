@@ -663,7 +663,13 @@ function getSituation(game, color) {
       return '50move'
     }
   }
+ if(!checkSufficientMaterial(game)){
+   return 'insufficientMaterial';
+ }
 
+  return null;
+}
+function checkSufficientMaterial(game){
   var i;
   var amountOfMaterialWhite = {
     "p":0,
@@ -679,22 +685,20 @@ function getSituation(game, color) {
     "r":0,
     "q":0
   }
-  for(i=0;i<game.data.board;i++){
-      if(game.data.board[i].color = 0){//White
-        amountOfMaterialWhite[game.data.board[i].piecetype] += 1;
-      } else {//Black
-        amountOfMaterialBlack[game.data.board[i].piecetype] += 1;
-      }
-  }
-  if(amountOfMaterialWhite.p === 0 && amountOfMaterialWhite.r === 0 && amountOfMaterialWhite.q === 0 && amountOfMaterialBlack.p === 0 && amountOfMaterialBlack.r === 0 && amountOfMaterialBlack.q === 0){
-    if(( (amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1) ) || ( (amountOfMaterialBlack.n >= 3) || (amountOfMaterialBlack.b >= 2) || (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1) )){
-      return 'insufficiantMaterial';
+  for(i=0;i<game.data.board.length;i++){
+    if(game.data.board[i].color == 0){//White
+      amountOfMaterialWhite[game.data.board[i].type] += 1;
+    } else {//Black
+      amountOfMaterialBlack[game.data.board[i].type] += 1;
     }
-  }
-
-  return null;
 }
-
+if(!( (amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1) ) || !( (amountOfMaterialBlack.n >= 3) || (amountOfMaterialBlack.b >= 2) || (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1) )){
+  return false;
+} else {
+  return true;
+}
+console.log(amountOfMaterialWhite)
+}
 function doMovePiece(game, move) {
   let board = game.data.board;
 
@@ -756,6 +760,7 @@ var exports = {
   offerDraw,
   drawDecision,
   cancelDraw,
+  checkSufficientMaterial,
   Piece
 }
 
