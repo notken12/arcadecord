@@ -44,7 +44,7 @@ body {
 
 .ratio {
     position: relative;
-    display: inline-block;
+    display: flex;
     vertical-align: middle;
 }
 .ratio.vertical,

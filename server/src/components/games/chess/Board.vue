@@ -204,14 +204,12 @@ export default {
 .grid-container {
   background-image: url(/dist/assets/chess/board.svg);
   background-size: contain;
-  background-color: red;
   box-sizing: border-box;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: 100%;
 }
 
 .highlight,
