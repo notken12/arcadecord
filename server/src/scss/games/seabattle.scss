@@ -6,29 +6,6 @@
     padding: 16px;
 }
 
-.ratio {
-    position: relative;
-    display: inline-block;
-    vertical-align: middle;
-}
-.ratio.vertical,
-.ratio.vertical > canvas {
-    height: 100%;
-    max-width: 100%;
-}
-.ratio.horizontal,
-.ratio.horizontal > canvas {
-    width: 100%;
-    max-height: 100%;
-}
-.ratio > div {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-}
-
 // .ship-placer-container,
 // .hit-board {
  
