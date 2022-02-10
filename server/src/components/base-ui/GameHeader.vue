@@ -7,7 +7,7 @@
       <transition name="fade" appear mode="out-in">
         <div class="hint" v-if="isitmyturn">{{ hint }}</div>
       </transition>
-      <button class="btn-fab" style="margin-left: auto">
+      <button class="btn-fab">
         <i class="material-icons">settings</i>
       </button>
     </div>
