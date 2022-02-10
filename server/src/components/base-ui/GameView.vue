@@ -92,7 +92,7 @@ export default {
   flex-direction: column;
   align-items: center;
   animation: fadein 0.5s;
-  position: absolute;
+  // position: absolute;
   top: 0;
   left: 0;
   right: 0;
