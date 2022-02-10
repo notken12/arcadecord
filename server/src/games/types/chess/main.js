@@ -49,10 +49,50 @@ class Chess extends Game {
     this.on('turn', Game.eventHandlersDiscord.turn);
 
     this.setActionModel("movePiece", Common.movePiece)
-    this.setActionModel("resign", Common.resign)
-    this.setActionModel("offerDraw", Common.offerDraw)
-    this.setActionModel("drawDecision", Common.drawDecision)
-    this.setActionModel("cancelDraw", Common.cancelDraw)
+    this.setActionSchema("movePiece", {
+      type: 'object',
+      properties: {
+        move: {
+          type: 'object',
+          properties: {
+            from: {
+              type: 'array',
+            },
+            to: {
+              type: 'array',
+            },
+            pieceType: {
+              type: 'string',
+              maxLength: 1,
+              minLength: 1,
+            },
+            castle: {
+              type: 'number',
+              maximum: 1,
+              minimum: 0,
+            },
+            promotion: {
+              type: 'string',
+              maxLength: 1,
+              minLength: 1
+            },
+            capture: {
+              type: 'boolean',
+            },
+            double: {
+              type: 'boolean',
+            },
+          },
+          required: ['from', 'to', 'pieceType']
+        },
+      },
+      required: ['move']
+    })
+
+    // this.setActionModel("resign", Common.resign)
+    // this.setActionModel("offerDraw", Common.offerDraw)
+    // this.setActionModel("drawDecision", Common.drawDecision)
+    // this.setActionModel("cancelDraw", Common.cancelDraw)
   }
 }
 

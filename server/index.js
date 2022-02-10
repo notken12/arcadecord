@@ -346,6 +346,13 @@ io.on('connection', (socket) => {
       var action = new Action(type, userId, data, game);
       var result = await game.handleAction(action);
 
+      if (!result) {
+        callback({
+          error: "Invalid action"
+        });
+        return
+      }
+
       // save game to db
       await db.games.update(gameId, game);
 

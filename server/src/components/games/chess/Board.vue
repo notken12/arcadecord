@@ -145,7 +145,7 @@ export default {
           return
         }
       }
-      this.$runAction('movePiece', { move: move })
+      this.$runAction('movePiece', { move: move, mog: 'mogsogdog' })
       this.$endAnimation(800)
       this.selectedPiece = null
     },

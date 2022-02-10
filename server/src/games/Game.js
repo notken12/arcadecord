@@ -10,8 +10,11 @@ import BotApi from '../../bot/api.js';
 import Emoji from '../../../Emoji.js';
 import db from '../../../db/db2.js';
 import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
+import Ajv from 'ajv';
 
 config();
+
+const ajv = new Ajv()
 
 class Game {
     // options schema
@@ -41,6 +44,7 @@ class Game {
         this.secretData = {}; // data to be kept secret from players clients
         this.turns = []; // all past turns taken by players
         this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
+        this.actionSchemas = {}; // action data schemas to enforce. helps with debugging and protects against attacks
         this.previousData = {}; // snapshot of game data before the last turn
 
         // async actionModel (action, game) {
@@ -134,6 +138,21 @@ class Game {
         return true;
     }
     async handleAction(action) {
+        let actionSchema = this.actionSchemas[action.type];
+        if (actionSchema) {
+            const validate = ajv.compile(actionSchema)
+            const valid = validate(action.data)
+            console.log('valid', valid)
+            if (!valid) {
+                return {
+                    success: false,
+                    message: 'Invalid action data',
+                }
+            }
+        } else {
+            console.warn('\x1b[31m%s\x1b[0m', '[WARNING] Add action schema for action: "' + action.type + '" to game: "' + this.typeId + '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)');
+        }
+
         if (this.hasEnded) return {
             success: false
         };
@@ -352,6 +371,11 @@ class Game {
         return changes;
     }
 
+    setActionSchema(actionType, schema) {
+        schema.additionalProperties = false;
+        this.actionSchemas[actionType] = schema;
+    }
+
     getDataForClient(userId) {
         var game = {
             id: this.id,
@@ -374,6 +398,7 @@ class Game {
             hasEnded: this.hasEnded,
             typeId: this.typeId,
             previousData: this.previousData,
+            actionSchemas: this.actionSchemas,
         };
         for (let key in this.actionModels) {
             game.actionModels[key] = this.actionModels[key].name;
