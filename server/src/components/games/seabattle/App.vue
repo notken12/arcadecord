@@ -31,7 +31,7 @@
         @click="shoot"
         v-if="game.data.placed[game.myIndex] && targetedCell"
       >
-        FEUER!
+        Fire!
       </button>
     </div>
 
