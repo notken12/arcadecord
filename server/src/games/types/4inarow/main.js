@@ -14,6 +14,7 @@ const options = {
     aliases: ['connect4', '4inarow'],
     minPlayers: 2,
     maxPlayers: 2,
+    emoji:'🔵',
     data: {
         board: new Common.Board(7, 6),
     }

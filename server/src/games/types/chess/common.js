@@ -542,6 +542,11 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
       winner: -1 //Draw
     })
     return game;
+  } else if(situation === '50move'){
+    await GameFlow.end(game, {
+      winner: -1 //Draw
+    })
+    return game;
   }
 }
 
@@ -610,6 +615,38 @@ function getSituation(game, color) {
         return 'repitition'
       }
     }
+  }
+  var i;
+  var movesSinceCounter = 0;
+  for(i=0;i<game.data.previousMoves.length;i++){
+    if(game.data.previousMoves[game.data.previousMoves.length-1].capture || game.data.previousMoves[game.data.previousMoves.length-1].pieceType === 'p'){
+      movesSinceCounter = 0;
+    } else {
+      movesSinceCounter += 1;
+    }
+
+    if(movesSinceCounter >= 100){//Shouldn't ever get over 50 but idk
+      return '50move'
+    }
+  }
+  
+  var i;
+  var amountOfMaterialWhite = {
+    "p":0,
+    "b":0,
+    "n":0,
+    "r":0,
+    "n":0
+  }
+  var amountOfMaterialBlack = {
+    "p":0,
+    "b":0,
+    "n":0,
+    "r":0,
+    "n":0
+  }
+  for(i=0;i<game.data.board;i++){
+    
   }
   return null;
 }
