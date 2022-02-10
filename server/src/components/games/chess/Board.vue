@@ -4,6 +4,7 @@
       class="grid-container"
       :style="styles"
       @click.self="selectedPiece = null"
+      ref="grid"
     >
       <transition-group name="fade">
         <div
@@ -28,6 +29,7 @@
         :piece="piece"
         :selected="piece === selectedPiece"
         :incheck="isInCheck && piece.type === 'k' && piece.color === myColor"
+        :moves="selectedPieceMoves"
       ></piece>
 
       <div
@@ -54,6 +56,8 @@ import PromotionMenu from './PromotionMenu.vue'
 
 import bus from '@app/js/vue-event-bus'
 import Common from '/gamecommons/chess'
+
+import gsap from 'gsap'
 
 export default {
   data() {
@@ -162,6 +166,17 @@ export default {
     bus.on('deselect piece', () => {
       this.selectedPiece = null
     })
+    bus.on('piece-pointer-down', (piece) => {
+      if (piece.color === this.myColor) {
+        this.selectedPiece = piece
+      }
+    })
+    bus.on('piece-pointer-up', () => {
+      this.selectedPiece = null
+    })
+    bus.on('make-move', (move) => {
+      this.makeMove(move)
+    })
   },
 }
 </script>
@@ -175,7 +190,7 @@ export default {
   width: min(calc(100% - 32px), 500px);
   height: 0;
   padding-top: min(calc(100% - 32px), 500px);
-  box-shadow: theme.$md-elevation-level4;
+  box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
   position: relative;
   max-width: 500px;

@@ -162,7 +162,8 @@ function recurse(game, moves, piece, location, offset, singleMove) {
       addMove(game, moves, {
         from: [piece.file, piece.rank],
         to: [newFile, newRank],
-        capture: true
+        capture: true,
+        pieceType: piece.type
       }, piece.color)
       return moves
     }
@@ -174,6 +175,7 @@ function recurse(game, moves, piece, location, offset, singleMove) {
     addMove(game, moves, {
       from: [piece.file, piece.rank],
       to: [newFile, newRank],
+      pieceType: piece.type
     }, piece.color)
 
     if (!singleMove) {
@@ -239,6 +241,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
           addMove(game, moves, {
             from: [piece.file, piece.rank],
             to: [newFile, newRank1],
+            pieceType: piece.type
           }, piece.color)
         }
 
@@ -255,6 +258,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
                 from: [piece.file, piece.rank],
                 to: [newFile, newRank2],
                 double: true,
+                pieceType: piece.type
               }, piece.color)
             }
 
@@ -271,6 +275,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
                 from: [piece.file, piece.rank],
                 to: [newFile, newRank2],
                 double: true,
+                pieceType: piece.type
               }, piece.color)
             }
           }
@@ -300,7 +305,8 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
             addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile1, newRank1],
-              capture: true
+              capture: true,
+              pieceType: piece.type
             }, piece.color)
           }
         }
@@ -317,7 +323,8 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
             addMove(game, moves, {
               from: [piece.file, piece.rank],
               to: [newFile2, newRank1],
-              capture: true
+              capture: true,
+              pieceType: piece.type
             }, piece.color)
           }
         }
@@ -418,6 +425,7 @@ function getMoves(game, piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, t
         from: [king.file, king.rank],
         to: [i === 0 ? 2 : 6, king.rank],
         castle: i,
+        pieceType: piece.type
       }, king.color)
     }
   }
@@ -515,8 +523,29 @@ class Piece {
     this.moved = false
   }
 }
+
+function validateMove(game, move) {
+  let piece = game.data.board.find((piece) => piece.file === move.from[0] && piece.rank === move.from[1])
+  let moves = getMoves(game, piece)
+  if (moves.find((m) => m.to[0] === move.to[0] && m.to[1] === move.to[1] && m.castle === move.castle && m.pieceType === move.pieceType)) {
+    if (move.promotion) {
+      if (piece.type === 'p' && !(['p', 'k'].includes(move.promotion))) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function movePiece(game, action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/) {
   let move = action.data.move;
+
+  if (!validateMove(game, move)) {
+    return false;
+  }
+
   doMovePiece(game, move);
   game.data.previousMoves.push(action.data.move);
   game.data.previousBoardPos.push(generateFEN(newToOld(game)))

@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade" appear mode="out-in">
+  <transition name="fade" appear>
     <div class="sending-view">
       <div class="sending-view-chip" ref="chip">
         <span>Sending</span>

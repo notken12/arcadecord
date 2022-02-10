@@ -3,7 +3,13 @@
             like settings button -->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
-    <!-- Don't create score badges because chess doesn't have scores  -->
+    <!-- Using the scores-view component, create the color indicators -->
+    <scores-view>
+      <!-- Display a color indicator for each player -->
+      <template v-slot="scoreView">
+        <div class="color-indicator" :class="{black: game.data.colors[scoreView.playerindex] === 1}"></div>
+      </template>
+    </scores-view>
 
     <div class="middle">
       <!-- Game UI just for chess  -->
@@ -28,9 +34,7 @@ export default {
     }
   },
   methods: {
-    movePiece() {
-      
-    },
+    movePiece() {},
   },
   computed: {
     hint() {
@@ -50,7 +54,10 @@ export default {
   },
   mounted() {
     this.$replayTurn(() => {
-      replayAction(this.game, this.game.turns[this.game.turns.length - 1].actions[0])
+      replayAction(
+        this.game,
+        this.game.turns[this.game.turns.length - 1].actions[0]
+      )
       this.$endReplay(1000)
     })
 
@@ -59,7 +66,27 @@ export default {
     })
   },
   components: {
-    Board
-  }
+    Board,
+  },
 }
 </script>
+
+<style lang="scss" scoped>
+@use 'scss/base/_theme' as theme;
+
+.color-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 0 5px;
+  display: inline-block;
+  background-color: #fff;
+  border: 2px black solid;
+  box-shadow: theme.$md-elevation-level3;
+}
+
+.color-indicator.black {
+  background-color: #000;
+  border-color: white;
+}
+</style>

@@ -7,12 +7,6 @@ export default {
   data() {
     return {
       promotionPieces: ['q', 'r', 'b', 'n'],
-      pieces: {
-        q: '♛',
-        r: '♜',
-        b: '♝',
-        n: '♞',
-      },
     }
   },
   methods: {
@@ -27,30 +21,49 @@ export default {
     closeMenu() {
       bus.emit('close-promotion-menu')
     },
+    promotionPieceStyles(piece) {
+      let texturePositions = {
+        p: 0,
+        r: 1,
+        n: 2,
+        b: 3,
+        q: 4,
+        k: 5,
+      }
+
+      let backgroundPositionX = (texturePositions[piece] / 5) * 100 + '%'
+
+      return {
+        'background-position-x': backgroundPositionX,
+      }
+    },
   },
   computed: {
-    styles() {
-      if (this.game.myIndex === -1 || this.game.myIndex === 1) {
-        return {
-          transform: 'rotate(180deg)',
-        }
+    promotionPieceClasses() {
+      if (this.game.myIndex === 0) {
+        return ['black']
       }
+      return []
     },
   },
 }
 </script>
 
 <template>
-  <div class="dialog-backdrop" :style="styles" @click.self="closeMenu">
+  <div
+    class="dialog-backdrop"
+    :class="promotionPieceClasses"
+    @click.self="closeMenu"
+  >
     <div class="dialog">
       <div
         class="promotion-piece"
         v-for="piece in promotionPieces"
         @click="makeMove(piece)"
+        :style="promotionPieceStyles(piece)"
         :key="piece"
-      >
-        {{ pieces[piece] }}
-      </div>
+        :class="promotionPieceClasses"
+      ></div>
     </div>
   </div>
 </template>
@@ -62,12 +75,14 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .dialog {
@@ -76,6 +91,19 @@ export default {
   padding: 16px;
   border-radius: 4px;
   box-shadow: theme.$md-elevation-level3;
+  width: 50%;
+  min-width: 160px;
+  min-height: 40px;
+  height: 12.5%;
+}
+
+@media screen and (max-width: 500px) {
+  .dialog {
+    width: 100%;
+    min-width: 0;
+    height: 25%;
+    min-height: 0;
+  }
 }
 
 h1 {
@@ -85,17 +113,28 @@ h1 {
 
 .promotion-piece {
   display: flex;
-  width: 1em;
-  height: 1em;
   text-align: center;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.25s;
   border-radius: 4px;
+  background-image: url('/dist/assets/chess/white_pieces.svg');
+  background-size: auto 100%;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s ease;
+}
+
+.promotion-piece.black {
+  background-image: url('/dist/assets/chess/black_pieces.svg');
 }
 
 .promotion-piece:hover {
-  background: #eee;
+  transform: scale(1.1);
+}
+
+.dialog-backdrop.black {
+  transform: rotate(180deg);
 }
 </style>
