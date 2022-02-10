@@ -27,6 +27,11 @@ body {
     display: flex;
     font-display: swap;
     overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 #loading, #error {
@@ -77,6 +82,10 @@ body {
     max-width: 100%;
     box-sizing: border-box;
     position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .middle {
