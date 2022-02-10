@@ -1,33 +1,41 @@
 <template>
-  <div class="ship-placer-container">
-    <div class="ship-placer-grid" :style="gridStyles">
-      <placed-ship
-        v-for="ship of board.ships"
-        :ship="ship"
-        :board="board"
-        :selected="dragTarget == ship"
-        :key="ship.id"
-      ></placed-ship>
-    </div>
+  <div class="ratio vertical">
+    <canvas width="9" height="9"></canvas>
+    <div>
+      <div class="ratio horizontal">
+        <canvas width="9" height="9"></canvas>
+        <div class="ship-placer-container">
+          <div class="ship-placer-grid" :style="gridStyles">
+            <placed-ship
+              v-for="ship of board.ships"
+              :ship="ship"
+              :board="board"
+              :selected="dragTarget == ship"
+              :key="ship.id"
+            ></placed-ship>
+          </div>
 
-    <div
-      class="ship-placer-board"
-      @touchmove="touchmove($event)"
-      @touchend="mouseup($event)"
-      ref="board"
-    >
-      <div class="ship-placer-row" v-for="y in board.width" :key="y">
-        <div
-          class="ship-placer-cell"
-          v-for="x in board.height"
-          :key="x"
-          :x="x - 1"
-          :y="y - 1"
-          @mouseover="mouseover($event, x - 1, y - 1)"
-          @mousedown="mousedown($event, x - 1, y - 1)"
-          @mouseup="mouseup($event, x - 1, y - 1)"
-          @touchstart="touchstart($event, x - 1, y - 1)"
-        ></div>
+          <div
+            class="ship-placer-board"
+            @touchmove="touchmove($event)"
+            @touchend="mouseup($event)"
+            ref="board"
+          >
+            <div class="ship-placer-row" v-for="y in board.width" :key="y">
+              <div
+                class="ship-placer-cell"
+                v-for="x in board.height"
+                :key="x"
+                :x="x - 1"
+                :y="y - 1"
+                @mouseover="mouseover($event, x - 1, y - 1)"
+                @mousedown="mousedown($event, x - 1, y - 1)"
+                @mouseup="mouseup($event, x - 1, y - 1)"
+                @touchstart="touchstart($event, x - 1, y - 1)"
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -35,7 +43,7 @@
 
 <script>
 import bus from '@app/js/vue-event-bus'
-import Common from '/gamecommons/seabattle';
+import Common from '/gamecommons/seabattle'
 import PlacedShip from './PlacedShip.vue'
 import cloneDeep from 'lodash.clonedeep'
 
