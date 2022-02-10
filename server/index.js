@@ -266,7 +266,12 @@ io.on('connection', (socket) => {
         var game = new gameType.Game(dbGame._doc);
 
         if (await game.canUserSocketConnect(userId)) {
-          // TODO: disconnect old socket if the user already connected to the same game
+          // Disconnect socket from other tab
+          let oldSocket = game.getSocket(userId);
+          io.to(oldSocket).disconnectSockets(true);
+
+          // Disconnect reasons: 
+          // https://socket.io/docs/v4/client-api/#event-disconnect
 
           // set socket info
           socket.data.userId = userId;

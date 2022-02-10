@@ -343,6 +343,10 @@ class Game {
         this.sockets[userId] = socket;
 
     }
+    getSocket(userId) {
+        return this.sockets[userId];
+    }
+
     setIo(io) {
         this.io = io;
     }

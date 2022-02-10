@@ -17,6 +17,12 @@ const appInsights = new ApplicationInsights({
 appInsights.loadAppInsights();
 appInsights.trackPageView();
 
+function log(...args) {
+    if (import.meta.env.MODE === 'development') {
+        console.log(...args);
+    }
+}
+
 console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
 var socket = io(`${window.location.origin}`);
@@ -113,7 +119,7 @@ function emitAction(game, actionType, actionData, actionCallback) {
             sending = false;
             onAllChangesSaved();
             bus.emit('sending', false);
-            console.log('[arcadecord] all actions emitted');
+            log('[arcadecord] all actions emitted');
         }
         if (firstActionEmitted) {
             if (typeof actionCallback === 'function')
@@ -131,8 +137,8 @@ var discordUser;
 
 function runAction(game, type, data, callback, clone) {
     if (facade.state.replaying) {
-        console.log('Still replaying last turn! Not running action.');
-        console.log(facade.state);
+        log('Still replaying last turn! Not running action.');
+        log(facade.state);
         return;
     }
     var game = simulateAction(game, type, data, game.myIndex, false, clone);
@@ -141,7 +147,7 @@ function runAction(game, type, data, callback, clone) {
 }
 
 function replayAction(game, action, clone) {
-    let {type, data, playerIndex} = action;
+    let { type, data, playerIndex } = action;
     var game = simulateAction(game, type, data, playerIndex, true, clone);
     return game;
 }
@@ -183,11 +189,9 @@ function simulateAction(game, type, data, playerIndex, disableTurnCheck, clone) 
 }
 
 async function connect(gameId, callback) {
-    socket.emit('connect_socket', {
-        gameId: gameId
-    }, async (response) => {
+    let baseCallback = async (response) => {
         if (response.status != 'success') {
-            console.log(`[arcadecord] connection failed with status ${response.status}`);
+            log(`[arcadecord] connection failed with status ${response.status}`);
 
             callback({
                 status: response.status,
@@ -206,7 +210,23 @@ async function connect(gameId, callback) {
             status: response.status,
             game, discordUser
         });
-    });
+    }
+
+    socket.emit('connect_socket', {
+        gameId: gameId
+    }, baseCallback);
+
+    socket.on('disconnect', async (reason) => {
+        log('[arcadecord.socket] disconnected from server with reason: ' + reason);
+        if (reason !== 'io server disconnect' && reason !== 'io client disconnect') {
+            // Reconnect
+            log('[arcadecord.socket] disconnected. reconnecting...');
+            socket.connect();
+            socket.emit('connect_socket', {
+                gameId: gameId
+            }, baseCallback);
+        }
+    })
 }
 
 function listen() {
@@ -217,7 +237,7 @@ function listen() {
         // Replay the turn
         replayTurn();
 
-        console.log('[arcadecord.socket] turn received, now the turn is ' + game.turn);
+        log('[arcadecord.socket] turn received, now the turn is ' + game.turn);
     });
 }
 
