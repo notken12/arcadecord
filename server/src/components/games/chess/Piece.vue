@@ -126,7 +126,7 @@ export default {
           let rank = 7 - Math.round(point.y / increment)
           if (file === vm.piece.file && rank === vm.piece.rank) {
             vm.animate()
-            vm.$refs.pieceEl.style.zIndex = 'initial'
+            vm.$refs.pieceEl.style.zIndex = 0
             return
           }
           let moves = vm.moves
@@ -139,11 +139,11 @@ export default {
           )
           if (!move) {
             vm.animate()
-            vm.$refs.pieceEl.style.zIndex = 'initial'
+            vm.$refs.pieceEl.style.zIndex = 0
             return
           }
           bus.emit('make-move', move)
-          vm.$refs.pieceEl.style.zIndex = 'initial'
+          vm.$refs.pieceEl.style.zIndex = 0
         },
         onPress: function (e) {
           bus.emit('piece-pointer-down', vm.piece)
