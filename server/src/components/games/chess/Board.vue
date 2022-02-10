@@ -199,7 +199,6 @@ export default {
   display: flex;
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
-  position: relative;
 }
 
 .grid-container {
