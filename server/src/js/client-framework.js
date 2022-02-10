@@ -221,7 +221,7 @@ async function connect(gameId, callback) {
         if (reason !== 'io server disconnect' && reason !== 'io client disconnect') {
             // Reconnect
             log('[arcadecord.socket] disconnected. reconnecting...');
-            socket.connect();
+            socket = socket.connect();
             socket.emit('connect_socket', {
                 gameId: gameId
             }, baseCallback);

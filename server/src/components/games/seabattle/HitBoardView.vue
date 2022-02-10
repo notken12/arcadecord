@@ -1,9 +1,9 @@
 <template>
   <div class="ratio vertical">
-    <canvas width="9" height="9"></canvas>
+    <canvas width="500" height="500"></canvas>
     <div>
       <div class="ratio horizontal">
-        <canvas width="9" height="9"></canvas>
+        <canvas width="500" height="500"></canvas>
         <div class="hit-board" :style="styles">
           <div class="hit-board-ships">
             <placed-ship
