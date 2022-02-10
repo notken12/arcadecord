@@ -6,10 +6,8 @@
 import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable.js'
 import bus from '@app/js/vue-event-bus'
-
 Draggable.zIndex = 1001
 gsap.registerPlugin(Draggable)
-
 export default {
   props: {
     piece: {
@@ -48,7 +46,6 @@ export default {
     },
     styles() {
       let cursor = this.piece.color === this.myColor ? 'grab' : 'default'
-
       let texturePositions = {
         p: 0,
         r: 1,
@@ -57,10 +54,8 @@ export default {
         q: 4,
         k: 5,
       }
-
       let backgroundPositionX =
         (texturePositions[this.piece.type] / 5) * 100 + '%'
-
       return {
         cursor,
         'background-position-x': backgroundPositionX,
@@ -81,7 +76,6 @@ export default {
     animate() {
       let top = ((7 - this.piece.rank) / 1) * 100
       let left = (this.piece.file / 1) * 100
-
       gsap.to(this.$refs.pieceEl, {
         x: left + '%',
         y: top + '%',
@@ -101,17 +95,14 @@ export default {
   },
   mounted() {
     let vm = this
-
     let top = ((7 - this.piece.rank) / 1) * 100
     let left = (this.piece.file / 1) * 100
-
     gsap.set(this.$refs.pieceEl, {
       x: left + '%',
       y: top + '%',
       ease: 'power3.inOut',
       rotation: this.myColor === 1 ? 180 : 0,
     })
-
     if (this.piece.color === this.myColor) {
       Draggable.create(this.$refs.pieceEl, {
         type: 'x,y',
@@ -131,16 +122,13 @@ export default {
           let grid = vm.$parent.$refs.grid
           let increment = grid.offsetWidth / 8
           let point = { x: this.endX, y: this.endY }
-
           let file = Math.round(point.x / increment)
           let rank = 7 - Math.round(point.y / increment)
-
           if (file === vm.piece.file && rank === vm.piece.rank) {
             vm.animate()
             vm.$refs.pieceEl.style.zIndex = 'initial'
             return
           }
-
           let moves = vm.moves
           let move = moves.find(
             (m) =>
@@ -154,9 +142,7 @@ export default {
             vm.$refs.pieceEl.style.zIndex = 'initial'
             return
           }
-
           bus.emit('make-move', move)
-
           vm.$refs.pieceEl.style.zIndex = 'initial'
         },
         onPress: function (e) {
@@ -171,30 +157,25 @@ export default {
 
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
-
 .piece {
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
   background-image: url('/dist/assets/chess/white_pieces.svg');
   background-size: auto 100%;
   cursor: pointer;
-  overflow: hidden;
   position: absolute;
   left: 0;
   top: 0;
-  touch-action: none;
   width: 12.5%;
   height: 12.5%;
   box-sizing: border-box;
+  z-index: 0;
 }
-
 .black {
   background-image: url('/dist/assets/chess/black_pieces.svg');
 }
-
 .selected {
   background-color: #ffffff88;
 }
-
 .incheck {
   background-color: #ff000088;
 }

@@ -1,9 +1,9 @@
 <template>
   <div class="ratio vertical">
-    <canvas width="9" height="9"></canvas>
+    <canvas width="500" height="500"></canvas>
     <div>
       <div class="ratio horizontal">
-        <canvas width="9" height="9"></canvas>
+        <canvas width="500" height="500"></canvas>
         <div class="board">
           <div
             class="grid-container"
@@ -196,20 +196,24 @@ export default {
 
 .board {
   background-color: white;
-  display: flex;
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
+  z-index: 1;
 }
 
 .grid-container {
   background-image: url(/dist/assets/chess/board.svg);
   background-size: contain;
   box-sizing: border-box;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // right: 0;
+  // bottom: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .highlight,
