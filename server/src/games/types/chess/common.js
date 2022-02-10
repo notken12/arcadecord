@@ -697,7 +697,6 @@ if(!( (amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amoun
 } else {
   return true;
 }
-console.log(amountOfMaterialWhite)
 }
 function doMovePiece(game, move) {
   let board = game.data.board;
