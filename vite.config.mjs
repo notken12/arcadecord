@@ -64,15 +64,6 @@ for (let key of nodeDependencies) {
   sharedModules.push(key);
 }
 
-import { gameTypes } from './server/src/games/game-types.js';
-const pageData = {};
-for (let type in gameTypes) {
-  let game = gameTypes[type];
-  pageData[`/games/types/${game.options.typeId}/index.html`] = {
-    ...game.options
-  };
-}
-
 // https://vitejs.dev/config/
 export default defineConfig({
   root: './server/src',
@@ -106,7 +97,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: entryPoints,
+      input: 'server/src/game-index.html',
       output: {
         format: 'es',
         manualChunks(id) {
