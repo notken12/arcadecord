@@ -8,7 +8,7 @@
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 
-import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight } from 'troisjs';
+import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel } from 'troisjs';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 let hint = computed(() => {
@@ -16,6 +16,7 @@ let hint = computed(() => {
 })
 
 const renderer = ref(null)
+const camera = ref(null)
 const cube = ref(null)
 
 const rotation = reactive({
@@ -46,36 +47,38 @@ onMounted(() => {
 
     <div class="middle">
       <!-- Game UI just for filler -->
-        <Renderer
-          ref="renderer"
-          antialias
-          resize
-          :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
-          class="canvas"
-        >
-          <Camera :position="{ z: 10 }" />
-          <Scene background="#eeeeee">
-            <AmbientLight color="#ffffff" :intensity="0.5" />
-            <PointLight :position="{ y: 50, z: 50 }" />
-            <Box ref="cube" :rotation="rotation">
-              <LambertMaterial />
-            </Box>
-            <Box :width="100" :depth="200" :height="2" :position="{ y: -10 }">
-              <StandardMaterial color="#116611" />
-            </Box>
-          </Scene>
-        </Renderer>
+      <Renderer
+        ref="renderer"
+        antialias
+        resize
+        :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
+        class="canvas"
+      >
+        <Camera :position="{ z: 10 }" ref="camera"/>
+        <Scene background="#eeeeee">
+          <AmbientLight color="#ffffff" :intensity="0.5" />
+          <PointLight :position="{ y: 50, z: 50 }" />
+          <Box ref="cube" :rotation="rotation">
+            <LambertMaterial />
+          </Box>
+          <GltfModel
+            src="/assets/cuppong/table.glb"
+            :scale="{ x: 10, y: 10, z: 10 }"
+            :position="{ y: -0.5 }"
+          />
+        </Scene>
+      </Renderer>
     </div>
   </game-view>
 </template>
 
 <style lang="scss">
-.canvas {
+.middle {
   position: absolute;
-  width: 100%;
-  height: 100%;
   z-index: 0;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>
