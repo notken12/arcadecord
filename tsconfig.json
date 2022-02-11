@@ -17,10 +17,11 @@
             "scss/*": [
                 "server/src/scss/*"
             ],
-        }
+        },
+        "allowJs": true,
     },
     "include": [
         "server/src/**/*.vue",
         "server/src/**/*.ts"
-    ]
+    ],
 }

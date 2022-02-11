@@ -16,7 +16,7 @@
             "/gamecommons/*": [
                 "server/src/games/types/*/common"
             ],
-        }
+        },
     },
     "include": [
         "server/src/**/*.vue",

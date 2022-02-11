@@ -28,6 +28,9 @@ class Game {
     //     "maxPlayers": 0,
     //     "minPlayers": 0,
     // }
+
+    gameOptions = {} // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
+
     constructor(typeOptions, options) {
         this.id = null; // will be set by the server index.js
         this.players = [];

@@ -553,10 +553,7 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
 
   // TODO: add 3 fold repetition
 
-  if (!situation) {
-    await GameFlow.endTurn(game);
-    return game;
-  } else if (situation === 'checkmate') {
+  if (situation === 'checkmate') {
     await GameFlow.end(game, {
       winner: game.turn
     })
@@ -571,15 +568,18 @@ async function movePiece(game, action /*from:[file, rank], to:[file, rank], cast
       winner: -1 //Draw
     })
     return game;
-  } else if(situation === '50move'){
+  } else if (situation === '50move') {
     await GameFlow.end(game, {
       winner: -1 //Draw
     })
     return game;
-  } else if(situation === 'insufficiantMaterial'){
+  } else if (situation === 'insufficientMaterial') {
     await GameFlow.end(game, {
       winner: -1 //Draw
     })
+    return game;
+  } else {
+    await GameFlow.endTurn(game);
     return game;
   }
 }
@@ -652,51 +652,51 @@ function getSituation(game, color) {
   }
   var i;
   var movesSinceCounter = 0;
-  for(i=0;i<game.data.previousMoves.length;i++){
-    if(game.data.previousMoves[game.data.previousMoves.length-1].capture || game.data.previousMoves[game.data.previousMoves.length-1].pieceType === 'p'){
+  for (i = 0; i < game.data.previousMoves.length; i++) {
+    if (game.data.previousMoves[game.data.previousMoves.length - 1].capture || game.data.previousMoves[game.data.previousMoves.length - 1].pieceType === 'p') {
       movesSinceCounter = 0;
     } else {
       movesSinceCounter += 1;
     }
 
-    if(movesSinceCounter >= 100){//Shouldn't ever get over 50 but idk
+    if (movesSinceCounter >= 100) {//Shouldn't ever get over 50 but idk
       return '50move'
     }
   }
- if(!checkSufficientMaterial(game)){
-   return 'insufficientMaterial';
- }
+  if (!checkSufficientMaterial(game)) {
+    return 'insufficientMaterial';
+  }
 
   return null;
 }
-function checkSufficientMaterial(game){
+function checkSufficientMaterial(game) {
   var i;
   var amountOfMaterialWhite = {
-    "p":0,
-    "b":0,
-    "n":0,
-    "r":0,
-    "q":0
+    "p": 0,
+    "b": 0,
+    "n": 0,
+    "r": 0,
+    "q": 0
   }
   var amountOfMaterialBlack = {
-    "p":0,
-    "b":0,
-    "n":0,
-    "r":0,
-    "q":0
+    "p": 0,
+    "b": 0,
+    "n": 0,
+    "r": 0,
+    "q": 0
   }
-  for(i=0;i<game.data.board.length;i++){
-    if(game.data.board[i].color == 0){//White
+  for (i = 0; i < game.data.board.length; i++) {
+    if (game.data.board[i].color == 0) {//White
       amountOfMaterialWhite[game.data.board[i].type] += 1;
     } else {//Black
       amountOfMaterialBlack[game.data.board[i].type] += 1;
     }
-}
-if(!( (amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1) ) || !( (amountOfMaterialBlack.n >= 3) || (amountOfMaterialBlack.b >= 2) || (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1) )){
-  return false;
-} else {
-  return true;
-}
+  }
+  if (!((amountOfMaterialWhite.n >= 3) || (amountOfMaterialWhite.b >= 2) || (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1)) || !((amountOfMaterialBlack.n >= 3) || (amountOfMaterialBlack.b >= 2) || (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1))) {
+    return false;
+  } else {
+    return true;
+  }
 }
 function doMovePiece(game, move) {
   let board = game.data.board;
