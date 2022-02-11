@@ -34,11 +34,17 @@ class CupPongGame extends Game {
                         color: 'red',
                         cups: [],
                         throwCount: 0,
+                        throwsMade: 0,
+                        lastKnocked: "",
+                        inRedemption: false
                     },
                     {
                         color: 'blue',
                         cups: [],
-                        throwCount: 0
+                        throwCount: 0,
+                        throwsMade: 0,
+                        lastKnocked: "",
+                        inRedemption: false
                     }
                 ],
             }
