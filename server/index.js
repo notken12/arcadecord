@@ -543,12 +543,6 @@ app.get('/game/:id', async (req, res) => {
   }
 });
 
-app.use('/gamecommons', async (req, res) => {
-  var id = req.path.split('/')[1];
-
-  res.sendFile(__dirname + '/src/games/types/' + id + '/common.js');
-});
-
 app.post('/create-game', async (req, res) => {
   // get token from headers
   var authHeader = req.headers.authorization;

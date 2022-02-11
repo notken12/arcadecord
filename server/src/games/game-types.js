@@ -13,7 +13,9 @@ const gameFolders = readdirSync(_dirname + '/types');
 var gameTypes = {};
 
 for (const folder of gameFolders) {
-    let {default: game} = await import(`./types/${folder}/main.js`);
+    let typeFolder = readdirSync(_dirname + '/types/' + folder);
+    let mainFile = typeFolder.filter(file => file.match(/main.([^\.]*)$/));
+    let {default: game} = await import(`./types/${folder}/${mainFile}`);
     gameTypes[game.options.typeId] = game;
 }
 
