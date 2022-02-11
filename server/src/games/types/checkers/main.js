@@ -2,7 +2,7 @@
 import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js';
+import Game from '../../Game.ts';
 
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js';

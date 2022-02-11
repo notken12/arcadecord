@@ -97,7 +97,7 @@ export default defineConfig({
       },
       {
         find: /\/gamecommons\/(.*)/,
-        replacement: path.resolve(__dirname, 'server/src/games/types/$1/common.js')
+        replacement: path.resolve(__dirname, 'server/src/games/types/$1/common')
       },
       {
         find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')

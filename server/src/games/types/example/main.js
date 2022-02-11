@@ -2,7 +2,7 @@
 import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js';
+import Game from '../../Game.ts';
 
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js';
@@ -26,7 +26,8 @@ const options = {
     data: {
         scores: [0, 0],
         answers: [null, null]
-    }
+    },
+    hidden: true
 }
 
 // Game constructor, extends base Game class

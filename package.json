@@ -8,12 +8,12 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "build": "npx vite build",
-    "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
-    "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
-    "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
-    "startprod": "concurrently \"node server/index.js 1\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
-    "startsingle": "concurrently \"nodemon --watch server server/index.js single\" \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
+    "build": "tsc && npx vite build",
+    "startbot": "concurrently \"nodemon --watch bot dist/bot/proxy.js\" \"nodemon --watch bot dist/bot/index.js 1\" \"nodemon --watch bot dost/bot/index.js 2\"",
+    "startserver": "concurrently \"nodemon --watch server dist/server/index.js 1\" \"nodemon --watch server dist/server/index.js 2\" \"nodemon --watch server dist/server/index.js 3\"",
+    "start": "tsc --watch && concurrently \"npm run startserver\" \"npm run startbot\"",
+    "startprod": "tsc --watch && concurrently \"node dist/server/index.js 1\" \"node dist/bot/proxy.js\" \"node dist/bot/index.js 1\" \"node dist/bot/index.js 2\"",
+    "startsingle": "tsc --watch && concurrently \"nodemon --watch server dist/server/index.js single\" \"nodemon --watch bot dist/bot/proxy.js\" \"nodemon --watch bot dist/bot/index.js 1\" \"nodemon --watch bot dist/bot/index.js 2\"",
     "format": "prettier --write '**/*.js'"
   },
   "engines": {
@@ -63,6 +63,7 @@
     "snowflake-generator": "^1.0.2",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
+    "troisjs": "^0.3.3",
     "vue": "^3.2.27",
     "vuex": "^4.0.2"
   },
@@ -76,6 +77,8 @@
     "rollup-plugin-graph": "^2.0.0",
     "rollup-plugin-visualizer": "^5.5.4",
     "sass": "^1.48.0",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5",
     "vite": "^2.7.13",
     "vite-plugin-handlebars": "^1.6.0"
   }

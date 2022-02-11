@@ -17,10 +17,18 @@
             "scss/*": [
                 "server/src/scss/*"
             ],
-        }
+        },
+        "outDir": "dist",
+        "rootDir": "."
     },
     "include": [
-        "server/src/**/*.vue",
-        "server/src/**/*.ts"
-    ]
+        "./server/src/**/*.vue",
+        "./server/src/**/*.ts",
+        "./server/src/games/**/*.ts"
+    ],
+    "exclude": [
+        "./node_modules",
+        "./server/src/**/*.ts"
+    ],
+    //"files": ["server/index.js", "bot/index.js", "bot/proxy.js", "bot/bot.js"],
 }

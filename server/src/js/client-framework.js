@@ -71,7 +71,7 @@ const utils = {
     },
 
     async setUpGame(game) {
-        let { default: Common } = await import(`../games/types/${game.typeId}/common.js`);
+        let { default: Common } = await import(`../games/types/${game.typeId}/common`);
 
         game.client = client;
 

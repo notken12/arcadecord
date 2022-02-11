@@ -2,7 +2,7 @@
 import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js';
+import Game from '../../Game.ts';
 
 // Game options, required. Export as options
 // README.md

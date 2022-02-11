@@ -1,13 +1,21 @@
 import { SnowflakeUtil, MessageAttachment } from 'discord.js';
 import { config } from 'dotenv';
+// @ts-ignore
 import Player from './Player.js';
+// @ts-ignore
 import Action from './Action.js';
+// @ts-ignore
 import Turn from './Turn.js';
+// @ts-ignore
 import cloneDeep from 'lodash.clonedeep';
 
+// @ts-ignore
 import GameFlow from './GameFlow.js';
+// @ts-ignore
 import BotApi from '../../bot/api.js';
+// @ts-ignore
 import Emoji from '../../../Emoji.js';
+// @ts-ignore
 import db from '../../../db/db2.js';
 import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
 import Ajv from 'ajv';
@@ -28,7 +36,40 @@ class Game {
     //     "maxPlayers": 0,
     //     "minPlayers": 0,
     // }
-    constructor(typeOptions, options) {
+    typeId: string | undefined
+    id: string | null
+    _id: string | null
+    name: string = 'Game'
+    image: string | null = null;
+    description: string = ''
+    aliases: string[] = []
+    players: Player[]
+    eventHandlers: { [event: string]: Function[] }
+    actionHandlers: { [action: string]: Function[] }
+    turn: Number
+    sockets: { [id: string]: string }
+    hasStarted: boolean
+    hasEnded: boolean
+    lastTurnInvite: string | null
+    startMessage: string | null
+    winner: number | null
+    data: any
+    turns: Turn[]
+    actionModels: { [action: string]: Function }
+    actionSchemas: { [action: string]: any }
+    previousData: any
+    serverActionModels: { [action: string]: Function }
+    clientActionModels: { [action: string]: Function }
+    channel: string | null = null
+    guild: string | null = null
+    maxPlayers: number = 0
+    minPlayers: number = 0
+    invitedUsers: string[] = [];
+    static eventHandlersDiscord: { init: (game: any) => Promise<any>; turn: (game: any) => Promise<any>; };
+    static thumbnailDimensions: { width: number; height: number; };
+
+    constructor(typeOptions: any, options: any) {
+        this._id = null;
         this.id = null; // will be set by the server index.js
         this.players = [];
         this.eventHandlers = {};
@@ -41,7 +82,6 @@ class Game {
         this.startMessage = null;
         this.winner = null; // will be set to player index
         this.data = {}; // game position, scores, etc
-        this.secretData = {}; // data to be kept secret from players clients
         this.turns = []; // all past turns taken by players
         this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
         this.actionSchemas = {}; // action data schemas to enforce. helps with debugging and protects against attacks
@@ -58,31 +98,6 @@ class Game {
         this.serverActionModels = {};
         this.clientActionModels = {};
 
-        this.io = null;
-
-        this.client = {
-            eventHandlers: {},
-            emit: function (event, ...args) {
-                if (!this.eventHandlers[event]) return;
-
-                for (let callback of this.eventHandlers[event]) {
-                    callback(this, ...args);
-                }
-            },
-            on: function (event, callback) {
-                if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
-                this.eventHandlers[event].push(callback);
-            },
-            getDataForClient: function () {
-                return {
-                    eventHandlers: this.eventHandlers,
-                    emit: this.emit.toString(),
-                    on: this.on.toString(),
-                };
-            }
-        }; // event management, just for client. used for updating ui. copy of this can be found in client-framework.js
-
-
 
         Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
         Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
@@ -94,7 +109,8 @@ class Game {
             this._id = this.id;
         }
 
-        this.turns.getDataForClient = function (userId) {
+        // @ts-ignore
+        this.turns.getDataForClient = function (userId: string) {
             var data = [];
             for (let turn of this) {
                 data.push(Turn.getDataForClient(turn, userId));
@@ -103,13 +119,13 @@ class Game {
         }
     }
     //methods
-    setGuild(guild) {
+    setGuild(guild: string | null) {
         this.guild = guild;
     }
-    setChannel(channel) {
+    setChannel(channel: string | null) {
         this.channel = channel;
     }
-    setActionModel(action, model, side) {
+    setActionModel(action: string, model: Function, side: string | undefined) {
         if (side == 'client') {
             this.clientActionModels[action] = model;
         } else if (side == 'server') {
@@ -121,15 +137,15 @@ class Game {
     getURL() {
         return process.env.GAME_SERVER_URL + "/game/" + this.id;
     }
-    on(event, callback) {
+    on(event: string, callback: Function) {
         if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
         this.eventHandlers[event].push(callback);
     }
-    onAction(action, callback) {
+    onAction(action: string, callback: Function) {
         if (!this.actionHandlers[action]) this.actionHandlers[action] = [];
         this.actionHandlers[action].push(callback);
     }
-    async emit(event, ...args) {
+    async emit(event: string, ...args: (any)[]) {
         if (!this.eventHandlers[event]) return;
 
         for (let callback of this.eventHandlers[event]) {
@@ -137,7 +153,7 @@ class Game {
         }
         return true;
     }
-    async handleAction(action) {
+    async handleAction(action: Action) {
         let actionSchema = this.actionSchemas[action.type];
         if (actionSchema) {
             const validate = ajv.compile(actionSchema)
@@ -188,7 +204,7 @@ class Game {
         // run action
         var actionModel = this.actionModels[action.type];
 
-        var actionResult = {};
+        var actionResult: any = {};
         if (actionModel) {
             var successful = await actionModel(this, action);
 
@@ -243,7 +259,7 @@ class Game {
 
         return actionResult;
     }
-    async addPlayer(id) {
+    async addPlayer(id: string) {
         if (!(await this.canUserJoin(id))) return false;
 
         var user = await db.users.getById(id);
@@ -260,7 +276,7 @@ class Game {
     async init() {
         await this.emit('init');
     }
-    async doesUserHavePermission(id) {
+    async doesUserHavePermission(id: string) {
         var dbUser = await db.users.getById(id);
         if (!dbUser) return false;
 
@@ -292,7 +308,7 @@ class Game {
         }
         return false;
     }
-    async canUserJoin(id) {
+    async canUserJoin(id: string) {
         if (!(await this.doesUserHavePermission(id))) return false;
         if (this.isGameFull()) {
             this.emit('error', 'Game is full');
@@ -304,7 +320,7 @@ class Game {
         }
         return true;
     }
-    async canUserSocketConnect(id) {
+    async canUserSocketConnect(id: string) {
         if (this.isPlayerInGame(id)) {
             return true;
         }
@@ -323,13 +339,13 @@ class Game {
     isGameFull() {
         return this.players.length >= this.maxPlayers;
     }
-    isPlayerInGame(id) {
+    isPlayerInGame(id: string) {
         return this.players.filter(player => player.id.toString() === id.toString()).length > 0;
     }
-    getPlayerIndex(id) {
+    getPlayerIndex(id: string) {
         return this.players.indexOf(this.players.find(player => player.id.toString() === id.toString()));
     }
-    isItUsersTurn(userId, index) {
+    isItUsersTurn(userId: string, index: number) {
         var i;
         if (index !== undefined) {
             i = index;
@@ -338,20 +354,16 @@ class Game {
         }
         return this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1);
     }
-    setSocket(userId, socket) {
+    setSocket(userId: string, socket: string) {
         // TODO: disconnect user's old socket if they have one
         this.sockets[userId] = socket;
 
     }
-    getSocket(userId) {
+    getSocket(userId: string) {
         return this.sockets[userId];
     }
 
-    setIo(io) {
-        this.io = io;
-    }
-
-    broadcastToAllSockets(event, broadcastGame, ...args) {
+    broadcastToAllSockets(event: string, broadcastGame: boolean, ...args: any[]) {
         for (let key in this.sockets) {
             if (broadcastGame) {
                 this.sockets[key].emit(event, this.getDataForClient(key), ...args);
@@ -365,8 +377,8 @@ class Game {
 
     }
 
-    getChanges(oldData, newData) {
-        var changes = {};
+    getChanges(oldData: any, newData: any) {
+        var changes:any = {};
         for (let key in newData) {
             if (oldData[key] !== newData[key]) {
                 changes[key] = newData[key];
@@ -375,12 +387,12 @@ class Game {
         return changes;
     }
 
-    setActionSchema(actionType, schema) {
+    setActionSchema(actionType: string, schema: any) {
         schema.additionalProperties = false;
         this.actionSchemas[actionType] = schema;
     }
 
-    getDataForClient(userId) {
+    getDataForClient(userId: string) {
         var game = {
             id: this.id,
             name: this.name,
@@ -394,8 +406,8 @@ class Game {
             data: this.data,
             myIndex: this.getPlayerIndex(userId),
             hasStarted: this.hasStarted,
+            // @ts-ignore
             turns: this.turns.getDataForClient(userId),
-            client: this.client.getDataForClient(userId),
             actionModels: {},
             clientActionModels: {},
             winner: this.winner,
@@ -457,7 +469,7 @@ Game.eventHandlersDiscord = {
             .setURL(game.getURL());
 
         var row = new MessageActionRow().addComponents([startGameButton]);
-        var message = { embeds: [embed], components: [row] };
+        var message:any = { embeds: [embed], components: [row] };
 
         if (content.length > 0) {
             message.content = content;
@@ -519,7 +531,7 @@ Game.eventHandlersDiscord = {
 
         var row = new MessageActionRow().addComponents([button]);
 
-        var invite = {
+        var invite:any = {
             content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
             embeds: [embed],
             components: [row],
