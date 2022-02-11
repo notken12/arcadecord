@@ -51,5 +51,6 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  z-index: 1;
 }
 </style>
