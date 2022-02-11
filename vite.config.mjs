@@ -134,30 +134,30 @@ export default defineConfig({
       babelHelpers: 'bundled',
       exclude: 'node_modules/**'
     }),
-    handlebars({
-      context(pagePath) {
-        let data = pageData[pagePath];
-        if (data) {
-          let aliases;
-          if (typeof data.aliases === 'object') {
-            aliases = (data.aliases.join(' ') + ' ' + data.name).toLowerCase();
-          } else {
-            aliases = data.name.toLowerCase();
-          }
-          return {
-            metaTemplate:
-              `
-              <link rel="preconnect" href="https://fonts.googleapis.com">
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-              <link rel="preconnect" href="https://cdn.discordapp.com">
-              <meta name="theme-color" content="${data.color || '#0063ff'}">
-              <meta name="description" content="${data.description || ''}">
-              <meta name="keywords" content="${aliases}">
-            `
-          }
-        }
-      }
-    }),
+    // handlebars({
+    //   context(pagePath) {
+    //     let data = pageData[pagePath];
+    //     if (data) {
+    //       let aliases;
+    //       if (typeof data.aliases === 'object') {
+    //         aliases = (data.aliases.join(' ') + ' ' + data.name).toLowerCase();
+    //       } else {
+    //         aliases = data.name.toLowerCase();
+    //       }
+    //       return {
+    //         metaTemplate:
+    //           `
+    //           <link rel="preconnect" href="https://fonts.googleapis.com">
+    //           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    //           <link rel="preconnect" href="https://cdn.discordapp.com">
+    //           <meta name="theme-color" content="${data.color || '#0063ff'}">
+    //           <meta name="description" content="${data.description || ''}">
+    //           <meta name="keywords" content="${aliases}">
+    //         `
+    //       }
+    //     }
+    //   }
+    // }),
     brotli(),
     visualizer({
       template: 'treemap'
