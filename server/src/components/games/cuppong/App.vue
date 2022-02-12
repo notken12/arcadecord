@@ -7,6 +7,7 @@
 
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
+import Side from './Side.vue'
 
 import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture } from 'troisjs';
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -22,9 +23,7 @@ const camera = ref(null)
 const table = ref(null)
 
 function onTableLoad(model) {
-  console.log(model)
   model.children[0].material.map.minFilter = LinearFilter
-  // model.texture.anistrophy = renderer.value.renderer.capabilities.getMaxAnisotropy()
 }
 
 onMounted(() => {
@@ -51,6 +50,7 @@ onMounted(() => {
         antialias
         resize
         :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
+        :position="{ x: 0, y: 40, z: 0 }"
         class="canvas"
       >
         <Camera :position="{ z: 10 }" ref="camera" />
@@ -60,10 +60,11 @@ onMounted(() => {
           <GltfModel
             src="/assets/cuppong/table.glb"
             :scale="{ x: 100, y: 100, z: 100 }"
-            :position="{ y: -0.5 }"
+            :position="{ y: 0 }"
             ref="table"
             @load="onTableLoad"
           ></GltfModel>
+          <Side v-for="side in game.data.sides" :side="side" />
         </Scene>
       </Renderer>
     </div>

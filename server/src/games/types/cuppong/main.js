@@ -60,12 +60,11 @@ class CupPongGame extends Game {
                 for (let rowNum = 0; rowNum < 4; rowNum++) {
                     // Row 0 is the back row
                     let cupCount = 4 - rowNum;
-                    let oddRow = rowNum % 2 === 1;
                     // rowPos 0 is the center of the row
 
-                    let offset = oddRow ? 0 : 0.5;
-                    for (let rowPos = -cupCount / 2 + offset; rowPos < cupCount / 2 - offset; rowPos++) {
-                        let cup = new Common.Cup(side.color, rowNum, rowPos);
+                    let offset = 0.5;
+                    for (let rowPos = -cupCount / 2 + offset; rowPos <= cupCount / 2 - offset; rowPos++) {
+                        let cup = new Common.Cup(`${side.color}:${rowNum}-${rowPos}`, side.color, rowNum, rowPos);
                         side.cups.push(cup);
                     }
                 }
