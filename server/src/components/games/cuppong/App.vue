@@ -10,9 +10,13 @@ import Common from '/gamecommons/cuppong'
 import Side from './Side.vue'
 
 import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture } from 'troisjs';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, getCurrentInstance } from 'vue';
 
 import { LinearFilter } from 'three'
+
+import {useFacade} from 'components/base-ui/facade'
+
+const { game, me, $replayTurn, $endReplay } = useFacade()
 
 let hint = computed(() => {
   return ''
@@ -26,6 +30,16 @@ function onTableLoad(model) {
   model.children[0].material.map.minFilter = LinearFilter
 }
 
+const cameraRotation = computed(() => {
+  let x = -Math.PI / 5
+  let y = 0
+  return {
+    x,
+    y,
+    z: 0
+  }
+})
+
 onMounted(() => {
   // let previousTime = new Date()
   // const d = 1
@@ -34,6 +48,12 @@ onMounted(() => {
   //   const elapsed = new Date() - previousTime
   //   previousTime = time
   // })
+  $replayTurn(() => {
+    $endReplay()
+  })
+
+  camera.value.camera.rotation.x = cameraRotation.value.x
+  camera.value.camera.rotation.y = cameraRotation.value.y
 })
 </script>
 
@@ -49,14 +69,12 @@ onMounted(() => {
         ref="renderer"
         antialias
         resize
-        :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
-        :position="{ x: 0, y: 40, z: 0 }"
         class="canvas"
       >
-        <Camera :position="{ z: 10 }" ref="camera" />
+        <Camera :position="{ y: 70 }" ref="camera" />
         <Scene background="#eeeeee">
           <AmbientLight color="#ffffff" :intensity="0.5" />
-          <PointLight :position="{ y: 50, z: 50 }" />
+          <PointLight :position="{ y: 50 }" />
           <GltfModel
             src="/assets/cuppong/table.glb"
             :scale="{ x: 100, y: 100, z: 100 }"
