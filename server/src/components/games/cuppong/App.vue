@@ -11,6 +11,8 @@ import Common from '/gamecommons/cuppong'
 import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture } from 'troisjs';
 import { computed, onMounted, reactive, ref } from 'vue';
 
+import { LinearFilter } from 'three'
+
 let hint = computed(() => {
   return ''
 })
@@ -20,17 +22,19 @@ const camera = ref(null)
 const table = ref(null)
 
 function onTableLoad(model) {
+  console.log(model)
+  model.children[0].material.map.minFilter = LinearFilter
   // model.texture.anistrophy = renderer.value.renderer.capabilities.getMaxAnisotropy()
 }
 
 onMounted(() => {
-  let previousTime = new Date()
-  const d = 1
-  renderer.value.onBeforeRender(() => {
-    const time = new Date()
-    const elapsed = new Date() - previousTime
-    previousTime = time
-  })
+  // let previousTime = new Date()
+  // const d = 1
+  // renderer.value.onBeforeRender(() => {
+  //   const time = new Date()
+  //   const elapsed = new Date() - previousTime
+  //   previousTime = time
+  // })
 })
 </script>
 
