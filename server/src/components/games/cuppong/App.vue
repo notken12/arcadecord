@@ -9,7 +9,7 @@ import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 import Side from './Side.vue'
 
-import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture } from 'troisjs';
+import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture, Sphere } from 'troisjs';
 import { computed, onMounted, reactive, ref, getCurrentInstance } from 'vue';
 
 import { LinearFilter } from 'three'
@@ -70,11 +70,13 @@ onMounted(() => {
         antialias
         resize
         class="canvas"
+        :orbit-ctrl="true"
       >
         <Camera :position="{ y: 70 }" ref="camera" />
         <Scene background="#eeeeee">
           <AmbientLight color="#ffffff" :intensity="0.5" />
           <PointLight :position="{ y: 50 }" />
+          <Sphere :radius="2" :position="{y:2}"/>
           <GltfModel
             src="/assets/cuppong/table.glb"
             :scale="{ x: 100, y: 100, z: 100 }"
