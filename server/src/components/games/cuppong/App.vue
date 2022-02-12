@@ -8,7 +8,7 @@
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 
-import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel } from 'troisjs';
+import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture } from 'troisjs';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 let hint = computed(() => {
@@ -17,13 +17,11 @@ let hint = computed(() => {
 
 const renderer = ref(null)
 const camera = ref(null)
-const cube = ref(null)
+const table = ref(null)
 
-const rotation = reactive({
-  x: 0,
-  y: 0,
-  z: 0
-})
+function onTableLoad(model) {
+  // model.texture.anistrophy = renderer.value.renderer.capabilities.getMaxAnisotropy()
+}
 
 onMounted(() => {
   let previousTime = new Date()
@@ -32,9 +30,6 @@ onMounted(() => {
     const time = new Date()
     const elapsed = new Date() - previousTime
     previousTime = time
-    rotation.x += d * elapsed / 1000
-    rotation.y += d * elapsed / 1000
-    rotation.z += d * elapsed / 1000
   })
 })
 </script>
@@ -54,18 +49,17 @@ onMounted(() => {
         :orbit-ctrl="{ enableDamping: true, dampingFactor: 0.05 }"
         class="canvas"
       >
-        <Camera :position="{ z: 10 }" ref="camera"/>
+        <Camera :position="{ z: 10 }" ref="camera" />
         <Scene background="#eeeeee">
           <AmbientLight color="#ffffff" :intensity="0.5" />
           <PointLight :position="{ y: 50, z: 50 }" />
-          <Box ref="cube" :rotation="rotation">
-            <LambertMaterial />
-          </Box>
           <GltfModel
             src="/assets/cuppong/table.glb"
-            :scale="{ x: 10, y: 10, z: 10 }"
+            :scale="{ x: 100, y: 100, z: 100 }"
             :position="{ y: -0.5 }"
-          />
+            ref="table"
+            @load="onTableLoad"
+          ></GltfModel>
         </Scene>
       </Renderer>
     </div>
