@@ -35,12 +35,12 @@ let hint = computed(() => {
 const sides = computed(() => game.value.data.sides)
 
 const mySide = computed(() => {
-  let index = game.value.turn === -1 ? 1 : game.value.turn
+  let index = game.value.myIndex === -1 ? 1 : game.value.myIndex
   return game.value.data.sides[index]
 })
 
 const otherSide = computed(() => {
-  let index = game.value.turn === -1 ? 0 : game.value.turn === 0 ? 1 : 0
+  let index = game.value.myIndex === -1 ? 0 : game.value.myIndex === 0 ? 1 : 0
   return game.value.data.sides[index]
 })
 
@@ -70,6 +70,7 @@ const world = new CANNON.World({
 })
 
 const canvasWrapper = ref(null)
+const dragSurface = ref(null)
 
 let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, ballBody
 
@@ -82,7 +83,7 @@ const canvas = ref(null)
 
 const initThree = () => {
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0xffffff)
+  scene.background = new THREE.Color(0xaaaaaa)
   camera = new THREE.PerspectiveCamera(75, canvasWrapper.value.clientWidth / canvasWrapper.value.clientHeight, 0.1, 1000)
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
@@ -95,9 +96,9 @@ const initThree = () => {
     orbitControls.dampingFactor = 0.25;
   }
 
-  const cannonDebugger = new CannonDebugger(scene, world, {
-    // options...
-  })
+  // const cannonDebugger = new CannonDebugger(scene, world, {
+  //   // options...
+  // })
 
 
   // load table model
@@ -144,7 +145,7 @@ const initThree = () => {
         mass: 0,
         material: new CANNON.Material({
           friction: 1,
-          restitution: 0.2
+          restitution: 0.5
         }),
         type: CANNON.Body.KINEMATIC,
         shape,
@@ -158,7 +159,7 @@ const initThree = () => {
       watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
-      }, { immediate: true, deep: true })
+      })
     }
   })
 
@@ -175,7 +176,7 @@ const initThree = () => {
         mass: 0,
         material: new CANNON.Material({
           friction: 1,
-          restitution: 0.2
+          restitution: 0.5
         }),
         type: CANNON.Body.KINEMATIC,
         shape,
@@ -189,7 +190,7 @@ const initThree = () => {
       watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
-      }, { immediate: true, deep: true })
+      })
     }
   })
 
@@ -226,8 +227,13 @@ const initThree = () => {
 
   world.addBody(ballBody)
 
+
+
   function animate() {
     requestAnimationFrame(animate);
+
+    velocity.x *= 0.8
+    velocity.y *= 0.8
 
     // Step Cannon World
     if (tableBody && ballBody) {
@@ -238,7 +244,7 @@ const initThree = () => {
       ballObject.position.copy(ballBody.position)
       ballObject.quaternion.copy(ballBody.quaternion)
 
-      if (ballBody.position.y < -2) {
+      if (ballBody.position.y < -2 || (ballBody.velocity.clone().normalize() <= 0.05 && ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03)) {
         ballBody.position.set(0, 0, 0)
         ballBody.velocity.set(0, 0, 0)
         ballBody.angularVelocity.set(0, 0, 0)
@@ -267,7 +273,7 @@ const initThree = () => {
     if (orbitControls)
       orbitControls.update()
 
-    cannonDebugger.update() // Update the CannonDebugger meshes
+    // cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera);
@@ -296,6 +302,48 @@ function nearestCup(pos) {
   return {
     cup: nearestCup,
     distance: minDistance
+  }
+}
+
+let lastMousePos = { x: 0, y: 0 }
+let velocity = { x: 0, y: 0 }
+let delta = { x: 0, y: 0 }
+let lastTime = 0
+function pointerDown(e) {
+  lastMousePos = { x: e.clientX, y: e.clientY }
+  lastTime = Date.now()
+  velocity = { x: 0, y: 0 }
+  delta = { x: 0, y: 0 }
+}
+
+function pointerMove(e) {
+  delta = {
+    x: e.clientX - lastMousePos.x,
+    y: e.clientY - lastMousePos.y
+  }
+  velocity = {
+    x: (velocity.x + delta.x) * 0.5,
+    y: (velocity.y + delta.y) * 0.5
+  }
+  lastMousePos = { x: e.clientX, y: e.clientY }
+  lastTime = Date.now()
+}
+
+function pointerUp(e) {
+  // only if it isn't right click
+  if (e.button === 2) return
+  let time = Date.now()
+  let deltaTime = time - lastTime
+  let force = {
+    x: velocity.x * -0.07,
+    y: velocity.y * -0.09
+  }
+  if (force.y <= 0) {
+    return
+  }
+  let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1
+  if (ballBody?.position.distanceTo(new CANNON.Vec3(0, 0.02, 0)) <= 0.001) {
+    ballBody.applyForce(new CANNON.Vec3(force.x * sidePosNeg, force.y, 0.2 * sidePosNeg), ballBody.position)
   }
 }
 
@@ -355,7 +403,14 @@ onMounted(() => {
           <Side v-for="side in sides" :side="side" />
         </Scene>
       </Renderer>-->
-      <canvas id="game-canvas" ref="canvas" @click="throwBall"></canvas>
+      <div class="drag-surface" ref="dragSurface"></div>
+      <canvas
+        id="game-canvas"
+        ref="canvas"
+        @pointerdown="pointerDown($event)"
+        @pointermove="pointerMove($event)"
+        @pointerup="pointerUp($event)"
+      ></canvas>
     </div>
   </game-view>
 </template>
@@ -368,5 +423,13 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.drag-surface {
+  width: 100%;
+  height: 100%;
+  background: #00000033;
+  position: absolute;
+  display: none;
 }
 </style>
