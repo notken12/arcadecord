@@ -13,6 +13,8 @@ import { computed, onMounted, reactive, ref, getCurrentInstance, watch, watchEff
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import CannonDebugger from 'cannon-es-debugger'
+
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 import gsap from 'gsap'
@@ -37,8 +39,13 @@ const mySide = computed(() => {
   return game.value.data.sides[index]
 })
 
+const otherSide = computed(() => {
+  let index = game.value.myIndex === -1 ? 0 : game.myIndex === 0 ? 1 : 0
+  return game.value.data.sides[index]
+})
+
 const cameraRotation = computed(() => {
-  let x = -Math.PI / 5
+  let x = -Math.PI / 3.5
   let y = mySide.value.color === 'red' ? Math.PI / 2 : 0
   return {
     x,
@@ -49,8 +56,8 @@ const cameraRotation = computed(() => {
 
 const cameraPosition = computed(() => {
   let x = 0
-  let y = 0.7
-  let z = mySide.value.color === 'red' ? -0.4 : 0.4
+  let y = 0.9
+  let z = mySide.value.color === 'red' ? -0.2 : 0.2
   return {
     x,
     y,
@@ -69,6 +76,7 @@ let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, 
 let orbitControlsEnabled = true
 
 const cupObjects = []
+const cupBodies = []
 
 const canvas = ref(null)
 
@@ -87,6 +95,10 @@ const initThree = () => {
     orbitControls.dampingFactor = 0.25;
   }
 
+  const cannonDebugger = new CannonDebugger(scene, world, {
+    // options...
+  })
+
 
   // load table model
   const loader = new GLTFLoader()
@@ -103,7 +115,10 @@ const initThree = () => {
           mass: 0,
           shape: new CANNON.Box(new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)),
           position: new CANNON.Vec3(0, 0, 0),
-          material: new CANNON.Material(),
+          material: new CANNON.Material({
+            friction: 0.5,
+            restitution: 0.2
+          }),
           type: CANNON.Body.STATIC,
         })
         tableBody.position.set(0, -0.1, 0)
@@ -120,6 +135,23 @@ const initThree = () => {
       scene.add(cupObject)
       cupObjects.push(cupObject)
 
+      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
+      let cupPosition = getCupPosition(cup)
+      let cupBody = new CANNON.Body({
+        mass: 0,
+        material: new CANNON.Material({
+          friction: 1,
+          restitution: 0.2
+        }),
+        type: CANNON.Body.KINEMATIC,
+        shape,
+        offset,
+        quaternion,
+        position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
+      })
+      world.addBody(cupBody)
+      cupBodies.push(cupBody)
+
       watch(cup, () => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
@@ -134,6 +166,23 @@ const initThree = () => {
       scene.add(cupObject)
       cupObjects.push(cupObject)
 
+      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
+      let cupPosition = getCupPosition(cup)
+      let cupBody = new CANNON.Body({
+        mass: 0,
+        material: new CANNON.Material({
+          friction: 1,
+          restitution: 0.2
+        }),
+        type: CANNON.Body.KINEMATIC,
+        shape,
+        offset,
+        quaternion,
+        position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
+      })
+      world.addBody(cupBody)
+      cupBodies.push(cupBody)
+
       watch(cup, () => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
@@ -146,22 +195,31 @@ const initThree = () => {
   scene.add(ambientLight)
 
   // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 1)
+  const pointLight = new THREE.PointLight(0xffffff, 0.8)
   pointLight.position.set(0, 0.5, 0)
   scene.add(pointLight)
 
   // add ball
   ballObject = new THREE.Mesh(
     new THREE.SphereGeometry(0.02, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xffffff })
+    new THREE.MeshStandardMaterial({ color: 0xffffff })
   )
   ballObject.position.setY(0)
   scene.add(ballObject)
 
-  ballBody = new CANNON.Body({ mass: 1, type: CANNON.Body.DYNAMIC, shape: new CANNON.Sphere(0.02) })
+  ballBody = new CANNON.Body({
+    mass: 0.0027, // kg
+    type: CANNON.Body.DYNAMIC,
+    shape: new CANNON.Sphere(0.02),
+    material: new CANNON.Material({
+      friction: 0.5,
+      restitution: 0.9
+    }),
+  })
+
   ballBody.position.set(ballObject.position.x, ballObject.position.y, ballObject.position.z)
   ballBody.quaternion.set(ballObject.quaternion.x, ballObject.quaternion.y, ballObject.quaternion.z, ballObject.quaternion.w)
-  ballBody.applyForce(new CANNON.Vec3(0, 0, -10), ballBody.position)
+  ballBody.linearDamping = 0.4
 
   world.addBody(ballBody)
 
@@ -176,15 +234,51 @@ const initThree = () => {
 
       ballObject.position.copy(ballBody.position)
       ballObject.quaternion.copy(ballBody.quaternion)
+
+      if (ballBody.position.y < -2) {
+        ballBody.position.set(0, 0, 0)
+        ballBody.velocity.set(0, 0, 0)
+        ballBody.angularVelocity.set(0, 0, 0)
+      }
+
+      if (ballBody.position.y < 0.05) {
+        let nearestCup = nearestCup(ballBody.position)
+      }
     }
 
     if (orbitControls)
       orbitControls.update()
 
+    cannonDebugger.update() // Update the CannonDebugger meshes
+
     // Render THREE.js
     renderer.render(scene, camera);
   }
   animate();
+}
+
+function throwBall() {
+  ballBody?.applyForce(new CANNON.Vec3(0, 0.6, -0.26), ballBody.position)
+}
+
+function nearestCup(pos) {
+  let minDistance = Infinity
+  let nearestCup = null
+  let cupPositions = otherSide.value.cups.map(cup => {
+    let position = getCupPosition(cup)
+    return { cup: cup, position: new CANNON.Vec3(position.x, position.y, position.z) }
+  })
+  for (let cup of cupPositions) {
+    let distance = Math.abs(pos.distanceTo(cup))
+    if (distance < minDistance) {
+      minDistance = distance
+      nearestCup = cup.cup
+    }
+  }
+  return {
+    cup: nearestCup,
+    distance: minDistance
+  }
 }
 
 onMounted(() => {
@@ -241,7 +335,7 @@ onMounted(() => {
           <Side v-for="side in sides" :side="side" />
         </Scene>
       </Renderer>-->
-      <canvas id="game-canvas" ref="canvas"></canvas>
+      <canvas id="game-canvas" ref="canvas" @click="throwBall"></canvas>
     </div>
   </game-view>
 </template>
