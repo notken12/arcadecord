@@ -22,7 +22,7 @@ const cupMargin = 0.2 // cm
 const tableLength = 243.84 // cm
 
 const backOfTable = props.cup.color === 'red' ? tableLength / 2 + - tableEndMargin - radius : -tableLength / 2 + tableEndMargin + radius
-const offsetZ = props.cup.color === 'red' ? 2*radius*Math.cos(Math.PI/6) * -1 : 2*radius*Math.cos(Math.PI/6);
+const offsetZ = props.cup.color === 'red' ? 2 * radius * Math.cos(Math.PI / 6) * -1 : 2 * radius * Math.cos(Math.PI / 6);
 const offset = props.cup.color === 'red' ? -radius * 2 : radius * 2
 const cupMarginOffset = props.cup.color === 'red' ? -cupMargin : cupMargin
 

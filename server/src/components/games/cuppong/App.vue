@@ -9,12 +9,16 @@ import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 import Side from './Side.vue'
 
-import { Box, Camera, LambertMaterial, PointLight, Renderer, Scene, StandardMaterial, AmbientLight, GltfModel, Texture, Sphere } from 'troisjs';
 import { computed, onMounted, reactive, ref, getCurrentInstance, watch, watchEffect } from 'vue';
 
-import { LinearFilter } from 'three'
+import * as THREE from 'three'
+
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { useFacade } from 'components/base-ui/facade'
+import gsap from 'gsap'
+
+import { getCupPosition } from '@app/js/games/cuppong/Cup'
 
 const { game, me, $replayTurn, $endReplay } = useFacade()
 
@@ -23,14 +27,6 @@ let hint = computed(() => {
 })
 
 const sides = computed(() => game.value.data.sides)
-
-const renderer = ref(null)
-const camera = ref(null)
-const table = ref(null)
-
-function onTableLoad(model) {
-  model.children[0].material.map.minFilter = LinearFilter
-}
 
 const mySide = computed(() => {
   let index = game.value.myIndex === -1 ? 1 : game.myIndex
@@ -50,7 +46,7 @@ const cameraRotation = computed(() => {
 const cameraPosition = computed(() => {
   let x = 0
   let y = 70
-  let z = mySide.value.color === 'red' ? -50 : 50
+  let z = mySide.value.color === 'red' ? -40 : 40
   return {
     x,
     y,
@@ -58,11 +54,76 @@ const cameraPosition = computed(() => {
   }
 })
 
-watchEffect(() => {
-  if (!camera.value) return
-  camera.value.camera.rotation.set(cameraRotation.value.x, cameraRotation.value.y, cameraRotation.value.z)
-  camera.value.camera.position.set(cameraPosition.value.x, cameraPosition.value.y, cameraPosition.value.z)
-})
+const canvasWrapper = ref(null)
+
+let scene, camera, renderer, tableObject, ballObject
+
+const cupObjects = []
+
+const canvas = ref(null)
+
+const initThree = () => {
+  scene = new THREE.Scene()
+  scene.background = new THREE.Color(0xffffff)
+  camera = new THREE.PerspectiveCamera(75, canvasWrapper.value.clientWidth / canvasWrapper.value.clientHeight, 0.1, 1000)
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas.value })
+  renderer.setSize(canvasWrapper.value.clientWidth, canvasWrapper.value.clientHeight)
+
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // load table model
+  const loader = new GLTFLoader()
+  loader.load('/assets/cuppong/table.glb', (gltf) => {
+    gltf.scene.traverse((child) => {
+      if (child.isMesh) {
+        child.material.map.minFilter = THREE.LinearFilter
+        child.scale.multiplyScalar(100)
+        scene.add(child)
+
+        tableObject = child
+      }
+    })
+  })
+
+  // load cup model
+  loader.load('/assets/cuppong/cup.glb', (gltf) => {
+    gltf.scene.scale.multiplyScalar(100)
+    for (let side in sides.value) {
+      let sideCups = sides.value[side].cups
+      for (let cup of sideCups) {
+        let cupObject = gltf.scene.clone()
+        scene.add(cupObject)
+        cupObjects.push(cupObject)
+
+        watch(cup, () => {
+          let position = getCupPosition(cup)
+          cupObject.position.set(position.x, position.y, position.z)
+        }, { immediate: true })
+      }
+    }
+  })
+
+  // add ambient light
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+  scene.add(ambientLight)
+
+  // add point light
+  const pointLight = new THREE.PointLight(0xffffff, 1)
+  pointLight.position.set(0, 50, 0)
+  scene.add(pointLight)
+
+  // add ball
+  ballObject = new THREE.Mesh(
+    new THREE.SphereGeometry(2, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  )
+  scene.add(ballObject)
+}
 
 onMounted(() => {
   // let previousTime = new Date()
@@ -75,6 +136,19 @@ onMounted(() => {
   $replayTurn(() => {
     $endReplay()
   })
+
+  initThree()
+
+  watchEffect(() => {
+    camera.position.set(cameraPosition.value.x, cameraPosition.value.y, cameraPosition.value.z)
+    camera.rotation.set(cameraRotation.value.x, cameraRotation.value.y, cameraRotation.value.z)
+  })
+
+  window.addEventListener('resize', () => {
+    camera.aspect = canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(canvasWrapper.value.offsetWidth, canvasWrapper.value.offsetHeight)
+  })
 })
 </script>
 
@@ -84,9 +158,9 @@ onMounted(() => {
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
 
-    <div class="middle">
+    <div class="middle" ref="canvasWrapper">
       <!-- Game UI just for filler -->
-      <Renderer ref="renderer" antialias resize class="canvas" :orbit-ctrl="false">
+      <!-- <Renderer ref="renderer" antialias resize class="canvas" :orbit-ctrl="false">
         <Camera ref="camera" />
         <Scene background="#eeeeee">
           <AmbientLight color="#ffffff" :intensity="0.5" />
@@ -101,7 +175,8 @@ onMounted(() => {
           ></GltfModel>
           <Side v-for="side in sides" :side="side" />
         </Scene>
-      </Renderer>
+      </Renderer>-->
+      <canvas id="game-canvas" ref="canvas"></canvas>
     </div>
   </game-view>
 </template>
