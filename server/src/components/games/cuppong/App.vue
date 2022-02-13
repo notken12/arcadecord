@@ -26,7 +26,7 @@ import { useFacade } from 'components/base-ui/facade'
 
 import { getCupPosition, tableLength, tableWidth } from '@app/js/games/cuppong/Cup'
 
-const { game, me, $replayTurn, $endReplay } = useFacade()
+const { game, me, $replayTurn, $endReplay, $runAction, $endAnimation } = useFacade()
 
 let hint = computed(() => {
   return ''
@@ -35,18 +35,18 @@ let hint = computed(() => {
 const sides = computed(() => game.value.data.sides)
 
 const mySide = computed(() => {
-  let index = game.value.myIndex === -1 ? 1 : game.myIndex
+  let index = game.value.turn === -1 ? 1 : game.value.turn
   return game.value.data.sides[index]
 })
 
 const otherSide = computed(() => {
-  let index = game.value.myIndex === -1 ? 0 : game.myIndex === 0 ? 1 : 0
+  let index = game.value.turn === -1 ? 0 : game.value.turn === 0 ? 1 : 0
   return game.value.data.sides[index]
 })
 
 const cameraRotation = computed(() => {
-  let x = -Math.PI / 3.5
-  let y = mySide.value.color === 'red' ? Math.PI / 2 : 0
+  let x = mySide.value.color === 'red' ? -Math.PI / 3.5 : Math.PI / 3.5
+  let y = mySide.value.color === 'red' ? 0 : Math.PI
   return {
     x,
     y,
@@ -57,7 +57,7 @@ const cameraRotation = computed(() => {
 const cameraPosition = computed(() => {
   let x = 0
   let y = 0.9
-  let z = mySide.value.color === 'red' ? -0.2 : 0.2
+  let z = mySide.value.color === 'red' ? 0.2 : -0.2
   return {
     x,
     y,
@@ -73,7 +73,7 @@ const canvasWrapper = ref(null)
 
 let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, ballBody
 
-let orbitControlsEnabled = true
+let orbitControlsEnabled = false
 
 const cupObjects = []
 const cupBodies = []
@@ -117,7 +117,7 @@ const initThree = () => {
           position: new CANNON.Vec3(0, 0, 0),
           material: new CANNON.Material({
             friction: 0.5,
-            restitution: 0.2
+            restitution: 0.9
           }),
           type: CANNON.Body.STATIC,
         })
@@ -132,6 +132,9 @@ const initThree = () => {
     let sideCups = sides.value[0].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
+      let position = getCupPosition(cup)
+      cupObject.position.set(position.x, position.y, position.z)
+
       scene.add(cupObject)
       cupObjects.push(cupObject)
 
@@ -152,10 +155,10 @@ const initThree = () => {
       world.addBody(cupBody)
       cupBodies.push(cupBody)
 
-      watch(cup, () => {
+      watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
-      }, { immediate: true })
+      }, { immediate: true, deep: true })
     }
   })
 
@@ -183,10 +186,10 @@ const initThree = () => {
       world.addBody(cupBody)
       cupBodies.push(cupBody)
 
-      watch(cup, () => {
+      watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
-      }, { immediate: true })
+      }, { immediate: true, deep: true })
     }
   })
 
@@ -241,8 +244,23 @@ const initThree = () => {
         ballBody.angularVelocity.set(0, 0, 0)
       }
 
-      if (ballBody.position.y < 0.05) {
-        let nearestCup = nearestCup(ballBody.position)
+      if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
+        let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
+        if (cup && distance < 0.01) {
+          ballBody.position.set(0, 0, 0)
+          ballBody.velocity.set(0, 0, 0)
+          ballBody.angularVelocity.set(0, 0, 0)
+
+          $runAction('throw', {
+            force: {
+              x: 0,
+              y: 0.6,
+              z: 0.26
+            },
+            knockedCup: cup.id
+          })
+          $endAnimation(1000)
+        }
       }
     }
 
@@ -258,7 +276,7 @@ const initThree = () => {
 }
 
 function throwBall() {
-  ballBody?.applyForce(new CANNON.Vec3(0, 0.6, -0.26), ballBody.position)
+  ballBody?.applyForce(new CANNON.Vec3(0, 0.6, mySide.value.color === 'blue' ? 0.26 : -0.26), ballBody.position)
 }
 
 function nearestCup(pos) {
@@ -269,7 +287,7 @@ function nearestCup(pos) {
     return { cup: cup, position: new CANNON.Vec3(position.x, position.y, position.z) }
   })
   for (let cup of cupPositions) {
-    let distance = Math.abs(pos.distanceTo(cup))
+    let distance = Math.abs(pos.distanceTo(cup.position))
     if (distance < minDistance) {
       minDistance = distance
       nearestCup = cup.cup
@@ -304,9 +322,11 @@ onMounted(() => {
   })
 
   window.addEventListener('resize', () => {
-    camera.aspect = canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(canvasWrapper.value.offsetWidth, canvasWrapper.value.offsetHeight)
+    if (canvasWrapper.value) {
+      camera.aspect = canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(canvasWrapper.value.offsetWidth, canvasWrapper.value.offsetHeight)
+    }
   })
 })
 </script>

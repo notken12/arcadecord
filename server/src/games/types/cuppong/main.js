@@ -83,25 +83,21 @@ class CupPongGame extends Game {
                     properties: {
                         x: {
                             type: 'number',
-                            required: true
                         },
                         y: {
                             type: 'number',
-                            required: true
                         },
                         z: {
                             type: 'number',
-                            required: true
                         },
                     },
                     required: ['x', 'y', 'z']
                 },
                 knockedCup: {
                     type: 'string',
-                    required: false
                 },
-                required: ['force']
-            }
+            },
+            required: ['force']
         })
     }
 }

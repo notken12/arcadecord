@@ -44,7 +44,7 @@ export function useFacade() {
         if (replaying.value && replayTurnFuncSet) {
             console.log('[arcadecord.facade] replaying turn');
             setTimeout(() => {
-                window.requestAnimationFrame(replayTurnFunc.value)
+                window.requestAnimationFrame(replayTurnFunc)
             }, turnReplayDelay);
         }
     }
