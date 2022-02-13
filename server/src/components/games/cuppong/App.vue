@@ -67,7 +67,8 @@ const initThree = () => {
   scene.background = new THREE.Color(0xffffff)
   camera = new THREE.PerspectiveCamera(75, canvasWrapper.value.clientWidth / canvasWrapper.value.clientHeight, 0.1, 1000)
 
-  renderer = new THREE.WebGLRenderer({ canvas: canvas.value })
+  renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
+  renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(canvasWrapper.value.clientWidth, canvasWrapper.value.clientHeight)
 
   function animate() {
@@ -91,38 +92,51 @@ const initThree = () => {
   })
 
   // load cup model
-  loader.load('/assets/cuppong/cup.glb', (gltf) => {
+  loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
     gltf.scene.scale.multiplyScalar(100)
-    for (let side in sides.value) {
-      let sideCups = sides.value[side].cups
-      for (let cup of sideCups) {
-        let cupObject = gltf.scene.clone()
-        scene.add(cupObject)
-        cupObjects.push(cupObject)
+    let sideCups = sides.value[0].cups
+    for (let cup of sideCups) {
+      let cupObject = gltf.scene.clone()
+      scene.add(cupObject)
+      cupObjects.push(cupObject)
 
-        watch(cup, () => {
-          let position = getCupPosition(cup)
-          cupObject.position.set(position.x, position.y, position.z)
-        }, { immediate: true })
-      }
+      watch(cup, () => {
+        let position = getCupPosition(cup)
+        cupObject.position.set(position.x, position.y, position.z)
+      }, { immediate: true })
     }
   })
 
-  // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-  scene.add(ambientLight)
+  loader.load('/assets/cuppong/blue_cup.glb', (gltf) => {
+    gltf.scene.scale.multiplyScalar(100)
+    let sideCups = sides.value[1].cups
+    for (let cup of sideCups) {
+      let cupObject = gltf.scene.clone()
+      scene.add(cupObject)
+      cupObjects.push(cupObject)
 
-  // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 1)
-  pointLight.position.set(0, 50, 0)
-  scene.add(pointLight)
+      watch(cup, () => {
+        let position = getCupPosition(cup)
+        cupObject.position.set(position.x, position.y, position.z)
+      }, { immediate: true })
+    }
+  })
 
-  // add ball
-  ballObject = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xffffff })
-  )
-  scene.add(ballObject)
+// add ambient light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+scene.add(ambientLight)
+
+// add point light
+const pointLight = new THREE.PointLight(0xffffff, 1)
+pointLight.position.set(0, 50, 0)
+scene.add(pointLight)
+
+// add ball
+ballObject = new THREE.Mesh(
+  new THREE.SphereGeometry(2, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+)
+scene.add(ballObject)
 }
 
 onMounted(() => {
