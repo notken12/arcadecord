@@ -12,13 +12,17 @@ import Side from './Side.vue'
 import { computed, onMounted, reactive, ref, getCurrentInstance, watch, watchEffect } from 'vue';
 
 import * as THREE from 'three'
+import * as CANNON from 'cannon-es'
+import { threeToCannon, ShapeType } from 'three-to-cannon';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
-import { useFacade } from 'components/base-ui/facade'
 import gsap from 'gsap'
 
-import { getCupPosition } from '@app/js/games/cuppong/Cup'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+import { useFacade } from 'components/base-ui/facade'
+
+import { getCupPosition, tableLength, tableWidth } from '@app/js/games/cuppong/Cup'
 
 const { game, me, $replayTurn, $endReplay } = useFacade()
 
@@ -45,8 +49,8 @@ const cameraRotation = computed(() => {
 
 const cameraPosition = computed(() => {
   let x = 0
-  let y = 70
-  let z = mySide.value.color === 'red' ? -40 : 40
+  let y = 0.7
+  let z = mySide.value.color === 'red' ? -0.4 : 0.4
   return {
     x,
     y,
@@ -54,9 +58,15 @@ const cameraPosition = computed(() => {
   }
 })
 
+const world = new CANNON.World({
+  gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
+})
+
 const canvasWrapper = ref(null)
 
-let scene, camera, renderer, tableObject, ballObject
+let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, ballBody
+
+let orbitControlsEnabled = true
 
 const cupObjects = []
 
@@ -71,11 +81,12 @@ const initThree = () => {
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(canvasWrapper.value.clientWidth, canvasWrapper.value.clientHeight)
 
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+  if (orbitControlsEnabled) {
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.enableDamping = true;
+    orbitControls.dampingFactor = 0.25;
   }
-  animate();
+
 
   // load table model
   const loader = new GLTFLoader()
@@ -83,17 +94,26 @@ const initThree = () => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.material.map.minFilter = THREE.LinearFilter
-        child.scale.multiplyScalar(100)
         scene.add(child)
 
         tableObject = child
+
+        // add table body
+        tableBody = new CANNON.Body({
+          mass: 0,
+          shape: new CANNON.Box(new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)),
+          position: new CANNON.Vec3(0, 0, 0),
+          material: new CANNON.Material(),
+          type: CANNON.Body.STATIC,
+        })
+        tableBody.position.set(0, -0.1, 0)
+        world.addBody(tableBody)
       }
     })
   })
 
   // load cup model
   loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
-    gltf.scene.scale.multiplyScalar(100)
     let sideCups = sides.value[0].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
@@ -108,7 +128,6 @@ const initThree = () => {
   })
 
   loader.load('/assets/cuppong/blue_cup.glb', (gltf) => {
-    gltf.scene.scale.multiplyScalar(100)
     let sideCups = sides.value[1].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
@@ -122,21 +141,50 @@ const initThree = () => {
     }
   })
 
-// add ambient light
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-scene.add(ambientLight)
+  // add ambient light
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+  scene.add(ambientLight)
 
-// add point light
-const pointLight = new THREE.PointLight(0xffffff, 1)
-pointLight.position.set(0, 50, 0)
-scene.add(pointLight)
+  // add point light
+  const pointLight = new THREE.PointLight(0xffffff, 1)
+  pointLight.position.set(0, 0.5, 0)
+  scene.add(pointLight)
 
-// add ball
-ballObject = new THREE.Mesh(
-  new THREE.SphereGeometry(2, 16, 16),
-  new THREE.MeshBasicMaterial({ color: 0xffffff })
-)
-scene.add(ballObject)
+  // add ball
+  ballObject = new THREE.Mesh(
+    new THREE.SphereGeometry(0.02, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  )
+  ballObject.position.setY(0)
+  scene.add(ballObject)
+
+  ballBody = new CANNON.Body({ mass: 1, type: CANNON.Body.DYNAMIC, shape: new CANNON.Sphere(0.02) })
+  ballBody.position.set(ballObject.position.x, ballObject.position.y, ballObject.position.z)
+  ballBody.quaternion.set(ballObject.quaternion.x, ballObject.quaternion.y, ballObject.quaternion.z, ballObject.quaternion.w)
+  ballBody.applyForce(new CANNON.Vec3(0, 0, -10), ballBody.position)
+
+  world.addBody(ballBody)
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Step Cannon World
+    if (tableBody && ballBody) {
+      world.fixedStep()
+      // tableObject.position.copy(tableBody.position)
+      // tableObject.quaternion.copy(tableBody.quaternion)
+
+      ballObject.position.copy(ballBody.position)
+      ballObject.quaternion.copy(ballBody.quaternion)
+    }
+
+    if (orbitControls)
+      orbitControls.update()
+
+    // Render THREE.js
+    renderer.render(scene, camera);
+  }
+  animate();
 }
 
 onMounted(() => {
@@ -156,6 +204,9 @@ onMounted(() => {
   watchEffect(() => {
     camera.position.set(cameraPosition.value.x, cameraPosition.value.y, cameraPosition.value.z)
     camera.rotation.set(cameraRotation.value.x, cameraRotation.value.y, cameraRotation.value.z)
+
+    if (orbitControls)
+      orbitControls.update()
   })
 
   window.addEventListener('resize', () => {

@@ -97,7 +97,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: 'server/src/game-index.html',
+      input: path.resolve(__dirname, 'server/src/game-index.html'),
       output: {
         format: 'es',
         manualChunks(id) {
