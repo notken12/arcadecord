@@ -153,12 +153,18 @@ const initThree = () => {
         quaternion,
         position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
       })
+      if (cup.out)
+        cupBody.type = CANNON.Body.STATIC
+
       world.addBody(cupBody)
       cupBodies.push(cupBody)
 
       watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
+
+        if (cup.out)
+          cupBody.type = CANNON.Body.STATIC
       })
     }
   })
@@ -184,12 +190,18 @@ const initThree = () => {
         quaternion,
         position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
       })
+      if (cup.out)
+        cupBody.type = CANNON.Body.STATIC
+
       world.addBody(cupBody)
       cupBodies.push(cupBody)
 
       watchEffect(() => {
         let position = getCupPosition(cup)
         cupObject.position.set(position.x, position.y, position.z)
+
+        if (cup.out)
+          cupBody.type = CANNON.Body.STATIC
       })
     }
   })
@@ -229,11 +241,17 @@ const initThree = () => {
 
 
 
+  const simulationDuration = 3000
+
+  let time = new Date().getTime()
   function animate() {
     requestAnimationFrame(animate);
 
-    velocity.x *= 0.8
-    velocity.y *= 0.8
+    let deltaTime = (new Date().getTime() - time) / 1000
+    time = new Date().getTime()
+
+    velocity.x = velocity.x * (1 - deltaTime / 16 * 0.1)
+    velocity.y = velocity.y * (1 - deltaTime / 16 * 0.1)
 
     // Step Cannon World
     if (tableBody && ballBody) {
@@ -243,6 +261,17 @@ const initThree = () => {
 
       ballObject.position.copy(ballBody.position)
       ballObject.quaternion.copy(ballBody.quaternion)
+
+      if (simulationStartTime !== null) {
+        if (time - simulationStartTime > simulationDuration) {
+          simulationStartTime = null
+          velocity.x = 0
+          velocity.y = 0
+          velocity.z = 0
+          ballBody.velocity.set(0, 0, 0)
+          ballBody.angularVelocity.set(0, 0, 0)
+        }
+      }
 
       if (ballBody.position.y < -2 || (ballBody.velocity.clone().normalize() <= 0.05 && ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03)) {
         ballBody.position.set(0, 0, 0)
@@ -305,11 +334,16 @@ function nearestCup(pos) {
   }
 }
 
+let initialMousePos = { x: 0, y: 0 }
 let lastMousePos = { x: 0, y: 0 }
 let velocity = { x: 0, y: 0 }
 let delta = { x: 0, y: 0 }
 let lastTime = 0
+
+let simulationStartTime = null
+
 function pointerDown(e) {
+  initialMousePos = { x: e.clientX, y: e.clientY }
   lastMousePos = { x: e.clientX, y: e.clientY }
   lastTime = Date.now()
   velocity = { x: 0, y: 0 }
@@ -317,16 +351,18 @@ function pointerDown(e) {
 }
 
 function pointerMove(e) {
+  let time = Date.now()
+  let deltaTime = time - lastTime
   delta = {
     x: e.clientX - lastMousePos.x,
     y: e.clientY - lastMousePos.y
   }
   velocity = {
-    x: (velocity.x + delta.x) * 0.5,
-    y: (velocity.y + delta.y) * 0.5
+    x: (velocity.x + delta.x / deltaTime) / 2,
+    y: (velocity.y + delta.y / deltaTime) / 2
   }
   lastMousePos = { x: e.clientX, y: e.clientY }
-  lastTime = Date.now()
+  lastTime = time
 }
 
 function pointerUp(e) {
@@ -334,16 +370,20 @@ function pointerUp(e) {
   if (e.button === 2) return
   let time = Date.now()
   let deltaTime = time - lastTime
-  let force = {
-    x: velocity.x * -0.07,
-    y: velocity.y * -0.09
-  }
+  let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1
+  if (velocity.y >= 0) return
+  let force = new THREE.Vector3(
+    0,
+    Math.log((velocity.y * -1) + 1) / 2,
+    Math.log((velocity.y * -1) + 1) * sidePosNeg
+  )
+  // TODO: rotateAxis
   if (force.y <= 0) {
     return
   }
-  let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1
   if (ballBody?.position.distanceTo(new CANNON.Vec3(0, 0.02, 0)) <= 0.001) {
-    ballBody.applyForce(new CANNON.Vec3(force.x * sidePosNeg, force.y, 0.2 * sidePosNeg), ballBody.position)
+    ballBody.applyForce(new CANNON.Vec3(force.x, force.y, force.z), ballBody.position)
+    simulationStartTime = Date.now()
   }
 }
 
@@ -403,13 +443,13 @@ onMounted(() => {
           <Side v-for="side in sides" :side="side" />
         </Scene>
       </Renderer>-->
-      <div class="drag-surface" ref="dragSurface"></div>
       <canvas
         id="game-canvas"
         ref="canvas"
         @pointerdown="pointerDown($event)"
         @pointermove="pointerMove($event)"
         @pointerup="pointerUp($event)"
+        @touchend="pointerUp($event)"
       ></canvas>
     </div>
   </game-view>
