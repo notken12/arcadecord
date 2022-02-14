@@ -107,6 +107,8 @@ const initThree = () => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.material.map.minFilter = THREE.LinearFilter
+        child.castShadow = false
+        child.receiveShadow = true
         scene.add(child)
 
         tableObject = child
@@ -135,6 +137,8 @@ const initThree = () => {
       let cupObject = gltf.scene.clone()
       let position = getCupPosition(cup)
       cupObject.position.set(position.x, position.y, position.z)
+      cupObject.castShadow = true
+      cupObject.receiveShadow = true
 
       scene.add(cupObject)
       cupObjects.push(cupObject)
@@ -173,6 +177,11 @@ const initThree = () => {
     let sideCups = sides.value[1].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
+      let position = getCupPosition(cup)
+      cupObject.position.set(position.x, position.y, position.z)
+      cupObject.castShadow = true
+      cupObject.receiveShadow = true
+
       scene.add(cupObject)
       cupObjects.push(cupObject)
 
@@ -220,6 +229,10 @@ const initThree = () => {
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshStandardMaterial({ color: 0xffffff })
   )
+  
+  ballObject.castShadow = true
+  ballObject.receiveShadow = true
+
   ballObject.position.setY(0)
   scene.add(ballObject)
 
