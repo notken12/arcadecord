@@ -345,8 +345,9 @@ let simulationStartTime = null
 let arr_vel = []
 
 function pointerDown(e) {
-  initialMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-  lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  let { x, y } = e.touches ? e.touches[0] : e
+  initialMousePos = { x: x, y: y }
+  lastMousePos = { x: x, y: y }
   lastTime = Date.now()
   velocity = { x: 0, y: 0 }
   delta = { x: 0, y: 0 }
@@ -358,9 +359,10 @@ function pointerMove(e) {
   if (deltaTime === 0) {
     return
   }
+  let { x, y } = e.touches ? e.touches[0] : e
   delta = {
-    x: e.touches[0].clientX - lastMousePos.x,
-    y: e.touches[0].clientY - lastMousePos.y
+    x: x - lastMousePos.x,
+    y: y - lastMousePos.y
   }
   velocity = {
     x: (velocity.x + delta.x / deltaTime) / 2,
@@ -478,6 +480,9 @@ onMounted(() => {
         @touchstart="pointerDown($event)"
         @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
+        @mousedown="pointerDown($event)"
+        @mousemove="pointerMove($event)"
+        @mouseup="pointerUp($event)"
       ></canvas>
     </div>
   </game-view>
