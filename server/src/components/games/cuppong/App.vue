@@ -166,7 +166,7 @@ const initThree = () => {
       watchEffect(() => {
         let position = getCupPosition(cup)
 
-        if (cup.out) {
+        if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
           gsap.to(cupObject.position, {
             duration: 0.5,
@@ -232,7 +232,7 @@ const initThree = () => {
       watchEffect(() => {
         let position = getCupPosition(cup)
 
-        if (cup.out) {
+        if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
           gsap.to(cupObject.position, {
             duration: 0.5,
