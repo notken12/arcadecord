@@ -151,7 +151,7 @@ const initThree = () => {
           friction: 1,
           restitution: 0.5
         }),
-        type: CANNON.Body.KINEMATIC,
+        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
         shape,
         offset,
         quaternion,
@@ -165,10 +165,34 @@ const initThree = () => {
 
       watchEffect(() => {
         let position = getCupPosition(cup)
-        cupObject.position.set(position.x, position.y, position.z)
 
-        if (cup.out)
+        if (cup.out) {
           cupBody.type = CANNON.Body.STATIC
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            y: position.y,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.to(cupObject.position, {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                duration: 0.5,
+                ease: 'power3.inOut',
+              })
+            }
+          })
+        } else {
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            ease: 'power3.inOut',
+          })
+          cupBody.type = CANNON.Body.KINEMATIC
+          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
       })
     }
   })
@@ -193,7 +217,7 @@ const initThree = () => {
           friction: 1,
           restitution: 0.5
         }),
-        type: CANNON.Body.KINEMATIC,
+        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
         shape,
         offset,
         quaternion,
@@ -207,10 +231,34 @@ const initThree = () => {
 
       watchEffect(() => {
         let position = getCupPosition(cup)
-        cupObject.position.set(position.x, position.y, position.z)
 
-        if (cup.out)
+        if (cup.out) {
           cupBody.type = CANNON.Body.STATIC
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            y: position.y,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.to(cupObject.position, {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                duration: 0.5,
+                ease: 'power3.inOut',
+              })
+            }
+          })
+        } else {
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            ease: 'power3.inOut',
+          })
+          cupBody.type = CANNON.Body.KINEMATIC
+          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
       })
     }
   })
@@ -229,7 +277,7 @@ const initThree = () => {
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshStandardMaterial({ color: 0xffffff })
   )
-  
+
   ballObject.castShadow = true
   ballObject.receiveShadow = true
 

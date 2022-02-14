@@ -18,8 +18,10 @@ export function getCupPosition(cup) {
     let x = cup.rowPos * offset
     let z = backOfTable + cup.rowNum * offsetZ
     const y = 0
-    if (cup.out)
+    if (cup.out) {
         x += cup.color === 'red' ? -1 : 1
+        y += 0.15
+    }
     return { x, y, z }
 }
 
