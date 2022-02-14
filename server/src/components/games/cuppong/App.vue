@@ -103,7 +103,7 @@ const initThree = () => {
 
   // load table model
   const loader = new GLTFLoader()
-  loader.load('/assets/cuppong/table.glb', (gltf) => {
+  loader.load('/dist/gameassets/cuppong/table.glb', (gltf) => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.material.map.minFilter = THREE.LinearFilter
@@ -129,7 +129,7 @@ const initThree = () => {
   })
 
   // load cup model
-  loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
+  loader.load('/dist/gameassets/cuppong/red_cup.glb', (gltf) => {
     let sideCups = sides.value[0].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
@@ -169,7 +169,7 @@ const initThree = () => {
     }
   })
 
-  loader.load('/assets/cuppong/blue_cup.glb', (gltf) => {
+  loader.load('/dist/gameassets/cuppong/blue_cup.glb', (gltf) => {
     let sideCups = sides.value[1].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
