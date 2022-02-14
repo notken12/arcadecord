@@ -469,7 +469,7 @@ function pointerUp(e) {
     window.yForce(avgvel.y),
     window.zForce(avgvel.y) * sidePosNeg
   );
-  
+
   let yAxis = new THREE.Vector3(0, 1, 0);
   force.applyAxisAngle(yAxis, angle);
 
@@ -481,6 +481,27 @@ function pointerUp(e) {
     simulationStartTime = Date.now();
   }
 }
+
+const message = ref('')
+const overlayAnimated = ref(false)
+
+watch(mySide.value.throwsMade, (newValue, oldValue) => {
+  if (oldValue === 2 && newValue === 0) {
+    message.value = 'Balls back'
+  }
+})
+
+watch(mySide.value.inRedemption, (newValue, oldValue) => {
+  if (newValue) {
+    message.value = 'Redemption'
+  }
+})
+
+watch(message, (newValue, oldValue) => {
+  if (newValue) {
+    overlayAnimated.value = true
+  }
+})
 
 onMounted(() => {
   // let previousTime = new Date()
@@ -557,6 +578,13 @@ onMounted(() => {
         @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
       ></canvas>
+      <div
+        class="canvas-overlay"
+        @animationend="overlayAnimated = false"
+        :class="{ animated: overlayAnimated }"
+      >
+        <div class="message">{{ message }}</div>
+      </div>
     </div>
   </game-view>
 </template>
@@ -578,4 +606,17 @@ onMounted(() => {
   position: absolute;
   display: none;
 }
+
+.canvas-overlay {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
 </style>
