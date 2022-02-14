@@ -61,7 +61,7 @@ async function action_throw(game, action) {
             opponentSide.inRedemption = true;
             await GameFlow.endTurn(game)
         }
-        rearrangeCups()
+        rearrangeCups(game)
     }
 
     if (thisSide.throwCount === 2) {
