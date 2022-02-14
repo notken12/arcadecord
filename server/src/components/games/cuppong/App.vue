@@ -456,6 +456,8 @@ function pointerUp(e) {
     }
   )
 
+  let angle = Math.atan2(avgvel.x, avgvel.y * -1);
+
   avgvel.x /= cnt
   avgvel.y /= cnt
   console.log(avgvel);
@@ -467,7 +469,10 @@ function pointerUp(e) {
     window.yForce(avgvel.y),
     window.zForce(avgvel.y) * sidePosNeg
   );
-  // TODO: rotateAxis
+  
+  let yAxis = new THREE.Vector3(0, 1, 0);
+  force.applyAxisAngle(yAxis, angle);
+
   if (force.y <= 0) {
     return;
   }
