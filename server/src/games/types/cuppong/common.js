@@ -89,10 +89,40 @@ function rearrangeCups(game) {
     let cupsLeft = getCupsLeft(game.data.sides[game.turn].cups)
     let opponentsCupsLeft = getCupsLeft(game.data.sides[[1, 0][game.turn]])
 
-    if (cupsLeft.length === 6) {
+    if(cupsLeft.length === 6) {//Three Rows of Cups
+        cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
+        /////////////////////////////////////////////
+        cupsLeft[1].rowNum = 2, cupsLeft[1].rowPos = -0.5;
+        cupsLeft[2].rowNum = 2, cupsLeft[2].rowPos = 0.5;
+        /////////////////////////////////////////////
+        cupsLeft[3].rowNum = 1, cupsLeft[3].rowPos = 0;
+        cupsLeft[4].rowNum = 1, cupsLeft[4].rowPos = -1;
+        cupsLeft[5].rowNum = 1, cupsLeft[5].rowPos = 1;
+    } else if(cupsLeft.length === 3){//Two Rows of Cups
+        cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
+        /////////////////////////////////////////////
+        cupsLeft[1].rowNum = 2, cupsLeft[1].rowPos = -0.5;
+        cupsLeft[2].rowNum = 2, cupsLeft[2].rowPos = 0.5;
+    } else if(cupsLeft.length === 1){//One Cup
+        cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
+    }
 
-    } else if(cupsLeft.length === 3){
-
+    if(opponentsCupsLeft.length === 6) {//Three Rows of Cups
+        opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
+        /////////////////////////////////////////////
+        opponentsCupsLeft[1].rowNum = 2, opponentsCupsLeft[1].rowPos = -0.5;
+        opponentsCupsLeft[2].rowNum = 2, opponentsCupsLeft[2].rowPos = 0.5;
+        /////////////////////////////////////////////
+        opponentsCupsLeft[3].rowNum = 1, opponentsCupsLeft[3].rowPos = 0;
+        opponentsCupsLeft[4].rowNum = 1, opponentsCupsLeft[4].rowPos = -1;
+        opponentsCupsLeft[5].rowNum = 1, opponentsCupsLeft[5].rowPos = 1;
+    } else if(opponentsCupsLeft.length === 3){//Two Rows of Cups
+        opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
+        /////////////////////////////////////////////
+        opponentsCupsLeft[1].rowNum = 2, opponentsCupsLeft[1].rowPos = -0.5;
+        opponentsCupsLeft[2].rowNum = 2, opponentsCupsLeft[2].rowPos = 0.5;
+    } else if(opponentsCupsLeft.length === 1){//One Cup
+        opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
     }
 }
 
