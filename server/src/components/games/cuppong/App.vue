@@ -460,6 +460,8 @@ function pointerUp(e) {
   avgvel.y /= cnt
   console.log(avgvel);
 
+  arr_vel = []
+
   let force = new THREE.Vector3(
     0,
     window.yForce(avgvel.y),
@@ -488,11 +490,11 @@ onMounted(() => {
   }
 
   window.yForce = function (x) {
-    return window.getBaseLog(50, x * -3 + 1);
+    return window.getBaseLog(50, x * -0.2 + 9);
   }
 
   window.zForce = function (x) {
-    return window.getBaseLog(50, x * -1 + 1);
+    return window.getBaseLog(50, x * -0.2 + 2);
   }
 
   $replayTurn(() => {

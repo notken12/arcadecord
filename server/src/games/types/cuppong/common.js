@@ -64,9 +64,11 @@ async function action_throw(game, action) {
     }
 
     if (thisSide.throwCount === 2) {
+        if (thisSide.throwsMade !== 2) {
+            await GameFlow.endTurn(game)
+        }
         thisSide.throwCount = 0;
         thisSide.throwsMade = 0;
-        await GameFlow.endTurn(game)
     }
 
 
