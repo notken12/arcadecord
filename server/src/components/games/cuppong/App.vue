@@ -456,7 +456,7 @@ function pointerUp(e) {
     }
   )
 
-  let angle = Math.atan2(avgvel.x, avgvel.y * -1);
+  let angle = Math.atan2(avgvel.x, avgvel.y * -1) * -1;
 
   avgvel.x /= cnt
   avgvel.y /= cnt
