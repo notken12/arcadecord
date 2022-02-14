@@ -200,6 +200,9 @@ import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 
 const pubClient = createClient({ url: process.env.REDIS_URL, password: process.env.REDIS_PASSWORD });
+pubClient.on('error', (err) => {
+  console.error(`Error in redis client: ${err}`);
+})
 const subClient = pubClient.duplicate();
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {

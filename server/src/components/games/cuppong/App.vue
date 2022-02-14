@@ -9,7 +9,7 @@ import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 import Side from './Side.vue'
 
-import { computed, onMounted, reactive, ref, getCurrentInstance, watch, watchEffect } from 'vue';
+import { computed, onMounted, reactive, ref, watch, watchEffect, toRef } from 'vue';
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
@@ -101,13 +101,78 @@ const initThree = () => {
   // })
 
 
+  function addCups(sideCups, gltf) {
+    for (let cup of sideCups) {
+      let cupObject = gltf.scene.clone()
+      let position = getCupPosition(cup)
+      cupObject.position.set(position.x, position.y, position.z)
+      cupObject.castShadow = true
+      cupObject.receiveShadow = true
+
+      scene.add(cupObject)
+      cupObjects.push(cupObject)
+
+      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
+      let cupPosition = getCupPosition(cup)
+      let cupBody = new CANNON.Body({
+        mass: 0,
+        material: new CANNON.Material({
+          friction: 1,
+          restitution: 0.5
+        }),
+        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
+        shape,
+        offset,
+        quaternion,
+        position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
+      })
+      if (cup.out)
+        cupBody.type = CANNON.Body.STATIC
+
+      world.addBody(cupBody)
+      cupBodies.push(cupBody)
+
+      watchEffect(() => {
+        let position = getCupPosition(cup)
+
+        if (cup.out || cup.color === mySide.value.color) {
+          cupBody.type = CANNON.Body.STATIC
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            y: position.y,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.to(cupObject.position, {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                duration: 0.5,
+                ease: 'power3.inOut',
+              })
+            }
+          })
+        } else {
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            ease: 'power3.inOut',
+          })
+          cupBody.type = CANNON.Body.KINEMATIC
+          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
+      })
+    }
+  }
+
   // load table model
   const loader = new GLTFLoader()
   loader.load('/dist/assets/cuppong/table.glb', (gltf) => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.material.map.minFilter = THREE.LinearFilter
-        child.castShadow = false
+        child.castShadow = true
         child.receiveShadow = true
         scene.add(child)
 
@@ -133,134 +198,12 @@ const initThree = () => {
   // load cup model
   loader.load('/dist/assets/cuppong/red_cup.glb', (gltf) => {
     let sideCups = sides.value[0].cups
-    for (let cup of sideCups) {
-      let cupObject = gltf.scene.clone()
-      let position = getCupPosition(cup)
-      cupObject.position.set(position.x, position.y, position.z)
-      cupObject.castShadow = true
-      cupObject.receiveShadow = true
-
-      scene.add(cupObject)
-      cupObjects.push(cupObject)
-
-      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
-      let cupPosition = getCupPosition(cup)
-      let cupBody = new CANNON.Body({
-        mass: 0,
-        material: new CANNON.Material({
-          friction: 1,
-          restitution: 0.5
-        }),
-        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
-        shape,
-        offset,
-        quaternion,
-        position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
-      })
-      if (cup.out)
-        cupBody.type = CANNON.Body.STATIC
-
-      world.addBody(cupBody)
-      cupBodies.push(cupBody)
-
-      watchEffect(() => {
-        let position = getCupPosition(cup)
-
-        if (cup.out || cup.color === mySide.value.color) {
-          cupBody.type = CANNON.Body.STATIC
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            y: position.y,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              gsap.to(cupObject.position, {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                duration: 0.5,
-                ease: 'power3.inOut',
-              })
-            }
-          })
-        } else {
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            ease: 'power3.inOut',
-          })
-          cupBody.type = CANNON.Body.KINEMATIC
-          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
-        }
-      })
-    }
+    addCups(sideCups, gltf)
   })
 
   loader.load('/dist/assets/cuppong/blue_cup.glb', (gltf) => {
     let sideCups = sides.value[1].cups
-    for (let cup of sideCups) {
-      let cupObject = gltf.scene.clone()
-      let position = getCupPosition(cup)
-      cupObject.position.set(position.x, position.y, position.z)
-      cupObject.castShadow = true
-      cupObject.receiveShadow = true
-
-      scene.add(cupObject)
-      cupObjects.push(cupObject)
-
-      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
-      let cupPosition = getCupPosition(cup)
-      let cupBody = new CANNON.Body({
-        mass: 0,
-        material: new CANNON.Material({
-          friction: 1,
-          restitution: 0.5
-        }),
-        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
-        shape,
-        offset,
-        quaternion,
-        position: new CANNON.Vec3(cupPosition.x, cupPosition.y + 0.117, cupPosition.z),
-      })
-      if (cup.out)
-        cupBody.type = CANNON.Body.STATIC
-
-      world.addBody(cupBody)
-      cupBodies.push(cupBody)
-
-      watchEffect(() => {
-        let position = getCupPosition(cup)
-
-        if (cup.out || cup.color === mySide.value.color) {
-          cupBody.type = CANNON.Body.STATIC
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            y: position.y,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              gsap.to(cupObject.position, {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                duration: 0.5,
-                ease: 'power3.inOut',
-              })
-            }
-          })
-        } else {
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            ease: 'power3.inOut',
-          })
-          cupBody.type = CANNON.Body.KINEMATIC
-          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
-        }
-      })
-    }
+    addCups(sideCups, gltf)
   })
 
   // add ambient light
@@ -304,6 +247,24 @@ const initThree = () => {
 
   const simulationDuration = 3000
 
+  function endSimulation(throwForce, knockedCup) {
+    simulationStartTime = null
+
+    velocity.x = 0
+    velocity.y = 0
+    velocity.z = 0
+
+    ballBody.position.set(0, 0, 0)
+    ballBody.velocity.set(0, 0, 0)
+    ballBody.angularVelocity.set(0, 0, 0)
+
+    $runAction('throw', {
+      force: throwForce,
+      knockedCup: knockedCup?.id || undefined
+    })
+    $endAnimation(1000)
+  }
+
   let time = new Date().getTime()
   function animate() {
     requestAnimationFrame(animate);
@@ -317,44 +278,6 @@ const initThree = () => {
       // tableObject.position.copy(tableBody.position)
       // tableObject.quaternion.copy(tableBody.quaternion)
 
-      ballObject.position.copy(ballBody.position)
-      ballObject.quaternion.copy(ballBody.quaternion)
-
-      if (simulationStartTime !== null) {
-        if (time - simulationStartTime > simulationDuration) {
-          simulationStartTime = null
-          velocity.x = 0
-          velocity.y = 0
-          velocity.z = 0
-          ballBody.velocity.set(0, 0, 0)
-          ballBody.angularVelocity.set(0, 0, 0)
-        }
-      }
-
-      if (ballBody.position.y < -2 || (ballBody.velocity.clone().normalize() <= 0.05 && ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03)) {
-        ballBody.position.set(0, 0, 0)
-        ballBody.velocity.set(0, 0, 0)
-        ballBody.angularVelocity.set(0, 0, 0)
-      }
-
-      if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
-        let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
-        if (cup && distance < 0.01) {
-          ballBody.position.set(0, 0, 0)
-          ballBody.velocity.set(0, 0, 0)
-          ballBody.angularVelocity.set(0, 0, 0)
-
-          $runAction('throw', {
-            force: {
-              x: 0,
-              y: 0.6,
-              z: 0.26
-            },
-            knockedCup: cup.id
-          })
-          $endAnimation(1000)
-        }
-      }
     }
 
     if (orbitControls)
@@ -364,6 +287,31 @@ const initThree = () => {
 
     // Render THREE.js
     renderer.render(scene, camera);
+
+    ballObject.position.copy(ballBody.position)
+    ballObject.quaternion.copy(ballBody.quaternion)
+
+    if (ballBody.position.y < -2 ||
+      (ballBody.velocity.clone().normalize() <= 0.05 &&
+        ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03)) {
+      endSimulation(throwForce)
+      return
+    }
+
+    if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
+      let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
+      if (cup && distance < 0.01) {
+        endSimulation(throwForce, cup)
+        return
+      }
+    }
+
+    if (simulationStartTime !== null) {
+      if (time - simulationStartTime > simulationDuration) {
+        endSimulation(throwForce)
+        return
+      }
+    }
   }
   animate();
 }
@@ -398,6 +346,8 @@ let velocity = { x: 0, y: 0 }
 let delta = { x: 0, y: 0 }
 let lastTime = 0
 
+let throwForce = { x: 0, y: 0, z: 0 }
+
 let simulationStartTime = null
 
 let arr_vel = []
@@ -429,7 +379,7 @@ function pointerMove(e) {
   if (velocity.y >= 0) {
     arr_vel = []
   }
-  lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  lastMousePos = { x: x, y: y }
   lastTime = time
   arr_vel.unshift({ x: velocity.x, y: velocity.y })
 }
@@ -441,7 +391,6 @@ function pointerUp(e) {
   let time = Date.now();
   let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1;
   let cnt = 8;
-  console.log(arr_vel.length);
 
   if (arr_vel.length < cnt) return;
 
@@ -462,7 +411,6 @@ function pointerUp(e) {
 
   avgvel.x /= cnt
   avgvel.y /= cnt
-  console.log(avgvel);
 
   arr_vel = []
 
@@ -479,6 +427,7 @@ function pointerUp(e) {
     return;
   }
   if (ballBody?.position.distanceTo(new CANNON.Vec3(0, 0.02, 0)) <= 0.001) {
+    throwForce = force
     ballBody.applyForce(new CANNON.Vec3(force.x, force.y, force.z), ballBody.position);
     simulationStartTime = Date.now();
   }
@@ -487,13 +436,13 @@ function pointerUp(e) {
 const message = ref('')
 const overlayAnimated = ref(false)
 
-watch(mySide.value.throwsMade, (newValue, oldValue) => {
+watch(toRef(mySide, 'throwsMade'), (newValue, oldValue) => {
   if (oldValue === 2 && newValue === 0) {
     message.value = 'Balls back'
   }
 })
 
-watch(mySide.value.inRedemption, (newValue, oldValue) => {
+watch(toRef(mySide, 'inRedemption'), (newValue, oldValue) => {
   if (newValue) {
     message.value = 'Redemption'
   }
@@ -622,6 +571,4 @@ onMounted(() => {
   opacity: 0;
   pointer-events: none;
 }
-
-
 </style>
