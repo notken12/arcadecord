@@ -311,9 +311,6 @@ const initThree = () => {
     let deltaTime = (new Date().getTime() - time) / 1000
     time = new Date().getTime()
 
-    velocity.x = velocity.x * (1 - deltaTime / 16 * 0.1)
-    velocity.y = velocity.y * (1 - deltaTime / 16 * 0.1)
-
     // Step Cannon World
     if (tableBody && ballBody) {
       world.fixedStep()
@@ -435,11 +432,8 @@ function pointerMove(e) {
   arr_vel.unshift({ x: velocity.x, y: velocity.y })
 }
 
-function getBaseLog(x, y) {
-  return Math.log(y) / Math.log(x);
-}
-
 function pointerUp(e) {
+
   // only if it isn't right click
   if (e.button === 2) return;
   let time = Date.now();
@@ -468,8 +462,8 @@ function pointerUp(e) {
 
   let force = new THREE.Vector3(
     0,
-    getBaseLog(50, avgvel.y * -3.5 + 1),
-    getBaseLog(50, avgvel.y * -1.5 + 1) * sidePosNeg
+    window.yForce(avgvel.y),
+    window.zForce(avgvel.y) * sidePosNeg
   );
   // TODO: rotateAxis
   if (force.y <= 0) {
@@ -489,6 +483,18 @@ onMounted(() => {
   //   const elapsed = new Date() - previousTime
   //   previousTime = time
   // })
+  window.getBaseLog = function (x, y) {
+    return Math.log(y) / Math.log(x);
+  }
+
+  window.yForce = function (x) {
+    return window.getBaseLog(50, x * -3 + 1);
+  }
+
+  window.zForce = function (x) {
+    return window.getBaseLog(50, x * -1 + 1);
+  }
+
   $replayTurn(() => {
     $endReplay()
   })
