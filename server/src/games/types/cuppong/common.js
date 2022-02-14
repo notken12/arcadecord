@@ -61,7 +61,7 @@ async function action_throw(game, action) {
     }
 
     if(thisSide.throwCount === 2){
-        if(thisSide.throwCount !== 2){
+        if(thisSide.throwsMade !== 2){
             await GameFlow.endTurn(game)
         }
         thisSide.throwCount = 0;
@@ -86,6 +86,8 @@ function rearrangeCups(game){
 
     if(cupsLeft.length === 6){
 
+    } else if(cupsLeft.length === 3){
+        
     }
 }
 
