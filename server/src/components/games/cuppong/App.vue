@@ -435,12 +435,16 @@ function pointerMove(e) {
   arr_vel.unshift({ x: velocity.x, y: velocity.y })
 }
 
+function getBaseLog(x, y) {
+  return Math.log(y) / Math.log(x);
+}
+
 function pointerUp(e) {
   // only if it isn't right click
   if (e.button === 2) return;
   let time = Date.now();
   let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1;
-  let cnt = 5;
+  let cnt = 8;
   console.log(arr_vel.length);
 
   if (arr_vel.length < cnt) return;
@@ -464,8 +468,8 @@ function pointerUp(e) {
 
   let force = new THREE.Vector3(
     0,
-    Math.log10((avgvel.y * -1.5)),
-    Math.log10((avgvel.y * -1)) * sidePosNeg
+    getBaseLog(50, avgvel.y * -3.5 + 1),
+    getBaseLog(50, avgvel.y * -1.5 + 1) * sidePosNeg
   );
   // TODO: rotateAxis
   if (force.y <= 0) {
