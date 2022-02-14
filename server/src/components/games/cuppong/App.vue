@@ -342,9 +342,11 @@ let lastTime = 0
 
 let simulationStartTime = null
 
+let arr_vel = []
+
 function pointerDown(e) {
-  initialMousePos = { x: e.clientX, y: e.clientY }
-  lastMousePos = { x: e.clientX, y: e.clientY }
+  initialMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   lastTime = Date.now()
   velocity = { x: 0, y: 0 }
   delta = { x: 0, y: 0 }
@@ -353,37 +355,64 @@ function pointerDown(e) {
 function pointerMove(e) {
   let time = Date.now()
   let deltaTime = time - lastTime
+  if (deltaTime === 0) {
+    return
+  }
   delta = {
-    x: e.clientX - lastMousePos.x,
-    y: e.clientY - lastMousePos.y
+    x: e.touches[0].clientX - lastMousePos.x,
+    y: e.touches[0].clientY - lastMousePos.y
   }
   velocity = {
     x: (velocity.x + delta.x / deltaTime) / 2,
     y: (velocity.y + delta.y / deltaTime) / 2
   }
-  lastMousePos = { x: e.clientX, y: e.clientY }
+  if (velocity.y >= 0) {
+    arr_vel = []
+  }
+  lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   lastTime = time
+  arr_vel.unshift({ x: velocity.x, y: velocity.y })
 }
 
 function pointerUp(e) {
   // only if it isn't right click
-  if (e.button === 2) return
-  let time = Date.now()
-  let deltaTime = time - lastTime
-  let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1
-  if (velocity.y >= 0) return
+  if (e.button === 2) return;
+  let time = Date.now();
+  let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1;
+  let cnt = 5;
+  console.log(arr_vel.length);
+
+  if (arr_vel.length < cnt) return;
+
+
+  let avgvel = arr_vel.slice(0, cnt).reduce((acc, curr) => {
+    return {
+      x: acc.x + curr.x,
+      y: acc.y + curr.y
+    }
+  },
+    {
+      x: 0,
+      y: 0
+    }
+  )
+
+  avgvel.x /= cnt
+  avgvel.y /= cnt
+  console.log(avgvel);
+
   let force = new THREE.Vector3(
     0,
-    Math.log((velocity.y * -1) + 1) / 2,
-    Math.log((velocity.y * -1) + 1) * sidePosNeg
-  )
+    Math.log10((avgvel.y * -1.5)),
+    Math.log10((avgvel.y * -1)) * sidePosNeg
+  );
   // TODO: rotateAxis
   if (force.y <= 0) {
-    return
+    return;
   }
   if (ballBody?.position.distanceTo(new CANNON.Vec3(0, 0.02, 0)) <= 0.001) {
-    ballBody.applyForce(new CANNON.Vec3(force.x, force.y, force.z), ballBody.position)
-    simulationStartTime = Date.now()
+    ballBody.applyForce(new CANNON.Vec3(force.x, force.y, force.z), ballBody.position);
+    simulationStartTime = Date.now();
   }
 }
 
@@ -446,9 +475,8 @@ onMounted(() => {
       <canvas
         id="game-canvas"
         ref="canvas"
-        @pointerdown="pointerDown($event)"
-        @pointermove="pointerMove($event)"
-        @pointerup="pointerUp($event)"
+        @touchstart="pointerDown($event)"
+        @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
       ></canvas>
     </div>
