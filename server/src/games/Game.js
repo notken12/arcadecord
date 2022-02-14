@@ -106,6 +106,9 @@ class Game {
         }
     }
     //methods
+    test() {
+        this.eventHandlers = {};
+    }
     setGuild(guild) {
         this.guild = guild;
     }
