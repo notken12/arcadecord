@@ -103,10 +103,12 @@ const initThree = () => {
 
   // load table model
   const loader = new GLTFLoader()
-  loader.load('/assets/cuppong/table.glb', (gltf) => {
+  loader.load('/dist/assets/cuppong/table.glb', (gltf) => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         child.material.map.minFilter = THREE.LinearFilter
+        child.castShadow = false
+        child.receiveShadow = true
         scene.add(child)
 
         tableObject = child
@@ -129,12 +131,14 @@ const initThree = () => {
   })
 
   // load cup model
-  loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
+  loader.load('/dist/assets/cuppong/red_cup.glb', (gltf) => {
     let sideCups = sides.value[0].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
       let position = getCupPosition(cup)
       cupObject.position.set(position.x, position.y, position.z)
+      cupObject.castShadow = true
+      cupObject.receiveShadow = true
 
       scene.add(cupObject)
       cupObjects.push(cupObject)
@@ -147,7 +151,7 @@ const initThree = () => {
           friction: 1,
           restitution: 0.5
         }),
-        type: CANNON.Body.KINEMATIC,
+        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
         shape,
         offset,
         quaternion,
@@ -161,18 +165,47 @@ const initThree = () => {
 
       watchEffect(() => {
         let position = getCupPosition(cup)
-        cupObject.position.set(position.x, position.y, position.z)
 
-        if (cup.out)
+        if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            y: position.y,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.to(cupObject.position, {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                duration: 0.5,
+                ease: 'power3.inOut',
+              })
+            }
+          })
+        } else {
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            ease: 'power3.inOut',
+          })
+          cupBody.type = CANNON.Body.KINEMATIC
+          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
       })
     }
   })
 
-  loader.load('/assets/cuppong/blue_cup.glb', (gltf) => {
+  loader.load('/dist/assets/cuppong/blue_cup.glb', (gltf) => {
     let sideCups = sides.value[1].cups
     for (let cup of sideCups) {
       let cupObject = gltf.scene.clone()
+      let position = getCupPosition(cup)
+      cupObject.position.set(position.x, position.y, position.z)
+      cupObject.castShadow = true
+      cupObject.receiveShadow = true
+
       scene.add(cupObject)
       cupObjects.push(cupObject)
 
@@ -184,7 +217,7 @@ const initThree = () => {
           friction: 1,
           restitution: 0.5
         }),
-        type: CANNON.Body.KINEMATIC,
+        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
         shape,
         offset,
         quaternion,
@@ -198,10 +231,34 @@ const initThree = () => {
 
       watchEffect(() => {
         let position = getCupPosition(cup)
-        cupObject.position.set(position.x, position.y, position.z)
 
-        if (cup.out)
+        if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            y: position.y,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              gsap.to(cupObject.position, {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                duration: 0.5,
+                ease: 'power3.inOut',
+              })
+            }
+          })
+        } else {
+          gsap.to(cupObject.position, {
+            duration: 0.5,
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            ease: 'power3.inOut',
+          })
+          cupBody.type = CANNON.Body.KINEMATIC
+          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
       })
     }
   })
@@ -220,6 +277,10 @@ const initThree = () => {
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshStandardMaterial({ color: 0xffffff })
   )
+
+  ballObject.castShadow = true
+  ballObject.receiveShadow = true
+
   ballObject.position.setY(0)
   scene.add(ballObject)
 
@@ -249,9 +310,6 @@ const initThree = () => {
 
     let deltaTime = (new Date().getTime() - time) / 1000
     time = new Date().getTime()
-
-    velocity.x = velocity.x * (1 - deltaTime / 16 * 0.1)
-    velocity.y = velocity.y * (1 - deltaTime / 16 * 0.1)
 
     // Step Cannon World
     if (tableBody && ballBody) {
@@ -377,11 +435,12 @@ function pointerMove(e) {
 }
 
 function pointerUp(e) {
+
   // only if it isn't right click
   if (e.button === 2) return;
   let time = Date.now();
   let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1;
-  let cnt = 5;
+  let cnt = 8;
   console.log(arr_vel.length);
 
   if (arr_vel.length < cnt) return;
@@ -399,16 +458,23 @@ function pointerUp(e) {
     }
   )
 
+  let angle = Math.atan2(avgvel.x, avgvel.y * -1) * -1;
+
   avgvel.x /= cnt
   avgvel.y /= cnt
   console.log(avgvel);
 
+  arr_vel = []
+
   let force = new THREE.Vector3(
     0,
-    Math.log10((avgvel.y * -1.5)),
-    Math.log10((avgvel.y * -1)) * sidePosNeg
+    window.yForce(avgvel.y),
+    window.zForce(avgvel.y) * sidePosNeg
   );
-  // TODO: rotateAxis
+
+  let yAxis = new THREE.Vector3(0, 1, 0);
+  force.applyAxisAngle(yAxis, angle);
+
   if (force.y <= 0) {
     return;
   }
@@ -418,6 +484,27 @@ function pointerUp(e) {
   }
 }
 
+const message = ref('')
+const overlayAnimated = ref(false)
+
+watch(mySide.value.throwsMade, (newValue, oldValue) => {
+  if (oldValue === 2 && newValue === 0) {
+    message.value = 'Balls back'
+  }
+})
+
+watch(mySide.value.inRedemption, (newValue, oldValue) => {
+  if (newValue) {
+    message.value = 'Redemption'
+  }
+})
+
+watch(message, (newValue, oldValue) => {
+  if (newValue) {
+    overlayAnimated.value = true
+  }
+})
+
 onMounted(() => {
   // let previousTime = new Date()
   // const d = 1
@@ -426,6 +513,18 @@ onMounted(() => {
   //   const elapsed = new Date() - previousTime
   //   previousTime = time
   // })
+  window.getBaseLog = function (x, y) {
+    return Math.log(y) / Math.log(x);
+  }
+
+  window.yForce = function (x) {
+    return window.getBaseLog(50, x * -0.2 + 9);
+  }
+
+  window.zForce = function (x) {
+    return window.getBaseLog(50, x * -0.2 + 2);
+  }
+
   $replayTurn(() => {
     $endReplay()
   })
@@ -484,6 +583,13 @@ onMounted(() => {
         @mousemove="pointerMove($event)"
         @mouseup="pointerUp($event)"
       ></canvas>
+      <div
+        class="canvas-overlay"
+        @animationend="overlayAnimated = false"
+        :class="{ animated: overlayAnimated }"
+      >
+        <div class="message">{{ message }}</div>
+      </div>
     </div>
   </game-view>
 </template>
@@ -505,4 +611,17 @@ onMounted(() => {
   position: absolute;
   display: none;
 }
+
+.canvas-overlay {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
 </style>

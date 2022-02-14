@@ -31,6 +31,7 @@ async function* getFiles(dir) {
 var walk = function (dir) {
   // Get all .html files
   var results = [];
+  if (dir.endsWith('/games/types')) return results;
   var list = fs.readdirSync(dir);
   list.forEach(function (file) {
     file = dir + '/' + file;
@@ -97,7 +98,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: path.resolve(__dirname, 'server/src/game-index.html'),
+      input: entryPoints,
       output: {
         format: 'es',
         manualChunks(id) {
