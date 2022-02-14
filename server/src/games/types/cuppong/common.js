@@ -38,7 +38,7 @@ async function action_throw(game, action) {
     let thisSide = game.data.sides[game.turn]
 
     if (!hitCupID) {
-        game.data.throwCount += 1;
+        thisSide.throwCount += 1;
         if (thisSide.inRedemption && thisSide.throwCount === 2) { //Failed Redemption
             await GameFlow.end(game, {
                 winner: [1, 0][game.turn]

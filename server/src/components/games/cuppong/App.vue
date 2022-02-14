@@ -26,7 +26,7 @@ import { useFacade } from 'components/base-ui/facade'
 
 import { getCupPosition, tableLength, tableWidth } from '@app/js/games/cuppong/Cup'
 
-const { game, me, $replayTurn, $endReplay, $runAction, $endAnimation } = useFacade()
+const { game, me, replaying, runningAction, $replayTurn, $endReplay, $runAction, $endAnimation } = useFacade()
 
 let hint = computed(() => {
   return ''
@@ -385,6 +385,9 @@ function pointerMove(e) {
 }
 
 function pointerUp(e) {
+  if (replaying.value || runningAction.value || simulationStartTime !== null) {
+    return
+  }
 
   // only if it isn't right click
   if (e.button === 2) return;
@@ -570,5 +573,36 @@ onMounted(() => {
   bottom: 0;
   opacity: 0;
   pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message {
+  background: #2e2e2e;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.canvas-overlay.animated {
+  animation: fadeInOut 1s;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>

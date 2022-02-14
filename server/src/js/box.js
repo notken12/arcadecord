@@ -46,7 +46,7 @@ const facade = createStore({
                 // Set turn back to the last turn
                 state.game.turn = cloneDeep(state.game.turns[state.game.turns.length - 1].playerIndex);
                 // Set myIndex to the previous turn's playerIndex
-                state.game.myIndex = state.game.turn;
+                state.game.myIndex = cloneDeep(state.game.turns[state.game.turns.length - 1].playerIndex);
                 // Tell Vue app to handle turn replay animations
                 state.replaying = true;
                 bus.emit('facade:replay-turn');
