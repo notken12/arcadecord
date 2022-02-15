@@ -52,7 +52,7 @@ var walk = function (dir) {
 
 const entryPoints = walk(path.resolve(__dirname, 'server/src'));
 
-const nonSharedModules = ['enable3d', 'three'];
+const nonSharedModules = ['enable3d', 'three', 'three-to-cannon', 'cannon-es', 'troisjs', 'cannon-es-debugger'];
 
 const { dependencies } = JSON.parse(fs.readFileSync('./package.json'));
 const nodeDependencies = Object.keys(dependencies);
