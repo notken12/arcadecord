@@ -417,7 +417,7 @@ let simulationStartTime = null
 let arr_vel = []
 
 function pointerDown(e) {
-  let { x, y } = e.touches ? e.touches[0] : e
+  let { x, y } = e
   initialMousePos = { x: x, y: y }
   lastMousePos = { x: x, y: y }
   lastTime = Date.now()
@@ -431,7 +431,7 @@ function pointerMove(e) {
   if (deltaTime === 0) {
     return
   }
-  let { x, y } = e.touches ? e.touches[0] : e
+  let { x, y } = e
   delta = {
     x: x - lastMousePos.x,
     y: y - lastMousePos.y
@@ -564,12 +564,9 @@ onMounted(() => {
       <canvas
         id="game-canvas"
         ref="canvas"
-        @touchstart="pointerDown($event)"
-        @touchmove="pointerMove($event)"
-        @touchend="pointerUp($event)"
-        @mousedown="pointerDown($event)"
-        @mousemove="pointerMove($event)"
-        @mouseup="pointerUp($event)"
+        @pointerdown="pointerDown($event)"
+        @pointermove="pointerMove($event)"
+        @pointerup="pointerUp($event)"
       ></canvas>
       <div
         class="canvas-overlay"
