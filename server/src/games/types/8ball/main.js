@@ -15,27 +15,27 @@ const options = {
     maxPlayers: 2,
     emoji: '🎱',
     data: {
-        
+
     }
 }
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
 class EightBallGame extends Game {
-    constructor (config) {
+    constructor(config) {
         // Creates a game with the options
         // Required
         super(options, config); // Config is the options given by the user, and other things like the channel and guild
-        
+
 
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
+    }
 
-        this.on('init', function (game) {
-            game.data = {
-                test: 'mango'
-            };
-        });
+    onInit(game) {
+        game.data = {
+            test: 'mango'
+        };
     }
 }
 

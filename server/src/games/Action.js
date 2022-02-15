@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
 class Action {
-    constructor(type, userId, data, game) {
+    constructor(type, data, userId) {
         this.id = randomUUID();
 
         this.type = type;
@@ -11,7 +11,6 @@ class Action {
 
         this.data = data;
 
-        this.playerIndex = game.getPlayerIndex(userId);
     }
 
     getDataForClient() {

@@ -27,24 +27,6 @@ class Chess extends Game {
     const frontRow = 'pppppppp'
     const backRow = 'rnbqkbnr'
 
-    this.on('init', (game) => {
-      game.data.drawoffered = [false, undefined] //[Draw offered or not: bool, Player who offered draw: 0 or 1]
-      game.data.previousMoves = [];
-      game.data.previousBoardPos = [];
-      game.data.board = [];
-      game.data.colors = [1, 0];
-
-      for (let color = 0; color < 2; color++) {
-        for (let file = 0; file < 8; file++) {
-          let frontRowRank = color === 0 ? 1 : 6;
-          let backRowRank = color === 0 ? 0 : 7;
-          game.data.board.push(new Common.Piece(`${frontRow[file]}${color}:${file}-${frontRowRank}`, color, frontRow[file], file, frontRowRank));
-          game.data.board.push(new Common.Piece(`${backRow[file]}${color}:${file}-${backRowRank}`, color, backRow[file], file, backRowRank));
-        }
-      }
-      return game;
-    })
-
     this.on('init', Game.eventHandlersDiscord.init);
     this.on('turn', Game.eventHandlersDiscord.turn);
 
@@ -93,6 +75,24 @@ class Chess extends Game {
     // this.setActionModel("offerDraw", Common.offerDraw)
     // this.setActionModel("drawDecision", Common.drawDecision)
     // this.setActionModel("cancelDraw", Common.cancelDraw)
+  }
+
+  onInit(game) {
+    game.data.drawoffered = [false, undefined] //[Draw offered or not: bool, Player who offered draw: 0 or 1]
+    game.data.previousMoves = [];
+    game.data.previousBoardPos = [];
+    game.data.board = [];
+    game.data.colors = [1, 0];
+
+    for (let color = 0; color < 2; color++) {
+      for (let file = 0; file < 8; file++) {
+        let frontRowRank = color === 0 ? 1 : 6;
+        let backRowRank = color === 0 ? 0 : 7;
+        game.data.board.push(new Common.Piece(`${frontRow[file]}${color}:${file}-${frontRowRank}`, color, frontRow[file], file, frontRowRank));
+        game.data.board.push(new Common.Piece(`${backRow[file]}${color}:${file}-${backRowRank}`, color, backRow[file], file, backRowRank));
+      }
+    }
+    return game;
   }
 }
 

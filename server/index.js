@@ -351,7 +351,7 @@ io.on('connection', (socket) => {
       var oldTurn = game.turn + 0;
 
       // perform action
-      var action = new Action(type, userId, data, game);
+      var action = new Action(type, data, userId);
       var result = await game.handleAction(action);
 
       if (!result) {

@@ -8,6 +8,7 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
+    "test": "jest",
     "build": "npx vite build",
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",

@@ -1,4 +1,3 @@
-import { SnowflakeUtil, MessageAttachment } from 'discord.js'
 import { config } from 'dotenv'
 import Player from './Player.js'
 import Action from './Action.js'
@@ -54,6 +53,7 @@ class Game {
     this.actionModels = {} // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
     this.actionSchemas = {} // action data schemas to enforce. helps with debugging and protects against attacks
     this.previousData = {} // snapshot of game data before the last turn
+    this.invitedUsers = [] // discord IDs of users that have been invited to join the game, reserved spots
 
     // async actionModel (action, game) {
     // action: information about action
@@ -67,10 +67,12 @@ class Game {
 
     this.io = null
 
+    let game = this
+
     this.client = {
       eventHandlers: {},
       emit: function (event, ...args) {
-        if (this.testing) return
+        if (game.testing) return
         if (!this.eventHandlers[event]) return
 
         for (let callback of this.eventHandlers[event]) {
@@ -139,6 +141,7 @@ class Game {
     this.actionHandlers[action].push(callback)
   }
   async emit(event, ...args) {
+    if (this.testing) return
     if (!this.eventHandlers[event]) return
 
     for (let callback of this.eventHandlers[event]) {
@@ -147,12 +150,18 @@ class Game {
     return true
   }
   async handleAction(action) {
+    action.playerIndex = this.getPlayerIndex(action.userId)
+    if (action.playerIndex === -1) return { success: false, error: 'player not found' }
+
     let actionSchema = this.actionSchemas[action.type]
     if (actionSchema) {
       const validate = ajv.compile(actionSchema)
       const valid = validate(action.data)
-      console.log('valid', valid)
       if (!valid) {
+        if (this.testing) {
+          throw new Error('Action data does not follow schema: ' + validate.errors)
+        }
+        console.warn('Action data does not follow schema: ' + validate.errors)
         return {
           success: false,
           message: 'Invalid action data',
@@ -162,10 +171,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-          action.type +
-          '" to game: "' +
-          this.typeId +
-          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+        action.type +
+        '" to game: "' +
+        this.typeId +
+        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       )
     }
 
@@ -293,7 +302,11 @@ class Game {
     }
   }
   async init() {
+    await this.onInit(this)
     await this.emit('init')
+  }
+  async onInit(game) {
+    return game
   }
   async doesUserHavePermission(id) {
     var dbUser = await db.users.getById(id)
@@ -401,7 +414,7 @@ class Game {
     }
   }
 
-  getImage() {}
+  getImage() { }
 
   getChanges(oldData, newData) {
     var changes = {}
@@ -454,7 +467,7 @@ class Game {
     return game
   }
 
-  getThumbnail() {}
+  getThumbnail() { }
 }
 
 Game.eventHandlersDiscord = {
@@ -535,9 +548,8 @@ Game.eventHandlersDiscord = {
     var lastPlayer = game.turns[game.turns.length - 1].playerIndex
 
     var m = {
-      content: `${Emoji.ICON_ROUND} <@${
-        game.players[lastPlayer].discordUser.id
-      }>: *${game.emoji + ' ' || ''}${game.name}*`,
+      content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id
+        }>: *${game.emoji + ' ' || ''}${game.name}*`,
       allowedMentions: {
         parse: [],
       },
