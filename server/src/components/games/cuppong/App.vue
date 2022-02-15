@@ -81,6 +81,58 @@ const cupBodies = []
 
 const canvas = ref(null)
 
+const message = ref('')
+const overlayAnimated = ref(false)
+
+let lastThrowsMade = 0
+let lastThrowCount = 0
+
+// watch(() => ({...mySide.value}), (newValue, oldValue) => {
+//   console.log('balls back watcher')
+//   console.log(lastThrowsMade, newValue.throwsMade)
+//   console.log(oldValue, newValue)
+//   if (lastThrowsMade === 2 && newValue.throwsMade === 0) {
+//     console.log('balls back')
+//     message.value = 'Balls back'
+//   }
+//   if (newValue.inRedemption) {
+//     message.value = 'Redemption'
+//   }
+//   lastThrowsMade = newValue.throwsMade + 0
+// }, { deep: true, flush: 'post' })
+
+watch(() => mySide.value.throwsMade, (newValue, oldValue) => {
+  console.log('throws made watcher')
+  if (oldValue > 0 && newValue === 0 && game.value.turn === game.value.myIndex) {
+    console.log('balls back')
+    message.value = 'Balls back'
+  }
+
+}, { deep: true, flush: 'post' })
+
+watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
+  console.log('in redemption watcher')
+  if (newValue) {
+    console.log('redemption')
+    message.value = 'Redemption'
+  }
+
+}, { deep: true, flush: 'post' })
+
+// watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
+//   console.log('redemption')
+//   if (newValue) {
+//     message.value = 'Redemption'
+//   }
+// }, { deep: true })
+
+watch(message, (newValue, oldValue) => {
+  console.log(newValue)
+  if (newValue) {
+    overlayAnimated.value = true
+  }
+})
+
 const initThree = () => {
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xaaaaaa)
@@ -133,9 +185,14 @@ const initThree = () => {
       cupBodies.push(cupBody)
 
       watchEffect(() => {
+        // console.log('cup updated', cup)
+        if (cup.out || cup.color === mySide.value.color) {
+          cupBody.type = CANNON.Body.STATIC
+        }
+
         let position = getCupPosition(cup)
 
-        if (cup.out || cup.color === mySide.value.color) {
+        if (cup.out) {
           cupBody.type = CANNON.Body.STATIC
           gsap.to(cupObject.position, {
             duration: 0.5,
@@ -258,6 +315,8 @@ const initThree = () => {
     ballBody.velocity.set(0, 0, 0)
     ballBody.angularVelocity.set(0, 0, 0)
 
+    if (!knockedCup) return
+
     $runAction('throw', {
       force: throwForce,
       knockedCup: knockedCup?.id || undefined
@@ -300,7 +359,7 @@ const initThree = () => {
 
     if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
       let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
-      if (cup && distance < 0.01) {
+      if (cup && distance < 0.02) {
         endSimulation(throwForce, cup)
         return
       }
@@ -436,49 +495,21 @@ function pointerUp(e) {
   }
 }
 
-const message = ref('')
-const overlayAnimated = ref(false)
-
-watch(toRef(mySide, 'throwsMade'), (newValue, oldValue) => {
-  if (oldValue === 2 && newValue === 0) {
-    message.value = 'Balls back'
-  }
-})
-
-watch(toRef(mySide, 'inRedemption'), (newValue, oldValue) => {
-  if (newValue) {
-    message.value = 'Redemption'
-  }
-})
-
-watch(message, (newValue, oldValue) => {
-  if (newValue) {
-    overlayAnimated.value = true
-  }
-})
-
 onMounted(() => {
-  // let previousTime = new Date()
-  // const d = 1
-  // renderer.value.onBeforeRender(() => {
-  //   const time = new Date()
-  //   const elapsed = new Date() - previousTime
-  //   previousTime = time
-  // })
   window.getBaseLog = function (x, y) {
     return Math.log(y) / Math.log(x);
   }
 
   window.yForce = function (x) {
-    return window.getBaseLog(50, x * -0.2 + 9);
+    return window.getBaseLog(50, x * -0.4 + 9);
   }
 
   window.zForce = function (x) {
-    return window.getBaseLog(50, x * -0.2 + 2);
+    return window.getBaseLog(50, x * -0.4 + 1.5);
   }
 
   $replayTurn(() => {
-    $endReplay()
+    $endReplay(0)
   })
 
   initThree()

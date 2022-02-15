@@ -6,7 +6,7 @@ import { createApp, replayTurn, setupUI } from '@app/js/ui.js'
 import {createApp as createVueApp} from 'vue';
 
 import store from '@app/js/store.js';
-import box from '@app/js/box.js';
+import facade from '@app/js/box.js';
 
 import ErrorScreen from 'components/base-ui/ErrorScreen.vue';
 
@@ -40,4 +40,5 @@ async function connectionCallback(response) {
     Client.listen();
 
     window.app = app;
+    window.facade = facade;
 }

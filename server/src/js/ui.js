@@ -39,6 +39,7 @@ const createApp = (...options) => {
     const app = createVueApp(...options);
     app.use(VueAppInsights, { appInsights });
     app.use(facade);
+
     app.mixin(baseMixin);
     app.component('scores-view', ScoresView);
     app.component('game-view', GameView);
