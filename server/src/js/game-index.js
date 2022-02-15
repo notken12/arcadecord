@@ -40,5 +40,6 @@ async function connectionCallback(response) {
     Client.listen();
 
     window.app = app;
+    window.store = store;
     window.facade = facade;
 }

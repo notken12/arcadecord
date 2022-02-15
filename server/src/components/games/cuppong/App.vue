@@ -317,6 +317,10 @@ const initThree = () => {
 
     if (!knockedCup) return
 
+    if (replaying.value) {
+      replayAction(game.value)
+    }
+
     $runAction('throw', {
       force: throwForce,
       knockedCup: knockedCup?.id || undefined
