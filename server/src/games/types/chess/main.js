@@ -24,9 +24,6 @@ class Chess extends Game {
   constructor(config) {
     super(options, config);
 
-    const frontRow = 'pppppppp'
-    const backRow = 'rnbqkbnr'
-
     this.on('init', Game.eventHandlersDiscord.init);
     this.on('turn', Game.eventHandlersDiscord.turn);
 
@@ -83,6 +80,10 @@ class Chess extends Game {
     game.data.previousBoardPos = [];
     game.data.board = [];
     game.data.colors = [1, 0];
+
+
+    const frontRow = 'pppppppp'
+    const backRow = 'rnbqkbnr'
 
     for (let color = 0; color < 2; color++) {
       for (let file = 0; file < 8; file++) {

@@ -65,6 +65,7 @@
     "lodash.clonedeep": "^4.5.0",
     "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
+    "node-zopfli-es": "^1.0.7",
     "redis": "^4.0.2",
     "remarkable": "^2.0.1",
     "shrink-ray-current": "^4.1.3",

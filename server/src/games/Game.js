@@ -36,6 +36,8 @@ class Game {
   gameOptions = {} // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
 
   constructor(typeOptions, options) {
+    this.testing = false;
+
     this.id = null // will be set by the server index.js
     this.players = []
     this.eventHandlers = {}
@@ -151,7 +153,6 @@ class Game {
   }
   async handleAction(action) {
     action.playerIndex = this.getPlayerIndex(action.userId)
-    if (action.playerIndex === -1) return { success: false, error: 'player not found' }
 
     let actionSchema = this.actionSchemas[action.type]
     if (actionSchema) {
