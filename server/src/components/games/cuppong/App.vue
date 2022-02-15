@@ -186,6 +186,7 @@ const initThree = () => {
 
       watchEffect(() => {
         // console.log('cup updated', cup)
+        console.log(replaying.value)
         if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
         }
@@ -218,6 +219,10 @@ const initThree = () => {
           })
           cupBody.type = CANNON.Body.KINEMATIC
           cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+        }
+      }, {
+        onTrack(e) {
+          console.log(e)
         }
       })
     }
