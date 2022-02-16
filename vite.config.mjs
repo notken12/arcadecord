@@ -11,6 +11,7 @@ import graph from 'rollup-plugin-graph';
 import brotli from "rollup-plugin-brotli";
 import handlebars from 'vite-plugin-handlebars';
 import ssr from 'vite-plugin-ssr/plugin'
+import { esbuildCommonjs, viteCommonjs } from "@originjs/vite-plugin-commonjs";
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -94,7 +95,7 @@ export default defineConfig({
       },
       {
         find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
-      }
+      },
     ]
   },
   build: {
@@ -128,11 +129,15 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: true,
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
+    },
+    include: ["node-fetch"],  // also here
+  },
   plugins: [
+    viteCommonjs(),
     vue(),
-    commonjs({
-      transformMixedEsModules: true,
-    }),
     babel({
       babelHelpers: 'bundled',
       // exclude: 'node_modules/**'
@@ -169,5 +174,5 @@ export default defineConfig({
     /*graph({
       prune: true
     })*/
-  ]
+  ],
 })
