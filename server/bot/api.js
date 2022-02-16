@@ -5,6 +5,8 @@ dotenv.config('../../.env');
 
 import config from './config.js';
 
+import FormData from 'form-data';
+
 const {ipcApiUrl} = config;
 
 const baseUrl = ipcApiUrl;
@@ -20,25 +22,6 @@ function auth(options) {
         options.headers = {};
     }
     options.headers.Authorization = getAuthHeader().Authorization;
-}
-
-function sendStartMessage(game) {
-    var url = baseUrl + '/message/start';
-    var data = {
-        game: game,
-    };
-
-    var options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    };
-    auth(options);
-
-
-    return fetch(url, options);
 }
 
 async function fetchUser(userId) {
@@ -93,6 +76,37 @@ function sendMessage(message, guild, channel) {
         guild: guild,
         channel: channel,
         message: message,
+    };
+
+    const formData = new FormData();
+    formData.append('guild', JSON.stringify(data.guild));
+    formData.append('channel', JSON.stringify(data.channel));
+    formData.append('message', JSON.stringify(data.message));
+
+    const files = data.message.files;
+    if (files) {
+        for (var i = 0; i < files.length; i++) {
+            formData.append('file' + i, files[i].attachment);
+        }
+    }
+
+
+    var options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
+function sendStartMessage(game) {
+    var url = baseUrl + '/startmessage';
+    var data = {
+        game: game,
     };
 
     var options = {

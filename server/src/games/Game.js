@@ -474,65 +474,7 @@ class Game {
 
 Game.eventHandlersDiscord = {
   init: async function (game) {
-    var gameCreator = game.players[0]
-    //var gameCreatorUser = new Discord.User();
-    //Object.assign(gameCreatorUser, gameCreator.discordUser);
-
-    var content = ''
-
-    for (let discordId of game.invitedUsers) {
-      content += `<@${discordId}> `
-    }
-
-    var embed = new MessageEmbed()
-      .setTitle(game.name)
-      .setColor(game.color || '#0099ff')
-      .setURL(game.getURL())
-    /*.setAuthor({
-            name: `<@${gameCreator.discordUser.id}>`,
-            iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        })*/
-    /*.setFooter(
-            `<@${gameCreator.discordUser.id}>`,
-            `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        );*/
-
-    if (game.invitedUsers.length > 0) {
-      embed.setDescription(
-        `${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`
-      )
-    } else {
-      embed.setDescription(
-        `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
-      )
-    }
-
-    var startGameButton = new MessageButton()
-      .setEmoji(Emoji.ICON_WHITE)
-      .setLabel('Play')
-      .setStyle('LINK')
-      .setURL(game.getURL())
-
-    var row = new MessageActionRow().addComponents([startGameButton])
-    var message = { embeds: [embed], components: [row] }
-
-    if (content.length > 0) {
-      message.content = content
-    }
-
-    if (typeof game.getThumbnail == 'function') {
-      var image = await game.getThumbnail()
-      if (image) {
-        console.log(image)
-        const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-        embed.setImage(`attachment://thumbnail.png`)
-
-        message.files = [attachment]
-      }
-    }
-
-    var res = await BotApi.sendMessage(message, game.guild, game.channel)
+    var res = await BotApi.sendStartMessage(game)
 
     var msg = await res.json()
     game.startMessage = msg.id
