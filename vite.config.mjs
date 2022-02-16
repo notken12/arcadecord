@@ -124,6 +124,7 @@ export default defineConfig({
         /server\/src\/games\/types\/(.*)main.(.*)$/,
         /server\/src\/games\/([^\/]*)$/,
         /.test.[jt]sx?$/,
+        'encoding',
       ],
     },
     outDir: '../dist',

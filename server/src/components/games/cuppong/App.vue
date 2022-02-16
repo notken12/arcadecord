@@ -7,7 +7,6 @@
 
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
-import Side from './Side.vue'
 
 import { computed, onMounted, reactive, ref, watch, watchEffect, toRef } from 'vue';
 
