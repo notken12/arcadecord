@@ -7,6 +7,9 @@ import Game from '../../Game.js';
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js';
 
+//Import Canvas
+import Canvas from 'canvas'
+
 const options = {
   typeId: 'chess',
   name: 'Chess',
@@ -68,6 +71,12 @@ class Chess extends Game {
       required: ['move']
     })
 
+    this.getThumbnail = async function () {
+      const canvas = Canvas.createCanvas(400, 400);
+      const ctx = canvas.getContext('2d');
+
+      return canvas.toBuffer()
+    }
     // this.setActionModel("resign", Common.resign)
     // this.setActionModel("offerDraw", Common.offerDraw)
     // this.setActionModel("drawDecision", Common.drawDecision)

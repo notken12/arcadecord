@@ -9,6 +9,7 @@ import BotApi from '../../bot/api.js'
 import Emoji from '../../../Emoji.js'
 import db from '../../../db/db2.js'
 import {
+  MessageAttachment,
   MessageActionRow,
   MessageEmbed,
   MessageSelectMenu,
@@ -522,6 +523,7 @@ Game.eventHandlersDiscord = {
     if (typeof game.getThumbnail == 'function') {
       var image = await game.getThumbnail()
       if (image) {
+        console.log(image)
         const attachment = new MessageAttachment(image, 'thumbnail.png')
 
         embed.setImage(`attachment://thumbnail.png`)
@@ -582,6 +584,7 @@ Game.eventHandlersDiscord = {
 
     var image = await game.getThumbnail()
     if (image) {
+      console.log(image)
       const attachment = new MessageAttachment(image, 'thumbnail.png')
 
       embed.setImage(`attachment://thumbnail.png`)
