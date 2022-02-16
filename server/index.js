@@ -10,6 +10,14 @@ import bases from 'bases';
 import express from 'express';
 const app = express();
 
+// need cookieParser middleware before we can do anything with cookies
+app.use(cookieParser());
+
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
+
 import { createServer } from 'http';
 const server = createServer(app);
 import { Server } from "socket.io";
@@ -106,10 +114,13 @@ async function proxySnowpackDev(url, res) {
 
 }*/
 
+import { createPageRenderer } from 'vite-plugin-ssr'
 
-var vite;
+var viteDevServer;
+const isProduction = process.env.NODE_ENV === 'production';
+const root = `${__dirname}/src`;
 
-if (process.env.NODE_ENV !== 'production') {
+if (!isProduction) {
   // IF DEVELOPMENT
 
   // Create Vite server in middleware mode. This disables Vite's own HTML
@@ -119,15 +130,46 @@ if (process.env.NODE_ENV !== 'production') {
   // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
   let { createServer: createViteServer } = await import('vite');
 
-  vite = await createViteServer({
+  viteDevServer = await createViteServer({
     server: { middlewareMode: 'ssr' }
   });
   // use vite's connect instance as middleware
-  app.use(vite.middlewares);
+  app.use(viteDevServer.middlewares);
 } else {
   // IF PRODUCTION
-  app.use('/dist', express.static(path.resolve(__dirname, 'dist')));
+  app.use('/dist', express.static(path.resolve(__dirname, 'dist/client')));
 }
+
+const renderPage = createPageRenderer({ viteDevServer, isProduction, root })
+
+app.get('*', async (req, res, next) => {
+  const url = req.originalUrl
+
+  let cookie = req.cookies.accessToken;
+
+  //check database if user is signed in
+  let userId;
+  let token;
+  try {
+    token = JWT.verify(cookie, process.env.JWT_SECRET);
+    userId = token.id;
+  } catch (e) {
+    userId = null;
+
+    return;
+  }
+
+  const pageContextInit = {
+    url,
+    userId,
+  }
+
+  const pageContext = await renderPage(pageContextInit)
+  const { httpResponse } = pageContext
+  if (!httpResponse) return next()
+  const { body, statusCode, contentType } = httpResponse
+  res.status(statusCode).type(contentType).send(body)
+})
 
 //console.log(vite.middlewares.stack[5].handle.toString());
 
@@ -145,7 +187,7 @@ async function useBuiltFile(pathName, req, res) {
       // 2. Apply Vite HTML transforms. This injects the Vite HMR client, and
       //    also applies HTML transforms from Vite plugins, e.g. global preambles
       //    from @vitejs/plugin-react
-      template = await vite.transformIndexHtml(url, template)
+      template = await viteDevServer.transformIndexHtml(url, template)
 
       // 6. Send the rendered HTML back.
       res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
@@ -439,7 +481,7 @@ io.on('connection', (socket) => {
       await db.games.update(gameId, game);
 
       // send result to client
-      await callback({status: 'success'});
+      await callback({ status: 'success' });
 
       appInsightsClient.trackEvent({ name: 'Resend game invite', properties: { gameId: gameId, userId: userId } });
 
@@ -470,15 +512,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-
-// need cookieParser middleware before we can do anything with cookies
-app.use(cookieParser());
-
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-
 /*app.get('/vite/:url', (req, res) => {
   console.log(req.params.url);
   proxyViteDev(req.params.url, res);
@@ -501,50 +534,6 @@ app.get('/discord-oauth', (req, res) => {
 
 //get authorization code
 app.get('/auth', authController);
-
-//user is accessing game
-app.get('/game/:id', async (req, res) => {
-  try {
-    let cookie = req.cookies.accessToken;
-
-    //check database if user is signed in
-    let userId;
-    let token;
-    try {
-      token = JWT.verify(cookie, process.env.JWT_SECRET);
-      userId = token.id;
-    } catch (e) {
-      //user is not signed in. or has an invalid access token
-      //set cookie for game id to redirect back to
-      //redirect to sign in page
-      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
-      res.redirect('/sign-in');
-
-      return;
-    }
-    let user = await db.users.getById(userId);
-
-    if (user) {
-      //user is signed in. 
-      //redirect to game
-
-      //user has permission to join
-      var pathName = './src/game-index.html';
-      useBuiltFile(pathName, req, res);
-
-    } else {
-      //user is not signed in. or has an invalid access token
-      //set cookie for game id to redirect back to
-      //redirect to sign in page
-      res.cookie('gameId', req.params.id, { maxAge: 10000000 });
-      res.redirect('/sign-in');
-    }
-  }
-  catch (e) {
-    console.error(e);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 app.post('/create-game', async (req, res) => {
   // get token from headers

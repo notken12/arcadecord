@@ -1,6 +1,5 @@
 import {ref, computed, onMounted } from 'vue'
 import bus from '@app/js/vue-event-bus';
-import store from '@app/js/box';
 
 const turnReplayDelay = 250;
 

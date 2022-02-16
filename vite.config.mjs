@@ -10,6 +10,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import graph from 'rollup-plugin-graph';
 import brotli from "rollup-plugin-brotli";
 import handlebars from 'vite-plugin-handlebars';
+import ssr from 'vite-plugin-ssr/plugin'
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -121,6 +122,7 @@ export default defineConfig({
       external: [
         /server\/src\/games\/types\/(.*)main.(.*)$/,
         /server\/src\/games\/([^\/]*)$/,
+        /.test.[jt]sx?$/,
       ],
     },
     outDir: '../dist',
@@ -133,8 +135,9 @@ export default defineConfig({
     }),
     babel({
       babelHelpers: 'bundled',
-      exclude: 'node_modules/**'
+      // exclude: 'node_modules/**'
     }),
+    ssr(),
     // handlebars({
     //   context(pagePath) {
     //     let data = pageData[pagePath];

@@ -9,7 +9,7 @@
   "test": "npm run start",
   "scripts": {
     "test": "jest",
-    "build": "npx vite build",
+    "build": "vite build && vite build --ssr",
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
@@ -75,6 +75,7 @@
     "three": "^0.137.5",
     "three-to-cannon": "^4.0.2",
     "troisjs": "^0.3.3",
+    "vite-plugin-ssr": "^0.3.53",
     "vue": "^3.2.31",
     "vuex": "^4.0.2"
   },

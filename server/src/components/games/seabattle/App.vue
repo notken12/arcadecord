@@ -49,8 +49,6 @@ import cloneDeep from 'lodash.clonedeep'
 import { runAction, utils as clientUtils } from '@app/js/client-framework.js'
 import GameFlow from '@app/js/GameFlow.js'
 
-import store from '@app/js/store'
-
 function getMyHitBoard(game) {
   var index = game.myIndex
   if (index == -1) {

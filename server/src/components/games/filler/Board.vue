@@ -15,7 +15,6 @@
 <script>
 import Cell from './Cell.vue'
 import Common from '/gamecommons/filler'
-import store from '@app/js/store.js'
 import GameFlow from '@app/js/GameFlow.js'
 
 export default {
