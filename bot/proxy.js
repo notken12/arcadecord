@@ -106,6 +106,11 @@ app.post('/message', (req, res) => {
     proxyByGuild(req.body.guild, req, res);
 });
 
+app.post('/startmessage', (req, res) => {
+    //console.log('post start message');
+    proxyByGuild(req.body.guild, req, res);
+})
+
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     //console.log('delete message');
     proxyByGuild(req.params.guild, req, res);

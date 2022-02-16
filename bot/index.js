@@ -1,5 +1,11 @@
 import { ShardingManager } from 'discord.js';
-import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
+import {
+    MessageAttachment,
+    MessageActionRow,
+    MessageEmbed,
+    MessageSelectMenu,
+    MessageButton,
+} from 'discord.js'
 import express from 'express';
 import path from 'path'
 
@@ -15,6 +21,7 @@ import authMiddleware from './auth-middleware.js';
 import architecture from './config/architecture.js';
 
 import { gameTypes } from '../server/src/games/game-types.js';
+import Emoji from '../Emoji.js'
 
 // import multer from 'multer'
 // const upload = multer({ dest: 'uploads/' })
@@ -125,79 +132,15 @@ app.post('/message', (req, res) => {
 app.post('/startmessage', async (req, res) => {
     var shard = getShardByGuild(req.body.guild);
 
-    // get game type
-    var gameType = gameTypes[req.body.game.typeId]
-
-    // create instance of game
-    const game = new gameType.Game(req.body.game);
-
-    var gameCreator = game.players[0]
-    //var gameCreatorUser = new Discord.User();
-    //Object.assign(gameCreatorUser, gameCreator.discordUser);
-
-    var content = ''
-
-    for (let discordId of game.invitedUsers) {
-        content += `<@${discordId}> `
-    }
-
-    var embed = new MessageEmbed()
-        .setTitle(game.name)
-        .setColor(game.color || '#0099ff')
-        .setURL(game.getURL())
-    /*.setAuthor({
-            name: `<@${gameCreator.discordUser.id}>`,
-            iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        })*/
-    /*.setFooter(
-            `<@${gameCreator.discordUser.id}>`,
-            `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        );*/
-
-    if (game.invitedUsers.length > 0) {
-        embed.setDescription(
-            `${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`
-        )
-    } else {
-        embed.setDescription(
-            `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
-        )
-    }
-
-    var startGameButton = new MessageButton()
-        .setEmoji(Emoji.ICON_WHITE)
-        .setLabel('Play')
-        .setStyle('LINK')
-        .setURL(game.getURL())
-
-    var row = new MessageActionRow().addComponents([startGameButton])
-    const message = { embeds: [embed], components: [row] }
-
-    if (content.length > 0) {
-        message.content = content
-    }
-
-    if (typeof game.getThumbnail == 'function') {
-        var image = await game.getThumbnail()
-        if (image) {
-            console.log(image)
-            const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-            embed.setImage(`attachment://thumbnail.png`)
-
-            message.files = [attachment]
-        }
-    }
-
-    manager.broadcastEval(async (c, { channel, message }) => {
+    manager.broadcastEval(async (c, { game }) => {
         try {
-            return await c.channels.cache.get(channel).send(message);
+            return await c.sendStartMessage(game);
         }
         catch (e) {
             console.log(e);
             return null;
         }
-    }, { shard: shard, context: { channel: game.channel, message: message } }).then((sentMessage => {
+    }, { shard: shard, context: { game: req.body.game } }).then((sentMessage => {
         res.send(sentMessage);
     }));
 })
@@ -205,7 +148,7 @@ app.post('/startmessage', async (req, res) => {
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     var shard = getShardByGuild(req.params.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
-        var channel = await c.channels.fetch(channel);
+        var channel = await c.channels.cache.get(channel);
 
         if (!channel) return null;
 

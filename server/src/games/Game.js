@@ -526,7 +526,6 @@ Game.eventHandlersDiscord = {
 
     var image = await game.getThumbnail()
     if (image) {
-      console.log(image)
       const attachment = new MessageAttachment(image, 'thumbnail.png')
 
       embed.setImage(`attachment://thumbnail.png`)
