@@ -93,7 +93,6 @@ client.sendStartMessage = async function (g) {
 		}
 	}
 
-	console.log(message)
 	return await client.channels.cache.get(game.channel).send(message);
 }
 

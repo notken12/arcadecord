@@ -478,7 +478,7 @@ Game.eventHandlersDiscord = {
 
     var msg = await res.json()
     game.startMessage = msg.id
-    //console.log('start message: ' + game.startMessage);
+    console.log('start message: ' + game.startMessage);
 
     return game
   },
