@@ -8,7 +8,7 @@ import Game from '../../Game.js';
 import GameFlow from '../../GameFlow.js';
 
 //Import Canvas
-import Canvas from 'canvas'
+import Canvas from '../../../../../canvas/canvas.js'
 
 const options = {
   typeId: 'chess',
@@ -72,29 +72,12 @@ class Chess extends Game {
     })
 
     this.getThumbnail = async function () {
-      const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
-      const ctx = canvas.getContext('2d');
+      var canvas = Canvas.newCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
 
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      var rectangle = Canvas.Component(0, 0, Game.thumbnailDimensions.width, Game.thumbnailDimensions.height, {})
+      canvas.draw(rectangle)
 
-      // const background = await Canvas.loadImage(__dirname + '/images/thumbnail-bg.png');
-      // ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-      // var board = this.data.board;
-      // for (var i = 0; i < 3; i++) {
-      //   for (var j = 0; j < 3; j++) {
-      //     if (board[i][j] !== null) {
-      //       var symbol = board[i][j] === 0 ? 'x' : 'o';
-      //       var image = await Canvas.loadImage(__dirname + '/images/' + symbol + '.png');
-
-      //       var x = Game.thumbnailDimensions.width / 2 + (j - 1) * 80 - image.width / 2;
-      //       var y = Game.thumbnailDimensions.height / 2 + (i - 1) * 80 - image.height / 2;
-      //       ctx.drawImage(image, x, y, image.width, image.height);
-      //     }
-      //   }
-      // }
-
+      console.log(canvas)
       return canvas.toBuffer();
     }
 

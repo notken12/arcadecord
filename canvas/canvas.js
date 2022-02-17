@@ -1,7 +1,4 @@
-import Canvas, { loadImage } from 'canvas';
-
-const canvas = Canvas.createCanvas(400,400);
-const ctx = canvas.getContext("2d")
+import Canvas from 'canvas';
 
 function Component(x, y, width, height, options){
     this.x = x;
@@ -11,8 +8,6 @@ function Component(x, y, width, height, options){
     this.options = options;
     this.options.type = this.options.type || "rectangle";
     this.options.color = this.options.color || "red";
-    this.options.filled = this.options.filled || true;
-    this.options.outlined = this.options.outlined || false;
     this.options.opacity = this.options.opacity || 1;
     /*
     type: string, required, default-rectangle
@@ -24,39 +19,39 @@ function Component(x, y, width, height, options){
     imageSource: string, optional, default-NO DEFAULT
 
     */
+}
 
-    this.draw = function(){
-        switch(this.options.type){
+function newCanvas(width, height){
+    return new canvas(width, height)
+}
+function canvas(width, height){
+    this.canvas = Canvas.createCanvas(width, height)
+    this.ctx = this.canvas.getContext("2d")
+
+    this.draw = function(comp){
+        switch(comp.options.type){
             case "rectangle":
-                if(this.options.filled){
-                    ctx.fillStyle = this.options.color;
-                    ctx.fillRect(this.x, this.y, this.width, this.height)
-                }
-                if(this.options.outlined){
-                    ctx.strokeStyle = this.options.outlineColor || "black";
-                    ctx.strokeRect(this.x, this.y, this.width, this.height)
-                }
+                this.ctx.globalAlpha = comp.options.opacity;
+                this.ctx.fillStyle = comp.options.color
+                this.ctx.fillRect(comp.x, comp.y, comp.width, comp.height)
             break;
 
             case "image":
-            if(this.options.imageSource){
-                let image = await Canvas.loadImage(this.options.imageSource)
-                ctx.drawImage(image, this.x, this.y, this.width, this.height)
-            } else {
-                throw new Error("Image has no source!")
-            }
+            
+            break;
+
+            case "ellipse":
+            
             break;
         }
     }
-}
-
-function finishCanvas(){
-    return canvas;
+    this.toBuffer = function(){
+        return this.canvas.toBuffer()
+    }
 }
 
 export default {
     Component,
-    finishCanvas,
-    canvas,
-    ctx
+    newCanvas,
+    canvas
 }
