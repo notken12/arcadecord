@@ -21,7 +21,7 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
 
   // Run the actions
   for (let i = 0; i < 50; i++) {
-    for (let p = 1; p = 0; p--) {
+    for (let p = 1; p >= 0; p--) {
       let oddMove = (i + 1) % 2 === 1
       let fromFile = 1
       let fromRank = p === 1 ? 0 : 7
@@ -44,9 +44,8 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
     }
   }
 
-  // Is it still the player's turn?
-  let isDraw = game.hasEnded && game.winner === -1
-
+  
   // Assertions
-  expect(isDraw).toEqual(true)
+  expect(game.hasEnded).toEqual(true)
+  expect(game.winner).toEqual(-1)
 })
