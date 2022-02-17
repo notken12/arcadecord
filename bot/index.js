@@ -145,6 +145,22 @@ app.post('/startmessage', async (req, res) => {
     }));
 })
 
+app.post('/turninvite', async (req, res) => {
+    var shard = getShardByGuild(req.body.guild);
+
+    manager.broadcastEval(async (c, { game }) => {
+        try {
+            return await c.sendTurnInvite(game);
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
+    }, { shard: shard, context: { game: req.body.game } }).then((sentMessage => {
+        res.send(sentMessage);
+    }));
+})
+
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     var shard = getShardByGuild(req.params.guild);
     manager.broadcastEval(async (c, { channel, message }) => {

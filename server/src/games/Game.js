@@ -478,7 +478,6 @@ Game.eventHandlersDiscord = {
 
     var msg = await res.json()
     game.startMessage = msg.id
-    console.log('start message: ' + game.startMessage);
 
     return game
   },
@@ -490,50 +489,7 @@ Game.eventHandlersDiscord = {
       BotApi.deleteMessage(game.guild, game.channel, game.lastTurnInvite)
     }
 
-    var lastPlayer = game.turns[game.turns.length - 1].playerIndex
-
-    var m = {
-      content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id
-        }>: *${game.emoji + ' ' || ''}${game.name}*`,
-      allowedMentions: {
-        parse: [],
-      },
-    }
-
-    m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`
-
-    await BotApi.sendMessage(m, game.guild, game.channel)
-
-    var embed = new MessageEmbed()
-      .setTitle(game.name)
-      .setDescription(`${game.description}`)
-      .setColor(game.color || '#0099ff')
-      .setURL(game.getURL())
-
-    var button = new MessageButton()
-      .setEmoji(Emoji.ICON_WHITE)
-      .setLabel('Play')
-      .setStyle('LINK')
-      .setURL(game.getURL())
-
-    var row = new MessageActionRow().addComponents([button])
-
-    var invite = {
-      content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
-      embeds: [embed],
-      components: [row],
-    }
-
-    var image = await game.getThumbnail()
-    if (image) {
-      const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-      embed.setImage(`attachment://thumbnail.png`)
-
-      invite.files = [attachment]
-    }
-
-    var res = await BotApi.sendMessage(invite, game.guild, game.channel)
+    var res = await BotApi.sendTurnInvite(game)
 
     var msg = await res.json()
     game.lastTurnInvite = msg.id

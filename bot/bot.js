@@ -36,6 +36,8 @@ client.sendStartMessage = async function (g) {
 	// create instance of game
 	const game = new gameType.Game(g);
 
+	const channel = await client.channels.fetch(game.channel)
+
 	var gameCreator = game.players[0]
 	//var gameCreatorUser = new Discord.User();
 	//Object.assign(gameCreatorUser, gameCreator.discordUser);
@@ -93,7 +95,62 @@ client.sendStartMessage = async function (g) {
 		}
 	}
 
-	return await client.channels.cache.get(game.channel).send(message);
+	return await channel.send(message);
+}
+
+client.sendTurnInvite = async function (g) {
+	// get game type
+	var gameType = gameTypes[g.typeId]
+
+	// create instance of game
+	const game = new gameType.Game(g);
+
+	const channel = await client.channels.fetch(game.channel)
+
+	var lastPlayer = game.turns[game.turns.length - 1].playerIndex
+
+	var m = {
+		content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id
+			}>: *${game.emoji + ' ' || ''}${game.name}*`,
+		allowedMentions: {
+			parse: [],
+		},
+	}
+
+	m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`
+
+	await channel.send(m)
+
+	var embed = new MessageEmbed()
+		.setTitle(game.name)
+		.setDescription(`${game.description}`)
+		.setColor(game.color || '#0099ff')
+		.setURL(game.getURL())
+
+	var button = new MessageButton()
+		.setEmoji(Emoji.ICON_WHITE)
+		.setLabel('Play')
+		.setStyle('LINK')
+		.setURL(game.getURL())
+
+	var row = new MessageActionRow().addComponents([button])
+
+	var invite = {
+		content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
+		embeds: [embed],
+		components: [row],
+	}
+
+	var image = await game.getThumbnail()
+	if (image) {
+		const attachment = new MessageAttachment(image, 'thumbnail.png')
+
+		embed.setImage(`attachment://thumbnail.png`)
+
+		invite.files = [attachment]
+	}
+
+	return await channel.send(invite);
 }
 
 // get __dirname

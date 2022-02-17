@@ -121,6 +121,24 @@ function sendStartMessage(game) {
     return fetch(url, options);
 }
 
+function sendTurnInvite(game) {
+    var url = baseUrl + '/turninvite';
+    var data = {
+        game: game,
+    };
+
+    var options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    };
+    auth(options);
+
+    return fetch(url, options);
+}
+
 function deleteMessage(guildId, channelId, messageId) {
     var url = baseUrl + '/message/' + guildId + '/' + channelId + '/' + messageId;
 
@@ -150,5 +168,6 @@ export default {
     sendGetTest,
     sendMessage,
     deleteMessage,
-    getUserPermissionsInChannel
+    getUserPermissionsInChannel,
+    sendTurnInvite
 }

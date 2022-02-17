@@ -111,6 +111,11 @@ app.post('/startmessage', (req, res) => {
     proxyByGuild(req.body.guild, req, res);
 })
 
+app.post('/turninvite', (req, res) => {
+    //console.log('post turn invite');
+    proxyByGuild(req.body.guild, req, res);
+})
+
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     //console.log('delete message');
     proxyByGuild(req.params.guild, req, res);
