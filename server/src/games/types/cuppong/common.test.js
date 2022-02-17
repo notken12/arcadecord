@@ -231,8 +231,8 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   await game.handleAction(throw2)
 
   // Player hits one shot, their turn ends and they are no longer in redemption
-  let stillTheirTurn = game.isItUsersTurn(0)
-  let theirSide = game.data.sides[0]
+  stillTheirTurn = game.isItUsersTurn(0)
+  theirSide = game.data.sides[0]
   expect(stillTheirTurn).toBe(false)
   expect(theirSide.throwCount).toBe(0)
   expect(theirSide.throwsMade).toBe(0)
