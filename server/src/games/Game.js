@@ -8,13 +8,6 @@ import GameFlow from './GameFlow.js'
 import BotApi from '../../bot/api.js'
 import Emoji from '../../../Emoji.js'
 import db from '../../../db/db2.js'
-import {
-  MessageAttachment,
-  MessageActionRow,
-  MessageEmbed,
-  MessageSelectMenu,
-  MessageButton,
-} from 'discord.js'
 import Ajv from 'ajv'
 
 config()
@@ -22,6 +15,7 @@ config()
 const ajv = new Ajv()
 
 class Game {
+  n
   // options schema
   // {
   //     "id": "",
@@ -37,7 +31,7 @@ class Game {
   gameOptions = {} // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
 
   constructor(typeOptions, options) {
-    this.testing = false;
+    this.testing = false
 
     this.id = null // will be set by the server index.js
     this.players = []
@@ -161,7 +155,9 @@ class Game {
       const valid = validate(action.data)
       if (!valid) {
         if (this.testing) {
-          throw new Error('Action data does not follow schema: ' + validate.errors)
+          throw new Error(
+            'Action data does not follow schema: ' + validate.errors
+          )
         }
         console.warn('Action data does not follow schema: ' + validate.errors)
         return {
@@ -173,10 +169,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-        action.type +
-        '" to game: "' +
-        this.typeId +
-        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+          action.type +
+          '" to game: "' +
+          this.typeId +
+          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       )
     }
 
@@ -416,7 +412,7 @@ class Game {
     }
   }
 
-  getImage() { }
+  getImage() {}
 
   getChanges(oldData, newData) {
     var changes = {}
@@ -469,7 +465,7 @@ class Game {
     return game
   }
 
-  getThumbnail() { }
+  getThumbnail() {}
 }
 
 Game.eventHandlersDiscord = {
