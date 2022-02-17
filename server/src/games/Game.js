@@ -161,7 +161,9 @@ class Game {
           )
         }
         console.warn(
-        'Action data does not follow schema: ' + JSON.stringify(validate.errors))
+          'Action data does not follow schema: ' +
+            JSON.stringify(validate.errors)
+        )
         return {
           success: false,
           message: 'Invalid action data',

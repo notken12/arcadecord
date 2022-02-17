@@ -21,26 +21,26 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
 
   // Run the actions
   for (let i = 0; i < 50; i++) {
-    for (let p = 0; p < 2; p++) {
+    for (let p = 1; p = 0; p--) {
       let oddMove = (i + 1) % 2 === 1
       let fromFile = 1
       let fromRank = p === 1 ? 0 : 7
       let toFile = 0
       let toRank = p === 1 ? 2 : 5
 
-      await game.handleAction(
-        new Action(
-          'movePiece',
-          {
-            move: {
-              from: oddMove ? [fromFile, fromRank] : [toFile, toRank],
-              to: oddMove ? [toFile, toRank] : [fromFile, fromRank],
-              pieceType: 'n',
-            },
+      let action = new Action(
+        'movePiece',
+        {
+          move: {
+            from: oddMove ? [fromFile, fromRank] : [toFile, toRank],
+            to: oddMove ? [toFile, toRank] : [fromFile, fromRank],
+            pieceType: 'n',
           },
-          p
-        )
+        },
+        p
       )
+
+      await game.handleAction(action)
     }
   }
 
