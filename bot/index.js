@@ -1,6 +1,13 @@
 import { ShardingManager } from 'discord.js';
-import { MessageActionRow, MessageEmbed, MessageSelectMenu, MessageButton } from 'discord.js';
-import express, { json } from 'express';
+import {
+    MessageAttachment,
+    MessageActionRow,
+    MessageEmbed,
+    MessageSelectMenu,
+    MessageButton,
+} from 'discord.js'
+import express from 'express';
+import path from 'path'
 
 // load .env that will be used for all processes running shard managers
 import dotenv from 'dotenv';
@@ -12,6 +19,12 @@ var hostId = process.argv[2];
 import authMiddleware from './auth-middleware.js';
 
 import architecture from './config/architecture.js';
+
+import { gameTypes } from '../server/src/games/game-types.js';
+import Emoji from '../Emoji.js'
+
+// import multer from 'multer'
+// const upload = multer({ dest: 'uploads/' })
 
 var totalShards = architecture.totalShards;
 var hosts = architecture.hosts;
@@ -50,7 +63,8 @@ manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
 
 // create http server to handle requests
 var app = express();
-app.use(json());
+
+app.use(express.json()); // Used to parse JSON bodies
 
 app.use((req, res, next) => {
     //console.log(req.path);
@@ -104,7 +118,7 @@ app.post('/message', (req, res) => {
     var shard = getShardByGuild(req.body.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
         try {
-            return await c.channels.cache.get(channel).send(message);
+            return await c.channels.fetch(channel).send(message);
         }
         catch (e) {
             console.log(e);
@@ -115,10 +129,42 @@ app.post('/message', (req, res) => {
     }));
 });
 
+app.post('/startmessage', async (req, res) => {
+    var shard = getShardByGuild(req.body.guild);
+
+    manager.broadcastEval(async (c, { game }) => {
+        try {
+            return await c.sendStartMessage(game);
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
+    }, { shard: shard, context: { game: req.body.game } }).then((sentMessage => {
+        res.send(sentMessage);
+    }));
+})
+
+app.post('/turninvite', async (req, res) => {
+    var shard = getShardByGuild(req.body.guild);
+
+    manager.broadcastEval(async (c, { game }) => {
+        try {
+            return await c.sendTurnInvite(game);
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
+    }, { shard: shard, context: { game: req.body.game } }).then((sentMessage => {
+        res.send(sentMessage);
+    }));
+})
+
 app.delete('/message/:guild/:channel/:message', (req, res) => {
     var shard = getShardByGuild(req.params.guild);
     manager.broadcastEval(async (c, { channel, message }) => {
-        var channel = await c.channels.fetch(channel);
+        var channel = await c.channels.cache.get(channel);
 
         if (!channel) return null;
 
@@ -140,35 +186,35 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
                 var guild = await c.guilds.fetch(guild);
 
                 var channel = await guild.channels.fetch(channel);
-    
+
                 if (!channel) return null;
-                
-    
+
+
                 var members = guild.members;
-    
+
                 //get discord user id
-    
+
                 var member;
-    
+
                 try {
                     member = await members.fetch(user);
                 } catch (e) {
                     console.error(e);
                     console.log(user);
                     return null;
-    
+
                 }
-    
+
                 if (!member) return null;
-    
+
                 const permissions = channel
                     .permissionsFor(member).serialize();
-    
+
                 return permissions;
             } catch {
                 return null;
             }
-            
+
         }, { shard: shard, context: { guild: req.params.guild, channel: req.params.channel, user: req.params.user } }).then((permissions => {
             res.send(permissions);
         }));

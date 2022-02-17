@@ -439,7 +439,7 @@ io.on('connection', (socket) => {
       await db.games.update(gameId, game);
 
       // send result to client
-      await callback({status: 'success'});
+      await callback({ status: 'success' });
 
       appInsightsClient.trackEvent({ name: 'Resend game invite', properties: { gameId: gameId, userId: userId } });
 
@@ -547,47 +547,53 @@ app.get('/game/:id', async (req, res) => {
 });
 
 app.post('/create-game', async (req, res) => {
-  // get token from headers
-  var authHeader = req.headers.authorization;
-  if (!authHeader) {
-    res.status(401).send('Access denied. No token provided.');
-    return;
+  try {
+    // get token from headers
+    var authHeader = req.headers.authorization;
+    if (!authHeader) {
+      res.status(401).send('Access denied. No token provided.');
+      return;
+    }
+    if (!authHeader.startsWith('Bearer ')) {
+      res.status(401).send('Access denied. Invalid token.');
+      return;
+    }
+    // Remove Bearer from string
+    var token = authHeader.slice(7, authHeader.length);
+
+    if (token !== process.env.GAME_SERVER_TOKEN) {
+      res.status(401).send('Access denied. Invalid token.');
+      return;
+    }
+
+    // get game options
+    var options = req.body.options;
+    var typeId = options.typeId;
+
+    // get game constructor
+    var Game = gameTypes[typeId].Game;
+
+    var game = new Game(options);
+
+    // Set game ID
+    var snowflake = SnowflakeGenerator.generate();
+    var snowflakeNum = Number(snowflake);
+    game.id = bases.toBase62(snowflakeNum);
+
+    // add player to game
+    var user = await db.users.getById(req.body.userId);
+    await game.addPlayer(user._id);
+    await game.init();
+
+    // add game to database
+    await db.games.create(game);
+
+    res.json(game);
   }
-  if (!authHeader.startsWith('Bearer ')) {
-    res.status(401).send('Access denied. Invalid token.');
-    return;
+  catch (e) {
+    console.error(e);
+    res.status(500).send('Internal Server Error');
   }
-  // Remove Bearer from string
-  var token = authHeader.slice(7, authHeader.length);
-
-  if (token !== process.env.GAME_SERVER_TOKEN) {
-    res.status(401).send('Access denied. Invalid token.');
-    return;
-  }
-
-  // get game options
-  var options = req.body.options;
-  var typeId = options.typeId;
-
-  // get game constructor
-  var Game = gameTypes[typeId].Game;
-
-  var game = new Game(options);
-
-  // Set game ID
-  var snowflake = SnowflakeGenerator.generate();
-  var snowflakeNum = Number(snowflake);
-  game.id = bases.toBase62(snowflakeNum);
-
-  // add player to game
-  var user = await db.users.getById(req.body.userId);
-  await game.addPlayer(user._id);
-  await game.init();
-
-  // add game to database
-  await db.games.create(game);
-
-  res.json(game);
 });
 
 app.get('/discord-oauth2-sign-in', (req, res) => {
