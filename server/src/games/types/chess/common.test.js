@@ -45,8 +45,8 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
   }
 
   // Assertions
-  expect(game.hasEnded).toEqual(true)
-  expect(game.winner).toEqual(-1)
+  expect(game.hasEnded).toBe(true)
+  expect(game.winner).toBe(-1)
 })
 
 test('Insufficient material will result in a draw', async () => {
@@ -77,6 +77,6 @@ test('Insufficient material will result in a draw', async () => {
   await game.handleAction(move)
 
   // Assertions
-  expect(game.hasEnded).toEqual(true)
+  expect(game.hasEnded).toBe(true)
   expect(game.winner).toBe(-1)
 })
