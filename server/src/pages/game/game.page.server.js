@@ -2,6 +2,9 @@ import db from '../../../../db/db2.js';
 import { fetchUser } from '../../../utils/discord-api';
 import { gameTypes } from '../../games/game-types';
 import { RenderErrorPage } from 'vite-plugin-ssr'
+import { createApp } from '../../renderer/gameApp'
+import { renderToString } from '@vue/server-renderer'
+import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 
 export async function onBeforeRender(pageContext) {
     // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
