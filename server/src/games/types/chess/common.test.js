@@ -44,8 +44,39 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
     }
   }
 
-  
   // Assertions
   expect(game.hasEnded).toEqual(true)
   expect(game.winner).toEqual(-1)
+})
+
+test('Insufficient material will result in a draw', async () => {
+  // Create a new game
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init()
+
+  // Delete all pieces but kings
+  game.data.board = game.data.board.filter((p) => p.type === 'k')
+
+  // Define the actions to be made
+  // new Action(type, data, userId)
+  let move = new Action('movePiece', {
+    move: {
+      pieceType: 'k',
+      from: [4, 0],
+      to: [4, 1],
+    },
+  })
+
+  // Run the actions
+  await game.handleAction(move)
+
+  // Assertions
+  expect(game.hasEnded).toEqual(true)
+  expect(game.winner).toBe(-1)
 })
