@@ -71,7 +71,7 @@ test('Insufficient material will result in a draw', async () => {
       from: [4, 0],
       to: [4, 1],
     },
-  })
+  }, )
 
   // Run the actions
   await game.handleAction(move)
