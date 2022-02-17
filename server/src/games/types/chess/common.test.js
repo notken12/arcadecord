@@ -35,6 +35,7 @@ test('50 moves without pawn moves or captures will result in a draw', async () =
             move: {
               from: oddMove ? [fromFile, fromRank] : [toFile, toRank],
               to: oddMove ? [toFile, toRank] : [fromFile, fromRank],
+              pieceType: 'n',
             },
           },
           p

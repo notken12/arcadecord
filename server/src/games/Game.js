@@ -156,10 +156,10 @@ class Game {
       if (!valid) {
         if (this.testing) {
           throw new Error(
-            'Action data does not follow schema: ' + validate.errors
+            'Action data does not follow schema: ' + JSON.stringify(validate.errors)
           )
         }
-        console.warn('Action data does not follow schema: ' + validate.errors)
+        console.warn('Action data does not follow schema: ' + JSON.stringify(validate.errors)
         return {
           success: false,
           message: 'Invalid action data',
