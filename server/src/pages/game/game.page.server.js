@@ -109,10 +109,12 @@ export async function render(pageContext) {
       </body>
     </html>`
 
+    const INITIAL_STATE = store.state
+
     return {
         documentHtml,
         pageContext: {
-            // We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
+            INITIAL_STATE
         },
     }
 }
@@ -121,4 +123,4 @@ export async function render(pageContext) {
 // we defined earlier runs in the browser and needs `pageContext.pageProps`; we use
 // `passToClient` to tell `vite-plugin-ssr` to serialize and make `pageContext.pageProps`
 // available to the browser.
-export const passToClient = ['pageProps']
+export const passToClient = ['pageProps', 'INITIAL_STATE']
