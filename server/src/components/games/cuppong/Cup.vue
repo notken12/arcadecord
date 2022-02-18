@@ -1,5 +1,4 @@
 <script setup>
-import { GltfModel } from 'troisjs'
 import { computed } from 'vue'
 
 const props = defineProps({

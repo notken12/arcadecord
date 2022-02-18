@@ -47,6 +47,11 @@ const otherSide = computed(() => {
 const cameraRotation = computed(() => {
   let x = mySide.value.color === 'red' ? -Math.PI / 3.5 : Math.PI / 3.5
   let y = mySide.value.color === 'red' ? 0 : Math.PI
+
+  if (replaying.value) {
+    // x *= -1
+    // y = Math.PI - y
+  }
   return {
     x,
     y,
@@ -59,7 +64,7 @@ const cameraPosition = computed(() => {
   let y = 0.9
   let z = mySide.value.color === 'red' ? 0.2 : -0.2
   if (replaying.value) {
-    z += mySide.value.color === 'red' ? 1.2192 : 1.2192
+    z += mySide.value.color === 'red' ? 1.2192 : -1.2192
   }
   return {
     x,
@@ -111,7 +116,7 @@ watch(() => mySide.value.ballsBack, (newValue, oldValue) => {
     message.value = 'Balls back'
   }
 
-}/* , { deep: true } */)
+}, { deep: true, flush: 'post' })
 
 watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
   console.log('in redemption watcher')
@@ -120,7 +125,7 @@ watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
     message.value = 'Redemption'
   }
 
-}/* , { deep: true, flush: 'post' } */)
+}, { deep: true, flush: 'post' })
 
 // watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
 //   console.log('redemption')
@@ -188,7 +193,6 @@ const initThree = () => {
       cupBodies.push(cupBody)
 
       watchEffect(() => {
-        // console.log('cup updated', cup)
         console.log(replaying.value)
         if (cup.out || cup.color === mySide.value.color) {
           cupBody.type = CANNON.Body.STATIC
@@ -225,7 +229,7 @@ const initThree = () => {
         }
       }, {
         onTrack(e) {
-          console.log(e)
+          // console.log(e)
         }
       })
     }
@@ -323,16 +327,24 @@ const initThree = () => {
     ballBody.velocity.set(0, 0, 0)
     ballBody.angularVelocity.set(0, 0, 0)
 
-    // if (!knockedCup) return
 
     if (replaying.value) {
+
       let action = actionsToReplay.shift()
-      replayAction(action)
+      replayAction(game.value, action)
 
       if (actionsToReplay.length === 0) {
-        $endReplay(300)
+        $endReplay(800)
+        firstActionReplayed = false
+      } else {
+        setTimeout(() => {
+          replayNextThrow()
+        }, 500)
       }
+      return
     }
+    
+    if (!knockedCup) return // dev cheat
 
     $runAction('throw', {
       force: throwForce,
@@ -341,7 +353,15 @@ const initThree = () => {
     $endAnimation(1000)
   }
 
+  function replayNextThrow() {
+    let action = actionsToReplay[0]
+    let { x, y, z } = action.data.force
+    ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
+    simulationStartTime = Date.now();
+  }
+
   let time = new Date().getTime()
+  let firstActionReplayed = false
   function animate() {
     requestAnimationFrame(animate);
 
@@ -355,11 +375,9 @@ const initThree = () => {
       // tableObject.quaternion.copy(tableBody.quaternion)
 
       if (simulationStartTime === null) {
-        if (actionsToReplay.length > 0) {
-          let action = actionsToReplay[0]
-          let { x, y, z } = action.data.force
-          ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
-          simulationStartTime = Date.now();
+        if (actionsToReplay.length > 0 && !firstActionReplayed) {
+          replayNextThrow()
+          firstActionReplayed = true
         }
       }
     }
@@ -384,7 +402,7 @@ const initThree = () => {
 
     if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
       let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
-      if (cup && distance < 0.02) {
+      if (cup && distance < 0.015) {
         endSimulation(throwForce, cup)
         return
       }
@@ -544,11 +562,9 @@ onMounted(() => {
 
   initThree()
 
-  let cameraPositionInited = false
+  let duration = 0
 
   watchEffect(() => {
-    let duration = cameraPositionInited ? 0 : 1000
-
     gsap.to(camera.position, {
       duration: duration,
       x: cameraPosition.value.x,
@@ -566,7 +582,7 @@ onMounted(() => {
     if (orbitControls)
       orbitControls.update()
 
-    cameraPositionInited = true
+    duration = 1
   })
 
   window.addEventListener('resize', () => {
