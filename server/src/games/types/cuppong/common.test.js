@@ -37,9 +37,10 @@ test('Not making both shots will end the turn', async () => {
   expect(stillTheirTurn).toBe(false)
   expect(game.data.sides[1].throwCount).toBe(0)
   expect(game.data.sides[0].throwsMade).toBe(0)
+  expect(theirSide.ballsBack).toBe(false)
 })
 
-test('Making both shots will not end the turn', async () => {
+test('Making both shots will not end the turn and will give balls back', async () => {
   // Create a new game
   let game = new main.Game()
   // Activate testing mode
@@ -67,11 +68,13 @@ test('Making both shots will not end the turn', async () => {
 
   // Is it still the player's turn?
   let stillTheirTurn = game.isItUsersTurn(1)
+  let theirSide = game.data.sides[1]
 
   // Assertions
   expect(stillTheirTurn).toBe(true)
-  expect(game.data.sides[1].throwCount).toBe(0)
-  expect(game.data.sides[0].throwsMade).toBe(0)
+  expect(theirSide.throwCount).toBe(0)
+  expect(theirSide.throwsMade).toBe(0)
+  expect(theirSide.ballsBack).toBe(true)
 })
 
 test('Knocking over all cups will result in a redemption', async () => {

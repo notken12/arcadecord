@@ -36,6 +36,8 @@ async function action_throw(game, action) {
     let opponentSide = game.data.sides[[1, 0][game.turn]]
     let opponentsCups = opponentSide.cups
     let thisSide = game.data.sides[game.turn]
+    
+    thisSide.ballsBack = false;
 
     if (!hitCupID) {
         thisSide.throwCount += 1;
@@ -68,6 +70,8 @@ async function action_throw(game, action) {
         if (thisSide.throwsMade !== 2) {
             await GameFlow.endTurn(game)
         }
+        // Player hit both shots, balls back
+        thisSide.ballsBack = true;
         thisSide.throwCount = 0;
         thisSide.throwsMade = 0;
     }

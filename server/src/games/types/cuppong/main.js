@@ -66,7 +66,8 @@ class CupPongGame extends Game {
                     throwCount: 0,
                     throwsMade: 0,
                     lastKnocked: "",
-                    inRedemption: false
+                    inRedemption: false,
+                    ballsBack: false
                 },
                 {
                     color: 'blue',
@@ -74,7 +75,8 @@ class CupPongGame extends Game {
                     throwCount: 0,
                     throwsMade: 0,
                     lastKnocked: "",
-                    inRedemption: false
+                    inRedemption: false,
+                    ballsBack: false
                 }
             ],
         }
