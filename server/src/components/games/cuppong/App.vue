@@ -326,9 +326,12 @@ const initThree = () => {
     // if (!knockedCup) return
 
     if (replaying.value) {
-      let turn = game.value.turns[game.value.turns.length - 1]
-      let action = turn.actions.shift()
+      let action = actionsToReplay.shift()
       replayAction(action)
+
+      if (actionsToReplay.length === 0) {
+        $endReplay(300)
+      }
     }
 
     $runAction('throw', {
@@ -354,7 +357,7 @@ const initThree = () => {
       if (simulationStartTime === null) {
         if (actionsToReplay.length > 0) {
           let action = actionsToReplay[0]
-          let {x, y, z} = action.data.force
+          let { x, y, z } = action.data.force
           ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
           simulationStartTime = Date.now();
         }
@@ -533,19 +536,37 @@ onMounted(() => {
   }
 
   $replayTurn(() => {
-    let turn = game.value.turns[game.value.turns.length - 1]
-    actionsToReplay = turn.actions
-
+    setTimeout(() => {
+      let turn = game.value.turns[game.value.turns.length - 1]
+      actionsToReplay = turn.actions
+    }, 1200)
   })
 
   initThree()
 
+  let cameraPositionInited = false
+
   watchEffect(() => {
-    camera.position.set(cameraPosition.value.x, cameraPosition.value.y, cameraPosition.value.z)
-    camera.rotation.set(cameraRotation.value.x, cameraRotation.value.y, cameraRotation.value.z)
+    let duration = cameraPositionInited ? 0 : 1000
+
+    gsap.to(camera.position, {
+      duration: duration,
+      x: cameraPosition.value.x,
+      y: cameraPosition.value.y,
+      z: cameraPosition.value.z,
+    })
+
+    gsap.to(camera.rotation, {
+      duration: duration,
+      x: cameraRotation.value.x,
+      y: cameraRotation.value.y,
+      z: cameraRotation.value.z,
+    })
 
     if (orbitControls)
       orbitControls.update()
+
+    cameraPositionInited = true
   })
 
   window.addEventListener('resize', () => {
