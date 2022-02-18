@@ -98,7 +98,7 @@ class Chess extends Game {
 
       let boardSrc = path.resolve(__dirname, "../../../public/assets/chess/board.svg")
       let boardImg = await Canvas.loadImage(boardSrc)
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 5;
         ctx.shadowColor = "black"
         ctx.drawImage(boardImg, 54, 8, 184, 184)
 
