@@ -2,6 +2,8 @@
 import main from './main.js'
 // Import the Action class to make actions
 import Action from '../../Action.js'
+// Import the GameFlow class to control game flow
+import GameFlow from '../../GameFlow.js'
 
 // https://jestjs.io/docs/asynchronous
 
@@ -31,7 +33,7 @@ test('Not making both shots will end the turn', async () => {
   await game.handleAction(throw2)
 
   // Is it still the player's turn?
-  let stillTheirTurn = game.isItUsersTurn(1)
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
   let theirSide = game.data.sides[1]
 
   // Assertions
@@ -68,7 +70,7 @@ test('Making both shots will not end the turn and will give balls back', async (
   await game.handleAction(throw2)
 
   // Is it still the player's turn?
-  let stillTheirTurn = game.isItUsersTurn(1)
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
   let theirSide = game.data.sides[1]
 
   // Assertions
@@ -108,7 +110,7 @@ test('Knocking over all cups will result in a redemption', async () => {
 
 
   // Is it still the player's turn?
-  let stillTheirTurn = game.isItUsersTurn(1)
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
 
   // Assertions
   expect(stillTheirTurn).toBe(false)
@@ -151,7 +153,7 @@ test('Not making any shots on redemption will lose', async () => {
 
 
   // Is it still the player's turn?
-  let stillTheirTurn = game.isItUsersTurn(1)
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
 
   // Assertions
   expect(stillTheirTurn).toBe(false)
@@ -210,7 +212,7 @@ test('Making a shot on redemption will put the last cup back and end redemption'
 
 
   // Is it still the player's turn?
-  let stillTheirTurn = game.isItUsersTurn(1)
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
 
   // Assertions
   expect(stillTheirTurn).toBe(false)
@@ -235,7 +237,7 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   await game.handleAction(throw2)
 
   // Player hits one shot, their turn ends and they are no longer in redemption
-  stillTheirTurn = game.isItUsersTurn(0)
+  stillTheirTurn = GameFlow.isItUsersTurn(game, 0)
   theirSide = game.data.sides[0]
   expect(stillTheirTurn).toBe(false)
   expect(theirSide.throwCount).toBe(0)
