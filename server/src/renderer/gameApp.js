@@ -14,11 +14,6 @@ export { createApp }
 
 function createApp(pageContext) {
     const store = createStore()
-    store.commit('SETUP', {
-        game: pageContext.game,
-        discordUser: pageContext.discordUser,
-    })
-    store.commit('REPLAY_TURN')
     
     const app = createSSRApp({
         render: () => h(pageContext.Page),

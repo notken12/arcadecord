@@ -1,5 +1,5 @@
 import { getPage } from 'vite-plugin-ssr/client'
-import { createApp } from '../../renderer/app.js'
+import { createApp } from '@app/renderer/gameApp.js'
 
 // Import client-framework.js, which you need to connect to the server
 import * as Client from '@app/js/client-framework.js';

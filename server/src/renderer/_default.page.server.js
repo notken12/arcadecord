@@ -8,6 +8,7 @@ export const passToClient = ['pageProps', 'urlPathname']
 
 async function render(pageContext) {
     const { app } = createApp(pageContext)
+    
     const appHtml = await renderToString(app)
 
     // See https://vite-plugin-ssr.com/head

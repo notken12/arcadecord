@@ -1,26 +1,24 @@
-import db from '../../../../db/db2.js';
-import { fetchUser } from '../../../utils/discord-api';
-import { gameTypes } from '../../games/game-types';
+import db from '../../../db/db2.js';
+import { fetchUser } from '../../utils/discord-api';
+import { gameTypes } from '@app/games/game-types';
 import { RenderErrorPage } from 'vite-plugin-ssr'
-import { createApp } from '../../renderer/gameApp'
+import { createApp } from '@app/renderer/gameApp'
+// import { createApp } from '@app/renderer/app'
 import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 
 export async function onBeforeRender(pageContext) {
+    // let { default: indexPage } = await import('../pages/Loading.page.vue')
+    // pageContext.Page = indexPage
+
     // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
     const { gameId } = pageContext.routeParams
     const passedPageContext = {}
 
     const pageProps = {}
-    let componentToRender = null
     // FETCH GAME HERE
 
     const { userId } = pageContext;
-
-    if (!userId) {
-        appInsightsClient.trackEvent({ name: 'Socket connection error', properties: { error: 'Invalid user id' } });
-        return;
-    };
 
     if (gameId) {
         var dbGame = await db.games.getById(gameId);
@@ -36,11 +34,13 @@ export async function onBeforeRender(pageContext) {
                 // send game info to user
                 const { typeId } = game;
 
-                const { default: vueApp } = await import(`../../components/games/${typeId}/App.vue`);
-                passedPageContext.Page = vueApp;
+                const { default: vueApp } = await import(`../components/games/${typeId}/App.vue`);
+                // const { default: vueApp } = await import(`../pages/App.vue`);
+                // let { default: indexPage } = await import('./Loading.page.vue')
+                pageContext.Page = vueApp;
 
-                passedPageContext.game = game.getDataForClient(userId);
-                passedPageContext.discordUser = await fetchUser(userId);
+                pageContext.game = game.getDataForClient(userId);
+                pageContext.discordUser = await fetchUser(userId);
             } else {
                 // For some reason user isn't allowed to join (isn't in same server, game full, etc)
                 throw RenderErrorPage({
@@ -63,58 +63,50 @@ export async function onBeforeRender(pageContext) {
             }
         })
     }
+    const { Page } = pageContext
 
-    passedPageContext.pageProps = pageProps;
-
-    // Our render and hydrate functions we defined earlier pass `pageContext.pageProps` to
-    // the root Vue component `Page`; this is where we define `pageProps`.
-
-    // We make `pageProps` available as `pageContext.pageProps`
-    return {
-        pageContext: passedPageContext
-    }
-}
-
-export async function render(pageContext) {
-    const { app, store } = createApp(pageContext)
-
-    store.commit('SETUP', {
-        game: pageContext.game,
-        discordUser: pageContext.discordUser,
-    })
-
-    const appHtml = await renderToString(app)
-    
+    const { app, store } = createApp({ Page })
 
     // See https://vite-plugin-ssr.com/head
     const { documentProps } = pageContext
     const title = (documentProps && documentProps.title) || 'Arcadecord'
     const desc = (documentProps && documentProps.description) || 'Message games for Discord'
 
-    const documentHtml = escapeInject`<!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="${desc}" />
-        <title>${title}</title>
+    const INITIAL_STATE = store.state
 
-        <link rel="stylesheet" href="/scss/all-games.scss">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preconnect" href="https://cdn.discordapp.com">
-      </head>
+    store.commit('SETUP', {
+        game: pageContext.game,
+        discordUser: pageContext.discordUser,
+    })
+    store.commit('REPLAY_TURN')
+
+    const appHtml = await renderToString(app)
+
+    return {
+        pageContext: {
+            INITIAL_STATE,
+            appHtml,
+            Page
+        },
+    }
+}
+
+export async function render(pageContext) {
+    const { appHtml } = pageContext
+    const documentHtml = escapeInject`<!DOCTYPE html>
+    <html>
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
       </body>
     </html>`
 
-    const INITIAL_STATE = store.state
+    console.log(pageContext.Page)
 
     return {
         documentHtml,
         pageContext: {
-            INITIAL_STATE
+            INITIAL_STATE: pageContext.INITIAL_STATE,
+            Page: pageContext.Page,
         },
     }
 }
