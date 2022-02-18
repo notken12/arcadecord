@@ -101,14 +101,14 @@ let lastThrowCount = 0
 //   lastThrowsMade = newValue.throwsMade + 0
 // }, { deep: true, flush: 'post' })
 
-watch(() => mySide.value.throwsMade, (newValue, oldValue) => {
+watch(() => mySide.value.ballsBack, (newValue, oldValue) => {
   console.log('throws made watcher')
-  if (oldValue > 0 && newValue === 0 && game.value.turn === game.value.myIndex) {
+  if (newValue) {
     console.log('balls back')
     message.value = 'Balls back'
   }
 
-}, { deep: true, flush: 'post' })
+}/* , { deep: true } */)
 
 watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
   console.log('in redemption watcher')
@@ -117,7 +117,7 @@ watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
     message.value = 'Redemption'
   }
 
-}, { deep: true, flush: 'post' })
+}/* , { deep: true, flush: 'post' } */)
 
 // watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
 //   console.log('redemption')
@@ -504,6 +504,8 @@ function pointerUp(e) {
   }
 }
 
+let actionsToReplay = []
+
 onMounted(() => {
   window.getBaseLog = function (x, y) {
     return Math.log(y) / Math.log(x);
@@ -518,7 +520,9 @@ onMounted(() => {
   }
 
   $replayTurn(() => {
-    $endReplay(0)
+    let turn = game.value.turns[game.value.turns.length - 1]
+    actionsToReplay = turn.actions
+    
   })
 
   initThree()
