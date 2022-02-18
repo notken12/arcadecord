@@ -58,6 +58,9 @@ const cameraPosition = computed(() => {
   let x = 0
   let y = 0.9
   let z = mySide.value.color === 'red' ? 0.2 : -0.2
+  if (replaying.value) {
+    z += mySide.value.color === 'red' ? 1.2192 : 1.2192
+  }
   return {
     x,
     y,
@@ -320,10 +323,12 @@ const initThree = () => {
     ballBody.velocity.set(0, 0, 0)
     ballBody.angularVelocity.set(0, 0, 0)
 
-    if (!knockedCup) return
+    // if (!knockedCup) return
 
     if (replaying.value) {
-      replayAction(game.value)
+      let turn = game.value.turns[game.value.turns.length - 1]
+      let action = turn.actions.shift()
+      replayAction(action)
     }
 
     $runAction('throw', {
@@ -346,6 +351,14 @@ const initThree = () => {
       // tableObject.position.copy(tableBody.position)
       // tableObject.quaternion.copy(tableBody.quaternion)
 
+      if (simulationStartTime === null) {
+        if (actionsToReplay.length > 0) {
+          let action = actionsToReplay[0]
+          let {x, y, z} = action.data.force
+          ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
+          simulationStartTime = Date.now();
+        }
+      }
     }
 
     if (orbitControls)
@@ -522,7 +535,7 @@ onMounted(() => {
   $replayTurn(() => {
     let turn = game.value.turns[game.value.turns.length - 1]
     actionsToReplay = turn.actions
-    
+
   })
 
   initThree()
