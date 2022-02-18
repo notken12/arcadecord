@@ -499,8 +499,8 @@ Game.eventHandlersDiscord = {
 }
 
 Game.thumbnailDimensions = {
-  width: 400,
-  height: 300,
+  width: 300,
+  height: 200,
 }
 
 export default Game

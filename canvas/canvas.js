@@ -9,6 +9,11 @@ function Component(x, y, width, height, options){
     this.options.type = this.options.type || "rectangle";
     this.options.color = this.options.color || "red";
     this.options.opacity = this.options.opacity || 1;
+
+    this.options.sx = this.options.sx || this.x
+    this.options.sy = this.options.sy || this.y
+    this.options.swidth = this.options.swidth || this.width
+    this.options.sheight = this.options.sheight || this.height
     /*
     type: string, required, default-rectangle
     color: string, required, default-red
@@ -18,6 +23,29 @@ function Component(x, y, width, height, options){
     outlineColor: string, optional, default-black
     imageSource: string, optional, default-NO DEFAULT
 
+    //FOR IMAGES ONLY {
+        sx: number, required, default-this.x
+        sy: number, required, default-this.y
+        swidth: number, required, default-this.width
+        sheight: number, required, default-this.height
+
+
+    (x, y)              width
+        o-------------------------------------
+        |.....................................
+        |...(sx,sy)......swidth...............
+      h |.......o---------------------........
+      e |.......|.............................
+      i |.....s.|.............................
+      g |.....h.|.............................
+      h |.....e.|.............................
+      t |.....i.|.............................
+        |.....g.|.............................
+        |.....h.|.............................
+        |.....t.|.............................
+        ---------------------------------------
+
+    }
     */
 }
 
@@ -28,7 +56,7 @@ function canvas(width, height){
     this.canvas = Canvas.createCanvas(width, height)
     this.ctx = this.canvas.getContext("2d")
 
-    this.draw = function(comp){
+    this.draw = async function(comp){
         switch(comp.options.type){
             case "rectangle":
                 this.ctx.globalAlpha = comp.options.opacity;
@@ -37,7 +65,11 @@ function canvas(width, height){
             break;
 
             case "image":
-            
+            if(comp.options.imageSource){
+                Canvas.loadImage(import.meta.url + "/../" + comp.options.imageSource).then((image) => {
+                    this.ctx.drawImage(image,comp.sx,comp.sy,comp.swidth,comp.sheight,comp.x,comp.y,comp.width,comp.height)
+                  })
+            }
             break;
 
             case "ellipse":
