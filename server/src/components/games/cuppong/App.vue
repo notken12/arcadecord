@@ -510,7 +510,7 @@ onMounted(() => {
   }
 
   window.yForce = function (x) {
-    return window.getBaseLog(50, x * -0.4 + 9);
+    return window.getBaseLog(50, x * -0.6 + 9);
   }
 
   window.zForce = function (x) {
