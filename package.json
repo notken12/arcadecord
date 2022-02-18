@@ -25,7 +25,6 @@
   "license": "ISC",
   "jest": {
     "transform": {
-      "\\.[jt]sx?$": "babel-jest"
     }
   },
   "nodemonConfig": {
