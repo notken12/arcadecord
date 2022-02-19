@@ -8,12 +8,6 @@ import GameFlow from './GameFlow.js'
 import BotApi from '../../bot/api.js'
 import Emoji from '../../../Emoji.js'
 import db from '../../../db/db2.js'
-import {
-  MessageActionRow,
-  MessageEmbed,
-  MessageSelectMenu,
-  MessageButton,
-} from 'discord.js'
 import Ajv from 'ajv'
 
 config()
@@ -21,6 +15,7 @@ config()
 const ajv = new Ajv()
 
 class Game {
+  n
   // options schema
   // {
   //     "id": "",
@@ -36,7 +31,7 @@ class Game {
   gameOptions = {} // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
 
   constructor(typeOptions, options) {
-    this.testing = false;
+    this.testing = false
 
     this.id = null // will be set by the server index.js
     this.players = []
@@ -160,9 +155,15 @@ class Game {
       const valid = validate(action.data)
       if (!valid) {
         if (this.testing) {
-          throw new Error('Action data does not follow schema: ' + validate.errors)
+          throw new Error(
+            'Action data does not follow schema: ' +
+              JSON.stringify(validate.errors)
+          )
         }
-        console.warn('Action data does not follow schema: ' + validate.errors)
+        console.warn(
+          'Action data does not follow schema: ' +
+            JSON.stringify(validate.errors)
+        )
         return {
           success: false,
           message: 'Invalid action data',
@@ -172,10 +173,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-        action.type +
-        '" to game: "' +
-        this.typeId +
-        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+          action.type +
+          '" to game: "' +
+          this.typeId +
+          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       )
     }
 
@@ -415,7 +416,7 @@ class Game {
     }
   }
 
-  getImage() { }
+  getImage() {}
 
   getChanges(oldData, newData) {
     var changes = {}
@@ -468,73 +469,15 @@ class Game {
     return game
   }
 
-  getThumbnail() { }
+  getThumbnail() {}
 }
 
 Game.eventHandlersDiscord = {
   init: async function (game) {
-    var gameCreator = game.players[0]
-    //var gameCreatorUser = new Discord.User();
-    //Object.assign(gameCreatorUser, gameCreator.discordUser);
-
-    var content = ''
-
-    for (let discordId of game.invitedUsers) {
-      content += `<@${discordId}> `
-    }
-
-    var embed = new MessageEmbed()
-      .setTitle(game.name)
-      .setColor(game.color || '#0099ff')
-      .setURL(game.getURL())
-    /*.setAuthor({
-            name: `<@${gameCreator.discordUser.id}>`,
-            iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        })*/
-    /*.setFooter(
-            `<@${gameCreator.discordUser.id}>`,
-            `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-        );*/
-
-    if (game.invitedUsers.length > 0) {
-      embed.setDescription(
-        `${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`
-      )
-    } else {
-      embed.setDescription(
-        `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
-      )
-    }
-
-    var startGameButton = new MessageButton()
-      .setEmoji(Emoji.ICON_WHITE)
-      .setLabel('Play')
-      .setStyle('LINK')
-      .setURL(game.getURL())
-
-    var row = new MessageActionRow().addComponents([startGameButton])
-    var message = { embeds: [embed], components: [row] }
-
-    if (content.length > 0) {
-      message.content = content
-    }
-
-    if (typeof game.getThumbnail == 'function') {
-      var image = await game.getThumbnail()
-      if (image) {
-        const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-        embed.setImage(`attachment://thumbnail.png`)
-
-        message.files = [attachment]
-      }
-    }
-
-    var res = await BotApi.sendMessage(message, game.guild, game.channel)
+    var res = await BotApi.sendStartMessage(game)
 
     var msg = await res.json()
     game.startMessage = msg.id
-    //console.log('start message: ' + game.startMessage);
 
     return game
   },
@@ -546,50 +489,7 @@ Game.eventHandlersDiscord = {
       BotApi.deleteMessage(game.guild, game.channel, game.lastTurnInvite)
     }
 
-    var lastPlayer = game.turns[game.turns.length - 1].playerIndex
-
-    var m = {
-      content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id
-        }>: *${game.emoji + ' ' || ''}${game.name}*`,
-      allowedMentions: {
-        parse: [],
-      },
-    }
-
-    m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`
-
-    await BotApi.sendMessage(m, game.guild, game.channel)
-
-    var embed = new MessageEmbed()
-      .setTitle(game.name)
-      .setDescription(`${game.description}`)
-      .setColor(game.color || '#0099ff')
-      .setURL(game.getURL())
-
-    var button = new MessageButton()
-      .setEmoji(Emoji.ICON_WHITE)
-      .setLabel('Play')
-      .setStyle('LINK')
-      .setURL(game.getURL())
-
-    var row = new MessageActionRow().addComponents([button])
-
-    var invite = {
-      content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
-      embeds: [embed],
-      components: [row],
-    }
-
-    var image = await game.getThumbnail()
-    if (image) {
-      const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-      embed.setImage(`attachment://thumbnail.png`)
-
-      invite.files = [attachment]
-    }
-
-    var res = await BotApi.sendMessage(invite, game.guild, game.channel)
+    var res = await BotApi.sendTurnInvite(game)
 
     var msg = await res.json()
     game.lastTurnInvite = msg.id
@@ -599,8 +499,8 @@ Game.eventHandlersDiscord = {
 }
 
 Game.thumbnailDimensions = {
-  width: 400,
-  height: 300,
+  width: 300,
+  height: 200,
 }
 
 export default Game

@@ -37,6 +37,8 @@ async function action_throw(game, action) {
     let opponentsCups = opponentSide.cups
     let thisSide = game.data.sides[game.turn]
 
+    thisSide.ballsBack = false;
+
     if (!hitCupID) {
         thisSide.throwCount += 1;
         if (thisSide.inRedemption && thisSide.throwCount === 2) { //Failed Redemption
@@ -67,7 +69,11 @@ async function action_throw(game, action) {
     if (thisSide.throwCount === 2) {
         if (thisSide.throwsMade !== 2) {
             await GameFlow.endTurn(game)
+        } else {
+            // Player hit both shots, balls back
+            thisSide.ballsBack = true;
         }
+        // Reset throws
         thisSide.throwCount = 0;
         thisSide.throwsMade = 0;
     }
@@ -90,7 +96,7 @@ function rearrangeCups(game) {
     let cupsLeft = getCupsLeft(game.data.sides[game.turn].cups)
     let opponentsCupsLeft = getCupsLeft(game.data.sides[[1, 0][game.turn]])
 
-    if(cupsLeft.length === 6) {//Three Rows of Cups
+    if (cupsLeft.length === 6) {//Three Rows of Cups
         cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
         /////////////////////////////////////////////
         cupsLeft[1].rowNum = 2, cupsLeft[1].rowPos = -0.5;
@@ -99,16 +105,16 @@ function rearrangeCups(game) {
         cupsLeft[3].rowNum = 1, cupsLeft[3].rowPos = 0;
         cupsLeft[4].rowNum = 1, cupsLeft[4].rowPos = -1;
         cupsLeft[5].rowNum = 1, cupsLeft[5].rowPos = 1;
-    } else if(cupsLeft.length === 3){//Two Rows of Cups
+    } else if (cupsLeft.length === 3) {//Two Rows of Cups
         cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
         /////////////////////////////////////////////
         cupsLeft[1].rowNum = 2, cupsLeft[1].rowPos = -0.5;
         cupsLeft[2].rowNum = 2, cupsLeft[2].rowPos = 0.5;
-    } else if(cupsLeft.length === 1){//One Cup
+    } else if (cupsLeft.length === 1) {//One Cup
         cupsLeft[0].rowNum = 3, cupsLeft[0].rowPos = 0;
     }
 
-    if(opponentsCupsLeft.length === 6) {//Three Rows of Cups
+    if (opponentsCupsLeft.length === 6) {//Three Rows of Cups
         opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
         /////////////////////////////////////////////
         opponentsCupsLeft[1].rowNum = 2, opponentsCupsLeft[1].rowPos = -0.5;
@@ -117,12 +123,12 @@ function rearrangeCups(game) {
         opponentsCupsLeft[3].rowNum = 1, opponentsCupsLeft[3].rowPos = 0;
         opponentsCupsLeft[4].rowNum = 1, opponentsCupsLeft[4].rowPos = -1;
         opponentsCupsLeft[5].rowNum = 1, opponentsCupsLeft[5].rowPos = 1;
-    } else if(opponentsCupsLeft.length === 3){//Two Rows of Cups
+    } else if (opponentsCupsLeft.length === 3) {//Two Rows of Cups
         opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
         /////////////////////////////////////////////
         opponentsCupsLeft[1].rowNum = 2, opponentsCupsLeft[1].rowPos = -0.5;
         opponentsCupsLeft[2].rowNum = 2, opponentsCupsLeft[2].rowPos = 0.5;
-    } else if(opponentsCupsLeft.length === 1){//One Cup
+    } else if (opponentsCupsLeft.length === 1) {//One Cup
         opponentsCupsLeft[0].rowNum = 3, opponentsCupsLeft[0].rowPos = 0;
     }
 }

@@ -8,8 +8,9 @@
   "start": "npm run start",
   "test": "npm run start",
   "scripts": {
-    "test": "jest",
     "build": "vite build && vite build --ssr",
+    "test": "peeky run",
+    "test:open": "peeky open",
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
@@ -24,19 +25,11 @@
   "author": "",
   "license": "ISC",
   "jest": {
-    "transform": {
-      "\\.[jt]sx?$": "babel-jest"
-    }
+    "transform": {}
   },
   "nodemonConfig": {
-    "ignore": [
-      "build/*",
-      "server/src/*",
-      "server/games/types/*/index.html"
-    ],
-    "watch": [
-      "server/src/games/**"
-    ],
+    "ignore": ["build/*", "server/src/*", "server/games/types/*/index.html"],
+    "watch": ["server/src/games/**"],
     "delay": 2500
   },
   "dependencies": {
@@ -49,6 +42,7 @@
     "bases": "^0.2.1",
     "cannon-es": "^0.19.0",
     "cannon-es-debugger": "^1.0.0",
+    "canvas": "^2.9.0",
     "canvas-confetti": "^1.4.0",
     "concurrently": "^7.0.0",
     "cookie-parser": "^1.4.5",
@@ -60,12 +54,15 @@
     "enable3d": "^0.25.0",
     "encoding": "^0.1.13",
     "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "find-up": "^5.0.0",
+    "form-data": "^4.0.0",
     "gsap": "^3.9.1",
     "jsonwebtoken": "^8.5.1",
     "lodash.clonedeep": "^4.5.0",
     "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
+    "multer": "^1.4.4",
     "node-zopfli-es": "^1.0.7",
     "redis": "^4.0.2",
     "remarkable": "^2.0.1",
@@ -83,6 +80,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
+    "@peeky/test": "^0.13.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@vitejs/plugin-vue": "^2.0.1",
