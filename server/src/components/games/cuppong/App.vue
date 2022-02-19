@@ -103,25 +103,23 @@ const overlayAnimated = ref(false)
 let lastThrowsMade = 0
 let lastThrowCount = 0
 
-// watch(() => mySide.value.ballsBack, (newValue, oldValue) => {
-//   console.log('balls back watcher')
-//   if (newValue) {
-//     console.log('balls back')
-//     message.value = 'Balls back'
-//     overlayAnimated.value = true
-//   }
+function ballsBackWatcher(newValue, oldValue) {
+  if (newValue[0] === true || newValue[1] === true) {
+    message.value = 'Balls back'
+    overlayAnimated.value = true
+  }
+}
 
-// }, { deep: true, flush: 'post' })
+function inRedemptionWatcher(newValue, oldValue) {
+  if (newValue[0] === true || newValue[1] === true) {
+    message.value = 'In redemption'
+    overlayAnimated.value = true
+  }
+}
 
-// watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
-//   console.log('in redemption watcher')
-//   if (newValue) {
-//     console.log('redemption')
-//     message.value = 'Redemption'
-//     overlayAnimated.value = true
-//   }
+watch([() => mySide.value.ballsBack, () => otherSide.value.ballsBack], ballsBackWatcher, { deep: true, flush: 'post' })
 
-// }, { deep: true, flush: 'post' })
+watch([() => mySide.value.inRedemption, () => otherSide.value.inRedemption], inRedemptionWatcher, { deep: true, flush: 'post' })
 
 watch(() => game.value.data.sides, () => {
   for (let i = 0; i < sides.value.length; i++) {
@@ -374,7 +372,7 @@ const initThree = () => {
       return
     }
 
-    // if (!knockedCup) return // dev cheat
+    if (!knockedCup) return // dev cheat
 
     $runAction('throw', {
       force: throwForce,
