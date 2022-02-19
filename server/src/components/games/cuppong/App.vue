@@ -86,7 +86,6 @@ const world = new CANNON.World({
 })
 
 const canvasWrapper = ref(null)
-const dragSurface = ref(null)
 
 let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, ballBody
 
@@ -99,9 +98,6 @@ const canvas = ref(null)
 
 const message = ref('')
 const overlayAnimated = ref(false)
-
-let lastThrowsMade = 0
-let lastThrowCount = 0
 
 function ballsBackWatcher(newValue, oldValue) {
   if (newValue[0] === true || newValue[1] === true) {
@@ -177,6 +173,8 @@ const initThree = () => {
   camera = new THREE.PerspectiveCamera(75, canvasWrapper.value.clientWidth / canvasWrapper.value.clientHeight, 0.1, 1000)
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(canvasWrapper.value.clientWidth, canvasWrapper.value.clientHeight)
 
@@ -186,18 +184,22 @@ const initThree = () => {
     orbitControls.dampingFactor = 0.25;
   }
 
-  // const cannonDebugger = new CannonDebugger(scene, world, {
-  //   // options...
-  // })
-
-
   function addCups(sideCups, gltf) {
     for (let cup of sideCups) {
+      // console.count('addCups')
       let cupObject = gltf.scene.clone()
       let position = getCupPosition(cup)
       cupObject.position.set(position.x, position.y, position.z)
-      cupObject.castShadow = true
-      cupObject.receiveShadow = true
+      cupObject.traverse(function (child) {
+        if (child.isMesh) {
+          child.material.flatShading = false
+          child.castShadow = true
+          // child.receiveShadow = true
+        }
+      })
+      // cupObject.children[1].receiveShadow = true
+      // cupObject.castShadow = true
+      // cupObject.receiveShadow = true
 
       scene.add(cupObject)
       cupObjects[cup.id] = cupObject
@@ -221,46 +223,6 @@ const initThree = () => {
 
       world.addBody(cupBody)
       cupBodies[cup.id] = cupBody
-
-      // watchEffect(() => {
-      //   // let cup = newValue
-      //   // console.log(cup)
-      //   // console.log(game.value)
-      //   // console.log(replaying.value)
-      //   if (cup.out || cup.color === mySide.value.color) {
-      //     cupBody.type = CANNON.Body.STATIC
-      //   }
-
-      //   let position = getCupPosition(cup)
-
-      //   if (cup.out) {
-      //     cupBody.type = CANNON.Body.STATIC
-      //     gsap.to(cupObject.position, {
-      //       duration: 0.5,
-      //       y: position.y,
-      //       ease: 'power3.inOut',
-      //       onComplete: () => {
-      //         gsap.to(cupObject.position, {
-      //           x: position.x,
-      //           y: position.y,
-      //           z: position.z,
-      //           duration: 0.5,
-      //           ease: 'power3.inOut',
-      //         })
-      //       }
-      //     })
-      //   } else {
-      //     gsap.to(cupObject.position, {
-      //       duration: 0.5,
-      //       x: position.x,
-      //       y: position.y,
-      //       z: position.z,
-      //       ease: 'power3.inOut',
-      //     })
-      //     cupBody.type = CANNON.Body.KINEMATIC
-      //     cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
-      //   }
-      // }/* , {deep: true} */)
     }
   }
 
@@ -269,12 +231,15 @@ const initThree = () => {
   loader.load('/dist/assets/cuppong/table.glb', (gltf) => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
-        child.material.map.minFilter = THREE.LinearFilter
-        child.castShadow = true
+        // child.castShadow = true
         child.receiveShadow = true
+        child.material.map.minFilter = THREE.LinearFilter
+
         scene.add(child)
 
         tableObject = child
+        // tableObject.castShadow = true
+        // tableObject.receiveShadow = true
 
         // add table body
         tableBody = new CANNON.Body({
@@ -304,24 +269,38 @@ const initThree = () => {
   })
 
   // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
   scene.add(ambientLight)
 
   // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 0.8)
-  pointLight.position.set(0, 0.5, 0)
+  const pointLight = new THREE.PointLight(0xffffff, 0.7)
+  pointLight.position.set(0, 0.4, 0)
+  pointLight.castShadow = true
+  //Set up shadow properties for the light
+  pointLight.shadow.mapSize.width = 1024; // default
+  pointLight.shadow.mapSize.height = 1024; // default
+  pointLight.shadow.camera.near = 0.4; // default
+  pointLight.shadow.camera.far = 1.2; // default
+  pointLight.shadow.radius = 2
   scene.add(pointLight)
+
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1)
+  // scene.add(pointLightHelper)
+
+  const helper = new THREE.CameraHelper(pointLight.shadow.camera);
+  // scene.add(helper);
 
   // add ball
   ballObject = new THREE.Mesh(
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshStandardMaterial({ color: 0xffffff })
   )
+  ballObject.flatShading = false
 
   ballObject.castShadow = true
   ballObject.receiveShadow = true
 
-  ballObject.position.setY(0)
+  ballObject.position.setY(0.02)
   scene.add(ballObject)
 
   ballBody = new CANNON.Body({
@@ -351,7 +330,7 @@ const initThree = () => {
     velocity.y = 0
     velocity.z = 0
 
-    ballBody.position.set(0, 0, 0)
+    ballBody.position.set(0, 0.02, 0)
     ballBody.velocity.set(0, 0, 0)
     ballBody.angularVelocity.set(0, 0, 0)
 
@@ -634,23 +613,7 @@ onMounted(() => {
     <!-- Game UI goes in here -->
 
     <div class="middle" ref="canvasWrapper">
-      <!-- Game UI just for filler -->
-      <!-- <Renderer ref="renderer" antialias resize class="canvas" :orbit-ctrl="false">
-        <Camera ref="camera" />
-        <Scene background="#eeeeee">
-          <AmbientLight color="#ffffff" :intensity="0.5" />
-          <PointLight :position="{ y: 50 }" />
-          <Sphere :radius="2" :position="{ y: 2 }" />
-          <GltfModel
-            src="/assets/cuppong/table.glb"
-            :scale="{ x: 100, y: 100, z: 100 }"
-            :position="{ y: 0 }"
-            ref="table"
-            @load="onTableLoad"
-          ></GltfModel>
-          <Side v-for="side in sides" :side="side" />
-        </Scene>
-      </Renderer>-->
+      <!-- Game UI just for cuppong -->
       <canvas
         id="game-canvas"
         ref="canvas"
