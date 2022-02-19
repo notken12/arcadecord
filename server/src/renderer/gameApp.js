@@ -8,12 +8,13 @@ import VueAppInsights from '@app/js/vue-app-insights.js'
 import { appInsights } from '@app/js/client-framework.js';
 
 import baseMixin from 'components/base-ui/base.mixin.js';
-
+import * as Client from '@app/js/client-framework.js';
 
 export { createApp }
 
 function createApp(pageContext) {
     const store = createStore()
+    // Client.utils.setUpGame(pageContext.INITIAL_STATE.game)
     
     const app = createSSRApp({
         render: () => h(pageContext.Page, pageContext.pageProps || {}),

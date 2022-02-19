@@ -1,6 +1,5 @@
 <template>
   <game-view :game="game" :me="me" :hint="hint">
-    <div>mog</div>
     <scores-view>
       <template v-slot="scoreView">
         <div class="color-indicator" :class="{black: game.data.colors[scoreView.playerindex] === 1}"></div>
@@ -67,7 +66,7 @@ export default {
 
 <style lang="scss">
 @use 'scss/base/_theme' as theme;
-@use 'scss/games/chess.scss' as chess;
+@use 'scss/games/chess.scss';
 
 .color-indicator {
   width: 16px;

@@ -13,7 +13,7 @@ async function hydrate() {
     // instead of `getPage()`, see https://vite-plugin-ssr.com/useClientRouter
     const pageContext = await getPage()
     const { app, store } = createApp(pageContext)
-    Client.utils.setUpGame(pageContext.INITIAL_STATE.game)
+    pageContext.INITIAL_STATE.game = await Client.utils.setUpGame(pageContext.INITIAL_STATE.game)
     store.replaceState(pageContext.INITIAL_STATE)
     app.mount('#app')
 
@@ -30,14 +30,14 @@ async function hydrate() {
     async function connectionCallback(response) {
         // Nice UI components for the basic UI
         // No need to setup UI for the client, we are using SSR
-        // app.$store.commit('SETUP', response)
+        store.commit('SETUP', response)
 
         // Listen for events from the server
         Client.socket.on('turn', (game, turn) => {
             // Update the game UI
-            app.$store.commit('UPDATE_GAME', game);
+            store.commit('UPDATE_GAME', game);
             // Replay the turn
-            app.$store.commit('REPLAY_TURN');
+            store.commit('REPLAY_TURN');
 
             console.log('[arcadecord.socket] turn received, now the turn is ' + game.turn);
         });
