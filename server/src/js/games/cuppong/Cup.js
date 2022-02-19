@@ -1,8 +1,8 @@
 const radius = 0.046 // m
 const tableEndMargin = 0.035 // m
 const cupMargin = 0.02 // m
-const tableLength = 2.4384 // m
-const tableWidth = 0.6096 // m
+const tableLength = 2 // m
+const tableWidth = 0.8 // m
 
 
 export function getCupPosition(cup) {

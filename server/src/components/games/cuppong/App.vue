@@ -69,10 +69,10 @@ const cameraRotation = computed(() => {
 
 const cameraPosition = computed(() => {
   let x = 0
-  let y = 0.9
+  let y = 0.8
   let z = mySide.value.color === 'red' ? 0.2 : -0.2
   if (replaying.value) {
-    z += mySide.value.color === 'red' ? 1.2192 : -1.2192
+    z += mySide.value.color === 'red' ? 1 : -1
   }
   return {
     x,
@@ -378,7 +378,7 @@ const initThree = () => {
       force: throwForce,
       knockedCup: knockedCup?.id || undefined
     })
-    $endAnimation(1000)
+    $endAnimation(500)
   }
 
   function replayNextThrow() {
@@ -421,9 +421,7 @@ const initThree = () => {
     ballObject.position.copy(ballBody.position)
     ballObject.quaternion.copy(ballBody.quaternion)
 
-    if (ballBody.position.y < -2 ||
-      (ballBody.velocity.clone().normalize() <= 0.05 &&
-        ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03)) {
+    if (ballBody.position.y < -2) {
       endSimulation(throwForce)
       return
     }
@@ -434,6 +432,12 @@ const initThree = () => {
         endSimulation(throwForce, cup)
         return
       }
+    }
+
+    if (ballBody.velocity.clone().normalize() <= 0.05 &&
+      ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03) {
+      endSimulation(throwForce)
+      return
     }
 
     if (simulationStartTime !== null) {
@@ -523,7 +527,7 @@ function pointerUp(e) {
   if (e.button === 2) return;
   let time = Date.now();
   let sidePosNeg = mySide.value.color === 'blue' ? 1 : -1;
-  let cnt = 8;
+  let cnt = 5;
 
   if (arr_vel.length < cnt) return;
 
