@@ -9,7 +9,7 @@ import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
 import Side from './Side.vue'
 
-import { computed, onMounted, reactive, ref, watch, watchEffect, toRef } from 'vue';
+import { computed, onMounted, reactive, ref, watch, watchEffect, toRef, toRefs } from 'vue';
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
@@ -42,6 +42,14 @@ const mySide = computed(() => {
 const otherSide = computed(() => {
   let index = game.value.myIndex === -1 ? 0 : game.value.myIndex === 0 ? 1 : 0
   return game.value.data.sides[index]
+})
+
+const sideCups0 = computed(() => {
+  return sides.value[0].cups
+})
+
+const sideCups1 = computed(() => {
+  return sides.value[1].cups
 })
 
 const cameraRotation = computed(() => {
@@ -84,8 +92,8 @@ let scene, camera, renderer, orbitControls, tableObject, tableBody, ballObject, 
 
 let orbitControlsEnabled = false
 
-const cupObjects = []
-const cupBodies = []
+const cupObjects = {}
+const cupBodies = {}
 
 const canvas = ref(null)
 
@@ -95,51 +103,75 @@ const overlayAnimated = ref(false)
 let lastThrowsMade = 0
 let lastThrowCount = 0
 
-// watch(() => ({...mySide.value}), (newValue, oldValue) => {
+// watch(() => mySide.value.ballsBack, (newValue, oldValue) => {
 //   console.log('balls back watcher')
-//   console.log(lastThrowsMade, newValue.throwsMade)
-//   console.log(oldValue, newValue)
-//   if (lastThrowsMade === 2 && newValue.throwsMade === 0) {
+//   if (newValue) {
 //     console.log('balls back')
 //     message.value = 'Balls back'
+//     overlayAnimated.value = true
 //   }
-//   if (newValue.inRedemption) {
-//     message.value = 'Redemption'
-//   }
-//   lastThrowsMade = newValue.throwsMade + 0
+
 // }, { deep: true, flush: 'post' })
 
-watch(() => mySide.value.ballsBack, (newValue, oldValue) => {
-  console.log('throws made watcher')
-  if (newValue) {
-    console.log('balls back')
-    message.value = 'Balls back'
-  }
-
-}, { deep: true, flush: 'post' })
-
-watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
-  console.log('in redemption watcher')
-  if (newValue) {
-    console.log('redemption')
-    message.value = 'Redemption'
-  }
-
-}, { deep: true, flush: 'post' })
-
 // watch(() => mySide.value.inRedemption, (newValue, oldValue) => {
-//   console.log('redemption')
+//   console.log('in redemption watcher')
 //   if (newValue) {
+//     console.log('redemption')
 //     message.value = 'Redemption'
+//     overlayAnimated.value = true
 //   }
-// }, { deep: true })
 
-watch(message, (newValue, oldValue) => {
-  console.log(newValue)
-  if (newValue) {
-    overlayAnimated.value = true
+// }, { deep: true, flush: 'post' })
+
+watch(() => game.value.data.sides, () => {
+  for (let i = 0; i < sides.value.length; i++) {
+    let side = sides.value[i]
+    for (let j = 0; j < side.cups.length; j++) {
+      let cup = side.cups[j]
+      let cupObject = cupObjects[cup.id]
+      let cupBody = cupBodies[cup.id]
+
+      if (cup.out || cup.color === mySide.value.color) {
+        cupBody.type = CANNON.Body.STATIC
+      }
+
+      let position = getCupPosition(cup)
+
+      if (cup.out) {
+        cupBody.type = CANNON.Body.STATIC
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          y: position.y,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            gsap.to(cupObject.position, {
+              x: position.x,
+              y: position.y,
+              z: position.z,
+              duration: 0.5,
+              ease: 'power3.inOut',
+            })
+          }
+        })
+      } else {
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          x: position.x,
+          y: position.y,
+          z: position.z,
+          ease: 'power3.inOut',
+        })
+        cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+      }
+    }
   }
-})
+  // let cup = newValue
+  // console.log(cup)
+  // console.log(game.value)
+  // console.log(replaying.value)
+
+}, { deep: true })
 
 const initThree = () => {
   scene = new THREE.Scene()
@@ -170,7 +202,7 @@ const initThree = () => {
       cupObject.receiveShadow = true
 
       scene.add(cupObject)
-      cupObjects.push(cupObject)
+      cupObjects[cup.id] = cupObject
 
       let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], { type: ShapeType.MESH })
       let cupPosition = getCupPosition(cup)
@@ -190,48 +222,47 @@ const initThree = () => {
         cupBody.type = CANNON.Body.STATIC
 
       world.addBody(cupBody)
-      cupBodies.push(cupBody)
+      cupBodies[cup.id] = cupBody
 
-      watchEffect(() => {
-        console.log(replaying.value)
-        if (cup.out || cup.color === mySide.value.color) {
-          cupBody.type = CANNON.Body.STATIC
-        }
+      // watchEffect(() => {
+      //   // let cup = newValue
+      //   // console.log(cup)
+      //   // console.log(game.value)
+      //   // console.log(replaying.value)
+      //   if (cup.out || cup.color === mySide.value.color) {
+      //     cupBody.type = CANNON.Body.STATIC
+      //   }
 
-        let position = getCupPosition(cup)
+      //   let position = getCupPosition(cup)
 
-        if (cup.out) {
-          cupBody.type = CANNON.Body.STATIC
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            y: position.y,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              gsap.to(cupObject.position, {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                duration: 0.5,
-                ease: 'power3.inOut',
-              })
-            }
-          })
-        } else {
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            ease: 'power3.inOut',
-          })
-          cupBody.type = CANNON.Body.KINEMATIC
-          cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
-        }
-      }, {
-        onTrack(e) {
-          // console.log(e)
-        }
-      })
+      //   if (cup.out) {
+      //     cupBody.type = CANNON.Body.STATIC
+      //     gsap.to(cupObject.position, {
+      //       duration: 0.5,
+      //       y: position.y,
+      //       ease: 'power3.inOut',
+      //       onComplete: () => {
+      //         gsap.to(cupObject.position, {
+      //           x: position.x,
+      //           y: position.y,
+      //           z: position.z,
+      //           duration: 0.5,
+      //           ease: 'power3.inOut',
+      //         })
+      //       }
+      //     })
+      //   } else {
+      //     gsap.to(cupObject.position, {
+      //       duration: 0.5,
+      //       x: position.x,
+      //       y: position.y,
+      //       z: position.z,
+      //       ease: 'power3.inOut',
+      //     })
+      //     cupBody.type = CANNON.Body.KINEMATIC
+      //     cupBody.position = new CANNON.Vec3(position.x, position.y + 0.117, position.z)
+      //   }
+      // }/* , {deep: true} */)
     }
   }
 
@@ -266,13 +297,12 @@ const initThree = () => {
 
   // load cup model
   loader.load('/dist/assets/cuppong/red_cup.glb', (gltf) => {
-    let sideCups = sides.value[0].cups
-    addCups(sideCups, gltf)
+    addCups(sideCups0.value, gltf)
   })
 
   loader.load('/dist/assets/cuppong/blue_cup.glb', (gltf) => {
-    let sideCups = sides.value[1].cups
-    addCups(sideCups, gltf)
+    let sideCups = toRefs(game.value.data.sides[1].cups)
+    addCups(sideCups1.value, gltf)
   })
 
   // add ambient light
@@ -343,8 +373,8 @@ const initThree = () => {
       }
       return
     }
-    
-    if (!knockedCup) return // dev cheat
+
+    // if (!knockedCup) return // dev cheat
 
     $runAction('throw', {
       force: throwForce,
@@ -400,9 +430,9 @@ const initThree = () => {
       return
     }
 
-    if (ballBody.position.y < 0.04 && ballBody.position.y >= 0) {
+    if (ballBody.position.y < 0.03 && ballBody.position.y >= 0) {
       let { cup, distance } = nearestCup(new CANNON.Vec3(ballBody.position.x, 0, ballBody.position.z))
-      if (cup && distance < 0.015) {
+      if (cup && distance < 0.01) {
         endSimulation(throwForce, cup)
         return
       }
