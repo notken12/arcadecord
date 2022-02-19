@@ -13,6 +13,7 @@ async function hydrate() {
     // instead of `getPage()`, see https://vite-plugin-ssr.com/useClientRouter
     const pageContext = await getPage()
     const { app, store } = createApp(pageContext)
+    Client.utils.setUpGame(pageContext.INITIAL_STATE.game)
     store.replaceState(pageContext.INITIAL_STATE)
     app.mount('#app')
 

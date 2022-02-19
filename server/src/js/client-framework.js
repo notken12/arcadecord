@@ -24,6 +24,8 @@ console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
 var socket;
 
+let onPageHasUnsavedChanges, onAllChangesSaved;
+
 async function useOnClient() {
     const { io } = await import("socket.io-client");
 
@@ -35,12 +37,12 @@ async function useOnClient() {
     };
 
     // A function that invokes a callback when the page has unsaved changes.
-    let onPageHasUnsavedChanges = () => {
+    onPageHasUnsavedChanges = () => {
         window.addEventListener('beforeunload', beforeUnloadListener, { capture: true });
     };
 
     // A function that invokes a callback when the page's unsaved changes are resolved.
-    let onAllChangesSaved = () => {
+    onAllChangesSaved = () => {
         window.removeEventListener('beforeunload', beforeUnloadListener, { capture: true });
     };
 }

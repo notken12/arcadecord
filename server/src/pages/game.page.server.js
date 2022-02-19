@@ -8,8 +8,6 @@ import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 
 export async function onBeforeRender(pageContext) {
-    // let { default: indexPage } = await import('../pages/Loading.page.vue')
-    // pageContext.Page = indexPage
 
     // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
     const { gameId } = pageContext.routeParams
@@ -34,11 +32,10 @@ export async function onBeforeRender(pageContext) {
                 // send game info to user
                 const { typeId } = game;
 
-                const { default: vueApp } = await import(`../components/games/${typeId}/App.vue`);
                 // const { default: vueApp } = await import(`../pages/App.vue`);
                 // let { default: indexPage } = await import('./Loading.page.vue')
-                pageContext.Page = vueApp;
 
+                pageProps.gameType = typeId;
                 pageContext.game = game.getDataForClient(userId);
                 pageContext.discordUser = await fetchUser(userId);
             } else {
@@ -64,8 +61,18 @@ export async function onBeforeRender(pageContext) {
         })
     }
     const { Page } = pageContext
+    pageContext.pageProps = pageProps
 
-    const { app, store } = createApp({ Page })
+    return {
+        pageContext: {
+            Page,
+            pageProps,
+        },
+    }
+}
+
+export async function render(pageContext) {
+    const { app, store } = createApp(pageContext)
 
     // See https://vite-plugin-ssr.com/head
     const { documentProps } = pageContext
@@ -82,31 +89,22 @@ export async function onBeforeRender(pageContext) {
 
     const appHtml = await renderToString(app)
 
-    return {
-        pageContext: {
-            INITIAL_STATE,
-            appHtml,
-            Page
-        },
-    }
-}
-
-export async function render(pageContext) {
-    const { appHtml } = pageContext
     const documentHtml = escapeInject`<!DOCTYPE html>
     <html>
+      <head>
+        <meta charset="utf-8">
+      </head>
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
       </body>
     </html>`
 
-    console.log(pageContext.Page)
-
     return {
         documentHtml,
         pageContext: {
-            INITIAL_STATE: pageContext.INITIAL_STATE,
+            INITIAL_STATE,
             Page: pageContext.Page,
+            pageProps: pageContext.pageProps,
         },
     }
 }

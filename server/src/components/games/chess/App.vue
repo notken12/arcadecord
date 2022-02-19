@@ -13,8 +13,7 @@
   </game-view>
 </template>
 <script>
-import '@app/scss/base/_theme.scss'
-import '@app/scss/games/chess.scss'
+
 import Board from './Board.vue'
 import bus from '@app/js/vue-event-bus'
 
@@ -66,8 +65,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use 'scss/base/_theme' as theme;
+@use 'scss/games/chess.scss' as chess;
 
 .color-indicator {
   width: 16px;
@@ -85,3 +85,5 @@ export default {
   border-color: white;
 }
 </style>
+
+<!-- <style src="scss/games/chess.scss"></style> -->

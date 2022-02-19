@@ -16,7 +16,7 @@ function createApp(pageContext) {
     const store = createStore()
     
     const app = createSSRApp({
-        render: () => h(pageContext.Page),
+        render: () => h(pageContext.Page, pageContext.pageProps || {}),
     })
     app.use(VueAppInsights, { appInsights });
     app.mixin(baseMixin);
