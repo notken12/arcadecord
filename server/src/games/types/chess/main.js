@@ -94,41 +94,41 @@ class Chess extends Game {
       const ctx = canvas.getContext('2d')
 
       ctx.fillStyle = "white"
-      ctx.fillRect(0,0, canvas.width, canvas.height)
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       let boardSrc = path.resolve(__dirname, "../../../public/assets/chess/board.svg")
       let boardImg = await Canvas.loadImage(boardSrc)
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = "gray"
-        
-        ctx.drawImage(boardImg, 54, 8, 184, 184)
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = "gray"
 
-        ctx.shadowBlur = 0;
+      ctx.drawImage(boardImg, 54, 8, 184, 184)
+
+      ctx.shadowBlur = 0;
       let whitePiecesSrc = path.resolve(__dirname, "../../../public/assets/chess/white_pieces.svg")
       let blackPiecesSrc = path.resolve(__dirname, "../../../public/assets/chess/black_pieces.svg")
 
       let whitePieces = await Canvas.loadImage(whitePiecesSrc)
       let blackPieces = await Canvas.loadImage(blackPiecesSrc)
-        var i;
-        for(i=0;i<this.data.board.length;i++){
-          let pieceNumber = 0;
-          if(this.data.board[i].type == "r"){
-            pieceNumber = 1;
-          } else if(this.data.board[i].type == "n"){
-            pieceNumber = 2;
-          }else if(this.data.board[i].type == "b"){
-            pieceNumber = 3;
-          }else if(this.data.board[i].type == "q"){
-            pieceNumber = 4;
-          }else if(this.data.board[i].type == "k"){
-            pieceNumber = 5;
-          }
-          if(this.data.board[i].color === 0){//White
-            ctx.drawImage(whitePieces, 100*pieceNumber, 0, 100, 100 , 54 + (this.data.board[i].file * 23), 169 - (this.data.board[i].rank * 23), 23, 23)
-          } else {//Black
-            ctx.drawImage(blackPieces, 100*pieceNumber, 0, 100, 100 , 54 + (this.data.board[i].file * 23), 169 - (this.data.board[i].rank * 23), 23, 23)
-          }
+      var i;
+      for (i = 0; i < this.data.board.length; i++) {
+        let pieceNumber = 0;
+        if (this.data.board[i].type == "r") {
+          pieceNumber = 1;
+        } else if (this.data.board[i].type == "n") {
+          pieceNumber = 2;
+        } else if (this.data.board[i].type == "b") {
+          pieceNumber = 3;
+        } else if (this.data.board[i].type == "q") {
+          pieceNumber = 4;
+        } else if (this.data.board[i].type == "k") {
+          pieceNumber = 5;
         }
+        if (this.data.board[i].color === 0) {//White
+          ctx.drawImage(whitePieces, 100 * pieceNumber, 0, 100, 100, 54 + (this.data.board[i].file * 23), 169 - (this.data.board[i].rank * 23), 23, 23)
+        } else {//Black
+          ctx.drawImage(blackPieces, 100 * pieceNumber, 0, 100, 100, 54 + (this.data.board[i].file * 23), 169 - (this.data.board[i].rank * 23), 23, 23)
+        }
+      }
 
       return canvas.toBuffer()
     }
