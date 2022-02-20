@@ -166,5 +166,10 @@ export default defineConfig({
     /*graph({
       prune: true
     })*/
-  ]
+  ],
+  // Peeky config
+  test: {
+    // Use the DOM environment for all tests by default
+    runtimeEnv: 'dom',
+  },
 })

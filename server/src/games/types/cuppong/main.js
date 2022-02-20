@@ -4,6 +4,17 @@ import Common from './common.js';
 // Import Game class
 import Game from '../../Game.js';
 
+import Canvas from 'canvas';
+
+// get __dirname
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
+
 // Game options, required. Export as options
 // README.md
 const options = {
@@ -66,7 +77,8 @@ class CupPongGame extends Game {
                     throwCount: 0,
                     throwsMade: 0,
                     lastKnocked: "",
-                    inRedemption: false
+                    inRedemption: false,
+                    ballsBack: false
                 },
                 {
                     color: 'blue',
@@ -74,7 +86,8 @@ class CupPongGame extends Game {
                     throwCount: 0,
                     throwsMade: 0,
                     lastKnocked: "",
-                    inRedemption: false
+                    inRedemption: false,
+                    ballsBack: false
                 }
             ],
         }
@@ -99,6 +112,18 @@ class CupPongGame extends Game {
                 }
             }
         })
+    }
+
+    async getThumbnail() {
+        const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
+        const ctx = canvas.getContext('2d')
+
+        let thumbnailSrc = path.resolve(__dirname, "../../../public/assets/cuppong/thumbnail.png");
+        let thumbnailImg = await Canvas.loadImage(thumbnailSrc);
+
+        ctx.drawImage(thumbnailImg, 0, 0, canvas.width, canvas.height);
+
+        return canvas.toBuffer()
     }
 }
 
