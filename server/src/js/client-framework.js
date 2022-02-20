@@ -2,6 +2,7 @@ import cloneDeep from 'lodash.clonedeep'
 import GameFlow from './GameFlow.js';
 import bus from './vue-event-bus.js';
 import { replayTurn } from './ui.js';
+import {io} from 'socket.io-client'
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
@@ -20,14 +21,12 @@ function log(...args) {
     }
 }
 
-console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
-
 var socket;
 
 let onPageHasUnsavedChanges, onAllChangesSaved;
 
 async function useOnClient() {
-    const { io } = await import("socket.io-client");
+    console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
     socket = io(`${window.location.origin}`);
 

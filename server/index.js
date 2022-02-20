@@ -94,26 +94,6 @@ app.get('/name', function (req, res) {
   res.send(host.name);
 });
 
-/*import { startServer as startSnowpackDevServer, loadConfiguration as loadSnowpackConfiguration } from 'snowpack';
-
-const snowpackConfig = await loadSnowpackConfiguration({
-  devOptions: {
-    port: host.snowpackPort
-  }
-}, path.resolve('snowpack.config.mjs'));
-
-const snowpackDevServer = await startSnowpackDevServer({ config: snowpackConfig });
-
-async function proxySnowpackDev(url, res) {
-  const buildResult = await snowpackDevServer.loadUrl(url).catch(err => { return null });
-  if (buildResult) {
-    res.contentType(buildResult.contentType);
-    res.send(buildResult.contents);
-  }
-  return buildResult;
-
-}*/
-
 import { createPageRenderer } from 'vite-plugin-ssr'
 
 var viteDevServer;
@@ -196,7 +176,7 @@ async function useBuiltFile(pathName, req, res) {
       var prefix = path.resolve(__dirname, './src');
       var filePath = path.resolve(__dirname, pathName)
         .replace(path.resolve(prefix, './public'), `${__dirname}/dist`)
-        .replace(prefix, `${__dirname}/dist`);
+        .replace(prefix, `${__dirname}/src/dist`);
       res.sendFile(filePath);
     }
   }

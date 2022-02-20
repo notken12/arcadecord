@@ -12,6 +12,8 @@ import brotli from "rollup-plugin-brotli";
 import handlebars from 'vite-plugin-handlebars';
 import ssr from 'vite-plugin-ssr/plugin'
 import { esbuildCommonjs, viteCommonjs } from "@originjs/vite-plugin-commonjs";
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import cjs from "rollup-plugin-cjs-es";
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -69,7 +71,7 @@ for (let key of nodeDependencies) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: './server/src',
+  root: path.resolve(__dirname, 'server/src'),
   base: '/dist/',
   publicDir: 'public',
   server: {
@@ -100,11 +102,11 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: entryPoints,
       output: {
         format: 'es',
         manualChunks(id) {
           // add shared modules to the vendor chunk
+          console.log(id)
           if (id.includes('node_modules')) {
             for (let i = 0; i < sharedModules.length; i++) {
               if (id.includes(sharedModules[i])) {
@@ -122,12 +124,11 @@ export default defineConfig({
       },
       external: [
         /server\/src\/games\/types\/(.*)main.(.*)$/,
-        /server\/src\/games\/([^\/]*)$/,
+        // /server\/src\/games\/([^\/]*)$/,
         /.test.[jt]sx?$/,
         'encoding',
       ],
     },
-    outDir: '../dist',
     emptyOutDir: true,
   },
   optimizeDeps: {
@@ -137,6 +138,7 @@ export default defineConfig({
     include: ["node-fetch"],  // also here
   },
   plugins: [
+    // nodeResolve(),
     viteCommonjs(),
     vue(),
     babel({
@@ -144,29 +146,11 @@ export default defineConfig({
       // exclude: 'node_modules/**'
     }),
     ssr(),
-    // handlebars({
-    //   context(pagePath) {
-    //     let data = pageData[pagePath];
-    //     if (data) {
-    //       let aliases;
-    //       if (typeof data.aliases === 'object') {
-    //         aliases = (data.aliases.join(' ') + ' ' + data.name).toLowerCase();
-    //       } else {
-    //         aliases = data.name.toLowerCase();
-    //       }
-    //       return {
-    //         metaTemplate:
-    //           `
-    //           <link rel="preconnect" href="https://fonts.googleapis.com">
-    //           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    //           <link rel="preconnect" href="https://cdn.discordapp.com">
-    //           <meta name="theme-color" content="${data.color || '#0063ff'}">
-    //           <meta name="description" content="${data.description || ''}">
-    //           <meta name="keywords" content="${aliases}">
-    //         `
-    //       }
-    //     }
-    //   }
+    // commonjs({
+    //   transformMixedEsModules: true,
+    // }),
+    // cjs({
+    //   nested: true
     // }),
     brotli(),
     visualizer({

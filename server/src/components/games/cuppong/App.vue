@@ -12,7 +12,7 @@ import { computed, onMounted, reactive, ref, watch, watchEffect, toRef, toRefs }
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import CannonDebugger from 'cannon-es-debugger'
+// import CannonDebugger from 'cannon-es-debugger'
 
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 
