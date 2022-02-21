@@ -1,6 +1,6 @@
 import db from '../../../db/db2.js';
 import { fetchUser } from '../../utils/discord-api';
-import { gameTypes } from '@app/games/game-types';
+import { gameTypes } from '@app/games/game-types.js';
 import { RenderErrorPage } from 'vite-plugin-ssr'
 import { createApp } from '@app/renderer/gameApp'
 // import { createApp } from '@app/renderer/app'
