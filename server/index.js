@@ -98,6 +98,7 @@ import { createPageRenderer } from 'vite-plugin-ssr'
 
 var viteDevServer;
 const isProduction = process.env.NODE_ENV === 'production';
+// const root = `${path.dirname(import.meta.url)}/src`;
 const root = `${__dirname}/src`;
 
 if (!isProduction) {
@@ -117,10 +118,10 @@ if (!isProduction) {
   app.use(viteDevServer.middlewares);
 } else {
   // IF PRODUCTION
-  app.use('/dist', express.static(path.resolve(__dirname, 'dist/client')));
+  app.use('/dist', express.static(path.resolve(__dirname, 'src/dist/client')));
 }
 
-const renderPage = createPageRenderer({ viteDevServer, isProduction, root })
+const renderPage = createPageRenderer({ viteDevServer, isProduction, root, baseAssets: '/dist/' })
 
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl

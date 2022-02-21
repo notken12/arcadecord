@@ -18,8 +18,8 @@ import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 import gsap from 'gsap'
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { useFacade } from 'components/base-ui/facade'
 

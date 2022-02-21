@@ -124,22 +124,24 @@ export default defineConfig({
       },
       external: [
         /server\/src\/games\/types\/(.*)main.(.*)$/,
-        // /server\/src\/games\/([^\/]*)$/,
+        /server\/src\/games\/([^\/]*)$/,
         /.test.[jt]sx?$/,
         'encoding',
       ],
     },
     emptyOutDir: true,
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
-    },
-    include: ["node-fetch"],  // also here
-  },
+  // optimizeDeps: {
+  //   esbuildOptions: {
+  //     plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
+  //   },
+  //   include: ["node-fetch"],  // also here
+  // },
   plugins: [
     // nodeResolve(),
-    viteCommonjs(),
+    commonjs({
+      transformMixedEsModules: true
+    }),
     vue(),
     babel({
       babelHelpers: 'bundled',

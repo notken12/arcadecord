@@ -1,5 +1,5 @@
 <template>
-    <component :is="GameComponent"></component>
+    <GameComponent></GameComponent>
 </template>
 
 <script setup>
@@ -11,7 +11,11 @@ const props = defineProps({
     }
 })
 
-const GameComponent = defineAsyncComponent(() =>
-    import(`../components/games/${props.gameType}/App.vue`)
-)
+import GameComponent from `components/games/${props.gameType}/App.vue`;
+
+// const GameComponent = defineAsyncComponent(() =>
+//     import(`../components/games/${props.gameType}/App.vue`)
+// )
 </script>
+
+<style lang="scss" src="scss/all-games.scss"></style>

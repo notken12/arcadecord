@@ -81,7 +81,7 @@
     "three-to-cannon": "^4.0.2",
     "troisjs": "^0.3.3",
     "vite": "^2.8.4",
-    "vite-plugin-ssr": "^0.3.55",
+    "vite-plugin-ssr": "^0.3.58",
     "vue": "^3.2.31",
     "vuex": "^4.0.2"
   },
