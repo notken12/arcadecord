@@ -8,8 +8,6 @@ import App from '@app/components/games/filler/App.vue';
 import Loading from '@app/components/base-ui/Loading.vue';
 
 import 'scss/games/filler.scss';
-import store from '@app/js/store.js';
-import box from '@app/js/box.js';
 
 // Display a loading screen while we wait for the game to load
 //const loading = createApp(Loading).mount('#loading');

@@ -1,6 +1,6 @@
 import {ref, computed, onMounted } from 'vue'
 import bus from '@app/js/vue-event-bus';
-import store from '@app/js/box';
+import {useStore} from 'vuex';
 
 const turnReplayDelay = 250;
 
@@ -9,7 +9,7 @@ let replayTurnFuncSet = false;
 
 // by convention, composable function names start with "use"
 export function useFacade() {
-    const facade = store
+    const facade = useStore()
 
     const game = computed(() => facade.state.game)
     const me = computed(() => facade.state.me)

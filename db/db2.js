@@ -16,7 +16,7 @@ const userSchema = new Schema({
     },
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 const gameSchema = new Schema({
     _id: String,
@@ -52,13 +52,13 @@ const gameSchema = new Schema({
     invitedUsers: Array,
 });
 
-const Game = mongoose.model('Game', gameSchema);
+const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 const slashCommandOptionsSchema = new Schema({
     invitedUsers: Array,
 });
 
-const SlashCommandOptions = mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
+const SlashCommandOptions = mongoose.models.SlashCommandOptions || mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
 
 const db = {
     connect() {
