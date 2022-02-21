@@ -7,20 +7,19 @@
 
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/cuppong'
-import Side from './Side.vue'
 
 import { computed, onMounted, reactive, ref, watch, watchEffect, toRef, toRefs } from 'vue';
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import CannonDebugger from 'cannon-es-debugger'
+// import CannonDebugger from 'cannon-es-debugger'
 
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 import gsap from 'gsap'
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { useFacade } from 'components/base-ui/facade'
 

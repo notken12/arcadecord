@@ -9,20 +9,20 @@
             "name": "Run npm start",
             "request": "launch",
             "type": "node-terminal",
-            "skipFiles": [
-                "${workspaceFolder}/node_modules/**/*.js",
-                "<node_internals>/**/*.js"
-            ],
+            // "skipFiles": [
+            //     "${workspaceFolder}/node_modules/**/*.js",
+            //     "<node_internals>/**/*.js"
+            // ],
         },
         {
             "command": "npm run startsingle",
             "name": "Run npm startsingle",
             "request": "launch",
             "type": "node-terminal",
-            "skipFiles": [
-                "${workspaceFolder}/node_modules/**/*.js",
-                "<node_internals>/**/*.js"
-            ],
+            // "skipFiles": [
+            //     "${workspaceFolder}/node_modules/**/*.js",
+            //     "<node_internals>/**/*.js"
+            // ],
         },
     ]
 }

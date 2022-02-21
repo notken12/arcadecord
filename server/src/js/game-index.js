@@ -5,9 +5,6 @@ import * as Client from '@app/js/client-framework.js';
 import { createApp, replayTurn, setupUI } from '@app/js/ui.js'
 import {createApp as createVueApp} from 'vue';
 
-import store from '@app/js/store.js';
-import facade from '@app/js/box.js';
-
 import ErrorScreen from 'components/base-ui/ErrorScreen.vue';
 
 // Get game ID from URL address

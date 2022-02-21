@@ -6,8 +6,7 @@
 import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable.js'
 import bus from '@app/js/vue-event-bus'
-Draggable.zIndex = 1001
-gsap.registerPlugin(Draggable)
+
 export default {
   props: {
     piece: {
@@ -95,6 +94,10 @@ export default {
   },
   mounted() {
     let vm = this
+
+    Draggable.zIndex = 1001
+    gsap.registerPlugin(Draggable)
+
     let top = ((7 - this.piece.rank) / 1) * 100
     let left = (this.piece.file / 1) * 100
     gsap.set(this.$refs.pieceEl, {
@@ -159,7 +162,7 @@ export default {
 @use 'scss/base/_theme' as theme;
 .piece {
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
-  background-image: url('/dist/assets/chess/white_pieces.svg');
+  background-image: url("/dist/assets/chess/white_pieces.svg");
   background-size: auto 100%;
   cursor: pointer;
   position: absolute;
@@ -171,7 +174,7 @@ export default {
   z-index: 0;
 }
 .black {
-  background-image: url('/dist/assets/chess/black_pieces.svg');
+  background-image: url("/dist/assets/chess/black_pieces.svg");
 }
 .selected {
   background-color: #ffffff88;

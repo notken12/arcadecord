@@ -4,8 +4,6 @@ import Common from './common.js';
 // Import Game class
 import Game from '../../Game.js';
 
-import Canvas from 'canvas';
-
 // get __dirname
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -115,6 +113,8 @@ class CupPongGame extends Game {
     }
 
     async getThumbnail() {
+        const { default: Canvas } = await import('canvas');
+
         const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
         const ctx = canvas.getContext('2d')
 

@@ -1,25 +1,18 @@
 <template>
-  <!-- GameView component, contains all basic game UI 
-            like settings button -->
   <game-view :game="game" :me="me" :hint="hint">
-    <!-- Game UI goes in here -->
-    <!-- Using the scores-view component, create the color indicators -->
     <scores-view>
-      <!-- Display a color indicator for each player -->
       <template v-slot="scoreView">
         <div class="color-indicator" :class="{black: game.data.colors[scoreView.playerindex] === 1}"></div>
       </template>
     </scores-view>
 
     <div class="middle">
-      <!-- Game UI just for chess  -->
       <board></board>
     </div>
   </game-view>
 </template>
 <script>
-import '@app/scss/base/_theme.scss'
-import '@app/scss/games/chess.scss'
+
 import Board from './Board.vue'
 import bus from '@app/js/vue-event-bus'
 
@@ -71,8 +64,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use 'scss/base/_theme' as theme;
+@use 'scss/games/chess.scss';
 
 .color-indicator {
   width: 16px;
@@ -90,3 +84,5 @@ export default {
   border-color: white;
 }
 </style>
+
+<!-- <style src="scss/games/chess.scss"></style> -->

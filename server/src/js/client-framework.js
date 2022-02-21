@@ -1,10 +1,8 @@
 import cloneDeep from 'lodash.clonedeep'
-import { io } from "socket.io-client";
 import GameFlow from './GameFlow.js';
 import bus from './vue-event-bus.js';
-import store from './store.js';
 import { replayTurn } from './ui.js';
-import facade from './box';
+import {io} from 'socket.io-client'
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
@@ -23,9 +21,30 @@ function log(...args) {
     }
 }
 
-console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
+var socket;
 
-var socket = io(`${window.location.origin}`);
+let onPageHasUnsavedChanges, onAllChangesSaved;
+
+async function useOnClient() {
+    console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
+
+    socket = io(`${window.location.origin}`);
+
+    const beforeUnloadListener = (event) => {
+        event.preventDefault();
+        return event.returnValue = "Your turn has not been sent yet. Are you sure you want to leave?";
+    };
+
+    // A function that invokes a callback when the page has unsaved changes.
+    onPageHasUnsavedChanges = () => {
+        window.addEventListener('beforeunload', beforeUnloadListener, { capture: true });
+    };
+
+    // A function that invokes a callback when the page's unsaved changes are resolved.
+    onAllChangesSaved = () => {
+        window.removeEventListener('beforeunload', beforeUnloadListener, { capture: true });
+    };
+}
 
 class Action {
     constructor(type, data, playerIndex) {
@@ -136,11 +155,6 @@ function emitAction(game, actionType, actionData, actionCallback) {
 var discordUser;
 
 function runAction(game, type, data, callback, clone) {
-    if (facade.state.replaying) {
-        log('Still replaying last turn! Not running action.');
-        log(facade.state);
-        return;
-    }
     var game = simulateAction(game, type, data, game.myIndex, false, clone);
     emitAction(game, type, data, callback);
     return game;
@@ -241,21 +255,6 @@ function listen() {
     });
 }
 
-const beforeUnloadListener = (event) => {
-    event.preventDefault();
-    return event.returnValue = "Your turn has not been sent yet. Are you sure you want to leave?";
-};
-
-// A function that invokes a callback when the page has unsaved changes.
-let onPageHasUnsavedChanges = () => {
-    window.addEventListener('beforeunload', beforeUnloadListener, { capture: true });
-};
-
-// A function that invokes a callback when the page's unsaved changes are resolved.
-let onAllChangesSaved = () => {
-    window.removeEventListener('beforeunload', beforeUnloadListener, { capture: true });
-};
-
 export {
     socket,
     utils,
@@ -266,5 +265,6 @@ export {
     connect,
     sending,
     appInsights,
-    listen
+    listen,
+    useOnClient
 }

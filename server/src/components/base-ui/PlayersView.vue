@@ -38,5 +38,6 @@ export default {
   overflow: visible;
   gap: 8px;
   flex-wrap: nowrap;
+  z-index: 99;
 }
 </style>

@@ -12,8 +12,6 @@ import * as Client from '@app/js/client-framework.js'
 
 import bus from '@app/js/vue-event-bus.js'
 import Common from '/gamecommons/filler'
-import store from '@app/js/store.js'
-import facade from '@app/js/box.js'
 
 import { runAction } from '@app/js/client-framework.js'
 import GameFlow from '@app/js/GameFlow'

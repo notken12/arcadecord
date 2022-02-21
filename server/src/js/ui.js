@@ -8,9 +8,6 @@ import VueAppInsights from './vue-app-insights.js'
 
 import { appInsights } from './client-framework.js';
 
-import store from './store.js';
-import facade from './box.js';
-
 import baseMixin from '../components/base-ui/base.mixin.js';
 import GameFlow from './GameFlow.js';
 
@@ -20,11 +17,6 @@ function replayTurn() {
     // Replay the last player's turn
     // Use Facade to manage the game state for animations
     facade.commit('REPLAY_TURN');
-}
-
-function setupUI(serverResponse) {
-    // Add server response data to the internal store
-    store.commit('SETUP', serverResponse);
 }
 
 const createApp = (...options) => {
@@ -49,7 +41,5 @@ const createApp = (...options) => {
 export {
     GameView,
     createApp,
-    store,
     replayTurn,
-    setupUI
 }
