@@ -131,12 +131,12 @@ export default defineConfig({
     },
     emptyOutDir: true,
   },
-  // optimizeDeps: {
-  //   esbuildOptions: {
-  //     plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
-  //   },
-  //   include: ["node-fetch"],  // also here
-  // },
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
+    },
+    include: ["node-fetch"],  // also here
+  },
   plugins: [
     // nodeResolve(),
     commonjs({

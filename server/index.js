@@ -121,7 +121,7 @@ if (!isProduction) {
   app.use('/dist', express.static(path.resolve(__dirname, 'src/dist/client')));
 }
 
-const renderPage = createPageRenderer({ viteDevServer, isProduction, root, baseAssets: '/dist/' })
+const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
 
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl
@@ -500,14 +500,6 @@ app.use(function (req, res, next) {
 
 // Use controllers to handle requests
 import authController from './controllers/auth.controller.js';
-
-app.get('/sign-in', async (req, res) => {
-  useBuiltFile('./src/sign-in.html', req, res);
-});
-
-app.get('/invite', (req, res) => {
-  useBuiltFile('./src/invite.html', req, res);
-});
 
 app.get('/discord-oauth', (req, res) => {
   res.redirect('https://discord.com/api/oauth2/authorize?client_id=903801669194772531&redirect_uri=' + encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') + '&response_type=code&scope=identify');

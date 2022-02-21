@@ -26,7 +26,6 @@ async function render(pageContext) {
         <meta name="description" content="${desc}" />
         <title>${title}</title>
 
-        <link rel="stylesheet" href="/scss/all-games.scss">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="preconnect" href="https://cdn.discordapp.com">
