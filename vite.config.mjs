@@ -165,6 +165,6 @@ export default defineConfig({
   // Peeky config
   test: {
     // Use the DOM environment for all tests by default
-    runtimeEnv: 'dom',
+    // runtimeEnv: 'dom',
   },
 })

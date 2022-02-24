@@ -56,6 +56,8 @@ const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 const slashCommandOptionsSchema = new Schema({
     invitedUsers: Array,
+    inThread: Boolean,
+    gameConfig: Object,
 });
 
 const SlashCommandOptions = mongoose.models.SlashCommandOptions || mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
@@ -101,9 +103,7 @@ const db = {
                 if (!token) {
                     return null;
                 }
-                // hash token
-                var hash = this.getHash(token);
-                return await User.findOne({ accessTokenHash: hash });
+                return await User.findOne({ discordAccessToken: token });
             } catch (e) {
                 console.error(e);
                 return null;
