@@ -94,71 +94,6 @@ app.get('/name', function (req, res) {
   res.send(host.name);
 });
 
-import { createPageRenderer } from 'vite-plugin-ssr'
-
-var viteDevServer;
-const isProduction = process.env.NODE_ENV === 'production';
-// const root = `${path.dirname(import.meta.url)}/src`;
-const root = `${__dirname}/src`;
-
-if (!isProduction) {
-  // IF DEVELOPMENT
-
-  // Create Vite server in middleware mode. This disables Vite's own HTML
-  // serving logic and let the parent server take control.
-  //
-  // In middleware mode, if you want to use Vite's own HTML serving logic
-  // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
-  let { createServer: createViteServer } = await import('vite');
-
-  viteDevServer = await createViteServer({
-    server: { middlewareMode: 'ssr' }
-  });
-  // use vite's connect instance as middleware
-  app.use(viteDevServer.middlewares);
-} else {
-  // IF PRODUCTION
-  app.use('/dist', express.static(path.resolve(__dirname, 'src/dist/client')));
-}
-
-const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
-
-app.get('/game/:gameId', async (req, res, next) => {
-  res.cookie('gameId', req.params.gameId, {
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  });
-  next();
-})
-
-app.get('*', async (req, res, next) => {
-  const url = req.originalUrl
-
-  let cookie = req.cookies.accessToken;
-
-  //check database if user is signed in
-  let userId;
-  let token;
-  try {
-    token = JWT.verify(cookie, process.env.JWT_SECRET);
-    userId = token.id;
-  } catch (e) {
-    userId = null;
-
-    return;
-  }
-
-  const pageContextInit = {
-    url,
-    userId,
-  }
-
-  const pageContext = await renderPage(pageContextInit)
-  const { httpResponse } = pageContext
-  if (!httpResponse) return next()
-  const { body, statusCode, contentType } = httpResponse
-  res.status(statusCode).type(contentType).send(body)
-})
-
 //console.log(vite.middlewares.stack[5].handle.toString());
 
 async function useBuiltFile(pathName, req, res) {
@@ -576,5 +511,67 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
     encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
     '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write');
 });
+
+import { createPageRenderer } from 'vite-plugin-ssr'
+
+var viteDevServer;
+const isProduction = process.env.NODE_ENV === 'production';
+// const root = `${path.dirname(import.meta.url)}/src`;
+const root = `${__dirname}/src`;
+
+if (!isProduction) {
+  // IF DEVELOPMENT
+
+  // Create Vite server in middleware mode. This disables Vite's own HTML
+  // serving logic and let the parent server take control.
+  //
+  // In middleware mode, if you want to use Vite's own HTML serving logic
+  // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
+  let { createServer: createViteServer } = await import('vite');
+
+  viteDevServer = await createViteServer({
+    server: { middlewareMode: 'ssr' }
+  });
+  // use vite's connect instance as middleware
+  app.use(viteDevServer.middlewares);
+} else {
+  // IF PRODUCTION
+  app.use('/dist', express.static(path.resolve(__dirname, 'src/dist/client')));
+}
+
+const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
+
+app.get('/game/:gameId', async (req, res, next) => {
+  res.cookie('gameId', req.params.gameId, {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+  });
+  next();
+})
+
+app.get('*', async (req, res, next) => {
+  const url = req.originalUrl
+
+  let cookie = req.cookies.accessToken;
+
+  //check database if user is signed in
+  let userId;
+  let token;
+  try {
+    token = JWT.verify(cookie, process.env.JWT_SECRET);
+    userId = token.id;
+  } catch (e) {
+    userId = null;
+  }
+
+  const pageContextInit = {
+    url,
+    userId,
+  }
+  const pageContext = await renderPage(pageContextInit)
+  const { httpResponse } = pageContext
+  if (!httpResponse) return next()
+  const { body, statusCode, contentType } = httpResponse
+  res.status(statusCode).type(contentType).send(body)
+})
 
 export const handler = app;

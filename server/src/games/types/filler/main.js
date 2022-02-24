@@ -39,6 +39,16 @@ class FillerGame extends Game {
         this.on('turn', Game.eventHandlersDiscord.turn);
 
         this.setActionModel('switchColors', Common.action_switchColors);
+        this.setActionSchema('switchColors', {
+            type: 'object',
+            properties: {
+                targetColor: {
+                    type: 'number',
+                    maximum: Common.COLORS.length - 1,
+                    minimum: 0
+                }
+            }
+        });
     }
 
     onInit(game) {

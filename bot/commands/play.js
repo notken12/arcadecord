@@ -73,8 +73,10 @@ export default {
                     ids.push(u.id);
                 });
             }
-    
-            var dbOptions = await db.slashCommandOptions.create({ invitedUsers: ids });
+            
+            let inThread = interaction.channel.members.size > 100;
+
+            var dbOptions = await db.slashCommandOptions.create({ invitedUsers: ids, inThread });
             var message = getMessage(dbOptions._id, ids);
     
     
@@ -84,10 +86,11 @@ export default {
             let button = new MessageButton({
                 label: 'Sign in',
                 style: 'LINK',
-                emoji: '🔑',
+                // emoji: '',
                 url: process.env.GAME_SERVER_URL + '/sign-in'
             });
-            await interaction.editReply({ content: '**Sign in to play**', ephemeral: true, components: [row] });
+            row.addComponents([button]);
+            await interaction.editReply({ content: '**🔑  Sign in to play**', ephemeral: true, components: [row] });
         }
     
     }

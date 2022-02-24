@@ -48,7 +48,6 @@ async function fetchUser(id) {
 }
 
 async function fetchUserFromAccessToken(access_token) {
-    
     var me = await fetchUserMe(access_token);
 
     if (!me) {
@@ -56,6 +55,8 @@ async function fetchUserFromAccessToken(access_token) {
     }
 
     if (!me.ok) {
+        console.log("couldn't fetch user's @me");
+        console.log(me);
         // refresh access token
         console.log('refreshing access token');
 
