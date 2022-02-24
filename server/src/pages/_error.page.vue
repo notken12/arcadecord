@@ -1,5 +1,5 @@
 <template>
-    <div></div>
+    <div>{{ errorText }}</div>
 </template>
 
 <script setup>
