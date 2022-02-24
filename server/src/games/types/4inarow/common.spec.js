@@ -5,26 +5,6 @@ import Action from '../../Action.js'
 // Import the GameFlow class to control game flow
 import GameFlow from '../../GameFlow.js'
 
-
-test('placing pieces works 4inarow', async () => {
-  let game = new main.Game()
-  // Activate testing mode
-  game.test()
-  // Add fake players
-  game.mockPlayers(2)
-
-  // Initialize the game
-  await game.init();
-
-  let action = new Action('place', {
-    col:0
-  }, 1)
-
-  await game.handleAction(action)
-
-  expect(game.data.board.cells[5][0]).toBe(true)
-})
-
 test('4 in a row vertically wins', async () => {
   let game = new main.Game()
   // Activate testing mode
@@ -39,7 +19,7 @@ test('4 in a row vertically wins', async () => {
   var actions = []
 
   var i;
-  for(i=0;i<8;i++){
+  for(i=0;i<7;i++){
     if(isEven(i)){//First Player Turn
       var colToPlace = 0;
     } else {
@@ -47,7 +27,7 @@ test('4 in a row vertically wins', async () => {
     }
     actions.push(new Action('place', {
       col:0
-    }, 1))
+    }, [1,0][colToPlace]))
   }
 
   for(i=0;i<actions.length;i++){
@@ -55,7 +35,79 @@ test('4 in a row vertically wins', async () => {
   }
 
   //assertions
-  expect(game.data).toBe("empty")
+  expect(game.hasEnded).toBe(true)
+  expect(game.winner).toBe(1)
+})
+
+test('4 in a row horizontally wins', async () => {
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init();
+
+  //actions
+  var actions = []
+
+  var i;
+  var j;
+  for(i=0;i<4;i++){
+    for(j=0;j<2;j++){
+      let action = new Action('place', {
+        col:i
+      }, [1,0][j])
+      actions.push(action)
+    }
+  }
+  for(i=0;i<actions.length;i++){
+    await game.handleAction(actions[i])
+  }
+
+  expect(game.hasEnded).toBe(true)
+  expect(game.winner).toBe(1)
+})
+
+test('4 in a row diagonally wins', async () => {
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init();
+
+  //actions
+  var actions = [];
+
+  let placements = [1, 3, 3, 4]
+  var currentTurn = 1;
+
+  var i;
+  var j;
+  for(i=0; i<4; i++){
+    for(j=0; j<placements[i]; j++){
+      let action = new Action('place', {
+        col:i
+      }, currentTurn);
+
+      actions.push(action)
+
+      if(currentTurn == 0){
+        currentTurn = 1;
+      } else {
+        currentTurn = 0;
+      }
+    }
+  }
+
+  for(i=0;i<actions.length;i++){
+    await game.handleAction(actions[i])
+  }
+
   expect(game.hasEnded).toBe(true)
   expect(game.winner).toBe(1)
 })
