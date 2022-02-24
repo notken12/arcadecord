@@ -1,6 +1,6 @@
 @use "./all-games.scss";
 
-body {
+body, #app {
     display: flex;
     align-items: center;
     justify-content: center;

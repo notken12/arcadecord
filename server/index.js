@@ -123,6 +123,13 @@ if (!isProduction) {
 
 const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
 
+app.get('/game/:gameId', async (req, res, next) => {
+  res.cookie('gameId', req.params.gameId, {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+  });
+  next();
+})
+
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl
 
