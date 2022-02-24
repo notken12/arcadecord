@@ -2,9 +2,10 @@ import { createSSRApp, h } from 'vue'
 
 export { createApp }
 
-function createApp({ Page }) {
+function createApp(pageContext) {
     const app = createSSRApp({
-        render: () => h(Page),
+        render: () => h(pageContext.Page),
     })
+    app.provide('pageContext', pageContext)
     return { app }
 }
