@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject } from 'vue'
 const pageContext = inject('pageContext')
 
 const errorText = computed(() => {
@@ -14,9 +14,5 @@ const errorText = computed(() => {
         return 'Page not found'
     }
     return 'Something went wrong'
-})
-
-onMounted(() => {
-    console.log(pageContext)
 })
 </script>

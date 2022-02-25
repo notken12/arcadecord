@@ -207,4 +207,56 @@ describe('Action: shoot', () => {
         expect(stillTheirTurn).toBe(true)
     })
 
+
+    test("Set player's assigned color", async () => {
+        // Create a new game
+        let game = new main.Game()
+        // Activate testing mode
+        game.test()
+        // Add fake players
+        game.mockPlayers(2)
+
+        // Initialize the game
+        await game.init()
+
+        // Define the actions to be made
+        let newPosition = {
+            x: 1,
+            y: 1,
+            z: 1,
+        }
+        let newQuaternion = {
+            x: 0,
+            y: 0,
+            z: 0,
+            w: 1,
+        }
+
+        let missedShot = new Action('shoot', {
+            angle: Math.PI / 2, // radians, for UI
+            force: 10, // for UI
+            newBallStates: {
+                10: {
+                    position: newPosition,
+                    quaternion: newQuaternion,
+                    out: true
+                },
+                // in the real game, provide new ball positions for all balls
+            }
+        })
+
+        // Run the actions
+        await game.handleAction(missedShot)
+
+        // Check the game state
+        const valid = validateGameState(game.data)
+        expect(valid).toBe(true)
+
+        expect(game.data.balls[10].out).toBe(true)
+        expect(game.data.balls[10].position).toEqual(newPosition)
+        expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
+
+        let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+        expect(stillTheirTurn).toBe(true)
+    })
 })

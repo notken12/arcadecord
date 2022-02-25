@@ -28,6 +28,17 @@ class FourInARowGame extends Game {
         this.on("turn", Game.eventHandlersDiscord.turn);
 
         this.setActionModel('place', Common.place);
+        this.setActionSchema('place', {
+          type:"object",
+          properties:{
+            col:{
+              type:"number",
+              minimum:0,
+              maximum:8
+            }
+          },
+          required:["col"]
+        })
     }
 }
 

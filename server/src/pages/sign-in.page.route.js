@@ -4,8 +4,7 @@ export default pageContext => {
             precedence: 99
         };
     }
-
-    if (pageContext.userId === null && pageContext.url.startsWith('/game')) {
+    if (pageContext.pageContext.userId === null || pageContext.pageContext.userId === undefined && pageContext.url.startsWith('/game')) {
         return {
             precedence: 99
         }

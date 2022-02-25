@@ -18,7 +18,7 @@ var exports = {
             }
         }
     },
-    place (game, action) {
+    async place (game, action) {
         var playerIndex = action.playerIndex;
 
         var board = game.data.board;
@@ -119,7 +119,7 @@ var exports = {
         for (var i = -3; i <= 3; i++) {
             var row = row + i;
             var col = col + i;
-            
+
             if (row < 0 || col < 0 || row >= cells.length || col >= cells[row].length) {
                 // out of bounds
                 continue;
@@ -141,7 +141,7 @@ var exports = {
         for (var i = -3; i <= 3; i++) {
             var row = row + i;
             var col = col - i;
-            
+
             if (row < 0 || col < 0 || row >= cells.length || col >= cells[row].length) {
                 // out of bounds
                 continue;
@@ -159,6 +159,10 @@ var exports = {
         }
 
         return false;
+    },
+    async testFunc(game, action){
+      game.data.testComplete = true;
+      return game;
     }
 }
 
