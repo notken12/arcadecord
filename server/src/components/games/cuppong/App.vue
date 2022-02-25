@@ -292,13 +292,13 @@ const initThree = () => {
   // add ball
   ballObject = new THREE.Mesh(
     new THREE.SphereGeometry(0.02, 16, 16),
-     new THREE.MeshPhongMaterial({
-    specular: 0xffffff,
-    shininess: 100,
-    reflectivity: 0.1,
-    combine: THREE.AddOperation,
-    shading: THREE.SmoothShading
-  }
+    new THREE.MeshPhongMaterial({
+      specular: 0xffffff,
+      shininess: 100,
+      reflectivity: 0.1,
+      combine: THREE.AddOperation,
+      shading: THREE.SmoothShading
+    })
   )
 
   ballObject.castShadow = true
@@ -321,7 +321,7 @@ const initThree = () => {
   ballBody.quaternion.set(ballObject.quaternion.x, ballObject.quaternion.y, ballObject.quaternion.z, ballObject.quaternion.w)
   ballBody.linearDamping = 0.4
   ballBody.allowSleep = true
-  
+
   ballBody.sleepSpeedLimit = 0.5; // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
   ballBody.sleepTimeLimit = 0.1; // Body falls asleep after 1s of sleepiness
 
