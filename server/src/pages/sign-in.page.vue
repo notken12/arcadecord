@@ -1,6 +1,6 @@
 <template>
     <div id="right-side">
-        <img id="connect-svg" src="@app/ui-images/connect-discord.svg" draggable="false" />
+        <img id="connect-svg" src="@app/public/ui-images/connect-discord.svg" draggable="false" />
     </div>
     <div id="left-side">
         <h3>Sign in to Discord</h3>
