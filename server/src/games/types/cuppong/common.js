@@ -1,8 +1,11 @@
+// common.js is used to define values and functions that are used by both the client and the server
+// Write the main game logic here
 // Common action models
 
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js';
 
+// Class to represent a cup
 class Cup {
     id // unique id
     color
@@ -18,10 +21,14 @@ class Cup {
     }
 }
 
-// Action data: a Vector3 force of the throw
-// and the id of the cup that was knocked down
+// This is an action model for the game.
+// They follow the pattern of taking the parameters (game, action) and returning a new game state
+// or false if the action is invalid
+
+// See Action.js for documentation (hint: hit ctrl+p)
 async function action_throw(game, action) {
-    //TODO: Rearrange cups when possible
+    // Action data: a Vector3 force of the throw
+    // and the id of the cup that was knocked down
 
     // The player gets two throws
     // If the player does not make both throws, the turn ends
@@ -42,6 +49,7 @@ async function action_throw(game, action) {
     if (!hitCupID) {
         thisSide.throwCount += 1;
         if (thisSide.inRedemption && thisSide.throwCount === 2) { //Failed Redemption
+            // End the game and set the winner to the opponent
             await GameFlow.end(game, {
                 winner: [1, 0][game.turn]
             })
@@ -77,7 +85,6 @@ async function action_throw(game, action) {
         thisSide.throwCount = 0;
         thisSide.throwsMade = 0;
     }
-
 
     return game
 }
@@ -133,11 +140,10 @@ function rearrangeCups(game) {
     }
 }
 
-let exports = {
+// Export all the action models and useful variables
+export default {
     Cup,
     action_throw,
     getCupsLeft,
     rearrangeCups
 }
-
-export default exports
