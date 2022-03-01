@@ -130,7 +130,7 @@ class Chess extends Game {
         }
       }
 
-      return canvas.toBuffer()
+      return canvas
     }
 
     // this.setActionModel("resign", Common.resign)

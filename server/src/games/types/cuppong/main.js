@@ -132,7 +132,7 @@ class CupPongGame extends Game {
 
         ctx.drawImage(thumbnailImg, 0, 0, canvas.width, canvas.height);
 
-        return canvas.toBuffer()
+        return canvas
     }
 }
 

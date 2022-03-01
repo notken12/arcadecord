@@ -14,12 +14,24 @@ import Emoji from '../Emoji.js'
 import { readdirSync } from 'fs';
 import { Client, Collection, Intents } from 'discord.js';
 
+import Canvas from 'canvas';
+import Game from '../server/src/games/Game.js';
+
 // connect to the database
 import db from '../db/db2.js';
 db.connect();
 
 // .env is used for all shards
 config();
+
+// get __dirname
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -48,18 +60,13 @@ client.sendStartMessage = async function (g) {
 		content += `<@${discordId}> `
 	}
 
-	var embed = new MessageEmbed()
-		.setTitle(game.name)
-		.setColor(game.color || '#0099ff')
-		.setURL(game.getURL())
-	/*.setAuthor({
-			name: `<@${gameCreator.discordUser.id}>`,
-			iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-		})*/
-	/*.setFooter(
-			`<@${gameCreator.discordUser.id}>`,
-			`https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=80`
-		);*/
+	const message = await getInviteMessage(game)
+
+	var embed = message.embeds[0]
+	embed.setAuthor({
+		name: `${gameCreator.discordUser.tag}`,
+		iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=32`
+	});
 
 	if (game.invitedUsers.length > 0) {
 		embed.setDescription(
@@ -71,28 +78,9 @@ client.sendStartMessage = async function (g) {
 		)
 	}
 
-	var startGameButton = new MessageButton()
-		.setEmoji(Emoji.ICON_WHITE)
-		.setLabel('Play')
-		.setStyle('LINK')
-		.setURL(game.getURL())
-
-	var row = new MessageActionRow().addComponents([startGameButton])
-	const message = { embeds: [embed], components: [row] }
 
 	if (content.length > 0) {
 		message.content = content
-	}
-
-	if (typeof game.getThumbnail == 'function') {
-		var image = await game.getThumbnail()
-		if (image) {
-			const attachment = new MessageAttachment(image, 'thumbnail.png')
-
-			embed.setImage(`attachment://thumbnail.png`)
-
-			message.files = [attachment]
-		}
 	}
 
 	return await channel.send(message);
@@ -107,10 +95,10 @@ client.sendTurnInvite = async function (g) {
 
 	const channel = await client.channels.fetch(game.channel)
 
-	var lastPlayer = game.turns[game.turns.length - 1].playerIndex
+	var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex]
 
 	var m = {
-		content: `${Emoji.ICON_ROUND} <@${game.players[lastPlayer].discordUser.id
+		content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id
 			}>: *${game.emoji + ' ' || ''}${game.name}*`,
 		allowedMentions: {
 			parse: [],
@@ -121,6 +109,19 @@ client.sendTurnInvite = async function (g) {
 
 	await channel.send(m)
 
+	let invite = await getInviteMessage(game)
+	invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`;
+	
+	var embed = message.embeds[0]
+	embed.setAuthor({
+		name: `${lastPlayer.discordUser.tag}`,
+		iconURL: `https://cdn.discordapp.com/avatars/${lastPlayer.discordUser.id}/${lastPlayer.discordUser.avatar}.webp?size=32`
+	});
+
+	return await channel.send(invite);
+}
+
+async function getInviteMessage(game) {
 	var embed = new MessageEmbed()
 		.setTitle(game.name)
 		.setDescription(`${game.description}`)
@@ -136,13 +137,19 @@ client.sendTurnInvite = async function (g) {
 	var row = new MessageActionRow().addComponents([button])
 
 	var invite = {
-		content: `Your turn, <@${game.players[game.turn].discordUser.id}>`,
 		embeds: [embed],
 		components: [row],
 	}
 
-	var image = await game.getThumbnail()
-	if (image) {
+	var canvas = await game.getThumbnail()
+	if (canvas) {
+		let overlaySrc = path.resolve(__dirname, '../server/src/public/icons/thumbnail_overlay.svg');
+		let overlayImg = await Canvas.loadImage(overlaySrc);
+		const ctx = canvas.getContext('2d')
+		ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+
+		const image = canvas.toBuffer();
+
 		const attachment = new MessageAttachment(image, 'thumbnail.png')
 
 		embed.setImage(`attachment://thumbnail.png`)
@@ -150,17 +157,8 @@ client.sendTurnInvite = async function (g) {
 		invite.files = [attachment]
 	}
 
-	return await channel.send(invite);
+	return invite;
 }
-
-// get __dirname
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-
-// 👇️ "/home/john/Desktop/javascript"
-const __dirname = path.dirname(__filename);
 
 
 const eventFiles = readdirSync(__dirname + '/events').filter(file => file.endsWith('.js'));
