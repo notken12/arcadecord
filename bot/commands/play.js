@@ -4,37 +4,53 @@ import { MessageActionRow, MessageEmbed, MessageSelectMenu, InteractionCollector
 import db from '../../db/db2.js';
 import Emoji from '../../Emoji.js';
 
-function getActionRow(dbOptionsId, invitedUsersIds) {
-    //create message action row
-    const row = new MessageActionRow();
-    var selectMenu = new MessageSelectMenu()
-        .setCustomId('gameSelect')
-        .setPlaceholder('Nothing selected');
+const THREAD_THRESHOLD = 100; // If the server's member count is above this threshold, automatically use a thread
 
+function getActionRows(dbOptionsId, invitedUsersIds) {
+    //create message action row
+    // const row = new MessageActionRow();
+    // var selectMenu = new MessageSelectMenu()
+    //     .setCustomId('gameSelect')
+    //     .setPlaceholder('Nothing selected');
+
+    let rows = [new MessageActionRow()];
     for (var g in games) {
         var game = games[g];
 
         if (game.options.hidden) continue;
-        selectMenu.addOptions([
-            {
-                label: game.options.name,
-                description: game.options.description,
-                value: JSON.stringify({
-                    typeId: game.options.typeId,
-                    dbOptionsId: dbOptionsId,
-                }),
-                emoji: game.options.emoji || Emoji.ICON_ROUND
-            }
-        ]);
+        // selectMenu.addOptions([
+        //     {
+        //         label: game.options.name,
+        //         description: game.options.description,
+        //         value: JSON.stringify({
+        //             typeId: game.options.typeId,
+        //             dbOptionsId: dbOptionsId,
+        //         }),
+        //         emoji: game.options.emoji || Emoji.ICON_ROUND
+        //     }
+        // ]);
+        const button = new MessageButton()
+            .setStyle('PRIMARY')
+            .setLabel(game.options.name)
+            .setCustomId(`play:${game.options.typeId}`)
+            .setEmoji(game.options.emoji || Emoji.ICON_ROUND);
+
+        if (rows[rows.length - 1].components.length >= 3) {
+            rows.push(new MessageActionRow());
+        }
+        let currentRow = rows[rows.length - 1];
+
+        currentRow.addComponents([button]);
+        
     }
 
-    row.addComponents([selectMenu]);
+    // row.addComponents([selectMenu]);
 
-    return row;
+    return rows;
 }
 
 function getMessage(dbOptionsId, invitedUsersIds) {
-    var row = getActionRow(dbOptionsId, invitedUsersIds);
+    var rows = getActionRows(dbOptionsId, invitedUsersIds);
     var content = '';
 
     if (invitedUsersIds.length > 0) {
@@ -47,7 +63,7 @@ function getMessage(dbOptionsId, invitedUsersIds) {
 
     content += `\n\nSelect a game to play`;
     
-    return { content, ephemeral: true, components: [row], embeds: [] };
+    return { content, ephemeral: true, components: rows, embeds: [] };
 }
 
 export default {
@@ -74,13 +90,14 @@ export default {
                 });
             }
             
-            let inThread = interaction.channel.members.size > 100;
+            let inThread = interaction.guild.memberCount >= THREAD_THRESHOLD;
 
-            var dbOptions = await db.slashCommandOptions.create({ invitedUsers: ids, inThread });
-            var message = getMessage(dbOptions._id, ids);
+            var message = getMessage(undefined, ids);
     
     
-            await interaction.editReply(message);
+            var reply = await interaction.editReply(message);
+            var dbOptions = await db.slashCommandOptions.create({ invitedUsers: ids, inThread, _id: reply.id });
+
         } else {
             let row = new MessageActionRow();
             let button = new MessageButton({
