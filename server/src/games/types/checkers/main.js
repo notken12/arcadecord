@@ -27,7 +27,8 @@ const options = {
         checkers: Array(8).fill(0).map((_, col) => (col % 2) ?
             Array(8).fill(0).map((_, row) => (row < 3) ? (row % 2) ? '' : 'b' : (row > 4) ? ((row + 1) % 2) ? 'r' : '' : '') :
             Array(8).fill(0).map((_, row) => (row < 3) ? ((row + 1) % 2) ? '' : 'b' : (row > 4) ? (row % 2) ? 'r' : '' : '')),
-    }
+    },
+    hidden: true
 }
 
 // Game constructor, extends base Game class

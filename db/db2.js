@@ -55,6 +55,7 @@ const gameSchema = new Schema({
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 const slashCommandOptionsSchema = new Schema({
+    _id: String,
     invitedUsers: Array,
     inThread: Boolean,
     gameConfig: Object,

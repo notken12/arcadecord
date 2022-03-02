@@ -26,7 +26,8 @@ const options = {
     data: {
         scores: [0, 0],
         answers: [null, null]
-    }
+    },
+    hidden: true
 }
 
 // Game constructor, extends base Game class

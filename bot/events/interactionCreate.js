@@ -28,9 +28,12 @@ export default {
                 await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch(console.error);
             }
         } else if (interaction.isButton()) {
-            const button = client.buttons.get(interaction.customId);
+            let button = client.buttons.get(interaction.customId);
 
-            if (!button) return;
+            if (!button) {
+                button = client.buttons.find(b => interaction.customId.match(b.data.matcher));
+                if (!button) return;
+            };
 
             try {
                 await button.execute(interaction);

@@ -1,9 +1,10 @@
 // Import common module for this game type
-import Common from './common.js';
+import Common from './common.js'; // <- ctrl+click to jump to this file
 
 // Import Game class
 import Game from '../../Game.js';
 
+// Snippet to make __dirname available
 // get __dirname
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,8 +14,8 @@ const __filename = fileURLToPath(import.meta.url);
 // 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
 
-// Game options, required. Export as options
-// README.md
+// Game options, REQUIRED. Export as options
+// see README.md
 const options = {
     typeId: 'cuppong',
     name: 'Cup Pong',
@@ -33,13 +34,19 @@ const options = {
 class CupPongGame extends Game {
     constructor(config) {
         // Creates a game with the options
-        // Required
+        // REQUIRED
         super(options, config); // Config is the options given by the user, and other things like the channel and guild        
 
+        // Use default Discord event handlers
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
+        // Set the action model for the 'throw' action
+        // See common.js
         this.setActionModel('throw', Common.action_throw)
+        // Set the action schema for the 'throw' action
+        // action.data will be checked against this schema
+        // See https://ajv.js.org/
         this.setActionSchema('throw', {
             type: 'object',
             properties: {
@@ -66,6 +73,7 @@ class CupPongGame extends Game {
         })
     }
 
+    // Use this function to create the game data
     onInit(game) {
         game.data = {
             sides: [
@@ -112,6 +120,7 @@ class CupPongGame extends Game {
         })
     }
 
+    // Optionally define a getThumbnail function to return a thumbnail for the game
     async getThumbnail() {
         const { default: Canvas } = await import('canvas');
 
@@ -123,10 +132,11 @@ class CupPongGame extends Game {
 
         ctx.drawImage(thumbnailImg, 0, 0, canvas.width, canvas.height);
 
-        return canvas.toBuffer()
+        return canvas
     }
 }
 
+// REQUIRED: export the options and the game class as Game
 export default {
     options,
     Game: CupPongGame,
