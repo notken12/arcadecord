@@ -5,6 +5,55 @@ import Action from '../../Action.js'
 // Import the GameFlow class to control game flow
 import GameFlow from '../../GameFlow.js'
 
+test('placing pieces works 4inarow', async () => {
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init();
+
+  let action = new Action('place', {
+    col:0
+  }, 1)
+
+  await game.handleAction(action)
+
+let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+
+  expect(game.data.board.pieces.length).toBe(1)
+}) //CURRENTLY SUCCESSFUL! :))))))))
+
+test('pieces stack 4inarow', async () => {
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init();
+
+  //actions
+  var actions = []
+
+  actions.push(new Action('place', {
+    col:0
+  }, 1))
+  actions.push(new Action('place', {
+    col:0
+  }, 0))
+
+  for(i=0;i<actions.length;i++){
+    await game.handleAction(actions[i])
+  }
+
+  expect(game.data.board.pieces[0].row).toBe(0)
+  expect(game.data.board.pieces[1].row).toBe(1)
+})
+
 test('4 in a row vertically wins', async () => {
   let game = new main.Game()
   // Activate testing mode

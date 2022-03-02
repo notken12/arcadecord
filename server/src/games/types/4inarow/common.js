@@ -1,169 +1,150 @@
 // Snippet to import GameFlow for the server/client
 import GameFlow from '../../GameFlow.js';
 
+const emptyCell = null;
 
-var exports = {
-    CELL_STATE_EMPTY: null,
-    Board: function (width, height) {
-        this.width = width;
-        this.height = height;
+class Piece {
+  color //Number, 0-Yellow, 1-Red
+  row
+  column
+  constructor(color, row, column){
+    this.color = color;
+    this.row = row;
+    this.column = column;
+  }
+}
+class Board {
+  width
+  height
+  constructor(width, height){
+    this.width = width;
+    this.height = height;
+    this.pieces = []
+  }
+}
 
-        // create the board
-        // 2d array of cells
-        this.cells = [];
-        for (var row = 0; row < height; row++) {
-            this.cells[row] = [];
-            for (var col = 0; col < width; col++) {
-                this.cells[row][col] = exports.CELL_STATE_EMPTY;
-            }
-        }
-    },
-    async place (game, action) {
-        var playerIndex = action.playerIndex;
+async function place(game, action){
+  let col = action.data.col;
+  var row = findLowestInColumn(game, col)
+  if(row === undefined){ return false}
+  game.data.board.pieces.push(new Piece(game.turn, row, col))
 
-        var board = game.data.board;
+  let gameOver = checkGameOver(game, row, col)
+  if(gameOver){
+    await GameFlow.end(game, {
+      winner:gameOver
+    })
+  } else {
+    await GameFlow.endTurn(game)
+  }
+  return game;
+}
+function findLowestInColumn(game, col){
+  let oldBoard = boardTo2D(game)
+  let reversed = reversedRows(game)
 
-        var col = action.data.col;
-        var cells = board.cells;
-
-        var lowestRow = -1;
-
-        // get lowest empty cell in column
-        for (var row = board.height - 1; row <= 0; row--) {
-            if (cells[row][col] === this.CELL_STATE_EMPTY) {
-                lowestRow = row;
-                break;
-            }
-        }
-
-        // check if column is full
-        if (lowestRow === -1) {
-            // column is full
-            return false;
-        }
-
-        // place the piece on the board
-        cells[lowestRow][col] = playerIndex;
-
-        // check if the player has won
-        var hasWon = this.checkForWin(game, playerIndex, lowestRow, col);
-
-        if (hasWon) {
-            // end the game
-            GameFlow.end(game, { winner: playerIndex });
-        } else {
-            // end the turn
-            GameFlow.endTurn(game);
-        }
-    },
-    checkForWin(game, playerIndex, row, col) {
-        var board = game.data.board;
-        var cells = board.cells;
-
-        // check horizontal
-        var hasWon = this.checkHorizontal(cells, playerIndex, row, col);
-        if (hasWon) {
-            return true;
-        }
-
-        // check vertical
-        hasWon = this.checkVertical(cells, playerIndex, row, col);
-        if (hasWon) {
-            return true;
-        }
-
-        // check diagonal
-        hasWon = this.checkDiagonal(cells, playerIndex, row, col);
-        if (hasWon) {
-            return true;
-        }
-
-        return false;
-    },
-    checkHorizontal(cells, playerIndex, row, col) {
-        var count = 0;
-        for (var i = 0; i < cells[row].length; i++) {
-            if (cells[row][i] === playerIndex) {
-                count++;
-            } else {
-                count = 0;
-            }
-
-            if (count >= 4) {
-                return true;
-            }
-        }
-
-        return false;
-    },
-    checkVertical(cells, playerIndex, row, col) {
-        var count = 0;
-        for (var row = 0; row < cells.length; row++) {
-            if (cells[row][col] === playerIndex) {
-                count++;
-            } else {
-                count = 0;
-            }
-
-            if (count >= 4) {
-                return true;
-            }
-        }
-
-        return false;
-    },
-    checkDiagonal(cells, playerIndex, row, col) {
-        var count = 0;
-
-        // check top left to bottom right
-        for (var i = -3; i <= 3; i++) {
-            var row = row + i;
-            var col = col + i;
-
-            if (row < 0 || col < 0 || row >= cells.length || col >= cells[row].length) {
-                // out of bounds
-                continue;
-            }
-
-            if (cells[row][col] === playerIndex) {
-                count++;
-            } else {
-                count = 0;
-            }
-
-            if (count >= 4) {
-                return true;
-            }
-        }
-
-        // check top right to bottom left
-        count = 0;
-        for (var i = -3; i <= 3; i++) {
-            var row = row + i;
-            var col = col - i;
-
-            if (row < 0 || col < 0 || row >= cells.length || col >= cells[row].length) {
-                // out of bounds
-                continue;
-            }
-
-            if (cells[row][col] === playerIndex) {
-                count++;
-            } else {
-                count = 0;
-            }
-
-            if (count >= 4) {
-                return true;
-            }
-        }
-
-        return false;
-    },
-    async testFunc(game, action){
-      game.data.testComplete = true;
-      return game;
+  var i;
+  var i;
+  for(i=0;i<game.data.board.height;i++){
+    if(oldBoard[reversed[i]][col] === emptyCell){
+      return i
     }
+  }
+}
+
+function checkGameOver(game, row, col){
+  let oldBoard = boardTo2D(game);
+
+  let check = [checkHorizontal(oldBoard, row, col), checkVertical(oldBoard, row, col), checkDiagonal(oldBoard, row, col)]
+
+  if(check[0]) return check[0];
+  if(check[1]) return check[1];
+  if(check[2]) return check[2];
+  if(isBoardFull(game.data.board)) return -1;
+}
+function isBoardFull(board){
+  if(board.pieces.length >= board.width * board.height){
+    return true;
+  }
+  return false;
+}
+function boardTo2D(game){
+  let board = game.data.board;
+  let reversed = reversedRows(game)
+  let newArray = []
+
+  var i;
+  var j;
+  for(i=0;i<board.height;i++){//This loop populates the empty array as a 2d array.
+    newArray[i] = []
+    for(j=0;j<board.width;j++){
+      newArray[i][j] = emptyCell;
+    }
+  }
+
+  for(i=0;i<board.pieces.length;i++){
+    newArray[reversed[board.pieces[i].row]][board.pieces[i].column] = board.pieces[i].color
+  }
+
+  return newArray;
+}
+function reversedRows(game){
+  let board = game.data.board;
+  var arr = []
+  var i;
+  for(i=0;i<board.height;i++){
+    arr[i] = i;
+  }
+  arr.reverse()
+  return arr
+}
+function checkHorizontal(board, row, col){
+
+}
+function checkDiagonal(board, row, col){
+
+}
+function checkVertical(board, row, col){
+  let pieceToLookFor = board[row][col]
+  let up = 0;
+  let down = 0;
+  var i;
+  for(i=1;i<board.length;i++){//up
+    if(board[row-1]){
+      if(board[row-1][col] === pieceToLookFor){
+        up += 1;
+      } else {
+        break;
+      }
+    }
+  }
+  for(i=1;i<board.length;i++){//down
+    if(board[row+1]){
+      if(board[row+1][col] === pieceToLookFor){
+        up += 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  if(up + down === 3){
+    return pieceToLookFor;
+  }
+}
+var exports = {
+  emptyCell,
+  Piece,
+  Board,
+  place,
+  findLowestInColumn,
+  reversedRows,
+  boardTo2D,
+  isBoardFull,
+  checkDiagonal,
+  checkVertical,
+  checkHorizontal,
+  checkGameOver
 }
 
 export default exports;

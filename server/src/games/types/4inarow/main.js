@@ -34,7 +34,7 @@ class FourInARowGame extends Game {
             col:{
               type:"number",
               minimum:0,
-              maximum:8
+              maximum:69
             }
           },
           required:["col"]
