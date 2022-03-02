@@ -79,6 +79,9 @@ function createStore() {
                     return;
                 }
                 runAction(state.game, action.type, action.data);
+            },
+            UPDATE_GAME(state, game) {
+                store.commit('UPDATE_GAME', game);
             }
         }
     });

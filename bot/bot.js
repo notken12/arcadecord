@@ -112,7 +112,7 @@ client.sendTurnInvite = async function (g) {
 	let invite = await getInviteMessage(game)
 	invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`;
 	
-	var embed = message.embeds[0]
+	var embed = invite.embeds[0]
 	embed.setAuthor({
 		name: `${lastPlayer.discordUser.tag}`,
 		iconURL: `https://cdn.discordapp.com/avatars/${lastPlayer.discordUser.id}/${lastPlayer.discordUser.avatar}.webp?size=32`
