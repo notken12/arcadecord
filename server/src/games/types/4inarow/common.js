@@ -28,6 +28,7 @@ async function place(game, action){
   var row = findLowestInColumn(game, col)
   if(row === undefined){ return false}
   game.data.board.pieces.push(new Piece(game.turn, row, col))
+  game.data.board.oldBoard = boardTo2D(game)
 
   let gameOver = checkGameOver(game, row, col)
   if(gameOver){

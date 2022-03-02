@@ -75,7 +75,7 @@ test('4 in a row vertically wins', async () => {
       var colToPlace = 1;
     }
     actions.push(new Action('place', {
-      col:0
+      col:colToPlace
     }, [1,0][colToPlace]))
   }
 
@@ -84,6 +84,7 @@ test('4 in a row vertically wins', async () => {
   }
 
   //assertions
+  expect(game.data.board.oldBoard).toBe("yes")
   expect(game.hasEnded).toBe(true)
   expect(game.winner).toBe(1)
 })
