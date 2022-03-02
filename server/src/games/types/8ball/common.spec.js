@@ -82,8 +82,7 @@ const stateSchema = {
 
 const validateGameState = ajv.compile(stateSchema)
 
-test('Initial 8ball game state', () => {
-    test.todo()
+test.todo('Initial 8ball game state', () => {
     
     // Create a new game
     let game = new main.Game()
@@ -105,8 +104,7 @@ test('Initial 8ball game state', () => {
 })
 
 describe('Action: shoot', () => {
-    test('End turn if no ball is shot into pocket', async () => {
-        test.todo()
+    test.todo('End turn if no ball is shot into pocket', async () => {
 
         // Create a new game
         let game = new main.Game()
@@ -158,8 +156,7 @@ describe('Action: shoot', () => {
         expect(stillTheirTurn).toBe(false)
     })
 
-    test('Do not end turn if ball is shot into pocket', async () => {
-        test.todo()
+    test.todo('Do not end turn if ball is shot into pocket', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -212,8 +209,7 @@ describe('Action: shoot', () => {
     })
 
 
-    test("Set player's assigned color", async () => {
-        test.todo()
+    test.todo("Set player's assigned color", async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -237,7 +233,7 @@ describe('Action: shoot', () => {
             w: 1,
         }
 
-        let missedShot = new Action('shoot', {
+        let shot = new Action('shoot', {
             angle: Math.PI / 2, // radians, for UI
             force: 10, // for UI
             newBallStates: {
@@ -251,7 +247,7 @@ describe('Action: shoot', () => {
         })
 
         // Run the actions
-        await game.handleAction(missedShot)
+        await game.handleAction(shot)
 
         // Check the game state
         const valid = validateGameState(game.data)
@@ -263,5 +259,9 @@ describe('Action: shoot', () => {
 
         let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
         expect(stillTheirTurn).toBe(true)
+
+
+        // expect(game.players[1].assignedPattern).toBe
+        // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
     })
 })
