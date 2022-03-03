@@ -142,20 +142,31 @@ async function getInviteMessage(game) {
 	}
 
 	var canvas = await game.getThumbnail()
+	let image;
 	if (canvas) {
 		let overlaySrc = path.resolve(__dirname, '../server/src/public/icons/thumbnail_overlay.svg');
 		let overlayImg = await Canvas.loadImage(overlaySrc);
 		const ctx = canvas.getContext('2d')
 		ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
 
-		const image = canvas.toBuffer();
+		image = canvas.toBuffer();
+	} else {
+		let canvas = new Canvas.Canvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
+		let ctx = canvas.getContext('2d');
 
-		const attachment = new MessageAttachment(image, 'thumbnail.png')
+		let defaultThumbnailSrc = path.resolve(__dirname, '../server/src/public/ui-images/default_thumbnail.svg');
+		let defaultThumbnailImg = await Canvas.loadImage(defaultThumbnailSrc);
 
-		embed.setImage(`attachment://thumbnail.png`)
+		ctx.drawImage(defaultThumbnailImg, 0, 0, canvas.width, canvas.height);
 
-		invite.files = [attachment]
+		image = canvas.toBuffer();
 	}
+
+	const attachment = new MessageAttachment(image, 'thumbnail.png')
+
+	embed.setImage(`attachment://thumbnail.png`)
+
+	invite.files = [attachment]
 
 	return invite;
 }
