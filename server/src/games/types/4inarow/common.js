@@ -98,8 +98,30 @@ function reversedRows(game){
   return arr
 }
 function checkHorizontal(board, row, col){
+  let pieceToLookFor = board[row][col]
+  let left = 0;
+  let right = 0;
+  var i;
+  for(i=1;i<board.length;i++){//left
+      if(board[row][col-i] === pieceToLookFor){
+        left += 1;
+      } else {
+        break;
+      }
+  }
+  for(i=1;i<board.length;i++){//right
+      if(board[row][col+i] === pieceToLookFor){
+        right += 1;
+      } else {
+        break;
+      }
+  }
 
+  if(left + right === 3){
+    return true;
+  }
 }
+
 function checkDiagonal(board, row, col){
 
 }
@@ -107,8 +129,6 @@ function checkVertical(board, row, col){
   let pieceToLookFor = board[row][col]
   let up = 0;
   let down = 0;
-  let upContinue = true;
-  let downContinue = false;
   var i;
   for(i=1;i<board.length;i++){//up
     if(board[row-i]){
