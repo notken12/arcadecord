@@ -143,7 +143,7 @@ describe('Action: guess', async() => {
         expect(game.hasEnded).toEqual(true)
         expect(game.winner).toEqual(0)
     })
-    test.todo('a draw happens if both players cant guess the others word', () => {
+    test.todo('a draw happens if both players cant guess the others word', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -183,7 +183,7 @@ describe('Action: guess', async() => {
         expect(game.winner).toEqual(-1)
 
     })
-    test.todo('turn ends after player guesses', () => {
+    test.todo('turn ends after player guesses', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
