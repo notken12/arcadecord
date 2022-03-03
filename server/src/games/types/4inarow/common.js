@@ -121,10 +121,57 @@ function checkHorizontal(board, row, col){
     return true;
   }
 }
-
 function checkDiagonal(board, row, col){
+  let pieceToLookFor = board[row][col]
+  let ul = 0;
+  let ur = 0;
+  let dl = 0;
+  let dr = 0;
+  let upContinue = true;
+  let downContinue = false;
+  var i;
+  for(i=1;i<board.length;i++){//up-left
+    if(board[row-i]){
+      if(board[row-i][col-i] === pieceToLookFor){
+        ul += 1;
+      } else {
+        break;
+      }
+    } else {break}
+  }
+  for(i=1;i<board.length;i++){//up-right
+    if(board[row-i]){
+      if(board[row-i][col+i] === pieceToLookFor){
+        ur += 1;
+      } else {
+        break;
+      }
+    } else {break}
+  }
+  for(i=1;i<board.length;i++){//down-left
+    if(board[row+i]){
+      if(board[row+i][col-i] === pieceToLookFor){
+        dl += 1;
+      } else {
+        break;
+      }
+    } else {break}
+  }
+  for(i=1;i<board.length;i++){//down-right
+    if(board[row+i]){
+      if(board[row+i][col+i] === pieceToLookFor){
+        dr += 1;
+      } else {
+        break;
+      }
+    } else {break}
+  }
 
+  if(ul + dr === 3 || ur + dl === 3){
+    return true;
+  }
 }
+
 function checkVertical(board, row, col){
   let pieceToLookFor = board[row][col]
   let up = 0;
