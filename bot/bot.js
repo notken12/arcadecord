@@ -147,12 +147,21 @@ async function getInviteMessage(game) {
 		let overlaySrc = path.resolve(__dirname, '../server/src/public/icons/thumbnail_overlay.svg');
 		let overlayImg = await Canvas.loadImage(overlaySrc);
 		const ctx = canvas.getContext('2d')
+
+		context.antialias = 'subpixel';
+		context.imageSmoothingEnabled = true;
+		ctx.patternQuality = 'best';
+
 		ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
 
 		image = canvas.toBuffer();
 	} else {
 		let canvas = new Canvas.Canvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
 		let ctx = canvas.getContext('2d');
+		
+		context.antialias = 'subpixel';
+		context.imageSmoothingEnabled = true;
+		ctx.patternQuality = 'best';
 
 		let defaultThumbnailSrc = path.resolve(__dirname, '../server/src/public/ui-images/default_thumbnail.svg');
 		let defaultThumbnailImg = await Canvas.loadImage(defaultThumbnailSrc);
