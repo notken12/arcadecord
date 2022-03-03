@@ -52,5 +52,5 @@ class FiveLettersGame extends Game {
 
 export default {
     options,
-    Game: FillerGame,
+    Game: FiveLettersGame,
 }
