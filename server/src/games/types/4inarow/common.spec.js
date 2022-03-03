@@ -5,6 +5,8 @@ import Action from '../../Action.js'
 // Import the GameFlow class to control game flow
 import GameFlow from '../../GameFlow.js'
 
+import Common from './common.js'
+
 test('placing pieces works 4inarow', async () => {
   let game = new main.Game()
   // Activate testing mode
@@ -21,8 +23,7 @@ test('placing pieces works 4inarow', async () => {
 
   await game.handleAction(action)
 
-let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-
+let stillTheirTurn = GameFlow.isItUsersTurn(game, 1);
   expect(game.data.board.pieces.length).toBe(1)
 }) //CURRENTLY SUCCESSFUL! :))))))))
 
@@ -84,7 +85,6 @@ test('4 in a row vertically wins', async () => {
   }
 
   //assertions
-  expect(game.data.board.oldBoard).toBe("yes")
   expect(game.hasEnded).toBe(true)
   expect(game.winner).toBe(1)
 })

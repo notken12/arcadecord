@@ -24,16 +24,16 @@ class Board {
 }
 
 async function place(game, action){
+  let reversed = reversedRows(game)
   let col = action.data.col;
   var row = findLowestInColumn(game, col)
   if(row === undefined){ return false}
   game.data.board.pieces.push(new Piece(game.turn, row, col))
   game.data.board.oldBoard = boardTo2D(game)
 
-  let gameOver = checkGameOver(game, row, col)
-  if(gameOver){
+  if(checkGameOver(game, reversed[row], col)){
     await GameFlow.end(game, {
-      winner:gameOver
+      winner:game.turn
     })
   } else {
     await GameFlow.endTurn(game)
@@ -58,9 +58,7 @@ function checkGameOver(game, row, col){
 
   let check = [checkHorizontal(oldBoard, row, col), checkVertical(oldBoard, row, col), checkDiagonal(oldBoard, row, col)]
 
-  if(check[0]) return check[0];
-  if(check[1]) return check[1];
-  if(check[2]) return check[2];
+  if(check[0] || check[1] || check[2]) return true;
   if(isBoardFull(game.data.board)) return -1;
 }
 function isBoardFull(board){
@@ -109,28 +107,30 @@ function checkVertical(board, row, col){
   let pieceToLookFor = board[row][col]
   let up = 0;
   let down = 0;
+  let upContinue = true;
+  let downContinue = false;
   var i;
   for(i=1;i<board.length;i++){//up
-    if(board[row-1]){
-      if(board[row-1][col] === pieceToLookFor){
+    if(board[row-i]){
+      if(board[row-i][col] === pieceToLookFor){
         up += 1;
       } else {
         break;
       }
-    }
+    } else {break}
   }
   for(i=1;i<board.length;i++){//down
-    if(board[row+1]){
-      if(board[row+1][col] === pieceToLookFor){
+    if(board[row+i]){
+      if(board[row+i][col] === pieceToLookFor){
         up += 1;
       } else {
         break;
       }
-    }
+    } else {break}
   }
 
   if(up + down === 3){
-    return pieceToLookFor;
+    return true;
   }
 }
 var exports = {
