@@ -51,6 +51,8 @@ class Game {
     this.actionSchemas = {} // action data schemas to enforce. helps with debugging and protects against attacks
     this.previousData = {} // snapshot of game data before the last turn
     this.invitedUsers = [] // discord IDs of users that have been invited to join the game, reserved spots
+    this.inThread = false // whether or not the game is played in a thread
+    this.threadChannel = null // the thread channel the game is played in (valid only if inThread is true)
 
     // async actionModel (action, game) {
     // action: information about action
@@ -482,17 +484,13 @@ Game.eventHandlersDiscord = {
     return game
   },
   turn: async function (game) {
-    if (game.startMessage) {
-      BotApi.deleteMessage(game.guild, game.channel, game.startMessage)
-    }
-    if (game.lastTurnInvite) {
-      BotApi.deleteMessage(game.guild, game.channel, game.lastTurnInvite)
-    }
-
     var res = await BotApi.sendTurnInvite(game)
 
     var msg = await res.json()
     game.lastTurnInvite = msg.id
+    if (game.inThread) {
+      game.threadChannel = msg.channelId
+    }
 
     return game
   },

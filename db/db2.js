@@ -50,6 +50,8 @@ const gameSchema = new Schema({
     channel: String,
     guild: String,
     invitedUsers: Array,
+    inThread: Boolean,
+    threadChannel: String,
 });
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);

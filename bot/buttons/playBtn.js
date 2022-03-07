@@ -35,6 +35,7 @@ export default {
                 channel: interaction.channel.id,
                 typeId: dbOptions.typeId,
                 invitedUsers: dbOptions.invitedUsers,
+                inThread: dbOptions.inThread,
             },
             userId: user._id
         };
@@ -54,7 +55,7 @@ export default {
         if (response.ok) {
             // log result
             var game = await response.json();
-            interaction.editReply({ components: [], content: `${game.emoji} ${game.name} created`, embeds: [] }).catch(console.error);
+            interaction.editReply({ components: [], content: `${Emoji.CHECK}  ${game.name} created`, embeds: [] }).catch(console.error);
             db.slashCommandOptions.delete(dbOptionsId);
         } else {
             console.log('failed to create game');

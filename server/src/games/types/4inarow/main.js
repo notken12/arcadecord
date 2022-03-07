@@ -100,7 +100,7 @@ class FourInARowGame extends Game {
         }
     }
     onInit(game){
-      game.data.board.pieces[0] = new Common.Piece(0, 0, 0)
+      // game.data.board.pieces[0] = new Common.Piece(0, 0, 0)
       return game;
     }
 }

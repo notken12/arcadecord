@@ -93,7 +93,38 @@ client.sendTurnInvite = async function (g) {
 	// create instance of game
 	const game = new gameType.Game(g);
 
-	const channel = await client.channels.fetch(game.channel)
+
+
+	let channel;
+
+	let textChannel = await client.channels.fetch(game.channel)
+	if (game.startMessage) {
+		textChannel.messages.delete(game.startMessage).catch(() => { });
+	}
+
+	if (game.inThread) {
+		if (!game.threadChannel) {
+
+			let thread = await textChannel.threads.create({
+				name: `${game.emoji || Emoji.ICON_ROUND} ${game.name}`,
+				autoArchiveDuration: 'MAX',
+				reason: `Arcadecord game`,
+				// startMessage: game.startMessage
+			});
+			for (let player of game.players) {
+				thread.members.add(player.discordUser.id);
+			}
+			channel = thread;
+		} else {
+			channel = await client.channels.fetch(game.threadChannel);
+		}
+	} else {
+		channel = textChannel;
+	}
+
+	if (game.lastTurnInvite) {
+		channel.messages.delete(game.lastTurnInvite).catch(() => { });
+	}
 
 	var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex]
 
@@ -111,7 +142,7 @@ client.sendTurnInvite = async function (g) {
 
 	let invite = await getInviteMessage(game)
 	invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`;
-	
+
 	var embed = invite.embeds[0]
 	embed.setAuthor({
 		name: `${lastPlayer.discordUser.tag}`,
@@ -158,7 +189,7 @@ async function getInviteMessage(game) {
 	} else {
 		let canvas = new Canvas.Canvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
 		let ctx = canvas.getContext('2d');
-		
+
 		ctx.antialias = 'subpixel';
 		ctx.imageSmoothingEnabled = true;
 		ctx.patternQuality = 'best';
