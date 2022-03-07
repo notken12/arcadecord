@@ -48,6 +48,8 @@ function getMessage(dbOptionsId, invitedUsersIds) {
     return { content, ephemeral: true, components: rows, embeds: [] };
 }
 
+export { getMessage, getActionRows };
+
 export default {
     data: new SlashCommandBuilder()
     .setName('play')
@@ -78,7 +80,7 @@ export default {
     
     
             var reply = await interaction.editReply(message);
-            var dbOptions = await db.slashCommandOptions.create({ invitedUsers: ids, inThread, _id: reply.id });
+            await db.slashCommandOptions.create({ invitedUsers: ids, inThread, _id: reply.id });
 
         } else {
             let row = new MessageActionRow();
