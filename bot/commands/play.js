@@ -7,28 +7,12 @@ import Emoji from '../../Emoji.js';
 const THREAD_THRESHOLD = 10; // If the server's member count is above this threshold, automatically use a thread
 
 function getActionRows(dbOptionsId, invitedUsersIds) {
-    //create message action row
-    // const row = new MessageActionRow();
-    // var selectMenu = new MessageSelectMenu()
-    //     .setCustomId('gameSelect')
-    //     .setPlaceholder('Nothing selected');
-
     let rows = [new MessageActionRow()];
     for (var g in games) {
         var game = games[g];
 
         if (game.options.hidden) continue;
-        // selectMenu.addOptions([
-        //     {
-        //         label: game.options.name,
-        //         description: game.options.description,
-        //         value: JSON.stringify({
-        //             typeId: game.options.typeId,
-        //             dbOptionsId: dbOptionsId,
-        //         }),
-        //         emoji: game.options.emoji || Emoji.ICON_ROUND
-        //     }
-        // ]);
+
         const button = new MessageButton()
             .setStyle('PRIMARY')
             .setLabel(game.options.name)
@@ -43,8 +27,6 @@ function getActionRows(dbOptionsId, invitedUsersIds) {
         currentRow.addComponents([button]);
         
     }
-
-    // row.addComponents([selectMenu]);
 
     return rows;
 }

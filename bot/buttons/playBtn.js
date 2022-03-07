@@ -20,15 +20,6 @@ export default {
 
         let gameType = gameTypes[dbOptions.typeId];
 
-        if (dbOptions.inThread) {
-            // let thread = await interaction.channel.threads.create({
-            //     name: `${gameType.options.emoji || Emoji.ICON_ROUND} ${gameType.options.name}`,
-            //     autoArchiveDuration: 'MAX',
-            //     reason: `Arcadecord game`
-            // });
-            // channelId = thread.id;
-        }
-
         const body = {
             options: {
                 guild: interaction.guild.id,

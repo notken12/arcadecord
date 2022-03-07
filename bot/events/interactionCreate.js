@@ -31,7 +31,7 @@ export default {
             let button = client.buttons.get(interaction.customId);
 
             if (!button) {
-                button = client.buttons.find(b => interaction.customId.match(b.data.matcher));
+                button = client.buttons.find(b => b.data.matcher && interaction.customId.match(b.data.matcher));
                 if (!button) return;
             };
 

@@ -38,7 +38,7 @@ function getOptionsMessage(dbOptions) {
     let threadToggleBtn = new MessageButton()
         .setStyle('SECONDARY')
         .setLabel('Play in thread')
-        .setCustomId('toggleThread');
+        .setCustomId('toggleThread:' + dbOptions.inThread);
     
     if (dbOptions.inThread) {
         threadToggleBtn.setEmoji(Emoji.CHECK);
@@ -62,6 +62,8 @@ function getOptionsMessage(dbOptions) {
 
     return msg;
 }
+
+export { getOptionsMessage };
 
 export default {
     data: {
