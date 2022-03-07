@@ -57,6 +57,7 @@ async function fetchUserFromAccessToken(access_token) {
     if (!me.ok) {
         console.log("couldn't fetch user's @me");
         console.log(me);
+        console.log('tried to fetch with access token: ' + access_token);
         // refresh access token
         console.log('refreshing access token');
 
@@ -71,6 +72,10 @@ async function fetchUserFromAccessToken(access_token) {
     me = await me.json();
 
     var id = me.id;
+
+    if (id === undefined) {
+        console.error('TODO: handle case where app is not authorized to access user\'s @me');
+    }
 
     var user = await BotApi.fetchUser(id);
 
