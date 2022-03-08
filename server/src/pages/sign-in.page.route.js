@@ -5,8 +5,6 @@ export default pageContext => {
         };
     }
     if ((pageContext.pageContext.userId === null || pageContext.pageContext.userId === undefined) && pageContext.url.startsWith('/game')) {
-        console.log('redirecting')
-        console.log(pageContext)
         return {
             precedence: 99
         }

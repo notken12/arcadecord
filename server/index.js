@@ -459,7 +459,15 @@ app.get('/discord-oauth', (req, res) => {
 //get authorization code
 app.get('/auth', authController);
 
+app.get('/game/:gameId', async (req, res, next) => {
+  res.cookie('gameId', req.params.gameId, {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+  });
+  next();
+})
+
 app.post('/create-game', async (req, res) => {
+  console.log('creating game')
   try {
     // get token from headers
     var authHeader = req.headers.authorization;
@@ -550,16 +558,12 @@ if (!isProduction) {
 
 const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
 
-app.get('/game/:gameId', async (req, res, next) => {
-  res.cookie('gameId', req.params.gameId, {
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  });
-  next();
-})
+const apiRoutes = ['/create-game', '/auth', '/invite-successful', '/discord-oauth2-sign-in', '/discord-oauth2-invite-bot'];
 
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl
-  console.log(url)
+  let matchingRoute = apiRoutes.find(r => url.startsWith(r));
+  if (matchingRoute) return next();
 
   let cookie = req.cookies.accessToken;
 
