@@ -545,9 +545,14 @@ if (!isProduction) {
   // In middleware mode, if you want to use Vite's own HTML serving logic
   // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
   let { createServer: createViteServer } = await import('vite');
+  let hmr = true
+
+  if (process.env.HOSTED_ON === 'gitpod') {
+    hmr = false
+  }
 
   viteDevServer = await createViteServer({
-    server: { middlewareMode: 'ssr' }
+    server: { middlewareMode: 'ssr', hmr }
   });
   // use vite's connect instance as middleware
   app.use(viteDevServer.middlewares);
