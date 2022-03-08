@@ -129,6 +129,7 @@ class Game {
     }
   }
   getURL() {
+    console.log(process.env.GAME_SERVER_URL)
     return process.env.GAME_SERVER_URL + '/game/' + this.id
   }
   on(event, callback) {

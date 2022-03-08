@@ -559,6 +559,7 @@ app.get('/game/:gameId', async (req, res, next) => {
 
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl
+  console.log(url)
 
   let cookie = req.cookies.accessToken;
 
