@@ -81,6 +81,16 @@ class FillerGame extends Game {
             y: canvas.height / 2 - sl * board.height / 2
         }
 
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "gray";
+        ctx.shadowOffsetX = 0;
+        // ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "transparent";
+
+        ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl);
+
+        ctx.shadowBlur = 0;
+
         for (let row = 0; row < board.height; row++) {
             for (let col = 0; col < board.width; col++) {
                 let x = topLeft.x + sl * col;

@@ -552,7 +552,9 @@ if (!isProduction) {
   }
 
   viteDevServer = await createViteServer({
-    server: { middlewareMode: 'ssr', hmr }
+    server: {
+      middlewareMode: 'ssr', hmr
+    }
   });
   // use vite's connect instance as middleware
   app.use(viteDevServer.middlewares);

@@ -103,7 +103,6 @@ class Chess extends Game {
 
       ctx.drawImage(boardImg, 54, 8, 184, 184)
 
-      ctx.shadowBlur = 0;
       let whitePiecesSrc = path.resolve(__dirname, "../../../public/assets/chess/white_pieces.svg")
       let blackPiecesSrc = path.resolve(__dirname, "../../../public/assets/chess/black_pieces.svg")
 
