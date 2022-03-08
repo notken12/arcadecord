@@ -36,12 +36,8 @@ class KnockoutGame extends Game {
     }
 
     onInit(game) {
-        // Generate new board
-        if (!this.board) {
-            this.data = {
-                board: new Common.Board(8, 7)
-            };
-        }
+        // TODO: Generate new board
+        
         return game
     }
 }

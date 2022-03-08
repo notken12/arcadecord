@@ -1,4 +1,7 @@
-<script>
+<script setup>
+import { useFacade } from 'components/base-ui/facade'
+const { game, me, replaying, runningAction, $replayTurn, $endReplay, $runAction, $endAnimation } = useFacade()
+
 import Matter from 'matter-js';
 
 //just the boilerplate that matter js has provided for now
@@ -19,8 +22,14 @@ var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
 // add all of the bodies to the world
 Composite.add(engine.world, [boxA, boxB, ground]);
 
-Render.run(Render.create({ element: document.querySelector("#app"), engine }));
+const canvas = ref(null);
+
+Render.run(Render.create({ element: canvas.value, engine }));
 Runner.run(Runner.create(), engine);
 
 
 </script>
+
+<template>
+    <canvas ref="canvas"></canvas>
+</template>
