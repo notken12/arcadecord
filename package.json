@@ -65,6 +65,7 @@
     "gsap": "^3.9.1",
     "jsonwebtoken": "^8.5.1",
     "lodash.clonedeep": "^4.5.0",
+    "matter-js": "^0.17.1",
     "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
     "multer": "^1.4.4",
