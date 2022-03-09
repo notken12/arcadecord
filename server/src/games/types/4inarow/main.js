@@ -28,6 +28,7 @@ const options = {
   emoji: '🔵',
   data: {
     board: new Common.Board(7, 6),
+    colors: [1,0]
   }
 };
 
