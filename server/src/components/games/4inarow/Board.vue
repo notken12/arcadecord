@@ -2,23 +2,46 @@
   <div class="ratio vertical">
     <canvas width="500" height="500"></canvas>
     <div>
-      <div class="ratio horizontal" style="position:relative">
+      <div class="ratio horizontal" style="position:relative" @changeColumn="changeColumn($event)">
         <canvas width="500" height="500"></canvas>
         <div class="board-front"></div>
         <div class="board-back"></div>
+        <piece v-for="piece in board.pieces" :piece="piece"></piece>
+        <ColumnOverlay v-for="col in board.width" :selectedColumn="selectedColumn" :column="col-1"></ColumnOverlay>
       </div>
     </div>
   </div>
+  <DropButton v-if="selectedColumn"></DropButton>
 </template>
 
 <script>
   import Piece from './Piece.vue'
+  import DropButton from './dropButton.vue'
+  import ColumnOverlay from './ColumnOverlay.vue'
 
   import GameFlow from '@app/js/GameFlow'
   import Common from '/gamecommons/chess'
+  import bus from '@app/js/vue-event-bus'
   export default {
+    data(){
+      return{
+        selectedColumn:null
+      }
+    },
+    computed:{
+      board(){
+        return this.game.data.board
+      }
+    },
+    mounted(){
+      bus.on('changeColumn', (column) => {
+        this.selectedColumn = column
+      })
+    },
     components:{
-      Piece
+      Piece,
+      DropButton,
+      ColumnOverlay
     }
   }
 </script>
@@ -29,16 +52,19 @@
   background-image:url(/dist/assets/4inarow/FullBack.svg);
   background-size:contain;
   position:absolute;
-  width:100%;
-  height:100%;
+  width:96%;
+  height:83.3333333333%;
 }
 .board-front {
+  cursor:pointer;
     background-image: url(/dist/assets/4inarow/FullFront.svg);
     background-size: contain;
   background-color: transparent;
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
   position:absolute;
+  width:96%;
+  height:83.3333333333%;
   z-index: 1;
 }
 .grid-container {
