@@ -25,7 +25,7 @@ const stateSchema = {
             items: {
                 type: 'string',
             },
-            maxItems: 2
+            maxItems: 2,
         },
         guesses: {
             type: 'array',
@@ -58,7 +58,7 @@ const stateSchema = {
 
 const validateGameState = ajv.compile(stateSchema)
 
-test.todo('initial game state', async () => {
+test('initial game state', async () => {
     // Create a new game
     let game = new main.Game()
     // Activate testing mode
