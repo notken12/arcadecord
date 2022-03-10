@@ -238,4 +238,35 @@ describe('Action: guess', async() => {
         // Check that the turn ended
         expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false)
     })
+
+    test('Guesses with invalid words arent allowed', async () => {
+        // Create a new game
+        let game = new main.Game()
+        // Activate testing mode
+        game.test()
+        // Add fake players
+        game.mockPlayers(2)
+
+        // Initialize the game
+        game.init()
+
+        // Player 1 chooses a word
+        let action = new Action('chooseWord', {
+            word: 'mango'
+        }, 1)
+        await game.handleAction(action)
+
+        // Player 0 chooses a word
+        let action2 = new Action('chooseWord', {
+            word: 'apple'
+        }, 0)
+        await game.handleAction(action2)
+        
+        // Player 0 guesses the word
+        let action3 = new Action('guess', {
+            word: 'bgoew'
+        }, 0)
+        let actionResult = await game.handleAction(action3)
+        expect(actionResult.success).toEqual(false)
+    })
 })
