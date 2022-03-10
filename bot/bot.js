@@ -106,7 +106,7 @@ client.sendTurnInvite = async function (g) {
 		if (!game.threadChannel) {
 
 			let thread = await textChannel.threads.create({
-				name: `${game.emoji || Emoji.ICON_ROUND} ${game.name}   ${Emoji.ICON_ROUND}`,
+				name: `${game.emoji || ''} ${game.name}`,
 				autoArchiveDuration: 'MAX',
 				reason: `Arcadecord game`,
 				// startMessage: game.startMessage

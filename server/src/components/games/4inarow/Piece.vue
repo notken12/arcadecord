@@ -1,36 +1,48 @@
 <template>
-  <div class="piece" :class="classes" :style="styles"></div>
+  <div class="piece" :class="classes" ref="el"></div>
 </template>
 
 <script>
 import gsap from 'gsap'
-import { Draggable } from 'gsap/dist/Draggable.js'
+
+function updatePiecePos() {
+  let offsetLeft = 0.1 + (this.piece.column) * 13.73 + "%"
+  let offsetTop = this.reversedRows[this.piece.row] * 13.73 + "%"
+
+  gsap.to(this.$refs.el, {
+    top: offsetTop,
+    left: offsetLeft,
+    ease: 'power3.inOut',
+    duration: 0,
+  })
+}
 
 export default {
-  data(){
-    return{
-      reversedRows:[5, 4, 3, 2, 1, 0]
+  data() {
+    return {
+      reversedRows: [5, 4, 3, 2, 1, 0]
     }
   },
-  props:{
+  props: {
     piece: {
       type: Object,
-      required:true
+      required: true
     }
   },
   computed: {
-    classes(){
-      if(this.piece.color === 0) return "yellow"
+    classes() {
+      if (this.piece.color === 0) return "yellow"
       return ""
-    },
-    styles(){
-      let offsetLeft = 0.1 + (this.piece.column)*13.73 + "%"
-      let offsetTop = this.reversedRows[this.piece.row]*13.73 + "%"
-      return {
-        left:offsetLeft,
-        top:offsetTop
-      }
     }
+  },
+  watch: {
+    piece: {
+      handler: updatePiecePos,
+      deep: true,
+    }
+  },
+  mounted() {
+    updatePiecePos.call(this)
   }
 }
 </script>
