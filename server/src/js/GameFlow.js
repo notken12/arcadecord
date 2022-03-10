@@ -9,7 +9,7 @@ const GameFlow = {
     end(game, result) {
         //end the game
         game.hasEnded = true;
-        if (result.winner) {
+        if (result.winner !== undefined && result.winner !== null) {
             game.winner = result.winner;
         } else {
             // draw

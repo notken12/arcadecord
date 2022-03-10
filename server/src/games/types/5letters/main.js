@@ -40,19 +40,41 @@ class FiveLettersGame extends Game {
         this.on('init', Game.eventHandlersDiscord.init);
         this.on('turn', Game.eventHandlersDiscord.turn);
 
-        
+        this.setActionModel('chooseWord', Common.action_chooseWord);
+        this.setActionSchema('chooseWord', {
+            type: 'object',
+            properties: {
+                word: {
+                    type: 'string',
+                    minLength: Common.WORD_LENGTH,
+                    maxLength: Common.WORD_LENGTH,
+                },
+            },
+            required: ['word']
+        })
+
+        this.setActionModel('guess', Common.action_guess);
+        this.setActionSchema('guess', {
+            type: 'object',
+            properties: {
+                word: {
+                    type: 'string',
+                    minLength: Common.WORD_LENGTH,
+                    maxLength: Common.WORD_LENGTH,
+                },
+            },
+            required: ['word']
+        })
     }
 
     onInit(game) {
         // Generate new game state
-        // game.data = {
-        //     answers: [
-        //         [], []
-        //     ],
-        //     guesses: [
-        //         [], []
-        //     ]
-        // }
+        game.data = {
+            answers: [],
+            guesses: [
+                [], []
+            ]
+        }
         
         return game
     }

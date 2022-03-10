@@ -9,7 +9,6 @@ import GameFlow from '../../GameFlow.js';
 
 //Import Canvas
 //import Canvas from '../../../../../canvas/canvas.js'
-import Canvas from 'canvas';
 
 // get __dirname
 import path from 'path';
@@ -90,6 +89,9 @@ class Chess extends Game {
 
       return canvas.toBuffer();
       */
+
+      const { default: Canvas } = await import('canvas');
+
       const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
       const ctx = canvas.getContext('2d')
 
