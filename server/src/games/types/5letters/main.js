@@ -45,6 +45,14 @@ class FiveLettersGame extends Game {
 
     onInit(game) {
         // Generate new game state
+        // game.data = {
+        //     answers: [
+        //         [], []
+        //     ],
+        //     guesses: [
+        //         [], []
+        //     ]
+        // }
         
         return game
     }

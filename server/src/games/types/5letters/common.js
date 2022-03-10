@@ -43,6 +43,8 @@ function getHints(guess, answer) {
     return hints;
 }
 
+
+
 export default {
     HINT,
     getHints,

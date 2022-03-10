@@ -467,7 +467,6 @@ app.get('/game/:gameId', async (req, res, next) => {
 })
 
 app.post('/create-game', async (req, res) => {
-  console.log('creating game')
   try {
     // get token from headers
     var authHeader = req.headers.authorization;
