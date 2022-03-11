@@ -58,10 +58,10 @@ class FourInARowGame extends Game {
 
       let board = this.data.board;
 
-      let cellBackgroundSrc = path.resolve(__dirname + '../../../../public/assets/4inarow/CellBackground.svg')
+      let cellBackgroundSrc = path.resolve(__dirname + '../../../../public/assets/4inarow/FullBack.svg')
       let cellBackground = await Canvas.loadImage(cellBackgroundSrc)
 
-      let cellFrontSrc = path.resolve(__dirname + '../../../../public/assets/4inarow/CellFront.svg')
+      let cellFrontSrc = path.resolve(__dirname + '../../../../public/assets/4inarow/FullFront.svg')
       let cellFront = await Canvas.loadImage(cellFrontSrc)
 
       let redCheckerSrc = path.resolve(__dirname + '../../../../public/assets/4inarow/RedChecker.svg')
@@ -73,26 +73,19 @@ class FourInARowGame extends Game {
       ctx.fillStyle = "white"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 6; j++) {
-          ctx.drawImage(cellBackground, 45 + 30 * i, 10 + 30 * j, 30, 30)
-        }
-      }
+
+          ctx.drawImage(cellBackground, 45, 10, 210, 180)
 
       for (let i = 0; i < board.pieces.length; i++) {
         let checkerType = yellowChecker;
         if (board.pieces[i].color === 1) checkerType = redChecker
-        let col = board.pieces[i].col;
+        let col = board.pieces[i].column;
         let row = Common.reversedRows(this)[board.pieces[i].row]
 
-        ctx.drawImage(checkerType, 45 + 30 * col, 10 + 30 * row, 30, 30)
+        ctx.drawImage(checkerType, 45 + 30 * col, 10 + 30*row, 30, 30)
       }
 
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 6; j++) {
-          ctx.drawImage(cellFront, 45 + 30 * i, 10 + 30 * j, 30, 30)
-        }
-      }
+      ctx.drawImage(cellFront, 45, 10, 210, 180)
 
 
       return canvas;
