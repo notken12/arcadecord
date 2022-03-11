@@ -4,6 +4,9 @@ import Common from './common.js';
 // Import Game class
 import Game from '../../Game.js';
 
+// Import Canvas to draw thumbnail
+import Canvas from 'canvas';
+
 // Game options, required. Export as options
 // README.md
 const options = {
@@ -59,6 +62,48 @@ class FillerGame extends Game {
             };
         }
         return game
+    }
+
+    async getThumbnail() {
+        const colors = ['#ff1744', '#ff9100', '#ffea00', '#00e676', '#2979ff', '#d500f9'];
+
+        const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
+        const ctx = canvas.getContext('2d')
+  
+        ctx.fillStyle = "#e4e1e6"
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        let board = this.data.board;
+
+        const sl = (canvas.height - 32) / board.height;
+        const topLeft = {
+            x: canvas.width / 2 - sl * board.width / 2,
+            y: canvas.height / 2 - sl * board.height / 2
+        }
+
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "gray";
+        ctx.shadowOffsetX = 0;
+        // ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "transparent";
+
+        ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl);
+
+        ctx.shadowBlur = 0;
+
+        for (let row = 0; row < board.height; row++) {
+            for (let col = 0; col < board.width; col++) {
+                let x = topLeft.x + sl * col;
+                let y = topLeft.y + sl * row;
+
+                let cell = board.cells[row][col];
+
+                ctx.fillStyle = colors[cell.color];
+                ctx.fillRect(x, y, sl, sl);
+            }
+        }
+
+        return canvas;
     }
 }
 

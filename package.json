@@ -13,7 +13,7 @@
     "test:open": "peeky open",
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
-    "start": "concurrently \"npm run startserver\" \"npm run startbot\"",
+    "start": "npm run startsingle",
     "startprod": "concurrently \"node server/index.js 1\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
     "startsingle": "concurrently \"nodemon --watch server server/index.js single\" \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "format": "prettier --write '**/*.js'"
@@ -39,6 +39,7 @@
     "delay": 2500
   },
   "dependencies": {
+    "@dimforge/rapier3d": "^0.8.0-alpha.1",
     "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@microsoft/applicationinsights-web": "^2.7.2",
@@ -65,6 +66,7 @@
     "gsap": "^3.9.1",
     "jsonwebtoken": "^8.5.1",
     "lodash.clonedeep": "^4.5.0",
+    "matter-js": "^0.17.1",
     "mitt": "^3.0.0",
     "mongoose": "^6.1.0",
     "multer": "^1.4.4",

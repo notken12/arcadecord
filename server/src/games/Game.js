@@ -51,6 +51,8 @@ class Game {
     this.actionSchemas = {} // action data schemas to enforce. helps with debugging and protects against attacks
     this.previousData = {} // snapshot of game data before the last turn
     this.invitedUsers = [] // discord IDs of users that have been invited to join the game, reserved spots
+    this.inThread = false // whether or not the game is played in a thread
+    this.threadChannel = null // the thread channel the game is played in (valid only if inThread is true)
 
     // async actionModel (action, game) {
     // action: information about action
@@ -157,12 +159,12 @@ class Game {
         if (this.testing) {
           throw new Error(
             'Action data does not follow schema: ' +
-              JSON.stringify(validate.errors)
+            JSON.stringify(validate.errors)
           )
         }
         console.warn(
           'Action data does not follow schema: ' +
-            JSON.stringify(validate.errors)
+          JSON.stringify(validate.errors)
         )
         return {
           success: false,
@@ -173,10 +175,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-          action.type +
-          '" to game: "' +
-          this.typeId +
-          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+        action.type +
+        '" to game: "' +
+        this.typeId +
+        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       )
     }
 
@@ -416,7 +418,7 @@ class Game {
     }
   }
 
-  getImage() {}
+  getImage() { }
 
   getChanges(oldData, newData) {
     var changes = {}
@@ -469,7 +471,7 @@ class Game {
     return game
   }
 
-  getThumbnail() {}
+  getThumbnail() { }
 }
 
 Game.eventHandlersDiscord = {
@@ -482,17 +484,13 @@ Game.eventHandlersDiscord = {
     return game
   },
   turn: async function (game) {
-    if (game.startMessage) {
-      BotApi.deleteMessage(game.guild, game.channel, game.startMessage)
-    }
-    if (game.lastTurnInvite) {
-      BotApi.deleteMessage(game.guild, game.channel, game.lastTurnInvite)
-    }
-
     var res = await BotApi.sendTurnInvite(game)
 
     var msg = await res.json()
     game.lastTurnInvite = msg.id
+    if (game.inThread) {
+      game.threadChannel = msg.channelId
+    }
 
     return game
   },

@@ -25,7 +25,7 @@ const stateSchema = {
             items: {
                 type: 'string',
             },
-            maxItems: 2
+            maxItems: 2,
         },
         guesses: {
             type: 'array',
@@ -58,7 +58,7 @@ const stateSchema = {
 
 const validateGameState = ajv.compile(stateSchema)
 
-test.todo('initial game state', async () => {
+test('initial game state', async () => {
     // Create a new game
     let game = new main.Game()
     // Activate testing mode
@@ -74,7 +74,7 @@ test.todo('initial game state', async () => {
 })
 
 describe('Action: choose word', async () => {
-    test.todo('choosing word ends turn for player 1 but not for player 0', async () => {
+    test('choosing word ends turn for player 1 but not for player 0', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -104,13 +104,27 @@ describe('Action: choose word', async () => {
 
         // Check that the word was chosen
         expect(game.data.answers[0]).toEqual('apple')
-        // Check that the turn ended
-        expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false)
+        // Check that it's still player 0's turn
+        expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+    })
+
+    test('Words that arent in the word list arent allowed', async () => {
+        let game = new main.Game();
+        game.test();
+        game.mockPlayers(2);
+        game.init();
+
+        let action = new Action('chooseWord', {
+            word: 'fjeow'
+        }, 1);
+
+        let result = await game.handleAction(action);
+        expect(result.success).toEqual(false);
     })
 })
 
 describe('Action: guess', async() => {
-    test.todo('player wins when guessing correctly', async () => {
+    test('player wins when guessing correctly', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -139,11 +153,18 @@ describe('Action: guess', async() => {
         }, 0)
         await game.handleAction(action3)
 
+        // Player 1 makes a wrong guess
+        let action4 = new Action('guess', {
+            word: 'crate'
+        }, 1)
+        await game.handleAction(action4)
+
         // Check that the player won
         expect(game.hasEnded).toEqual(true)
+
         expect(game.winner).toEqual(0)
     })
-    test.todo('a draw happens if both players cant guess the others word', () => {
+    test('a draw happens if both players cant guess the others word', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -158,13 +179,13 @@ describe('Action: guess', async() => {
         let action = new Action('chooseWord', {
             word: 'mango'
         }, 1)
-        game.handleAction(action)
+        await game.handleAction(action)
 
         // Player 0 chooses a word
         let action2 = new Action('chooseWord', {
             word: 'apple'
         }, 0)
-        game.handleAction(action2)
+        await game.handleAction(action2)
 
         let badGuess0 = new Action('guess', {
             word: 'crate'
@@ -179,11 +200,13 @@ describe('Action: guess', async() => {
         }
 
         // Check that the game ended
+        expect(game.data.guesses[0].length).toEqual(6)
+        expect(game.data.guesses[1].length).toEqual(6)
         expect(game.hasEnded).toEqual(true)
         expect(game.winner).toEqual(-1)
 
     })
-    test.todo('turn ends after player guesses', () => {
+    test('turn ends after player guesses', async () => {
         // Create a new game
         let game = new main.Game()
         // Activate testing mode
@@ -198,21 +221,52 @@ describe('Action: guess', async() => {
         let action = new Action('chooseWord', {
             word: 'mango'
         }, 1)
-        game.handleAction(action)
+        await game.handleAction(action)
 
         // Player 0 chooses a word
         let action2 = new Action('chooseWord', {
             word: 'apple'
         }, 0)
-        game.handleAction(action2)
+        await game.handleAction(action2)
 
         // Player 0 guesses the word
         let action3 = new Action('guess', {
             word: 'mango'
         }, 0)
-        game.handleAction(action3)
+        await game.handleAction(action3)
 
         // Check that the turn ended
         expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false)
+    })
+
+    test('Guesses with invalid words arent allowed', async () => {
+        // Create a new game
+        let game = new main.Game()
+        // Activate testing mode
+        game.test()
+        // Add fake players
+        game.mockPlayers(2)
+
+        // Initialize the game
+        game.init()
+
+        // Player 1 chooses a word
+        let action = new Action('chooseWord', {
+            word: 'mango'
+        }, 1)
+        await game.handleAction(action)
+
+        // Player 0 chooses a word
+        let action2 = new Action('chooseWord', {
+            word: 'apple'
+        }, 0)
+        await game.handleAction(action2)
+        
+        // Player 0 guesses the word
+        let action3 = new Action('guess', {
+            word: 'bgoew'
+        }, 0)
+        let actionResult = await game.handleAction(action3)
+        expect(actionResult.success).toEqual(false)
     })
 })

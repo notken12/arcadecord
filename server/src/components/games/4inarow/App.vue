@@ -1,25 +1,61 @@
 <template>
-  <!-- GameView component, contains all basic game UI 
-            like settings button -->
-  <game-view :game="game" :me="me" :hint="hint">
-    <!-- Game UI goes in here -->
-
-    <!-- Using the scores-view component, create the score badges -->
+  <game-view>
     <scores-view>
-      <!-- Display a score badge for each player -->
       <template v-slot="scoreView">
-        <score-badge :scoreview="scoreView"></score-badge>
+        <div class="color-indicator" :class="{yellow:game.data.colors[scoreView.playerindex] === 1}"></div>
       </template>
     </scores-view>
 
     <div class="middle">
-      <!-- Game UI just for filler -->
       <board></board>
-      <changer></changer>
     </div>
   </game-view>
 </template>
 <script>
-import 'scss/all-games.scss'
-import 'scss/games/4inarow.scss';
+
+import Board from './Board.vue'
+
+import GameFlow from '@app/js/GameFlow'
+import Common from '/gamecommons/chess'
+//♙♘♗♖♕♔♟︎♞♝♜♛♚
+export default {
+  methods:{
+
+  },
+  computed:{
+
+  },
+  mounted(){
+    console.log(this.game)
+    this.$replayTurn(() => {
+      this.$endReplay()
+    })
+  },
+  components: {
+    Board,
+  },
+}
 </script>
+
+<style lang="scss">
+@use 'scss/base/_theme' as theme;
+
+.color-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 0 5px;
+  display: inline-block;
+  background-color: red;
+  border: 2px black solid;
+  box-shadow: theme.$md-elevation-level3;
+}
+
+.color-indicator.yellow {
+  background-color: yellow;
+  border-color: 2px black solid;
+}
+</style>
+<style lang="scss" src="scss/games/4inarow.scss"></style>
+
+<!-- <style src="scss/games/chess.scss"></style> -->

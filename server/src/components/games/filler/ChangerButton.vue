@@ -34,18 +34,22 @@ export default {
       var color = COLORS[this.colorid] // gets the color of 'this' button's target (stored as a prop called colorid) from common.
       // color is a string containing the name of the desired color
 
-      return [color] // an array with one string; the string is the color's name.
+      let classes = [color]
+      if (this.isDisabled) {
+        classes.push('disabled')
+      }
+
+      return classes // an array with one string; the string is the color's name.
       // the class will be set to the color name
     },
     isDisabled() {
+      let myIndex = this.game.myIndex === -1 ? 1 : this.game.myIndex
       var myColor = Common.Board.getPlayerColor(
         this.game.data.board,
-        this.game.myIndex
+        myIndex
       )
-      let opponentIndex = this.game.myIndex ^ 1
-      if (this.game.myIndex === -1) {
-        opponentIndex = 0
-      }
+      let opponentIndex = myIndex ^ 1
+
       var opponentColor = Common.Board.getPlayerColor(
         this.game.data.board,
         opponentIndex
@@ -69,7 +73,7 @@ export default {
   transition-duration: 0.2s;
 }
 
-.changer-button[disabled='true'] {
+.changer-button.disabled {
   width: 20px;
   height: 20px;
   cursor: default;

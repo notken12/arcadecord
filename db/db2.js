@@ -50,6 +50,8 @@ const gameSchema = new Schema({
     channel: String,
     guild: String,
     invitedUsers: Array,
+    inThread: Boolean,
+    threadChannel: String,
 });
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
@@ -59,6 +61,7 @@ const slashCommandOptionsSchema = new Schema({
     invitedUsers: Array,
     inThread: Boolean,
     gameConfig: Object,
+    typeId: String,
 });
 
 const SlashCommandOptions = mongoose.models.SlashCommandOptions || mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
@@ -112,7 +115,7 @@ const db = {
         },
         async update(id, data) {
             try {
-                return await User.findByIdAndUpdate(id, data);
+                return await User.findByIdAndUpdate(id, data, { new: true });
             } catch (e) {
                 console.error(e);
                 return null;
@@ -165,7 +168,7 @@ const db = {
         },
         async update(id, data) {
             try {
-                return await Game.findByIdAndUpdate(id, data);
+                return await Game.findByIdAndUpdate(id, data, { new: true });
             } catch (e) {
                 console.error(e);
                 return null;
@@ -193,6 +196,14 @@ const db = {
         async getById(id) {
             try {
                 return await SlashCommandOptions.findById(id);
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        },
+        async update(id, data) {
+            try {
+                return await SlashCommandOptions.findByIdAndUpdate(id, data, { new: true });
             } catch (e) {
                 console.error(e);
                 return null;

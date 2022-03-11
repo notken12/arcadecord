@@ -459,6 +459,13 @@ app.get('/discord-oauth', (req, res) => {
 //get authorization code
 app.get('/auth', authController);
 
+app.get('/game/:gameId', async (req, res, next) => {
+  res.cookie('gameId', req.params.gameId, {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+  });
+  next();
+})
+
 app.post('/create-game', async (req, res) => {
   try {
     // get token from headers
@@ -537,9 +544,16 @@ if (!isProduction) {
   // In middleware mode, if you want to use Vite's own HTML serving logic
   // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
   let { createServer: createViteServer } = await import('vite');
+  let hmr = true
+
+  if (process.env.HOSTED_ON === 'gitpod') {
+    hmr = false
+  }
 
   viteDevServer = await createViteServer({
-    server: { middlewareMode: 'ssr' }
+    server: {
+      middlewareMode: 'ssr', hmr
+    }
   });
   // use vite's connect instance as middleware
   app.use(viteDevServer.middlewares);
@@ -550,15 +564,12 @@ if (!isProduction) {
 
 const renderPage = createPageRenderer({ viteDevServer, isProduction, root, outDir: 'dist', baseAssets: '/dist/' })
 
-app.get('/game/:gameId', async (req, res, next) => {
-  res.cookie('gameId', req.params.gameId, {
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  });
-  next();
-})
+const apiRoutes = ['/create-game', '/auth', '/invite-successful', '/discord-oauth2-sign-in', '/discord-oauth2-invite-bot'];
 
 app.get('*', async (req, res, next) => {
   const url = req.originalUrl
+  let matchingRoute = apiRoutes.find(r => url.startsWith(r));
+  if (matchingRoute) return next();
 
   let cookie = req.cookies.accessToken;
 
