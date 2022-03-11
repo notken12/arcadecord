@@ -92,8 +92,6 @@ class FourInARowGame extends Game {
     }
   }
   onInit(game) {
-    game.data.board.pieces.push(new Common.Piece(0, 0, 0))
-    game.data.board.pieces.push(new Common.Piece(1, 0, 1))
     return game;
   }
 }
