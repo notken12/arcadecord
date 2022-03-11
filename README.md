@@ -27,6 +27,8 @@ https://github.com/notken12/arcadecord/issues
 
 ### Gameplay process
 
+maogo
+
 1. The player can create a game with a Discord slash command. 
 2. The Discord bot listens for the slash command and tells the game server, which creates a game. 
 3. The Discord bot sends the link to play the game that was created. 
