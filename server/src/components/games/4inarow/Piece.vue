@@ -6,25 +6,25 @@
 import gsap from 'gsap'
 
 function animatePiecePos() {
-  let offsetLeft = 0.1 + (this.piece.column) * 13.73 + "%"
-  let offsetTop = this.reversedRows[this.piece.row] * 13.73 + "%"
+  let offsetLeft = (this.piece.column) * 100 + "%"
+  let offsetTop = (5 - this.piece.row) * 100 + "%"
 
   gsap.fromTo(this.$refs.el, {
-    top:0,
-    left:offsetLeft,
+    y:'-150%',
+    x:offsetLeft,
   }, {
-    top: offsetTop,
-    left: offsetLeft,
-    duration: 1,
+    y: offsetTop,
+    x: offsetLeft,
+    duration: 0.17*(5-this.piece.row),
   })
 }
 function updatePiecePos(){
-  let offsetLeft = 0.1 + (this.piece.column) * 13.73 + "%"
-  let offsetTop = this.reversedRows[this.piece.row] * 13.73 + "%"
+  let offsetLeft = (this.piece.column) * 100 + "%"
+  let offsetTop = (5 - this.piece.row) * 100 + "%"
 
   gsap.to(this.$refs.el, {
-      top:offsetTop,
-      left: offsetLeft,
+      y:offsetTop,
+      x: offsetLeft,
       duration: 0
   })
 }
@@ -68,8 +68,8 @@ export default {
   position: absolute;
   left: 0.1%;
   top: 0%;
-  width: 13.6%;
-  height: 13.6%;
+  width: 14.2857143%;
+  height: 16.6666667%;
   box-sizing: border-box;
   z-index: 0;
 }
