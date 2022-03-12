@@ -8,22 +8,40 @@ import gsap from 'gsap'
 function animatePiecePos() {
   let offsetLeft = 0.1 + (this.piece.column) * 13.73 + "%"
   let offsetTop = this.reversedRows[this.piece.row] * 13.73 + "%"
-
+  if(this.piece.index == this.game.data.mostRecentPiece){
   gsap.fromTo(this.$refs.el, {
-    top:0,
+    "margin-top":"0%",
     left:offsetLeft,
+    "z-index":1
   }, {
-    top: offsetTop,
-    left: offsetLeft,
-    duration: 1,
+    "margin-top":"-14%",
+    left:offsetLeft,
+    duration:0.8
   })
+  gsap.fromTo(this.$refs.el, {
+    "margin-top":"-14%",
+    left:offsetLeft,
+    "z-index":0
+  }, {
+    "margin-top": offsetTop,
+    left: offsetLeft,
+    duration: 1.2,
+    delay: 1
+  })
+} else {
+  gsap.to(this.$refs.el, {
+      "margin-top":offsetTop,
+      left: offsetLeft,
+      duration: 0
+  })
+}
 }
 function updatePiecePos(){
   let offsetLeft = 0.1 + (this.piece.column) * 13.73 + "%"
   let offsetTop = this.reversedRows[this.piece.row] * 13.73 + "%"
 
   gsap.to(this.$refs.el, {
-      top:offsetTop,
+      "margin-top":offsetTop,
       left: offsetLeft,
       duration: 0
   })

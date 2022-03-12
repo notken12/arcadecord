@@ -1,5 +1,5 @@
 <template>
-  <div class="over" :class="classes" :style="styles" v-on:click="changeColumnSelect"></div>
+  <div class="over" :style="styles" v-on:click="changeColumnSelect"></div>
 </template>
 <script>
   import bus from '@app/js/vue-event-bus'
@@ -20,23 +20,15 @@
           return {
             left:offsetLeft
           }
-        },
-        classes(){
-          let classArr = []
-          if(this.column === this.selectedColumn) classArr.push("selected")
-          if(this.game.data.colors[Math.abs(this.game.myIndex)] === 1) classArr.push("yellow")
-
-          return classArr.join(" ")
-        },
+        }
       },
       methods:{
         changeColumnSelect(){
-        if(this.column === this.selectedColumn){
-          this.$runAction('place', {col:this.column})
-        }else{
         bus.emit("changeColumn", this.column)
       }
-      }
+    },
+    mounted(){
+      
     }
   }
 </script>
@@ -52,11 +44,5 @@
     height: 83.3333333333%;
     box-sizing: border-box;
     z-index: 3;
-  }
-  .over.selected{
-    border: 8px red solid;
-  }
-  .over.selected.yellow{
-    border: 8px yellow solid;
   }
 </style>

@@ -7,10 +7,12 @@ class Piece {
   color //Number, 0-Yellow, 1-Red
   row
   column
-  constructor(color, row, column){
+  index
+  constructor(color, row, column, index){
     this.color = color;
     this.row = row;
     this.column = column;
+    this.index = index;
   }
 }
 class Board {
@@ -28,7 +30,8 @@ async function place(game, action){
   let col = action.data.col;
   var row = findLowestInColumn(game, col)
   if(row === undefined){ return false}
-  game.data.board.pieces.push(new Piece(game.turn, row, col))
+  game.data.board.pieces.push(new Piece(game.turn, row, col, game.data.board.pieces.length))
+  game.data.mostRecentPiece = game.data.board.pieces.length-1;
   game.data.board.oldBoard = boardTo2D(game)
 
   if(checkGameOver(game, reversed[row], col)){

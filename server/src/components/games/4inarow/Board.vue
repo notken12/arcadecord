@@ -2,22 +2,24 @@
   <div class="ratio vertical">
     <canvas width="500" height="500"></canvas>
     <div>
-      <div class="ratio horizontal" style="position:relative" @changeColumn="changeColumn($event)">
+      <div class="ratio horizontal" style="position:relative">
         <canvas width="500" height="500"></canvas>
         <div class="board-front"></div>
         <div class="board-back"></div>
         <piece v-for="piece in board.pieces" :piece="piece"></piece>
         <ColumnOverlay v-for="col in board.width" :selectedColumn="selectedColumn" :column="col-1"></ColumnOverlay>
+        <OverPiece :selectedColumn="selectedColumn"></OverPiece>
       </div>
     </div>
   </div>
-  <DropButton v-if="selectedColumn"></DropButton>
+  <DropButton v-if="buttonShowing" :selectedColumn="selectedColumn"></DropButton>
 </template>
 
 <script>
   import Piece from './Piece.vue'
   import DropButton from './dropButton.vue'
   import ColumnOverlay from './ColumnOverlay.vue'
+  import OverPiece from './OverPiece.vue'
 
   import GameFlow from '@app/js/GameFlow'
   import Common from '/gamecommons/chess'
@@ -31,6 +33,9 @@
     computed:{
       board(){
         return this.game.data.board
+      },
+      buttonShowing(){
+        if(this.selectedColumn || this.selectedColumn === 0) return true
       }
     },
     mounted(){
@@ -41,13 +46,17 @@
     components:{
       Piece,
       DropButton,
-      ColumnOverlay
+      ColumnOverlay,
+      OverPiece
     }
   }
 </script>
 
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
+.overUI{
+  margin:auto;
+}
 .board-back{
   background-image:url(/dist/assets/4inarow/FullBack.svg);
   background-size:contain;
