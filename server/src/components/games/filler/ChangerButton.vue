@@ -44,10 +44,7 @@ export default {
     },
     isDisabled() {
       let myIndex = this.game.myIndex === -1 ? 1 : this.game.myIndex
-      var myColor = Common.Board.getPlayerColor(
-        this.game.data.board,
-        myIndex
-      )
+      var myColor = Common.Board.getPlayerColor(this.game.data.board, myIndex)
       let opponentIndex = myIndex ^ 1
 
       var opponentColor = Common.Board.getPlayerColor(

@@ -1,5 +1,10 @@
 <template>
-  <div class="hit-board-cell" :style="cellStyles" @click="cellClicked" @animationend="animation = 'none'"></div>
+  <div
+    class="hit-board-cell"
+    :style="cellStyles"
+    @click="cellClicked"
+    @animationend="animation = 'none'"
+  ></div>
 </template>
 
 <script>

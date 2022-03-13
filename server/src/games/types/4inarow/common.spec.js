@@ -15,15 +15,19 @@ test('placing pieces works 4inarow', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
-  let action = new Action('place', {
-    col:0
-  }, 1)
+  let action = new Action(
+    'place',
+    {
+      col: 0,
+    },
+    1
+  )
 
   await game.handleAction(action)
 
-let stillTheirTurn = GameFlow.isItUsersTurn(game, 1);
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
   expect(game.data.board.pieces.length).toBe(1)
 }) //CURRENTLY SUCCESSFUL! :))))))))
 
@@ -35,19 +39,31 @@ test('pieces stack 4inarow', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   //actions
   var actions = []
 
-  actions.push(new Action('place', {
-    col:0
-  }, 1))
-  actions.push(new Action('place', {
-    col:0
-  }, 0))
+  actions.push(
+    new Action(
+      'place',
+      {
+        col: 0,
+      },
+      1
+    )
+  )
+  actions.push(
+    new Action(
+      'place',
+      {
+        col: 0,
+      },
+      0
+    )
+  )
 
-  for(i=0;i<actions.length;i++){
+  for (i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
 
@@ -63,24 +79,31 @@ test('4 in a row vertically wins', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   //actions
   var actions = []
 
-  var i;
-  for(i=0;i<7;i++){
-    if(isEven(i)){//First Player Turn
-      var colToPlace = 0;
+  var i
+  for (i = 0; i < 7; i++) {
+    if (isEven(i)) {
+      //First Player Turn
+      var colToPlace = 0
     } else {
-      var colToPlace = 1;
+      var colToPlace = 1
     }
-    actions.push(new Action('place', {
-      col:colToPlace
-    }, [1,0][colToPlace]))
+    actions.push(
+      new Action(
+        'place',
+        {
+          col: colToPlace,
+        },
+        [1, 0][colToPlace]
+      )
+    )
   }
 
-  for(i=0;i<actions.length;i++){
+  for (i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
 
@@ -97,22 +120,26 @@ test('4 in a row horizontally wins', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   //actions
   var actions = []
 
-  var i;
-  var j;
-  for(i=0;i<4;i++){
-    for(j=0;j<2;j++){
-      let action = new Action('place', {
-        col:i
-      }, [1,0][j])
+  var i
+  var j
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 2; j++) {
+      let action = new Action(
+        'place',
+        {
+          col: i,
+        },
+        [1, 0][j]
+      )
       actions.push(action)
     }
   }
-  for(i=0;i<actions.length;i++){
+  for (i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
 
@@ -128,33 +155,37 @@ test('4 in a row diagonally wins', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   //actions
-  var actions = [];
+  var actions = []
 
   let placements = [1, 3, 3, 4]
-  var currentTurn = 1;
+  var currentTurn = 1
 
-  var i;
-  var j;
-  for(i=0; i<4; i++){
-    for(j=0; j<placements[i]; j++){
-      let action = new Action('place', {
-        col:i
-      }, currentTurn);
+  var i
+  var j
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < placements[i]; j++) {
+      let action = new Action(
+        'place',
+        {
+          col: i,
+        },
+        currentTurn
+      )
 
       actions.push(action)
 
-      if(currentTurn == 0){
-        currentTurn = 1;
+      if (currentTurn == 0) {
+        currentTurn = 1
       } else {
-        currentTurn = 0;
+        currentTurn = 0
       }
     }
   }
 
-  for(i=0;i<actions.length;i++){
+  for (i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
 
@@ -162,9 +193,9 @@ test('4 in a row diagonally wins', async () => {
   expect(game.winner).toBe(1)
 })
 
-function isEven(number){
-  if(Math.floor(number/2) == number/2){
+function isEven(number) {
+  if (Math.floor(number / 2) == number / 2) {
     return true
   }
-  return false;
+  return false
 }

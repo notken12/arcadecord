@@ -3,11 +3,8 @@
 // Import GameFlow to control game flow
 
 // tests if global scope is bound to window
-import GameFlow from '../../GameFlow.js';
+import GameFlow from '../../GameFlow.js'
 
+var exports = {}
 
-var exports = {
-
-}
-
-export default exports;
+export default exports

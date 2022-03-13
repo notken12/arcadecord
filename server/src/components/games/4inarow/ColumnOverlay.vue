@@ -7,29 +7,27 @@ export default {
   props: {
     selectedColumn: {
       type: Number,
-      default: null
+      default: null,
     },
     column: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     styles() {
-      let offsetLeft = (this.column) * 13.75 + "%"
+      let offsetLeft = this.column * 13.75 + '%'
       return {
-        left: offsetLeft
+        left: offsetLeft,
       }
-    }
+    },
   },
   methods: {
     changeColumnSelect() {
-      bus.emit("changeColumn", this.column)
-    }
+      bus.emit('changeColumn', this.column)
+    },
   },
-  mounted() {
-
-  }
+  mounted() {},
 }
 </script>
 <style lang="scss">

@@ -11,79 +11,99 @@ const ajv = new Ajv()
 // https://jestjs.io/docs/asynchronous
 
 const stateSchema = {
-    type: 'object',
-    properties: {
-        balls: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    number: {
-                        type: 'number', // number of the ball, cue is 0
-                    },
-                    position: {
-                        type: 'object',
-                        properties: {
-                            x: {
-                                type: 'number',
-                            },
-                            y: {
-                                type: 'number',
-                            },
-                            z: {
-                                type: 'number',
-                            },
-                        },
-                        required: ['x', 'y', 'z']
-                    },
-                    quaternion: {
-                        type: 'object',
-                        properties: {
-                            x: {
-                                type: 'number',
-                            },
-                            y: {
-                                type: 'number',
-                            },
-                            z: {
-                                type: 'number',
-                            },
-                            w: {
-                                type: 'number',
-                            },
-                        },
-                        required: ['x', 'y', 'z', 'w']
-                    },
-                    out: {
-                        type: 'boolean',
-                    },
-                }
+  type: 'object',
+  properties: {
+    balls: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          number: {
+            type: 'number', // number of the ball, cue is 0
+          },
+          position: {
+            type: 'object',
+            properties: {
+              x: {
+                type: 'number',
+              },
+              y: {
+                type: 'number',
+              },
+              z: {
+                type: 'number',
+              },
             },
-            minItems: 16,
-            maxItems: 16,
+            required: ['x', 'y', 'z'],
+          },
+          quaternion: {
+            type: 'object',
+            properties: {
+              x: {
+                type: 'number',
+              },
+              y: {
+                type: 'number',
+              },
+              z: {
+                type: 'number',
+              },
+              w: {
+                type: 'number',
+              },
+            },
+            required: ['x', 'y', 'z', 'w'],
+          },
+          out: {
+            type: 'boolean',
+          },
         },
-        players: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    assignedPattern: {
-                        type: 'number', // 0 for solid, 1 for striped, leave empty for unassigned yet
-                    },
-                    chosenPocket: {
-                        type: 'number', // chosen pocket for when they shoot the 8 ball
-                    },
-                }
-            }
-        }
+      },
+      minItems: 16,
+      maxItems: 16,
     },
-    required: ['balls', 'players']
+    players: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          assignedPattern: {
+            type: 'number', // 0 for solid, 1 for striped, leave empty for unassigned yet
+          },
+          chosenPocket: {
+            type: 'number', // chosen pocket for when they shoot the 8 ball
+          },
+        },
+      },
+    },
+  },
+  required: ['balls', 'players'],
 }
 
 const validateGameState = ajv.compile(stateSchema)
 
 test.todo('Initial 8ball game state', () => {
-    
+  // Create a new game
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  game.init()
+
+  const valid = validateGameState(game.data)
+  expect(valid).toBe(true)
+
+  expect(game.players[0].assignedPattern).toBe(undefined)
+  expect(game.players[1].assignedPattern).toBe(undefined)
+  expect(game.players[0].chosenPocket).toBe(undefined)
+  expect(game.players[1].chosenPocket).toBe(undefined)
+})
+
+describe('Action: shoot', () => {
+  test.todo('End turn if no ball is shot into pocket', async () => {
     // Create a new game
     let game = new main.Game()
     // Activate testing mode
@@ -92,176 +112,152 @@ test.todo('Initial 8ball game state', () => {
     game.mockPlayers(2)
 
     // Initialize the game
-    game.init()
+    await game.init()
 
+    // Define the actions to be made
+    let newPosition = {
+      x: 1,
+      y: 1,
+      z: 1,
+    }
+    let newQuaternion = {
+      x: 0,
+      y: 0,
+      z: 0,
+      w: 1,
+    }
+
+    let missedShot = new Action('shoot', {
+      angle: Math.PI / 2, // radians, for UI
+      force: 10, // for UI
+      newBallStates: {
+        10: {
+          position: newPosition,
+          quaternion: newQuaternion,
+        },
+        // in the real game, provide new ball positions for all balls
+      },
+    })
+
+    // Run the actions
+    await game.handleAction(missedShot)
+
+    // Check the game state
     const valid = validateGameState(game.data)
     expect(valid).toBe(true)
 
-    expect(game.players[0].assignedPattern).toBe(undefined)
-    expect(game.players[1].assignedPattern).toBe(undefined)
-    expect(game.players[0].chosenPocket).toBe(undefined)
-    expect(game.players[1].chosenPocket).toBe(undefined)
-})
+    expect(game.data.balls[10].out).toBe(false)
+    expect(game.data.balls[10].position).toEqual(newPosition)
+    expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
 
-describe('Action: shoot', () => {
-    test.todo('End turn if no ball is shot into pocket', async () => {
+    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+    expect(stillTheirTurn).toBe(false)
+  })
 
-        // Create a new game
-        let game = new main.Game()
-        // Activate testing mode
-        game.test()
-        // Add fake players
-        game.mockPlayers(2)
+  test.todo('Do not end turn if ball is shot into pocket', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-        // Initialize the game
-        await game.init()
+    // Initialize the game
+    await game.init()
 
-        // Define the actions to be made
-        let newPosition = {
-            x: 1,
-            y: 1,
-            z: 1,
-        }
-        let newQuaternion = {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 1,
-        }
+    // Define the actions to be made
+    let newPosition = {
+      x: 1,
+      y: 1,
+      z: 1,
+    }
+    let newQuaternion = {
+      x: 0,
+      y: 0,
+      z: 0,
+      w: 1,
+    }
 
-        let missedShot = new Action('shoot', {
-            angle: Math.PI / 2, // radians, for UI
-            force: 10, // for UI
-            newBallStates: {
-                10: {
-                    position: newPosition,
-                    quaternion: newQuaternion,
-                },
-                // in the real game, provide new ball positions for all balls
-            }
-        })
-
-        // Run the actions
-        await game.handleAction(missedShot)
-
-        // Check the game state
-        const valid = validateGameState(game.data)
-        expect(valid).toBe(true)
-
-        expect(game.data.balls[10].out).toBe(false)
-        expect(game.data.balls[10].position).toEqual(newPosition)
-        expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
-
-        let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-        expect(stillTheirTurn).toBe(false)
+    let missedShot = new Action('shoot', {
+      angle: Math.PI / 2, // radians, for UI
+      force: 10, // for UI
+      newBallStates: {
+        10: {
+          position: newPosition,
+          quaternion: newQuaternion,
+          out: true,
+        },
+        // in the real game, provide new ball positions for all balls
+      },
     })
 
-    test.todo('Do not end turn if ball is shot into pocket', async () => {
-        // Create a new game
-        let game = new main.Game()
-        // Activate testing mode
-        game.test()
-        // Add fake players
-        game.mockPlayers(2)
+    // Run the actions
+    await game.handleAction(missedShot)
 
-        // Initialize the game
-        await game.init()
+    // Check the game state
+    const valid = validateGameState(game.data)
+    expect(valid).toBe(true)
 
-        // Define the actions to be made
-        let newPosition = {
-            x: 1,
-            y: 1,
-            z: 1,
-        }
-        let newQuaternion = {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 1,
-        }
+    expect(game.data.balls[10].out).toBe(true)
+    expect(game.data.balls[10].position).toEqual(newPosition)
+    expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
 
-        let missedShot = new Action('shoot', {
-            angle: Math.PI / 2, // radians, for UI
-            force: 10, // for UI
-            newBallStates: {
-                10: {
-                    position: newPosition,
-                    quaternion: newQuaternion,
-                    out: true
-                },
-                // in the real game, provide new ball positions for all balls
-            }
-        })
+    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+    expect(stillTheirTurn).toBe(true)
+  })
 
-        // Run the actions
-        await game.handleAction(missedShot)
+  test.todo("Set player's assigned color", async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-        // Check the game state
-        const valid = validateGameState(game.data)
-        expect(valid).toBe(true)
+    // Initialize the game
+    await game.init()
 
-        expect(game.data.balls[10].out).toBe(true)
-        expect(game.data.balls[10].position).toEqual(newPosition)
-        expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
+    // Define the actions to be made
+    let newPosition = {
+      x: 1,
+      y: 1,
+      z: 1,
+    }
+    let newQuaternion = {
+      x: 0,
+      y: 0,
+      z: 0,
+      w: 1,
+    }
 
-        let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-        expect(stillTheirTurn).toBe(true)
+    let shot = new Action('shoot', {
+      angle: Math.PI / 2, // radians, for UI
+      force: 10, // for UI
+      newBallStates: {
+        10: {
+          position: newPosition,
+          quaternion: newQuaternion,
+          out: true,
+        },
+        // in the real game, provide new ball positions for all balls
+      },
     })
 
+    // Run the actions
+    await game.handleAction(shot)
 
-    test.todo("Set player's assigned color", async () => {
-        // Create a new game
-        let game = new main.Game()
-        // Activate testing mode
-        game.test()
-        // Add fake players
-        game.mockPlayers(2)
+    // Check the game state
+    const valid = validateGameState(game.data)
+    expect(valid).toBe(true)
 
-        // Initialize the game
-        await game.init()
+    expect(game.data.balls[10].out).toBe(true)
+    expect(game.data.balls[10].position).toEqual(newPosition)
+    expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
 
-        // Define the actions to be made
-        let newPosition = {
-            x: 1,
-            y: 1,
-            z: 1,
-        }
-        let newQuaternion = {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 1,
-        }
+    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+    expect(stillTheirTurn).toBe(true)
 
-        let shot = new Action('shoot', {
-            angle: Math.PI / 2, // radians, for UI
-            force: 10, // for UI
-            newBallStates: {
-                10: {
-                    position: newPosition,
-                    quaternion: newQuaternion,
-                    out: true
-                },
-                // in the real game, provide new ball positions for all balls
-            }
-        })
-
-        // Run the actions
-        await game.handleAction(shot)
-
-        // Check the game state
-        const valid = validateGameState(game.data)
-        expect(valid).toBe(true)
-
-        expect(game.data.balls[10].out).toBe(true)
-        expect(game.data.balls[10].position).toEqual(newPosition)
-        expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
-
-        let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-        expect(stillTheirTurn).toBe(true)
-
-
-        // expect(game.players[1].assignedPattern).toBe
-        // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
-    })
+    // expect(game.players[1].assignedPattern).toBe
+    // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
+  })
 })

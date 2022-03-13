@@ -10,14 +10,14 @@ export default {
     selectedColumn: {
       type: Number,
     },
-    default: null
+    default: null,
   },
   methods: {
     placePiece() {
       this.$runAction('place', { col: this.selectedColumn })
       bus.emit('changeColumn', null)
-    }
-  }
+    },
+  },
 }
 </script>
 

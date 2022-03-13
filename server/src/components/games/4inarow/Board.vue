@@ -2,7 +2,11 @@
   <div class="ratio vertical">
     <canvas width="350" height="300"></canvas>
     <div>
-      <div class="ratio horizontal" style="position:relative" @changeColumn="changeColumn($event)">
+      <div
+        class="ratio horizontal"
+        style="position: relative"
+        @changeColumn="changeColumn($event)"
+      >
         <canvas width="350" height="300"></canvas>
         <div class="board-front">
           <ColumnOverlay
@@ -12,7 +16,11 @@
           ></ColumnOverlay>
         </div>
         <div class="board-back">
-          <TransitionGroup :css="false" @enter="animatePiece" @appear="updatePiecePos">
+          <TransitionGroup
+            :css="false"
+            @enter="animatePiece"
+            @appear="updatePiecePos"
+          >
             <Piece
               v-for="piece in board.pieces"
               :piece="piece"
@@ -25,7 +33,10 @@
       </div>
     </div>
   </div>
-  <DropButton v-if="buttonShowing" :selectedColumn="selectedColumn"></DropButton>
+  <DropButton
+    v-if="buttonShowing"
+    :selectedColumn="selectedColumn"
+  ></DropButton>
 </template>
 
 <script>
@@ -42,7 +53,7 @@ import bus from '@app/js/vue-event-bus'
 export default {
   data() {
     return {
-      selectedColumn: null
+      selectedColumn: null,
     }
   },
   computed: {
@@ -51,7 +62,7 @@ export default {
     },
     buttonShowing() {
       if (this.selectedColumn || this.selectedColumn === 0) return true
-    }
+    },
   },
   mounted() {
     bus.on('changeColumn', (column) => {
@@ -62,26 +73,30 @@ export default {
     Piece,
     DropButton,
     ColumnOverlay,
-    OverPiece
+    OverPiece,
   },
   methods: {
     animatePiece(el, done) {
-      let offsetLeft = (el.dataset.column) * 100 + "%"
-      let offsetTop = (5 - el.dataset.row) * 100 + "%"
+      let offsetLeft = el.dataset.column * 100 + '%'
+      let offsetTop = (5 - el.dataset.row) * 100 + '%'
 
-      gsap.fromTo(el, {
-        y: '-150%',
-        x: offsetLeft,
-      }, {
-        y: offsetTop,
-        x: offsetLeft,
-        duration: 0.17 * (5 - el.dataset.row),
-        onComplete: done
-      })
+      gsap.fromTo(
+        el,
+        {
+          y: '-150%',
+          x: offsetLeft,
+        },
+        {
+          y: offsetTop,
+          x: offsetLeft,
+          duration: 0.17 * (5 - el.dataset.row),
+          onComplete: done,
+        }
+      )
     },
     updatePiecePos(el) {
-      let offsetLeft = (el.dataset.column) * 100 + "%"
-      let offsetTop = (5 - el.dataset.row) * 100 + "%"
+      let offsetLeft = el.dataset.column * 100 + '%'
+      let offsetTop = (5 - el.dataset.row) * 100 + '%'
 
       gsap.to(el, {
         y: offsetTop,
@@ -89,8 +104,8 @@ export default {
         duration: 0,
         // onComplete: done
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

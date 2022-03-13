@@ -68,7 +68,7 @@ export default {
     return {
       shipPlacementBoard: null,
       targetedCell: null,
-      availableShips: null
+      availableShips: null,
     }
   },
   methods: {
@@ -101,7 +101,7 @@ export default {
         var y = cell.y
         var x = cell.x
         this.$runAction('shoot', { y, x })
-        this.targetedCell = null;
+        this.targetedCell = null
         this.$endAnimation(1500)
       }
     },
@@ -137,7 +137,7 @@ export default {
     this.availableShips =
       this.game.data.availableShips[this.myHitBoard.playerIndex]
     console.log('mounted')
-  
+
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
       this.isItMyTurn

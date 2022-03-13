@@ -1,10 +1,10 @@
 // _default.page.server.js - Arcadecord
-// 
-// Copyright (C) 2022 Ken Zhou 
-// 
-// This file is part of Arcadecord. 
-// 
-// Arcadecord can not be copied and/or distributed 
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
 import { renderToString } from '@vue/server-renderer'
@@ -25,7 +25,8 @@ async function render(pageContext) {
   // See https://vite-plugin-ssr.com/head
   const { documentProps } = pageContext
   const title = (documentProps && documentProps.title) || 'Arcadecord'
-  const desc = (documentProps && documentProps.description) || 'Message games for Discord'
+  const desc =
+    (documentProps && documentProps.description) || 'Message games for Discord'
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">

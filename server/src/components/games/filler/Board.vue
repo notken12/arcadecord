@@ -19,8 +19,7 @@ import GameFlow from '@app/js/GameFlow.js'
 
 export default {
   data() {
-    return {
-    }
+    return {}
   },
   components: {
     Cell,

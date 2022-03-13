@@ -1,7 +1,5 @@
-import GameFlow from '../../GameFlow.js';
+import GameFlow from '../../GameFlow.js'
 
-var exports = {
+var exports = {}
 
-}
-  
-export default exports;
+export default exports

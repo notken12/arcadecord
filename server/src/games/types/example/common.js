@@ -1,47 +1,46 @@
 // Common action models
 
 // Import GameFlow to control game flow
-import GameFlow from '../../GameFlow.js';
-
+import GameFlow from '../../GameFlow.js'
 
 // An action model is a function...
 // that takes in a Game and an Action (see Game.js and Action.js)
 // and outputs the updated Game if it succeeds, and otherwise outputs false
 
 function boop(game, action) {
-    var i = action.playerIndex;
-    game.data.scores[i]++;
+  var i = action.playerIndex
+  game.data.scores[i]++
 
-    // You win if you get to 15 points
-    if (game.data.scores[i] >= 15) {
-        GameFlow.end(game, {
-            winner: i
-        });
-    }
+  // You win if you get to 15 points
+  if (game.data.scores[i] >= 15) {
+    GameFlow.end(game, {
+      winner: i,
+    })
+  }
 
-    return game;
+  return game
 }
 
 function endTurn(game, action) {
-    GameFlow.endTurn(game);
+  GameFlow.endTurn(game)
 
-    return game;
+  return game
 }
 
 function ask(game, action) {
-    // Check if the question has a question mark
-    if (action.data.question.indexOf('?') === -1) {
-        return false;
-    }
-    return game;
+  // Check if the question has a question mark
+  if (action.data.question.indexOf('?') === -1) {
+    return false
+  }
+  return game
 }
 
 // Compatibility with browser and node
 
 var exports = {
-    boop,
-    endTurn,
-    ask
+  boop,
+  endTurn,
+  ask,
 }
 
-export default exports;
+export default exports

@@ -159,12 +159,12 @@ class Game {
         if (this.testing) {
           throw new Error(
             'Action data does not follow schema: ' +
-            JSON.stringify(validate.errors)
+              JSON.stringify(validate.errors)
           )
         }
         console.warn(
           'Action data does not follow schema: ' +
-          JSON.stringify(validate.errors)
+            JSON.stringify(validate.errors)
         )
         return {
           success: false,
@@ -175,10 +175,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-        action.type +
-        '" to game: "' +
-        this.typeId +
-        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+          action.type +
+          '" to game: "' +
+          this.typeId +
+          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       )
     }
 
@@ -418,7 +418,7 @@ class Game {
     }
   }
 
-  getImage() { }
+  getImage() {}
 
   getChanges(oldData, newData) {
     var changes = {}
@@ -471,7 +471,7 @@ class Game {
     return game
   }
 
-  getThumbnail() { }
+  getThumbnail() {}
 }
 
 Game.eventHandlersDiscord = {

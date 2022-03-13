@@ -66,7 +66,7 @@ export default {
     this.$replayTurn(() => {
       // Replay opponent's first (and only) action, which is switching colors
 
-      // In other games you would want to loop through all actions and 
+      // In other games you would want to loop through all actions and
       // replay them at a given interval for the animations to play out
       replayAction(this.game, this.previousTurn.actions[0])
 

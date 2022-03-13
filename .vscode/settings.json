@@ -1,9 +1,9 @@
 {
-    "search.exclude": {
-        "**/node_modules": false
-    },
-    "licenser.author": "Ken Zhou",
-    "licenser.customHeader": "@FILE@ - @PROJECT@\\n\\nCopyright (C) @YEAR@ Ken Zhou \\n\\nThis file is part of @PROJECT@. \\n\\n@PROJECT@ can not be copied and/or distributed \\nwithout the express permission of Ken Zhou.",
-    "licenser.license": "Custom",
-    "licenser.projectName": "Arcadecord"
+  "search.exclude": {
+    "**/node_modules": false
+  },
+  "licenser.author": "Ken Zhou",
+  "licenser.customHeader": "@FILE@ - @PROJECT@\\n\\nCopyright (C) @YEAR@ Ken Zhou \\n\\nThis file is part of @PROJECT@. \\n\\n@PROJECT@ can not be copied and/or distributed \\nwithout the express permission of Ken Zhou.",
+  "licenser.license": "Custom",
+  "licenser.projectName": "Arcadecord"
 }

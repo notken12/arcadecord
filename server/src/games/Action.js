@@ -1,31 +1,28 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'crypto'
 
 class Action {
-    constructor(type, data, userId) {
-        this.id = randomUUID();
+  constructor(type, data, userId) {
+    this.id = randomUUID()
 
-        this.type = type;
-        this.userId = userId; // userId of the player who made the action
+    this.type = type
+    this.userId = userId // userId of the player who made the action
 
-        this.playerIndex;   // set by Game, index of player in game.players.
+    this.playerIndex // set by Game, index of player in game.players.
 
-        this.data = data;
+    this.data = data
+  }
 
-    }
-
-    getDataForClient() {
-
-    }
+  getDataForClient() {}
 }
 
 Action.getDataForClient = function (action, userId) {
-    return {
-        id: action.id,
-        type: action.type,
-        data: action.data,
-        playerIndex: action.playerIndex,
-        userId: action.userId
-    }
+  return {
+    id: action.id,
+    type: action.type,
+    data: action.data,
+    playerIndex: action.playerIndex,
+    userId: action.userId,
+  }
 }
 
-export default Action;
+export default Action

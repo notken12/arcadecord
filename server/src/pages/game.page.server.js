@@ -1,97 +1,98 @@
-import db from '../../../db/db2.js';
-import { fetchUser } from '../../utils/discord-api';
-import { gameTypes } from '@app/games/game-types.js';
+import db from '../../../db/db2.js'
+import { fetchUser } from '../../utils/discord-api'
+import { gameTypes } from '@app/games/game-types.js'
 import { RenderErrorPage } from 'vite-plugin-ssr'
 import { createApp } from '@app/renderer/gameApp'
 // import { createApp } from '@app/renderer/app'
 import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
-import * as Client from '@app/js/client-framework.js';
+import * as Client from '@app/js/client-framework.js'
 
 export async function onBeforeRender(pageContext) {
+  // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
+  const { gameId } = pageContext.routeParams
+  const passedPageContext = {}
 
-    // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
-    const { gameId } = pageContext.routeParams
-    const passedPageContext = {}
+  const pageProps = {}
+  // FETCH GAME HERE
 
-    const pageProps = {}
-    // FETCH GAME HERE
+  const { userId } = pageContext
 
-    const { userId } = pageContext;
+  if (gameId) {
+    var dbGame = await db.games.getById(gameId)
 
-    if (gameId) {
-        var dbGame = await db.games.getById(gameId);
+    if (dbGame) {
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
 
-        if (dbGame) {
-            // get game type
-            var gameType = gameTypes[dbGame._doc.typeId]
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc)
+      console.log(userId)
 
-            // create instance of game
-            var game = new gameType.Game(dbGame._doc);
-            console.log(userId);
+      if (await game.canUserSocketConnect(userId)) {
+        // send game info to user
+        const { typeId } = game
 
-            if (await game.canUserSocketConnect(userId)) {
-                // send game info to user
-                const { typeId } = game;
+        // const { default: vueApp } = await import(`../pages/App.vue`);
+        // let { default: indexPage } = await import('./Loading.page.vue')
 
-                // const { default: vueApp } = await import(`../pages/App.vue`);
-                // let { default: indexPage } = await import('./Loading.page.vue')
-
-                pageProps.gameType = typeId;
-                pageContext.game = game.getDataForClient(userId);
-                pageContext.discordUser = await fetchUser(userId);
-            } else {
-                // For some reason user isn't allowed to join (isn't in same server, game full, etc)
-                throw RenderErrorPage({
-                    pageContext: {
-                        errorInfo: 'You are not allowed to join this game. (You are not in the same server, game is full, etc)',
-                    }
-                })
-            }
-        } else {
-            throw RenderErrorPage({
-                pageContext: {
-                    errorInfo: 'Game not found',
-                }
-            })
-        }
-    } else {
+        pageProps.gameType = typeId
+        pageContext.game = game.getDataForClient(userId)
+        pageContext.discordUser = await fetchUser(userId)
+      } else {
+        // For some reason user isn't allowed to join (isn't in same server, game full, etc)
         throw RenderErrorPage({
-            pageContext: {
-                errorInfo: 'Game not found',
-            }
+          pageContext: {
+            errorInfo:
+              'You are not allowed to join this game. (You are not in the same server, game is full, etc)',
+          },
         })
-    }
-    const { Page } = pageContext
-    pageContext.pageProps = pageProps
-
-    return {
+      }
+    } else {
+      throw RenderErrorPage({
         pageContext: {
-            Page,
-            pageProps,
+          errorInfo: 'Game not found',
         },
+      })
     }
+  } else {
+    throw RenderErrorPage({
+      pageContext: {
+        errorInfo: 'Game not found',
+      },
+    })
+  }
+  const { Page } = pageContext
+  pageContext.pageProps = pageProps
+
+  return {
+    pageContext: {
+      Page,
+      pageProps,
+    },
+  }
 }
 
 export async function render(pageContext) {
-    const { app, store } = createApp(pageContext)
+  const { app, store } = createApp(pageContext)
 
-    // See https://vite-plugin-ssr.com/head
-    const { documentProps } = pageContext
-    const title = (documentProps && documentProps.title) || 'Arcadecord'
-    const desc = (documentProps && documentProps.description) || 'Message games for Discord'
+  // See https://vite-plugin-ssr.com/head
+  const { documentProps } = pageContext
+  const title = (documentProps && documentProps.title) || 'Arcadecord'
+  const desc =
+    (documentProps && documentProps.description) || 'Message games for Discord'
 
-    const INITIAL_STATE = store.state
+  const INITIAL_STATE = store.state
 
-    store.commit('SETUP', {
-        game: pageContext.game,
-        discordUser: pageContext.discordUser,
-    })
-    store.commit('REPLAY_TURN')
+  store.commit('SETUP', {
+    game: pageContext.game,
+    discordUser: pageContext.discordUser,
+  })
+  store.commit('REPLAY_TURN')
 
-    const appHtml = await renderToString(app)
+  const appHtml = await renderToString(app)
 
-    const documentHtml = escapeInject`<!DOCTYPE html>
+  const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
@@ -111,14 +112,14 @@ export async function render(pageContext) {
       </body>
     </html>`
 
-    return {
-        documentHtml,
-        pageContext: {
-            INITIAL_STATE,
-            Page: pageContext.Page,
-            pageProps: pageContext.pageProps,
-        },
-    }
+  return {
+    documentHtml,
+    pageContext: {
+      INITIAL_STATE,
+      Page: pageContext.Page,
+      pageProps: pageContext.pageProps,
+    },
+  }
 }
 
 // By default `pageContext.*` are available only on the server. But our hydrate function

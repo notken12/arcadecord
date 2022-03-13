@@ -26,9 +26,9 @@ export default {
       return this.game.players
     },
     myIndex() {
-        if (this.game.myIndex === -1) return this.game.players.length;
-        return this.game.myIndex;
-    }
+      if (this.game.myIndex === -1) return this.game.players.length
+      return this.game.myIndex
+    },
   },
   components: {
     ScoreView,

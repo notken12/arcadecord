@@ -16,17 +16,25 @@ test('Not making both shots will end the turn', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let throw1 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-  }, 1) // <- fake players' userIds will be their index in game.players
-  let throw2 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-    knockedCup: game.data.sides[0].cups[0].id,
-  }, 1)
+  let throw1 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+    },
+    1
+  ) // <- fake players' userIds will be their index in game.players
+  let throw2 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+      knockedCup: game.data.sides[0].cups[0].id,
+    },
+    1
+  )
 
   // Run the actions
   await game.handleAction(throw1)
@@ -52,18 +60,26 @@ test('Making both shots will not end the turn and will give balls back', async (
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let throw1 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-    knockedCup: game.data.sides[0].cups[1].id,
-  }, 1) // <- fake players' userIds will be their index in game.players
-  let throw2 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-    knockedCup: game.data.sides[0].cups[0].id,
-  }, 1)
+  let throw1 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+      knockedCup: game.data.sides[0].cups[1].id,
+    },
+    1
+  ) // <- fake players' userIds will be their index in game.players
+  let throw2 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+      knockedCup: game.data.sides[0].cups[0].id,
+    },
+    1
+  )
 
   // Run the actions
   await game.handleAction(throw1)
@@ -89,17 +105,21 @@ test('Knocking over all cups will result in a redemption', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let actions = [];
+  let actions = []
 
   for (let i = 0; i < game.data.sides[0].cups.length; i++) {
-    let action = new Action('throw', {
-      force: { x: 0, y: 0, z: 0 },
-      knockedCup: game.data.sides[0].cups[i].id,
-    }, 1)
+    let action = new Action(
+      'throw',
+      {
+        force: { x: 0, y: 0, z: 0 },
+        knockedCup: game.data.sides[0].cups[i].id,
+      },
+      1
+    )
     actions.push(action)
   }
 
@@ -107,7 +127,6 @@ test('Knocking over all cups will result in a redemption', async () => {
   for (let i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
-
 
   // Is it still the player's turn?
   let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
@@ -132,17 +151,21 @@ test('Not making any shots on redemption will lose', async () => {
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let actions = [];
+  let actions = []
 
   for (let i = 0; i < game.data.sides[0].cups.length; i++) {
-    let action = new Action('throw', {
-      force: { x: 0, y: 0, z: 0 },
-      knockedCup: game.data.sides[0].cups[i].id,
-    }, 1)
+    let action = new Action(
+      'throw',
+      {
+        force: { x: 0, y: 0, z: 0 },
+        knockedCup: game.data.sides[0].cups[i].id,
+      },
+      1
+    )
     actions.push(action)
   }
 
@@ -150,7 +173,6 @@ test('Not making any shots on redemption will lose', async () => {
   for (let i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
-
 
   // Is it still the player's turn?
   let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
@@ -165,12 +187,20 @@ test('Not making any shots on redemption will lose', async () => {
   let otherSide = game.data.sides[0]
   expect(otherSide.inRedemption).toBe(true)
 
-  let throw1 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-  }, 0)
-  let throw2 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-  }, 0)
+  let throw1 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+    },
+    0
+  )
+  let throw2 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+    },
+    0
+  )
 
   // Run the actions
   await game.handleAction(throw1)
@@ -191,17 +221,21 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   game.mockPlayers(2)
 
   // Initialize the game
-  await game.init();
+  await game.init()
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let actions = [];
+  let actions = []
 
   for (let i = 0; i < game.data.sides[0].cups.length; i++) {
-    let action = new Action('throw', {
-      force: { x: 0, y: 0, z: 0 },
-      knockedCup: game.data.sides[0].cups[i].id,
-    }, 1)
+    let action = new Action(
+      'throw',
+      {
+        force: { x: 0, y: 0, z: 0 },
+        knockedCup: game.data.sides[0].cups[i].id,
+      },
+      1
+    )
     actions.push(action)
   }
 
@@ -209,7 +243,6 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   for (let i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
-
 
   // Is it still the player's turn?
   let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
@@ -224,13 +257,21 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   let otherSide = game.data.sides[0]
   expect(otherSide.inRedemption).toBe(true)
 
-  let throw1 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-    knockedCup: game.data.sides[1].cups[0].id,
-  }, 0)
-  let throw2 = new Action('throw', {
-    force: { x: 0, y: 0, z: 0 },
-  }, 0)
+  let throw1 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+      knockedCup: game.data.sides[1].cups[0].id,
+    },
+    0
+  )
+  let throw2 = new Action(
+    'throw',
+    {
+      force: { x: 0, y: 0, z: 0 },
+    },
+    0
+  )
 
   // Run the actions
   await game.handleAction(throw1)
@@ -245,6 +286,6 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   expect(theirSide.inRedemption).toBe(false)
 
   // The last knocked cup will be put back
-  let cupsLeft = theirSide.cups.filter(cup => !cup.out)
+  let cupsLeft = theirSide.cups.filter((cup) => !cup.out)
   expect(cupsLeft.length).toBe(1)
 })

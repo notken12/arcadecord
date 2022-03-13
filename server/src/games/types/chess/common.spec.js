@@ -67,13 +67,17 @@ test('Insufficient material will result in a draw', async () => {
 
   // Define the actions to be made
   // new Action(type, data, userId)
-  let move = new Action('movePiece', {
-    move: {
-      pieceType: 'k',
-      from: [4, 0],
-      to: [4, 1],
+  let move = new Action(
+    'movePiece',
+    {
+      move: {
+        pieceType: 'k',
+        from: [4, 0],
+        to: [4, 1],
+      },
     },
-  }, 1)
+    1
+  )
 
   // Run the actions
   await game.handleAction(move)

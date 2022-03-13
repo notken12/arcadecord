@@ -1,1 +1,1 @@
-import('./8ball/index.js');
+import('./8ball/index.js')

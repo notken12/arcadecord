@@ -1,3 +1,3 @@
 export default {
-    "ipcApiUrl": "http://localhost:2000"
+  ipcApiUrl: 'http://localhost:2000',
 }

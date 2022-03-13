@@ -155,7 +155,7 @@ export default {
           return
         }
       }
-      this.$runAction('movePiece', { move: move})
+      this.$runAction('movePiece', { move: move })
       this.$endAnimation(800)
       this.selectedPiece = null
     },

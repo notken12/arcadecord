@@ -1,5 +1,5 @@
 <template>
-  <div class="changer" :class="{hidden}">
+  <div class="changer" :class="{ hidden }">
     <changer-button
       v-for="colorId in colors.length"
       :key="colorId"
@@ -23,7 +23,7 @@ export default {
   computed: {
     hidden() {
       return !GameFlow.isItMyTurn(this.game)
-    }
+    },
   },
   components: {
     ChangerButton,

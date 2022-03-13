@@ -6,8 +6,8 @@
 import gsap from 'gsap'
 
 function updatePiecePos() {
-  let offsetLeft = (this.piece.column) * 100 + "%"
-  let offsetTop = (5 - this.piece.row) * 100 + "%"
+  let offsetLeft = this.piece.column * 100 + '%'
+  let offsetTop = (5 - this.piece.row) * 100 + '%'
 
   gsap.to(this.$refs.el, {
     y: offsetTop,
@@ -20,20 +20,20 @@ function updatePiecePos() {
 export default {
   data() {
     return {
-      reversedRows: [5, 4, 3, 2, 1, 0]
+      reversedRows: [5, 4, 3, 2, 1, 0],
     }
   },
   props: {
     piece: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     classes() {
-      if (this.piece.color === 0) return "yellow"
-      return ""
-    }
+      if (this.piece.color === 0) return 'yellow'
+      return ''
+    },
   },
   watch: {
     // piece: {
@@ -43,14 +43,14 @@ export default {
   },
   mounted() {
     updatePiecePos.call(this)
-  }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
 .piece {
-  background-image: url("/dist/assets/4inarow/RedChecker.svg");
+  background-image: url('/dist/assets/4inarow/RedChecker.svg');
   background-size: auto 100%;
   cursor: pointer;
   position: absolute;
@@ -62,7 +62,7 @@ export default {
   z-index: 0;
 }
 .piece.yellow {
-  background-image: url("/dist/assets/4inarow/YellowChecker.svg");
+  background-image: url('/dist/assets/4inarow/YellowChecker.svg');
 }
 .selected {
   background-color: #ffffff88;

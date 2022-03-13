@@ -1,8 +1,8 @@
 <template>
   <!-- <transition name="fade"> -->
-    <div v-if="loading" class="container">
-      <span>Loading...</span>
-    </div>
+  <div v-if="loading" class="container">
+    <span>Loading...</span>
+  </div>
   <!-- </transition> -->
 </template>
 

@@ -2,7 +2,10 @@
   <game-view :game="game" :me="me" :hint="hint">
     <scores-view>
       <template v-slot="scoreView">
-        <div class="color-indicator" :class="{black: game.data.colors[scoreView.playerindex] === 1}"></div>
+        <div
+          class="color-indicator"
+          :class="{ black: game.data.colors[scoreView.playerindex] === 1 }"
+        ></div>
       </template>
     </scores-view>
 
@@ -12,7 +15,6 @@
   </game-view>
 </template>
 <script>
-
 import Board from './Board.vue'
 import bus from '@app/js/vue-event-bus'
 

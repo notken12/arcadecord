@@ -1,6 +1,6 @@
-import mitt from 'mitt';
+import mitt from 'mitt'
 
-const bus = mitt();
-bus.manualMd = undefined;
+const bus = mitt()
+bus.manualMd = undefined
 
-export default bus;
+export default bus

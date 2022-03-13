@@ -1,32 +1,32 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'path'
+import { fileURLToPath } from 'url'
 import fs from 'fs'
-import { resolve } from 'path';
-import commonjs from '@rollup/plugin-commonjs';
-import { babel } from '@rollup/plugin-babel';
-import { visualizer } from 'rollup-plugin-visualizer';
-import graph from 'rollup-plugin-graph';
-import brotli from "rollup-plugin-brotli";
-import handlebars from 'vite-plugin-handlebars';
+import { resolve } from 'path'
+import commonjs from '@rollup/plugin-commonjs'
+import { babel } from '@rollup/plugin-babel'
+import { visualizer } from 'rollup-plugin-visualizer'
+import graph from 'rollup-plugin-graph'
+import brotli from 'rollup-plugin-brotli'
+import handlebars from 'vite-plugin-handlebars'
 import ssr from 'vite-plugin-ssr/plugin'
-import { esbuildCommonjs, viteCommonjs } from "@originjs/vite-plugin-commonjs";
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import cjs from "rollup-plugin-cjs-es";
+import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import cjs from 'rollup-plugin-cjs-es'
 
-var __dirname = path.dirname(fileURLToPath(import.meta.url));
+var __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 async function* getFiles(dir) {
-  const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
+  const dirents = await fs.promises.readdir(dir, { withFileTypes: true })
   for (const dirent of dirents) {
-    const res = resolve(dir, dirent.name);
+    const res = resolve(dir, dirent.name)
     if (dirent.isDirectory()) {
-      yield* getFiles(res);
+      yield* getFiles(res)
     } else {
       // get .html files only
       if (res.endsWith('.html')) {
-        yield res;
+        yield res
       }
     }
   }
@@ -34,39 +34,46 @@ async function* getFiles(dir) {
 
 var walk = function (dir) {
   // Get all .html files
-  var results = [];
-  if (dir.endsWith('/games/types')) return results;
-  var list = fs.readdirSync(dir);
+  var results = []
+  if (dir.endsWith('/games/types')) return results
+  var list = fs.readdirSync(dir)
   list.forEach(function (file) {
-    file = dir + '/' + file;
-    var stat = fs.statSync(file);
+    file = dir + '/' + file
+    var stat = fs.statSync(file)
     if (stat && stat.isDirectory()) {
       /* Recurse into a subdirectory */
-      results = results.concat(walk(file));
+      results = results.concat(walk(file))
     } else {
       /* Is a file */
       // Get html files and common.js
-      if (file.endsWith('.html')/*  || file.match(/(^.*)common./) */) {
-        results.push(file);
+      if (file.endsWith('.html') /*  || file.match(/(^.*)common./) */) {
+        results.push(file)
       }
     }
-  });
-  return results;
+  })
+  return results
 }
 
-const entryPoints = walk(path.resolve(__dirname, 'server/src'));
+const entryPoints = walk(path.resolve(__dirname, 'server/src'))
 
-const nonSharedModules = ['enable3d', 'three', 'three-to-cannon', 'cannon-es', 'troisjs', 'cannon-es-debugger'];
+const nonSharedModules = [
+  'enable3d',
+  'three',
+  'three-to-cannon',
+  'cannon-es',
+  'troisjs',
+  'cannon-es-debugger',
+]
 
-const { dependencies } = JSON.parse(fs.readFileSync('./package.json'));
-const nodeDependencies = Object.keys(dependencies);
-const sharedModules = [];
+const { dependencies } = JSON.parse(fs.readFileSync('./package.json'))
+const nodeDependencies = Object.keys(dependencies)
+const sharedModules = []
 
 for (let key of nodeDependencies) {
   if (nonSharedModules.includes(key)) {
-    continue;
+    continue
   }
-  sharedModules.push(key);
+  sharedModules.push(key)
 }
 
 // https://vitejs.dev/config/
@@ -75,30 +82,34 @@ export default defineConfig({
   base: '/dist/',
   publicDir: 'public',
   server: {
-    port: 5000
+    port: 5000,
   },
   resolve: {
     alias: [
       {
         find: '@app/',
-        replacement: `${path.resolve(__dirname, 'server/src')}/`
+        replacement: `${path.resolve(__dirname, 'server/src')}/`,
       },
       {
         find: 'components/',
-        replacement: `${path.resolve(__dirname, 'server/src/components')}/`
+        replacement: `${path.resolve(__dirname, 'server/src/components')}/`,
       },
       {
         find: 'scss/',
-        replacement: `${path.resolve(__dirname, 'server/src/scss')}/`
+        replacement: `${path.resolve(__dirname, 'server/src/scss')}/`,
       },
       {
         find: /\/gamecommons\/(.*)/,
-        replacement: path.resolve(__dirname, 'server/src/games/types/$1/common.js')
+        replacement: path.resolve(
+          __dirname,
+          'server/src/games/types/$1/common.js'
+        ),
       },
       {
-        find: /^\.\.\/\.\.\/GameFlow/, replacement: path.resolve(__dirname, 'server/src/js/GameFlow')
+        find: /^\.\.\/\.\.\/GameFlow/,
+        replacement: path.resolve(__dirname, 'server/src/js/GameFlow'),
       },
-    ]
+    ],
   },
   build: {
     rollupOptions: {
@@ -110,16 +121,16 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             for (let i = 0; i < sharedModules.length; i++) {
               if (id.includes(sharedModules[i])) {
-                return 'vendor';
+                return 'vendor'
               }
             }
             for (let i = 0; i < nonSharedModules.length; i++) {
               if (id.includes(nonSharedModules[i])) {
-                return nonSharedModules[i];
+                return nonSharedModules[i]
               }
             }
           }
-        }
+        },
         //sourcemap: true,
       },
       external: [
@@ -133,14 +144,14 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: {
-      plugins: [esbuildCommonjs(["node-fetch"])],  // the problematic cjs module
+      plugins: [esbuildCommonjs(['node-fetch'])], // the problematic cjs module
     },
-    include: ["node-fetch"],  // also here
+    include: ['node-fetch'], // also here
   },
   plugins: [
     // nodeResolve(),
     commonjs({
-      transformMixedEsModules: true
+      transformMixedEsModules: true,
     }),
     vue(),
     babel({
@@ -156,7 +167,7 @@ export default defineConfig({
     // }),
     brotli(),
     visualizer({
-      template: 'treemap'
+      template: 'treemap',
     }),
     /*graph({
       prune: true

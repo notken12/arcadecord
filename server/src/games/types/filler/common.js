@@ -1,125 +1,121 @@
 // Common action models
 
 // Import GameFlow to control game flow
-import GameFlow from '../../GameFlow.js';
-
+import GameFlow from '../../GameFlow.js'
 
 ////////
 
-var COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
+var COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple']
 
 class Board {
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
+  constructor(width, height) {
+    this.width = width
+    this.height = height
 
-        // Create a 2d array of cells
-        this.cells = [];
-        for (var i = 0; i < height; i++) {
-            // new row
-            var row = [];
-            for (var x = 0; x < width; x++) {
-                // pick a random color
-                var randomIndex = Math.floor(Math.random() * COLORS.length);
-                var cell = {
-                    color: randomIndex,
-                    row: i,
-                    col: x
-                };
-                // add the colored tile to the row
-                row.push(cell);
-            }
-            this.cells.push(row);
+    // Create a 2d array of cells
+    this.cells = []
+    for (var i = 0; i < height; i++) {
+      // new row
+      var row = []
+      for (var x = 0; x < width; x++) {
+        // pick a random color
+        var randomIndex = Math.floor(Math.random() * COLORS.length)
+        var cell = {
+          color: randomIndex,
+          row: i,
+          col: x,
         }
+        // add the colored tile to the row
+        row.push(cell)
+      }
+      this.cells.push(row)
     }
-    static getCorner(board, playerIndex) {
-        if (playerIndex === 0) {
-            // player 1
-            // bottom left
-            return {
-                row: board.height - 1,
-                col: 0
-            }
-        } else {
-            // player 2
-            // top right
-            return {
-                row: 0,
-                col: board.width - 1
-            }
-        }
+  }
+  static getCorner(board, playerIndex) {
+    if (playerIndex === 0) {
+      // player 1
+      // bottom left
+      return {
+        row: board.height - 1,
+        col: 0,
+      }
+    } else {
+      // player 2
+      // top right
+      return {
+        row: 0,
+        col: board.width - 1,
+      }
     }
-    static getPlayerColor(board, playerIndex) {
-        // finds the players corner
-        var corner = Board.getCorner(board, playerIndex);
+  }
+  static getPlayerColor(board, playerIndex) {
+    // finds the players corner
+    var corner = Board.getCorner(board, playerIndex)
 
-        // outputs the color of said corner
-        return Board.getColor(board, corner.row, corner.col);
+    // outputs the color of said corner
+    return Board.getColor(board, corner.row, corner.col)
+  }
+  static getColor(board, row, col) {
+    if (row < 0 || col < 0) return null
+    if (row >= board.height || col >= board.width) return null
 
+    return board.cells[row][col].color
+  }
+  static addToBlob(blob, row, col) {
+    var coord = {
+      row: row,
+      col: col,
     }
-    static getColor(board, row, col) {
-        if (row < 0 || col < 0)
-            return null;
-        if (row >= board.height || col >= board.width)
-            return null;
-
-        return board.cells[row][col].color;
+    if (!this.blobIncludes(blob, row, col)) {
+      blob.push(coord)
     }
-    static addToBlob(blob, row, col) {
-        var coord = {
-            row: row,
-            col: col
-        };
-        if (!this.blobIncludes(blob, row, col)) {
-            blob.push(coord);
-        }
+  }
+  static blobIncludes(blob, row, col) {
+    return blob.find((coord) => coord.row === row && coord.col === col)
+  }
+  static searchBlob(board, searched, blob, row, col) {
+    var color = Board.getColor(board, row, col)
+    // Always add center coordinate
+    Board.addToBlob(blob, row, col)
+
+    // Check if tile above matches
+    if (Board.checkMatch(board, searched, row - 1, col, color)) {
+      Board.searchBlob(board, searched, blob, row - 1, col)
     }
-    static blobIncludes(blob, row, col) {
-        return blob.find(coord => coord.row === row && coord.col === col);
+
+    // Check if tile below
+    if (Board.checkMatch(board, searched, row + 1, col, color)) {
+      Board.searchBlob(board, searched, blob, row + 1, col)
     }
-    static searchBlob(board, searched, blob, row, col) {
-        var color = Board.getColor(board, row, col);
-        // Always add center coordinate
-        Board.addToBlob(blob, row, col);
 
-        // Check if tile above matches
-        if (Board.checkMatch(board, searched, row - 1, col, color)) {
-            Board.searchBlob(board, searched, blob, row - 1, col);
-        };
-
-        // Check if tile below
-        if (Board.checkMatch(board, searched, row + 1, col, color)) {
-            Board.searchBlob(board, searched, blob, row + 1, col);
-        };
-
-        //check to the left
-        if (Board.checkMatch(board, searched, row, col - 1, color)) {
-            Board.searchBlob(board, searched,  blob, row, col - 1);
-        };
-
-        //check to the right
-        if (Board.checkMatch(board, searched, row, col + 1, color)) {
-            Board.searchBlob(board, searched, blob, row, col + 1);
-        }
-
-        return blob;
+    //check to the left
+    if (Board.checkMatch(board, searched, row, col - 1, color)) {
+      Board.searchBlob(board, searched, blob, row, col - 1)
     }
-    static getPlayerBlob(board, playerIndex) {
-        // 1. Get the player's color
-        var corner = Board.getCorner(board, playerIndex);
 
-
-        // 2. Get tiles in player's blob
-        var blob = Board.searchBlob(board, [], [], corner.row, corner.col);
-
-        // 3. Output blob (list of coords {row, col})
-        return blob;
+    //check to the right
+    if (Board.checkMatch(board, searched, row, col + 1, color)) {
+      Board.searchBlob(board, searched, blob, row, col + 1)
     }
-    static checkMatch(board, searched, row, col, color) {
-        if (searched.find(coord => coord.row === row && coord.col === col)) return false;
-        searched.push({row, col});
-        return Board.getColor(board, row, col) == color;
-    }
+
+    return blob
+  }
+  static getPlayerBlob(board, playerIndex) {
+    // 1. Get the player's color
+    var corner = Board.getCorner(board, playerIndex)
+
+    // 2. Get tiles in player's blob
+    var blob = Board.searchBlob(board, [], [], corner.row, corner.col)
+
+    // 3. Output blob (list of coords {row, col})
+    return blob
+  }
+  static checkMatch(board, searched, row, col, color) {
+    if (searched.find((coord) => coord.row === row && coord.col === col))
+      return false
+    searched.push({ row, col })
+    return Board.getColor(board, row, col) == color
+  }
 }
 
 // An action model is a function...
@@ -127,57 +123,57 @@ class Board {
 // and outputs the updated Game if it succeeds, and otherwise outputs false
 
 async function action_switchColors(game, action) {
-    var playerIndex = action.playerIndex;
+  var playerIndex = action.playerIndex
 
-    var targetColor = action.data.targetColor;
-    var board = game.data.board;
+  var targetColor = action.data.targetColor
+  var board = game.data.board
 
-    var opponentColor = Board.getPlayerColor(board, playerIndex === 0 ? 1 : 0);
-    var playerColor = Board.getPlayerColor(board, playerIndex);
+  var opponentColor = Board.getPlayerColor(board, playerIndex === 0 ? 1 : 0)
+  var playerColor = Board.getPlayerColor(board, playerIndex)
 
-    if (playerColor === targetColor || opponentColor === targetColor) {
-        return false;
+  if (playerColor === targetColor || opponentColor === targetColor) {
+    return false
+  }
+
+  var playerBlob = Board.getPlayerBlob(board, playerIndex)
+
+  for (var pos of playerBlob) {
+    board.cells[pos.row][pos.col].color = targetColor
+  }
+
+  var newBlob = Board.getPlayerBlob(board, playerIndex)
+  var opponentBlob = Board.getPlayerBlob(board, playerIndex === 0 ? 1 : 0)
+  if (newBlob.length + opponentBlob.length >= board.width * board.height) {
+    // Game over
+    // Whoever has the most tiles wins
+    let winner
+    if (newBlob.length > opponentBlob.length) {
+      // Player wins
+      winner = playerIndex
+    } else if (newBlob.length < opponentBlob.length) {
+      // Opponent wins
+      winner = playerIndex ^ 1
+    } else {
+      // Tie
+      winner = -1
     }
+    await GameFlow.end(game, {
+      winner: winner,
+    })
+    return game
+  }
 
-    var playerBlob = Board.getPlayerBlob(board, playerIndex);
+  await GameFlow.endTurn(game)
 
-    for (var pos of playerBlob) {
-        board.cells[pos.row][pos.col].color = targetColor
-    }
-
-    var newBlob = Board.getPlayerBlob(board, playerIndex);
-    var opponentBlob = Board.getPlayerBlob(board, playerIndex === 0 ? 1 : 0);
-    if (newBlob.length + opponentBlob.length >= board.width * board.height) {
-        // Game over
-        // Whoever has the most tiles wins
-        let winner;
-        if (newBlob.length > opponentBlob.length) {
-            // Player wins
-            winner = playerIndex;
-        } else if (newBlob.length < opponentBlob.length) {
-            // Opponent wins
-            winner = playerIndex ^ 1;
-        } else {
-            // Tie
-            winner = -1;
-        }
-        await GameFlow.end(game, {
-            winner: winner
-        });
-        return game;
-    } 
-
-    await GameFlow.endTurn(game);
-
-    return game;
+  return game
 }
 
 // Compatibility with browser and node
 
 var exports = {
-    COLORS: COLORS,
-    Board: Board,
-    action_switchColors: action_switchColors
+  COLORS: COLORS,
+  Board: Board,
+  action_switchColors: action_switchColors,
 }
 
 /*if (typeof(module) !== 'undefined') {
@@ -186,4 +182,4 @@ var exports = {
     window.Common = exports; // global var
 }*/
 
-export default exports;
+export default exports

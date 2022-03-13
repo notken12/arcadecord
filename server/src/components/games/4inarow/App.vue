@@ -2,7 +2,10 @@
   <game-view>
     <scores-view>
       <template v-slot="scoreView">
-        <div class="color-indicator" :class="{yellow:game.data.colors[scoreView.playerindex] === 1}"></div>
+        <div
+          class="color-indicator"
+          :class="{ yellow: game.data.colors[scoreView.playerindex] === 1 }"
+        ></div>
       </template>
     </scores-view>
 
@@ -12,20 +15,15 @@
   </game-view>
 </template>
 <script>
-
 import Board from './Board.vue'
 
 import GameFlow from '@app/js/GameFlow'
 import Common from '/gamecommons/chess'
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
-  methods:{
-
-  },
-  computed:{
-
-  },
-  mounted(){
+  methods: {},
+  computed: {},
+  mounted() {
     this.$replayTurn(() => {
       this.$endReplay()
     })
@@ -56,7 +54,7 @@ export default {
 }
 
 .middle {
-overflow: initial;
+  overflow: initial;
 }
 </style>
 <style lang="scss" src="scss/games/4inarow.scss"></style>

@@ -162,7 +162,7 @@ export default {
 @use 'scss/base/_theme' as theme;
 .piece {
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
-  background-image: url("/dist/assets/chess/white_pieces.svg");
+  background-image: url('/dist/assets/chess/white_pieces.svg');
   background-size: auto 100%;
   cursor: pointer;
   position: absolute;
@@ -174,7 +174,7 @@ export default {
   z-index: 0;
 }
 .black {
-  background-image: url("/dist/assets/chess/black_pieces.svg");
+  background-image: url('/dist/assets/chess/black_pieces.svg');
 }
 .selected {
   background-color: #ffffff88;

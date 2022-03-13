@@ -1,12 +1,23 @@
 <template>
   <div class="game-container">
-    <waiting-view v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"></waiting-view>
-    <result-view v-if="game.hasEnded && !replaying && !runningAction" :game="game"></result-view>
-    <sending-view v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"></sending-view>
+    <waiting-view
+      v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
+    ></waiting-view>
+    <result-view
+      v-if="game.hasEnded && !replaying && !runningAction"
+      :game="game"
+    ></result-view>
+    <sending-view
+      v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"
+    ></sending-view>
     <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
-    <game-header :game="game" :me="me" :hint="hint" :isitmyturn="isItMyTurn"></game-header>
+    <game-header
+      :game="game"
+      :me="me"
+      :hint="hint"
+      :isitmyturn="isItMyTurn"
+    ></game-header>
     <slot></slot>
-
   </div>
 </template>
 
