@@ -26,7 +26,6 @@ export default {
 
   },
   mounted(){
-    console.log(this.game)
     this.$replayTurn(() => {
       this.$endReplay()
     })

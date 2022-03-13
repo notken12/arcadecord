@@ -5,34 +5,15 @@
 <script>
 import gsap from 'gsap'
 
-function animatePiecePos() {
+function updatePiecePos() {
   let offsetLeft = (this.piece.column) * 100 + "%"
   let offsetTop = (5 - this.piece.row) * 100 + "%"
 
-  gsap.fromTo(this.$refs.el, {
-    y:'-150%',
-    x:offsetLeft,
-  }, {
+  gsap.to(this.$refs.el, {
     y: offsetTop,
     x: offsetLeft,
-    duration: 0.17*(5-this.piece.row),
-  })
-} else {
-  gsap.to(this.$refs.el, {
-      "margin-top":offsetTop,
-      left: offsetLeft,
-      duration: 0
-  })
-}
-}
-function updatePiecePos(){
-  let offsetLeft = (this.piece.column) * 100 + "%"
-  let offsetTop = (5 - this.piece.row) * 100 + "%"
-
-  gsap.to(this.$refs.el, {
-      y:offsetTop,
-      x: offsetLeft,
-      duration: 0
+    duration: 0,
+    // onComplete: done
   })
 }
 
@@ -55,13 +36,13 @@ export default {
     }
   },
   watch: {
-    piece: {
-      handler: updatePiecePos,
-      deep: true,
-    }
+    // piece: {
+    //   handler: updatePiecePos,
+    //   deep: true,
+    // }
   },
   mounted() {
-    animatePiecePos.call(this)
+    updatePiecePos.call(this)
   }
 }
 </script>

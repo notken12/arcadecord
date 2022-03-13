@@ -5,10 +5,22 @@
       <div class="ratio horizontal" style="position:relative" @changeColumn="changeColumn($event)">
         <canvas width="350" height="300"></canvas>
         <div class="board-front">
-          <ColumnOverlay v-for="col in board.width" :selectedColumn="selectedColumn" :column="col-1"></ColumnOverlay>
+          <ColumnOverlay
+            v-for="col in board.width"
+            :selectedColumn="selectedColumn"
+            :column="col - 1"
+          ></ColumnOverlay>
         </div>
         <div class="board-back">
-          <piece v-for="piece in board.pieces" :piece="piece"></piece>
+          <TransitionGroup :css="false" @enter="animatePiece" @appear="updatePiecePos">
+            <Piece
+              v-for="piece in board.pieces"
+              :piece="piece"
+              :data-row="piece.row"
+              :data-column="piece.column"
+              :key="`${piece.row},${piece.column}`"
+            ></Piece>
+          </TransitionGroup>
         </div>
       </div>
     </div>
@@ -17,106 +29,99 @@
 </template>
 
 <script>
-  import Piece from './Piece.vue'
-  import DropButton from './dropButton.vue'
-  import ColumnOverlay from './ColumnOverlay.vue'
-  import OverPiece from './OverPiece.vue'
+import gsap from 'gsap'
 
-  import GameFlow from '@app/js/GameFlow'
-  import Common from '/gamecommons/chess'
-  import bus from '@app/js/vue-event-bus'
-  export default {
-    data(){
-      return{
-        selectedColumn:null
-      }
+import Piece from './Piece.vue'
+import DropButton from './DropButton.vue'
+import ColumnOverlay from './ColumnOverlay.vue'
+import OverPiece from './OverPiece.vue'
+
+import GameFlow from '@app/js/GameFlow'
+import Common from '/gamecommons/chess'
+import bus from '@app/js/vue-event-bus'
+export default {
+  data() {
+    return {
+      selectedColumn: null
+    }
+  },
+  computed: {
+    board() {
+      return this.game.data.board
     },
-    computed:{
-      board(){
-        return this.game.data.board
-      },
-      buttonShowing(){
-        if(this.selectedColumn || this.selectedColumn === 0) return true
-      }
-    },
-    mounted(){
-      bus.on('changeColumn', (column) => {
-        this.selectedColumn = column
+    buttonShowing() {
+      if (this.selectedColumn || this.selectedColumn === 0) return true
+    }
+  },
+  mounted() {
+    bus.on('changeColumn', (column) => {
+      this.selectedColumn = column
+    })
+  },
+  components: {
+    Piece,
+    DropButton,
+    ColumnOverlay,
+    OverPiece
+  },
+  methods: {
+    animatePiece(el, done) {
+      let offsetLeft = (el.dataset.column) * 100 + "%"
+      let offsetTop = (5 - el.dataset.row) * 100 + "%"
+
+      gsap.fromTo(el, {
+        y: '-150%',
+        x: offsetLeft,
+      }, {
+        y: offsetTop,
+        x: offsetLeft,
+        duration: 0.17 * (5 - el.dataset.row),
+        onComplete: done
       })
     },
-    components:{
-      Piece,
-      DropButton,
-      ColumnOverlay,
-      OverPiece
+    updatePiecePos(el) {
+      let offsetLeft = (el.dataset.column) * 100 + "%"
+      let offsetTop = (5 - el.dataset.row) * 100 + "%"
+
+      gsap.to(el, {
+        y: offsetTop,
+        x: offsetLeft,
+        duration: 0,
+        // onComplete: done
+      })
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
-.overUI{
-  margin:auto;
+.overUI {
+  margin: auto;
 }
-.board-back{
-  background-image:url(/dist/assets/4inarow/FullBack.svg);
-  background-size:contain;
-  position:absolute;
-  width:100%;
-  height:100%;
+.board-back {
+  background-image: url(/dist/assets/4inarow/FullBack.svg);
+  background-size: contain;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 .board-front {
-  cursor:pointer;
+  cursor: pointer;
   background-image: url(/dist/assets/4inarow/FullFront.svg);
   background-size: contain;
   background-color: transparent;
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
-  position:absolute;
-  width:100%;
-  height:100%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   z-index: 1;
   display: flex;
 }
-.grid-container {
-  background-size: contain;
-  box-sizing: border-box;
-  // position: absolute;
-  // top: 0;
-  // left: 0;
-  // right: 0;
-  // bottom: 0;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  z-index: 1;
-}
 
-.highlight,
-.highlight-click,
-.selected-square {
-  position: absolute;
-  width: 12.5%;
-  height: 12.5%;
-  background-color: #0004ff4b;
-}
-
-.highlight-click {
-  background: none;
-  cursor: pointer;
-}
-
-.highlight {
-  background: url('/dist/assets/chess/highlight.svg');
-  background-size: contain;
-}
-
-.capture {
-  background: url('/dist/assets/chess/capture.svg');
-  background-size: contain;
-}
-
-.ratio.vertical, .ratio.vertical > canvas {
-max-width: 500px;
+.ratio.vertical,
+.ratio.vertical > canvas {
+  max-width: 500px;
 }
 </style>
