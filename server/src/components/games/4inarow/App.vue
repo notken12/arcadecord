@@ -55,6 +55,10 @@ export default {
   background-color: yellow;
   border-color: 2px black solid;
 }
+
+.middle {
+overflow: initial;
+}
 </style>
 <style lang="scss" src="scss/games/4inarow.scss"></style>
 

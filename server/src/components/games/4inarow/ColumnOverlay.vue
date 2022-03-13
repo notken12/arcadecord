@@ -1,5 +1,5 @@
 <template>
-  <div class="over" :style="styles" v-on:click="changeColumnSelect"></div>
+  <div class="over" :class="classes" v-on:click="changeColumnSelect"></div>
 </template>
 <script>
   import bus from '@app/js/vue-event-bus'
@@ -28,7 +28,7 @@
       }
     },
     mounted(){
-      
+
     }
   }
 </script>
@@ -37,11 +37,11 @@
   .over{
     background-size: auto 100%;
     cursor: pointer;
-    position: absolute;
-    left: 0.1%;
-    top: 0%;
-    width: 13.6%;
-    height: 83.3333333333%;
+    /* position: absolute; */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     box-sizing: border-box;
     z-index: 3;
   }
