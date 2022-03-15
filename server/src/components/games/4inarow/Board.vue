@@ -13,6 +13,7 @@
             v-for="col in board.width"
             :selectedColumn="selectedColumn"
             :column="col - 1"
+            :key="col"
           ></ColumnOverlay>
         </div>
         <div class="board-back">
