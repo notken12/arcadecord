@@ -58,7 +58,7 @@ const stateSchema = {
             type: 'boolean',
           },
           color: {
-            type: ['number', 'undefined']
+            type: ['number', 'null']
           }
         },
       },
