@@ -18,8 +18,8 @@ const stateSchema = {
       items: {
         type: 'object',
         properties: {
-          number: {
-            type: 'number', // number of the ball, cue is 0
+          name: {
+            type: 'string', // 8ball, 1ball, 9ball, cueball
           },
           position: {
             type: 'object',
@@ -68,13 +68,15 @@ const stateSchema = {
         type: 'object',
         properties: {
           assignedPattern: {
-            type: 'number', // 0 for solid, 1 for striped, leave empty for unassigned yet
+            type: ['number', 'null'], // 0 for solid, 1 for striped, leave empty for unassigned yet
           },
           chosenPocket: {
-            type: 'number', // chosen pocket for when they shoot the 8 ball
+            type: ['number', 'null'], // chosen pocket for when they shoot the 8 ball
           },
         },
       },
+      maxItems: 2,
+      minItems: 2
     },
   },
   required: ['balls', 'players'],
@@ -82,7 +84,7 @@ const stateSchema = {
 
 const validateGameState = ajv.compile(stateSchema)
 
-test.todo('Initial 8ball game state', () => {
+test('Initial 8ball game state', () => {
   // Create a new game
   let game = new main.Game()
   // Activate testing mode
@@ -94,6 +96,8 @@ test.todo('Initial 8ball game state', () => {
   game.init()
 
   const valid = validateGameState(game.data)
+  expect(game.data.balls.length).toEqual(16)
+  console.log(game.data)
   expect(valid).toBe(true)
 
   expect(game.players[0].assignedPattern).toBe(undefined)

@@ -1,16 +1,16 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import Common from '/gamecommons/8ball'
 
 export class Ball {
-  static RADIUS = 0.05715 / 2 // m
-  static MASS = 0.17 // kg
+  static RADIUS = Common.Ball.RADIUS // m
+  static MASS = Common.Ball.MASS // kg
 
   scene
   world
   color
-  x
-  y
-  z
+  position
+  quaternion
   name
   texture
   fallen
@@ -31,9 +31,15 @@ export class Ball {
 
     this.scene = scene
     this.world = world
-    this.x = x
-    this.y = y
-    this.z = z
+    this.position.x = x
+    this.position.y = y
+    this.position.z = z
+    this.quaternion = {
+      x: 0,
+      y: 0,
+      z: 0,
+      w: 0
+    }
     this.name = name ?? 'Ball'
 
     this.mesh = this.createMesh()
@@ -69,7 +75,8 @@ export class Ball {
 
     var sphere = new THREE.Mesh(geometry, material)
 
-    sphere.position.set(this.x, this.y, this.z)
+    sphere.position.set(this.position.x, this.position.y, this.position.z)
+    sphere.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z)
 
     sphere.castShadow = true
     sphere.receiveShadow = true
@@ -87,7 +94,8 @@ export class Ball {
       shape: new CANNON.Sphere(Ball.RADIUS),
       type: CANNON.Body.DYNAMIC,
     })
-    body.position.set(this.x, this.y, this.z)
+    body.position.set(this.position.x, this.position.y, this.position.z)
+    body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z)
     this.world.addBody(body)
 
     return body

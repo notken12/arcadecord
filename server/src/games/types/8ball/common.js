@@ -5,6 +5,51 @@
 // tests if global scope is bound to window
 import GameFlow from '../../GameFlow.js'
 
-var exports = {}
+class Table {
+  static PLAY_AREA = {
+    LEN_Z: 2.2352, // m
+    LEN_X: 1.1176, // m
+  }
+}
 
-export default exports
+class Ball {
+  static RADIUS = 0.05715 / 2 // m
+  static MASS = 0.17 // kg
+
+  name
+  position = { x: 0, y: 0, z: 0 }
+  quaternion = { x: 0, y: 0, z: 0, w: 0 }
+  out = false
+
+  constructor(x, y, z, name, quaternion, out) {
+    this.position.x = x ?? this.position.x
+    this.position.y = y ?? this.position.y
+    this.position.z = z ?? this.position.z
+    this.name = name ?? this.name
+    this.quaternion = quaternion ?? this.quaternion
+    this.out = out ?? this.out
+  }
+}
+
+export class CueBall extends Ball {
+  constructor(x, y, z) {
+    super(
+      x || CueBall.DEFAULT_POSITION.x,
+      y || CueBall.DEFAULT_POSITION.y,
+      z || CueBall.DEFAULT_POSITION.z,
+      'cueball'
+    )
+  }
+
+  static DEFAULT_POSITION = {
+    x: 0,
+    y: Ball.RADIUS,
+    z: (Table.PLAY_AREA.LEN_Z / 4) * -1,
+  }
+}
+
+export default {
+  Ball,
+  CueBall,
+  Table,
+}

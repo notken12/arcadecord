@@ -7,27 +7,9 @@ import GameFlow from '../../GameFlow.js'
 
 //ඞ
 
-test('set a direction for a dummy', async () => {
-    let game = new main.Game()
-    // Activate testing mode
-    game.test()
-    // Add fake players
-    game.mockPlayers(2)
+// CHANGE test.todo() TO test() WHEN READY TO TEST
 
-    // Initialize the game
-    await game.init();
-
-    let action = new Action('setDirection',
-        { dummy: 0, direction: { x: 5, y: 5 } }
-        , 1)
-
-    await game.handleAction(action)
-
-    expect(game.data.dummies[0].x).toBe(5)
-});
-
-
-test('set a direction for all dummies and complete a cycle', async () => {
+test.todo('set a direction for all dummies and complete a cycle', async () => {
     let game = new main.Game()
     // Activate testing mode
     game.test()
@@ -73,13 +55,13 @@ test('set a direction for all dummies and complete a cycle', async () => {
 
     actions.push("end turn")
 
-    actions.forEach(action => {
+    actions.forEach(async action => {
         if (action != "end turn") await game.handleAction(action);
         else await GameFlow.endTurn(game)
     });
     expect(game.data.ice.size).toBeLessThan(100) // percent should have decreased
 });
-test('set a direction for all dummies and complete a cycle', async () => {
+test.todo('set a direction for all dummies and complete a cycle', async () => {
     let game = new main.Game()
     // Activate testing mode
     game.test()
@@ -125,7 +107,7 @@ test('set a direction for all dummies and complete a cycle', async () => {
 
     actions.push("end turn")
 
-    actions.forEach(action => {
+    actions.forEach(async action => {
         if (action != "end turn") await game.handleAction(action);
         else await GameFlow.endTurn(game)
     });

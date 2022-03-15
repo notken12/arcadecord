@@ -1,12 +1,10 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import Common from '/gamecommons/8ball'
 
 export class Table {
-  static PLAY_AREA = {
-    LEN_Z: 2.2352, // m
-    LEN_X: 1.1176, // m
-  }
+  static PLAY_AREA = Common.Table.PLAY_AREA
 
   scene
   world
