@@ -44,7 +44,7 @@ export class Table {
     this.surfaceBody = new CANNON.Body({
       mass: 0,
       material: new CANNON.Material({
-        friction: 0.2,
+        friction: 0.5,
         restitution: 0.5,
       }),
       shape: new CANNON.Box(
@@ -55,8 +55,8 @@ export class Table {
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
 
-    let cw = 0.02; // cushion thickness (half extent)
-    let ch = 0.05; // cushion height (half extent)
+    let cw = 0.02 // cushion thickness (half extent)
+    let ch = 0.05 // cushion height (half extent)
 
     let cushionOptions = {
       mass: 0,
@@ -67,39 +67,61 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
-    const shortCushionLen = PLAY_AREA.LEN_X / 2 - (0.025*2); // cushion length for the short side (x axis)
-    const longCushionLen = PLAY_AREA.LEN_Z / 4 - (0.025*4); // cushion length for the long side (z axis)
+    const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.02 * 2 // cushion length for the short side (x axis)
+    const longCushionLen = PLAY_AREA.LEN_Z / 4 - 0.02 * 4 // cushion length for the long side (z axis)
 
     this.cushionBodies = [
-      new CANNON.Body({ // bottom (+z)
+      new CANNON.Body({
+        // bottom (+z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(shortCushionLen, ch, cw)),
-        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / 2 + cw)
+        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / 2 + cw),
       }),
-      new CANNON.Body({ // top (-z)
+      new CANNON.Body({
+        // top (-z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(shortCushionLen, ch, cw)),
         position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / -2 - cw),
       }),
-      new CANNON.Body({ // bottom left (+x+z)
+      new CANNON.Body({
+        // bottom left (+x+z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
-        position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 + cw, 0, PLAY_AREA.LEN_Z / 4)
+        position: new CANNON.Vec3(
+          PLAY_AREA.LEN_X / 2 + cw,
+          0,
+          PLAY_AREA.LEN_Z / 4
+        ),
       }),
-      new CANNON.Body({ // bottom right (-x+z)
+      new CANNON.Body({
+        // bottom right (-x+z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
-        position: new CANNON.Vec3(PLAY_AREA.LEN_X / -2 - cw, 0, PLAY_AREA.LEN_Z / 4)
+        position: new CANNON.Vec3(
+          PLAY_AREA.LEN_X / -2 - cw,
+          0,
+          PLAY_AREA.LEN_Z / 4
+        ),
       }),
-      new CANNON.Body({ // top left (+x-z)
+      new CANNON.Body({
+        // top left (+x-z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
-        position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 + cw, 0, PLAY_AREA.LEN_Z / -4)
+        position: new CANNON.Vec3(
+          PLAY_AREA.LEN_X / 2 + cw,
+          0,
+          PLAY_AREA.LEN_Z / -4
+        ),
       }),
-      new CANNON.Body({ // top right (-x-z)
+      new CANNON.Body({
+        // top right (-x-z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
-        position: new CANNON.Vec3(PLAY_AREA.LEN_X / -2 - cw, 0, PLAY_AREA.LEN_Z / -4)
+        position: new CANNON.Vec3(
+          PLAY_AREA.LEN_X / -2 - cw,
+          0,
+          PLAY_AREA.LEN_Z / -4
+        ),
       }),
     ]
 

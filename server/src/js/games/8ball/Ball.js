@@ -94,9 +94,19 @@ export class Ball {
       }),
       shape: new CANNON.Sphere(Ball.RADIUS),
       type: CANNON.Body.DYNAMIC,
+      linearDamping: 0.5,
+      angularDamping: 0.5,
+      // allowSleep: true,
+      sleepSpeedLimit: 1, // Ball will get sleepy if its speed is < 0.5
+      sleepSpeedLimit: 0.01, // Fall asleep after 0.1s of sleepiness
     })
     body.position.set(this.position.x, this.position.y, this.position.z)
-    body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w)
+    body.quaternion.set(
+      this.quaternion.x,
+      this.quaternion.y,
+      this.quaternion.z,
+      this.quaternion.w
+    )
     this.world.addBody(body)
 
     return body

@@ -4,7 +4,6 @@ import { computed, ref, onMounted } from 'vue'
 
 import * as THREE from 'three'
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import * as CANNON from 'cannon-es'
@@ -107,7 +106,7 @@ const initThree = async () => {
   let time = new Date().getTime()
 
   let frames = 0
-  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 30), balls[0].body.position)
+  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 50), balls[0].body.position)
   function animate() {
     requestAnimationFrame(animate)
 
