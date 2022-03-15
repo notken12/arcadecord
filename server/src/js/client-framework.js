@@ -241,7 +241,7 @@ function simulateAction(
 async function connect(gameId, callback) {
   let baseCallback = async (response) => {
     if (response.status != 'success') {
-      log(`[arcadecord] connection failed with status ${response.status}`)
+      log(`[arcadecord] connection failed with error ${response.error}`)
 
       callback({
         status: response.status,

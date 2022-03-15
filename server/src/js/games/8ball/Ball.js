@@ -9,8 +9,8 @@ export class Ball {
   scene
   world
   color
-  position
-  quaternion
+  position = { x: 0, y: 0, z: 0 }
+  quaternion = { x: 0, y: 0, z: 0, w: 0 }
   out = false
   name
   texture
@@ -19,17 +19,7 @@ export class Ball {
   sphere
   body
 
-  constructor(
-    scene,
-    world,
-    x,
-    y,
-    z,
-    name,
-    color,
-    quaternion,
-    out
-  ) {
+  constructor(scene, world, x, y, z, name, color, quaternion, out) {
     this.color = color ?? 0xaa0000
 
     this.scene = scene
@@ -41,7 +31,7 @@ export class Ball {
       x: 0,
       y: 0,
       z: 0,
-      w: 0
+      w: 0,
     }
     this.out = out ?? false
     this.name = name ?? 'Ball'
@@ -54,6 +44,8 @@ export class Ball {
     this.fallen = false
 
     this.body = this.createBody()
+
+    // console.log(this.mesh.quaternion)
   }
 
   createMesh() {
@@ -80,7 +72,12 @@ export class Ball {
     var sphere = new THREE.Mesh(geometry, material)
 
     sphere.position.set(this.position.x, this.position.y, this.position.z)
-    sphere.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z)
+    sphere.quaternion.set(
+      this.quaternion.x,
+      this.quaternion.y,
+      this.quaternion.z,
+      this.quaternion.w
+    )
 
     sphere.castShadow = true
     sphere.receiveShadow = true
@@ -92,21 +89,30 @@ export class Ball {
     let body = new CANNON.Body({
       mass: Ball.MASS,
       material: new CANNON.Material({
-        friction: 0.1,
-        restitution: 0.5,
+        friction: 0.06,
+        restitution: 0.93,
       }),
       shape: new CANNON.Sphere(Ball.RADIUS),
       type: CANNON.Body.DYNAMIC,
     })
     body.position.set(this.position.x, this.position.y, this.position.z)
-    body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z)
+    body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w)
     this.world.addBody(body)
 
     return body
   }
 
   update() {
-    this.mesh.position.set(this.body.position.x, this.body.position.y, this.body.position.z)
-    this.mesh.quaternion.set(this.body.quaternion.x, this.body.quaternion.y, this.body.quaternion.z, this.body.quaternion.w)
+    this.mesh.position.set(
+      this.body.position.x,
+      this.body.position.y,
+      this.body.position.z
+    )
+    this.mesh.quaternion.set(
+      this.body.quaternion.x,
+      this.body.quaternion.y,
+      this.body.quaternion.z,
+      this.body.quaternion.w
+    )
   }
 }

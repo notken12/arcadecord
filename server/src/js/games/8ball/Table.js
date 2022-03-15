@@ -10,8 +10,11 @@ export class Table {
   world
   object
   surfaceBody
+  cushionBodies
 
   constructor(scene, world) {
+    const { PLAY_AREA } = Table
+
     this.scene = scene
     this.world = world
 
@@ -35,20 +38,73 @@ export class Table {
 
       tableObject.scale.multiplyScalar(0.01)
       scene.add(tableObject)
-      
+
       this.object = tableObject
     })
-
     this.surfaceBody = new CANNON.Body({
       mass: 0,
       material: new CANNON.Material({
         friction: 0.2,
-        restitution: 0,
+        restitution: 0.5,
       }),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5588, 0.0254, 1.1176)),
+      shape: new CANNON.Box(
+        new CANNON.Vec3(PLAY_AREA.LEN_X / 2, 0.0254, PLAY_AREA.LEN_Z / 2)
+      ),
       type: CANNON.Body.KINEMATIC,
     })
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
+
+    let cw = 0.02; // cushion thickness (half extent)
+    let ch = 0.05; // cushion height (half extent)
+
+    let cushionOptions = {
+      mass: 0,
+      material: new CANNON.Material({
+        friction: 0.1,
+        restitution: 0.75,
+      }),
+      type: CANNON.Body.KINEMATIC,
+    }
+
+    const shortCushionLen = PLAY_AREA.LEN_X / 2 - (0.04*2); // cushion length for the short side (x axis)
+    const longCushionLen = PLAY_AREA.LEN_Z / 4 - (0.04*4); // cushion length for the long side (z axis)
+
+    this.cushionBodies = [
+      new CANNON.Body({ // bottom (+z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(shortCushionLen, ch, cw)),
+        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / 2 + cw)
+      }),
+      new CANNON.Body({ // top (-z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(shortCushionLen, ch, cw)),
+        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / 2 - cw),
+      }),
+      new CANNON.Body({ // bottom left (+x+z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
+        position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 + cw, 0, PLAY_AREA.LEN_Z / 4)
+      }),
+      new CANNON.Body({ // bottom right (-x+z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
+        position: new CANNON.Vec3(PLAY_AREA.LEN_X / -2 - cw, 0, PLAY_AREA.LEN_Z / 4)
+      }),
+      new CANNON.Body({ // top left (+x-z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
+        position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 + cw, 0, PLAY_AREA.LEN_Z / -4)
+      }),
+      new CANNON.Body({ // top right (-x-z)
+        ...cushionOptions,
+        shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
+        position: new CANNON.Vec3(PLAY_AREA.LEN_X / -2 - cw, 0, PLAY_AREA.LEN_Z / -4)
+      }),
+    ]
+
+    for (let body of this.cushionBodies) {
+      world.addBody(body)
+    }
   }
 }

@@ -58,7 +58,7 @@ const initThree = async () => {
     canvasWrapper.value.offsetHeight
   )
 
-  camera.position.set(0, 3, 0)
+  camera.position.set(0, 2, 0)
   camera.rotation.set(Math.PI, 0, 0)
 
   const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
@@ -81,7 +81,7 @@ const initThree = async () => {
       b.name,
       b.color,
       b.quaternion,
-      ball.out
+      b.out
     )
     balls.push(ball)
   }
@@ -95,6 +95,7 @@ const initThree = async () => {
   window.scene = scene
   window.camera = camera
   window.world = world
+  window.game = game.value
 
   let time = new Date().getTime()
 
