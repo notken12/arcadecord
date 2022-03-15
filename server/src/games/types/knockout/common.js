@@ -38,6 +38,6 @@ function spawn() {
     }
 }
 
-var exports = {Dummy, setDirection, spawnDummies}
+var exports = {Dummy, setDirection, spawn}
 
 export default exports
