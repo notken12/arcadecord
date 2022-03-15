@@ -11,6 +11,7 @@ export class Ball {
   color
   position
   quaternion
+  out = false
   name
   texture
   fallen
@@ -25,7 +26,9 @@ export class Ball {
     y,
     z,
     name,
-    color
+    color,
+    quaternion,
+    out
   ) {
     this.color = color ?? 0xaa0000
 
@@ -34,12 +37,13 @@ export class Ball {
     this.position.x = x
     this.position.y = y
     this.position.z = z
-    this.quaternion = {
+    this.quaternion = quaternion ?? {
       x: 0,
       y: 0,
       z: 0,
       w: 0
     }
+    this.out = out ?? false
     this.name = name ?? 'Ball'
 
     this.mesh = this.createMesh()

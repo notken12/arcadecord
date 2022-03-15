@@ -11,7 +11,6 @@ import * as CANNON from 'cannon-es'
 
 import { Ball } from '@app/js/games/8ball/Ball'
 import { Table } from '@app/js/games/8ball/Table'
-import { getBalls } from '@app/js/games/8ball/utils'
 
 const {
   game,
@@ -70,7 +69,22 @@ const initThree = async () => {
 
   table = new Table(scene, world)
 
-  balls = getBalls(scene, world)
+  balls = []
+
+  for (let b of game.value.data.balls) {
+    let ball = new Ball(
+      scene,
+      world,
+      b.position.x,
+      b.position.y,
+      b.position.z,
+      b.name,
+      b.color,
+      b.quaternion,
+      ball.out
+    )
+    balls.push(ball)
+  }
 
   if (orbitControlsEnabled) {
     orbitControls = new OrbitControls(camera, renderer.domElement)
@@ -85,10 +99,7 @@ const initThree = async () => {
   let time = new Date().getTime()
 
   let frames = 0
-  balls[0].body.applyForce(
-    new CANNON.Vec3(0, 0, 30),
-    balls[0].body.position
-  )
+  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 30), balls[0].body.position)
   function animate() {
     requestAnimationFrame(animate)
 
