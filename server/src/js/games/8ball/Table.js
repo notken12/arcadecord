@@ -67,8 +67,8 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
-    const shortCushionLen = PLAY_AREA.LEN_X / 2 - (0.04*2); // cushion length for the short side (x axis)
-    const longCushionLen = PLAY_AREA.LEN_Z / 4 - (0.04*4); // cushion length for the long side (z axis)
+    const shortCushionLen = PLAY_AREA.LEN_X / 2 - (0.025*2); // cushion length for the short side (x axis)
+    const longCushionLen = PLAY_AREA.LEN_Z / 4 - (0.025*4); // cushion length for the long side (z axis)
 
     this.cushionBodies = [
       new CANNON.Body({ // bottom (+z)
@@ -79,7 +79,7 @@ export class Table {
       new CANNON.Body({ // top (-z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(shortCushionLen, ch, cw)),
-        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / 2 - cw),
+        position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / -2 - cw),
       }),
       new CANNON.Body({ // bottom left (+x+z)
         ...cushionOptions,

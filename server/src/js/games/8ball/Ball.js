@@ -57,11 +57,11 @@ export class Ball {
       //envMap: Ball.envMap,
       combine: THREE.AddOperation,
       flatShading: false,
-      color: new THREE.Color(0xff0000),
+      color: new THREE.Color(this.color ?? 0xffffff),
     })
 
     if (typeof this.texture == 'undefined') {
-      material.color = new THREE.Color(this.color)
+      material.color = new THREE.Color(this.color ?? 0xffffff)
     } else {
       /*textureLoader.load(this.texture, function (tex) {
               material.map = tex;

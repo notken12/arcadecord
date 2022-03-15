@@ -57,6 +57,9 @@ const stateSchema = {
           out: {
             type: 'boolean',
           },
+          color: {
+            type: ['number', 'undefined']
+          }
         },
       },
       minItems: 16,

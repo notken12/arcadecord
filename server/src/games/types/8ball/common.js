@@ -20,14 +20,16 @@ class Ball {
   position = { x: 0, y: 0, z: 0 }
   quaternion = { x: 0, y: 0, z: 0, w: 0 }
   out = false
+  color
 
-  constructor(x, y, z, name, quaternion, out) {
+  constructor(x, y, z, name, quaternion, out, color) {
     this.position.x = x ?? this.position.x
     this.position.y = y ?? this.position.y
     this.position.z = z ?? this.position.z
     this.name = name ?? this.name
     this.quaternion = quaternion ?? this.quaternion
     this.out = out ?? this.out
+    this.color = color ?? 0xffffff
   }
 }
 
@@ -37,7 +39,10 @@ export class CueBall extends Ball {
       x || CueBall.DEFAULT_POSITION.x,
       y || CueBall.DEFAULT_POSITION.y,
       z || CueBall.DEFAULT_POSITION.z,
-      'cueball'
+      'cueball',
+      undefined,
+      undefined,
+      0xffffff
     )
   }
 

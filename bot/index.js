@@ -226,7 +226,6 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
               member = await members.fetch(user)
             } catch (e) {
               console.error(e)
-              console.log(user)
               return null
             }
 

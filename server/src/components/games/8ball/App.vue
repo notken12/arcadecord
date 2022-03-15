@@ -42,11 +42,17 @@ const fps = ref(0)
 const initThree = async () => {
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xeeeeee)
-  camera = new THREE.PerspectiveCamera(
-    75,
-    canvas.value.offsetWidth / canvasWrapper.value.offsetHeight,
+  const aspect =
+    canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
+  const frustumSize = 1
+
+  camera = new THREE.OrthographicCamera(
+    (frustumSize * aspect) / -2,
+    (frustumSize * aspect) / 2,
+    frustumSize / 2,
+    frustumSize / -2,
     0.1,
-    1000
+    5
   )
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
@@ -59,7 +65,8 @@ const initThree = async () => {
   )
 
   camera.position.set(0, 2, 0)
-  camera.rotation.set(Math.PI, 0, 0)
+  camera.lookAt(0, 0, 0)
+  camera.updateProjectionMatrix()
 
   const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
   scene.add(light)
@@ -139,8 +146,13 @@ onMounted(async () => {
 
   function resize() {
     if (canvasWrapper.value) {
-      camera.aspect =
+      const aspect =
         canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
+      const frustumSize = 3
+      camera.left = (frustumSize * aspect) / -2
+      camera.right = (frustumSize * aspect) / 2
+      camera.top = frustumSize / 2
+      camera.bottom = frustumSize / -2
       camera.updateProjectionMatrix()
       renderer.setSize(
         canvasWrapper.value.offsetWidth,
@@ -163,7 +175,7 @@ onMounted(async () => {
     <div class="middle" ref="canvasWrapper">
       <!-- Game UI just for 8 ball -->
       <canvas id="game-canvas" ref="canvas"></canvas>
-      <p style="position: absolute">{{ fps }} fps</p>
+      <p style="position: absolute; top: 16px">{{ fps }} fps</p>
     </div>
   </game-view>
 </template>
