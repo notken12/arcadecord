@@ -11,6 +11,8 @@ import * as CANNON from 'cannon-es'
 import { Ball } from '@app/js/games/8ball/Ball'
 import { Table } from '@app/js/games/8ball/Table'
 
+import CannonDebugger from 'cannon-es-debugger'
+
 const {
   game,
   me,
@@ -44,6 +46,10 @@ const initThree = async () => {
   const aspect =
     canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
   const frustumSize = 1
+
+  const cannonDebugger = new CannonDebugger(scene, world, {
+    // options...
+  })
 
   camera = new THREE.OrthographicCamera(
     (frustumSize * aspect) / -2,
@@ -106,7 +112,7 @@ const initThree = async () => {
   let time = new Date().getTime()
 
   let frames = 0
-  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 50), balls[0].body.position)
+  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 30), balls[0].body.position)
   function animate() {
     requestAnimationFrame(animate)
 
@@ -127,7 +133,7 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)

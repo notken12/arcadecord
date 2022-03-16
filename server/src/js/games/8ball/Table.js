@@ -48,7 +48,7 @@ export class Table {
         restitution: 0.5,
       }),
       shape: new CANNON.Box(
-        new CANNON.Vec3(PLAY_AREA.LEN_X / 2, 0.0254, PLAY_AREA.LEN_Z / 2)
+        new CANNON.Vec3(PLAY_AREA.LEN_X / 2 - Common.Ball.RADIUS, 0.0254, PLAY_AREA.LEN_Z / 2 - Common.Ball.RADIUS)
       ),
       type: CANNON.Body.KINEMATIC,
     })
