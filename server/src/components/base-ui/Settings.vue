@@ -24,7 +24,7 @@ const closeManual = () => {
       <div class="modal-content">
         <h2>Graphics</h2>
         <ul class="settings-items">
-          <li>Enable confetti<Switch></Switch></li>
+          <li><Switch>Enable confetti</Switch></li>
         </ul>
       </div>
     </div>
