@@ -7,7 +7,7 @@
       <transition name="fade" appear mode="out-in">
         <div class="hint" v-if="isitmyturn">{{ hint }}</div>
       </transition>
-      <button class="btn-fab">
+      <button class="btn-fab" @click="openSettings">
         <i class="material-icons">settings</i>
       </button>
     </div>
@@ -29,9 +29,11 @@ export default {
   },
   methods: {
     openManual() {
-      console.log('open manual')
       bus.emit('open-manual')
     },
+    openSettings() {
+      bus.emit('open-settings')
+    }
   },
 }
 </script>

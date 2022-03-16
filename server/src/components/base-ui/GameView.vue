@@ -10,13 +10,14 @@
     <sending-view
       v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"
     ></sending-view>
-    <game-manual-view v-if="manualOpen" :game="game"></game-manual-view>
-    <game-header
+    <game-manual-view v-if="manualOpen"></game-manual-view>
+    <Settings v-if="settingsOpen"></Settings>
+    <GameHeader
       :game="game"
       :me="me"
       :hint="hint"
       :isitmyturn="isItMyTurn"
-    ></game-header>
+    ></GameHeader>
     <slot></slot>
   </div>
 </template>
@@ -30,6 +31,7 @@ import ResultView from './ResultView.vue'
 import GameManualView from './GameManualView.vue'
 import SendingView from './SendingView.vue'
 import GameFlow from '@app/js/GameFlow.js'
+import Settings from './Settings.vue'
 
 export default {
   data() {
@@ -37,6 +39,7 @@ export default {
       manualOpen: false,
       sending: false,
       sendingAnimationLength: 500,
+      settingsOpen: false,
     }
   },
   props: ['hint'],
@@ -46,6 +49,7 @@ export default {
     GameManualView,
     ResultView,
     SendingView,
+    Settings,
   },
   computed: {
     isItMyTurn() {
@@ -67,6 +71,12 @@ export default {
       } else {
         this.sending = true
       }
+    })
+    bus.on('open-settings', () => {
+      this.settingsOpen = true
+    })
+    bus.on('close-settings', () => {
+      this.settingsOpen = false
     })
   },
   watch: {

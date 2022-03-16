@@ -1,17 +1,17 @@
 <template>
-  <div class="game-manual-bg">
-    <div class="game-manual-modal">
-      <div class="game-manual-modal-header">
-        <div class="game-manual-modal-header-close">
+  <div class="modal-bg">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-close">
           <button class="btn-icon" @click="closeManual">
             <i class="material-icons">close</i>
           </button>
         </div>
-        <div class="game-manual-modal-header-text">
+        <div class="modal-header-text">
           <span>Game Manual</span>
         </div>
       </div>
-      <div class="game-manual-modal-content">
+      <div class="modal-content">
         <div v-if="parsedMarkdown === undefined">Loading...</div>
         <div v-if="parsedMarkdown === null">
           Game manual for {{ game.name }} coming soon!
@@ -70,61 +70,4 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@use '../../scss/base/_theme.scss' as theme;
-
-.game-manual-bg {
-  width: 100%;
-  position: absolute;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 102;
-}
-
-.game-manual-modal {
-  width: 100%;
-  height: 100%;
-  background-color: theme.$md-sys-surface;
-  color: theme.$md-sys-on-surface;
-  overflow-y: auto;
-}
-
-.game-manual-modal-header {
-  display: flex;
-  flex-direction: row;
-  height: 64px;
-  align-items: center;
-  padding: 0 16px;
-  gap: 16px;
-  position: fixed;
-  background-color: theme.$md-sys-surface;
-  width: 100%;
-  box-shadow: theme.$md-elevation-level3;
-}
-
-.game-manual-modal-header .btn-icon {
-  background-color: transparent;
-  border: none;
-  box-shadow: none;
-  color: theme.$md-sys-on-surface;
-  padding: 0;
-  min-width: 24px;
-  min-height: 24px;
-  width: 24px;
-  height: 24px;
-}
-
-.game-manual-modal-header-text {
-  font-size: theme.$md-sys-typescale-headline5-size;
-  font-family: theme.$md-sys-typescale-headline5-font;
-  font-weight: theme.$md-sys-typescale-headline5-weight;
-  line-height: theme.$md-sys-typescale-headline5-line-height;
-}
-
-.game-manual-modal-content {
-  padding: 16px;
-  margin-top: 64px;
-}
-</style>
+<style lang="scss" src="scss/base/_modal.scss"></style>
