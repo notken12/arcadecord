@@ -18,7 +18,7 @@
         </div>
         <div class="board-back">
           <TransitionGroup
-            :css="false"
+            name="piecedrop"
             @enter="animatePiece"
             @appear="updatePiecePos"
           >
@@ -30,7 +30,12 @@
               :key="`${piece.row},${piece.column}`"
             ></Piece>
           </TransitionGroup>
-          <OverPiece :selectedColumn="selectedColumn"></OverPiece>
+          <Transition name="fade">
+            <OverPiece
+              v-if="selectedColumn !== null"
+              :selectedColumn="selectedColumn"
+            ></OverPiece
+          ></Transition>
         </div>
       </div>
     </div>
@@ -91,8 +96,9 @@ export default {
         {
           y: offsetTop,
           x: offsetLeft,
-          duration: 0.17 * (5 - el.dataset.row),
+          duration: 0.07 * (5 - el.dataset.row),
           onComplete: done,
+          ease: 'power1.in',
         }
       )
     },
@@ -140,5 +146,28 @@ export default {
 .ratio.vertical,
 .ratio.vertical > canvas {
   max-width: 500px;
+}
+
+.piecedrop-enter-active {
+  animation: fadeIn 0.1s linear;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

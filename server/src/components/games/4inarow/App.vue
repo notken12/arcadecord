@@ -25,7 +25,7 @@ export default {
   computed: {},
   mounted() {
     this.$replayTurn(() => {
-      this.$endReplay()
+      this.$endReplay(300)
     })
   },
   components: {
