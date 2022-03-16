@@ -6,17 +6,12 @@ import bus from '@app/js/vue-event-bus'
 import gsap from 'gsap'
 
 function movePiece() {
-  let offsetLeft = (this.selectedColumn || 0) * 13.73 + '%'
-  gsap.fromTo(
+  let offsetLeft = (this.selectedColumn || 0) * 14.25 + '%'
+  gsap.to(
     this.$refs.el,
     {
       left: offsetLeft,
-      'margin-top': '-5%',
-    },
-    {
-      left: offsetLeft,
-      'margin-top': '0%',
-      duration: 0.3,
+      'margin-top': '-16%',
     }
   )
 }
@@ -29,7 +24,7 @@ export default {
   },
   computed: {
     styles() {
-      let offsetLeft = (this.selectedColumn || 0) * 13.73 + '%'
+      let offsetLeft = (this.selectedColumn || 50) * 20 + '%'
       return {
         left: offsetLeft,
         'margin-top': '0px',
@@ -59,8 +54,8 @@ export default {
   position: absolute;
   left: 0.1%;
   top: 0%;
-  width: 13.6%;
-  height: 13.6%;
+  width: 14.2857143%;
+  height: 16.6666667%;
   box-sizing: border-box;
   z-index: 1;
 }

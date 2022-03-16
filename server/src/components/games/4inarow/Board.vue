@@ -30,6 +30,7 @@
               :key="`${piece.row},${piece.column}`"
             ></Piece>
           </TransitionGroup>
+          <OverPiece :selectedColumn="selectedColumn"></OverPiece>
         </div>
       </div>
     </div>
