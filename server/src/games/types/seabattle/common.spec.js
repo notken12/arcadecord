@@ -23,6 +23,12 @@ const stateSchema = {
       maxLength: 2,
       minLength: 2,
     },
+    placed: {
+      type: 'array',
+      maxLength: 2,
+      minLength: 2,
+      type: 'boolean',
+    },
   },
 }
 
@@ -56,30 +62,185 @@ describe.todo('Action: place ships', async () => {
 
       // Initialize the game
       game.init()
-        
-        let ships = Common.getAvailableShips(1);
 
-      let action = new Action('placeShips', {
-          ships: [
-              new Common.Ship(1, )
-          ]
-      })
+      let availableShips = Common.getAvailableShips(1)
+      let { ships } = Common.PlaceShips(
+        availableShips,
+        new Common.ShipPlacementBoard(10, 10)
+      )
+
+      let action = new Action(
+        'placeShips',
+        {
+          ships,
+        },
+        1
+      )
+
+      await game.handleAction(action)
+
+      expect(GameFlow.isItUsersTurn(game, 1)).toEqual(false)
+      expect(game.data.placed[1]).toEqual(true)
+
+      let action2 = new Action(
+        'placeShips',
+        {
+          ships,
+        },
+        0
+      )
+      await game.handleAction(action2)
+
+      expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+      expect(game.data.placed[0]).toEqual(true)
     }
   )
 
-  test.todo('Ships cant be placed outside the board', async () => {})
+  test.todo('Ships cant be placed outside the board', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-  test.todo('Amounts of ships must match the availableShips', async () => {})
+    // Initialize the game
+    game.init()
+
+    let availableShips = Common.getAvailableShips(1)
+    let { ships } = Common.PlaceShips(
+      availableShips,
+      new Common.ShipPlacementBoard(10, 10)
+    )
+    ships[0].row = 10 // set it to outside the board
+
+    let action = new Action(
+      'placeShips',
+      {
+        ships,
+      },
+      1
+    )
+
+    expect((await game.handleAction(action)).success).toEqual(false)
+  })
+
+  test.todo('Amounts of ships must match the availableShips', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    game.init()
+
+    let availableShips = Common.getAvailableShips(1)
+    let { ships } = Common.PlaceShips(
+      availableShips,
+      new Common.ShipPlacementBoard(10, 10)
+    )
+
+    let oneShip = ships.find((s) => s.len === 1)
+    oneShip.len = 2
+
+    let action = new Action(
+      'placeShips',
+      {
+        ships,
+      },
+      1
+    )
+
+    expect((await game.handleAction(action)).success).toEqual(false)
+  })
 })
 
 describe.todo('Action: shoot', async () => {
-  test.todo('Missing will end turn', async () => {})
+  let availableShips = Common.getAvailableShips(1)
+  let { ships } = Common.PlaceShips(
+    availableShips,
+    new Common.ShipPlacementBoard(10, 10)
+  )
 
-  test.todo('Hitting a ship will not end turn', async () => {})
+  ships = ships.sort((a, b) => a.len - b.len) // SORT ASCENDING
+  for (let i = 0; i < ships.length; i++) {
+    let ship = ships[i]
+    ship.row = i
+    ship.col = 0
+    ship.dir = 1 // horizontal, to the right
+  }
 
-  test.todo('Invalid shot will fail', async () => {})
+  async function makePlacedGame() {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-  test.todo('Shooting down a ship will sink it', async () => {})
+    // Initialize the game
+    game.init()
 
-  test.todo('Shooting down all ships will result in win', async () => {})
+    let action = new Action('placeShips', { ships }, 1)
+    let action2 = new Action('placeShips', { ships }, 0)
+
+    await game.handleAction(action)
+    await game.handleAction(action2)
+    return game
+  }
+
+  test.todo('Missing will end turn', async () => {
+    let game = await makePlacedGame()
+
+    let shoot = new Action('shoot', { row: 9, col: 0 }, 0)
+
+    await game.handleAction(shoot)
+
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false)
+  })
+
+  test.todo('Hitting a ship will not end turn', async () => {
+    let game = await makePlacedGame()
+
+    let shoot = new Action('shoot', { row: 0, col: 0 }, 0)
+
+    await game.handleAction(shoot)
+
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+  })
+
+  test.todo('Invalid shot will fail', async () => {
+    let game = await makePlacedGame()
+
+    let shoot = new Action('shoot', { row: 10, col: 0 }, 0)
+
+    expect((await game.handleAction(shoot)).success).toEqual(false)
+  })
+
+  test.todo('Shooting down a ship will sink it', async () => {
+    let game = await makePlacedGame()
+
+    let shoot = new Action('shoot', { row: 0, col: 0 }, 0)
+
+    await game.handleAction(shoot)
+
+    expect(game.data.shipBoards[1].ships[0].sunk).toEqual(true)
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+  })
+
+  test.todo('Shooting down all ships will result in win', async () => {
+    let game = await makePlacedGame()
+
+    for (let ship of ships) {
+      for (let i = 0; i < ship.len; i++) {
+        let shoot = new Action('shoot', {row: ship.row, col: ship.col + i}, 0)
+        await game.handleAction(shoot)
+      }
+    }
+
+    expect(game.hasEnded).toEqual(true)
+    expect(game.winner).toEqual(0)
+  })
 })
