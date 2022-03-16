@@ -2,15 +2,45 @@ import fetch from 'node-fetch'
 import db from '../../db/db2.js'
 import BotApi from '../bot/api.js'
 
+const serialize = function (obj) {
+  let str = []
+  for (let p in obj)
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
+    }
+  return str.join('&')
+}
+
 async function getNewAccessToken(dbUser) {
-  var res = await fetch('https://discordapp.com/api/oauth2/token', {
+  console.log(`using refresh token: ${dbUser.discordAccessToken}`)
+  let queryString = serialize({
+    client_id: process.env.BOT_CLIENT_ID,
+    client_secret: process.env.BOT_CLIENT_SECRET,
+    grant_type: 'refresh_token',
+    refresh_token: dbUser.discordRefreshToken,
+    scope: 'identify',
+  })
+  console.log(queryString)
+
+  let body = new URLSearchParams()
+  body.append('client_id', process.env.BOT_CLIENT_ID)
+  body.append('client_secret', process.env.BOT_CLIENT_SECRET)
+  body.append('grant_type', 'refresh_token')
+  body.append('refresh_token', dbUser.discordRefreshToken)
+  // body.append('scope', 'identify email connections')
+  body.append('redirect_uri', process.env.GAME_SERVER_URL + '/auth')
+
+  console.log(body)
+  var res = await fetch('https://discord.com/api/v8/oauth2/token', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `grant_type=refresh_token&refresh_token=${dbUser.discordRefreshToken}&client_id=${process.env.BOT_CLIENT_ID}&client_secret=${process.env.BOT_CLIENT_SECRET}`,
+    // headers: {
+    //   'Content-Type': 'application/x-www-form-urlencoded',
+    // },
+    body: body,
   })
   var json = await res.json()
+  console.log('refreshed response')
+  console.log(json)
   var access_token = json.access_token
   var refresh_token = json.refresh_token
 
@@ -18,6 +48,9 @@ async function getNewAccessToken(dbUser) {
     discordAccessToken: access_token,
     discordRefreshToken: refresh_token,
   })
+  console.log(
+    `new refresh token: ${json.refresh_token}, access_token: ${json.access_token}`
+  )
 
   return access_token
 }
