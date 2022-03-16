@@ -35,18 +35,6 @@ class HitBoard {
   }
 }
 
-class Ship {
-  constructor(id, playerIndex, length, direction, type, x, y) {
-    this.id = id
-    this.playerIndex = playerIndex
-    this.x = x || 0
-    this.y = y || 0
-    this.length = length || 2
-    this.type = type || 0
-    this.direction = direction || Common.SHIP_DIRECTION_HORIZONTAL
-  }
-}
-
 // use Game options schema
 
 const options = {
@@ -83,7 +71,7 @@ class SeaBattleGame extends Game {
       for (var j = 0; j < Common.SHIP_TYPES.length; j++) {
         for (var k = 0; k < Common.SHIP_QUANTITIES[j]; k++) {
           ships.push(
-            new Ship(
+            new Common.Ship(
               j + '_' + k,
               i,
               Common.SHIP_LENGTHS[j],

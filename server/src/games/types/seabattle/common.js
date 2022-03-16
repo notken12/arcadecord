@@ -11,48 +11,24 @@ const BOARD_STATE_MISS = 1
 const BOARD_STATE_HIT = 2
 const CELL_SIZE = 40
 
-// function setShipsForBoard(board, ships) {
-//     for (var i = 0; i < ships.length; i++) {
-//         var ship = ships[i];
-//         var length = ship.length;
-//         var direction = ship.direction;
-//         var x = ship.x;
-//         var y = ship.y;
-//         if (direction == SHIP_DIRECTION_HORIZONTAL) {
-//             for (var j = 0; j < length; j++) {
-//                 // check if overlapping
-//                 if (board[x + j][y] != BOARD_STATE_EMPTY) {
-//                     return false;
-//                 }
-//                 board[x + j][y] = BOARD_STATE_SHIP;
-//             }
-//         } else if (direction == SHIP_DIRECTION_VERTICAL) {
-//             for (var j = 0; j < length; j++) {
-//                 // check if overlapping
-//                 if (board[x][y + j] != BOARD_STATE_EMPTY) {
-//                     return false;
-//                 }
-//                 board[x][y + j] = BOARD_STATE_SHIP;
-//             }
-//         } else {
-//             return false;
-//         }
-//     }
-
-//     board.shipsPlaced = true;
-//     return board;
-// }
-
-// function placeShips(game, action) {
-//     var ships = action.ships;
-//     var board = game.data.boards[action.playerIndex];
-
-//     if (!setShipsForBoard(board, ships)) {
-//         return false;
-//     }
-
-//     return game;
-// }
+class Ship {
+  playerIndex
+  len
+  type
+  dir
+  row
+  col
+  sunk
+  constructor (playerIndex, row, col, dir, len, sunk, type) {
+    this.playerIndex = playerIndex;
+    this.row = row;
+    this.col = col;
+    this.dir = dir;
+    this.len = len;
+    this.sunk = sunk || false;
+    this.type = type;
+  }
+}
 
 async function shoot(game, action) {
   var playerIndex = action.playerIndex
@@ -338,7 +314,11 @@ async function setShips(game, action) {
   return false
 }
 
-var exports = {
+function getAvailableShips(playerIndex) {
+  
+}
+
+export default {
   SHIP_DIRECTION_HORIZONTAL,
   SHIP_DIRECTION_VERTICAL,
   SHIP_TYPES,
@@ -358,6 +338,6 @@ var exports = {
   PlaceShips,
   getShipAt,
   setShips,
+  Ship,
+  getAvailableShips
 }
-
-export default exports
