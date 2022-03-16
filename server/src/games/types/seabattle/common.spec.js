@@ -125,6 +125,39 @@ describe.todo('Action: place ships', async () => {
     expect((await game.handleAction(action)).success).toEqual(false)
   })
 
+  test.todo('Ships cannot overlap', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    game.init()
+
+    let availableShips = Common.getAvailableShips(1)
+    let { ships } = Common.PlaceShips(
+      availableShips,
+      new Common.ShipPlacementBoard(10, 10)
+    )
+    ships[0].row = 5
+    ships[0].col = 5
+    ships[1].row = 5
+    ships[1].col = 5
+
+
+    let action = new Action(
+      'placeShips',
+      {
+        ships,
+      },
+      1
+    )
+
+    expect((await game.handleAction(action)).success).toEqual(false)
+  })
+
   test.todo('Amounts of ships must match the availableShips', async () => {
     // Create a new game
     let game = new main.Game()
@@ -235,7 +268,7 @@ describe.todo('Action: shoot', async () => {
 
     for (let ship of ships) {
       for (let i = 0; i < ship.len; i++) {
-        let shoot = new Action('shoot', {row: ship.row, col: ship.col + i}, 0)
+        let shoot = new Action('shoot', { row: ship.row, col: ship.col + i }, 0)
         await game.handleAction(shoot)
       }
     }
