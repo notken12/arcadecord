@@ -11,6 +11,25 @@ const BOARD_STATE_MISS = 1
 const BOARD_STATE_HIT = 2
 const CELL_SIZE = 40
 
+const DIR_OFFSETS = [
+  {
+    row: -1,
+    col: 0,
+  },
+  {
+    row: 0,
+    col: 1,
+  },
+  {
+    row: 1,
+    col: 0,
+  },
+  {
+    row: 0,
+    col: -1,
+  },
+]
+
 class Ship {
   playerIndex
   len
@@ -19,14 +38,14 @@ class Ship {
   row
   col
   sunk
-  constructor (playerIndex, row, col, dir, len, sunk, type) {
-    this.playerIndex = playerIndex;
-    this.row = row;
-    this.col = col;
-    this.dir = dir;
-    this.len = len;
-    this.sunk = sunk || false;
-    this.type = type;
+  constructor(playerIndex, row, col, dir, len, sunk, type) {
+    this.playerIndex = playerIndex
+    this.row = row
+    this.col = col
+    this.dir = dir
+    this.len = len
+    this.sunk = sunk || false
+    this.type = type
   }
 }
 
@@ -66,19 +85,12 @@ async function shoot(game, action) {
 
   // check if ship is sunk
   var sunk = true
-  for (var i = 0; i < ship.length; i++) {
-    var shipX =
-      ship.x + i * (ship.direction == SHIP_DIRECTION_HORIZONTAL ? 1 : 0)
-    var shipY = ship.y + i * (ship.direction == SHIP_DIRECTION_VERTICAL ? 1 : 0)
-    if (hitBoard.cells[shipY][shipX].state !== BOARD_STATE_HIT) {
-      sunk = false
-      break
-    }
-  }
+
+  // WRITE
+
   if (sunk) {
     ship.sunk = true
     console.log(board)
-    hitBoard.revealedShips.push(ship)
   }
 
   // check if all ships are sunk
@@ -98,45 +110,44 @@ async function shoot(game, action) {
   return game
 }
 
-function ShipPlacementBoard(width, height) {
-  var that = this
+class ShipPlacementBoard {
+  constructor(width, height) {
+    var that = this
 
-  this.width = width
-  this.height = height
-  this.ships = []
+    this.width = width
+    this.height = height
+    this.ships = []
 
-  this.addShip = function (ship) {
-    this.ships.push(ship)
-  }
+    this.addShip = function (ship) {
+      this.ships.push(ship)
+    }
 
-  this.WithShip = function (ship) {
-    let newBoard = new ShipPlacementBoard(that.width, that.height)
-    newBoard.ships = that.ships.slice()
-    newBoard.ships.push(ship)
-    return newBoard
-  }
+    this.WithShip = function (ship) {
+      let newBoard = new ShipPlacementBoard(that.width, that.height)
+      newBoard.ships = that.ships.slice()
+      newBoard.ships.push(ship)
+      return newBoard
+    }
 
-  this.WithoutShip = function (ship) {
-    let newBoard = new ShipPlacementBoard(that.width, that.height)
-    newBoard.ships = that.ships.filter((s) => s.id != ship.id)
-    return newBoard
+    this.WithoutShip = function (ship) {
+      let newBoard = new ShipPlacementBoard(that.width, that.height)
+      newBoard.ships = that.ships.filter((s) => s.id != ship.id)
+      return newBoard
+    }
   }
 }
 
-function isValidPosition(board, ship, x, y, direction, distance) {
+function isValidPosition(board, ship, c, r, direction, distance) {
   // create a bounding box for the ship that extends 1 tile out
   if (distance === undefined) distance = 0
 
-  let x1 = x - distance
-  let y1 = y - distance
-  let x2 = x + ship.length + distance - 1
-  let y2 = y + distance
+  let c1 = c - distance
+  let r1 = r - distance
 
-  if (direction == SHIP_DIRECTION_VERTICAL) {
-    x2 = x + distance
-    y2 = y + ship.length + distance - 1
-    //console.log(x1, y1, x2, y2);
-  }
+  let offset = DIR_OFFSETS[ship.dir]
+
+  let c2 = c + ship.length * offset.col + distance - 1
+  let r2 = r + ship.length * offset.row + distance - 1
 
   let valid = true
   // ships cannot be touching each other
@@ -145,18 +156,15 @@ function isValidPosition(board, ship, x, y, direction, distance) {
     let shipJ = board.ships[j]
 
     // get bounding box for the ship
-    let x1j = shipJ.x + 0
-    let y1j = shipJ.y + 0
-    let x2j = shipJ.x + shipJ.length - 1
-    let y2j = shipJ.y + 0
+    let c1j = shipJ.col
+    let r1j = shipJ.row
+    let offset = DIR_OFFSETS[ship.dir]
 
-    if (shipJ.direction == SHIP_DIRECTION_VERTICAL) {
-      x2j = shipJ.x + 0
-      y2j = shipJ.y + shipJ.length - 1
-    }
+    let c2j = c + ship.length * offset.col + distance - 1
+    let r2j = r + ship.length * offset.row + distance - 1
 
     // check if bounding boxes intersect with AABB
-    if (x1 <= x2j && x2 >= x1j && y1 <= y2j && y2 >= y1j) {
+    if (c1 <= c2j && c2 >= c1j && r1 <= r2j && r2 >= r1j) {
       valid = false
       break
     }
@@ -170,34 +178,26 @@ function isBoardValid(b, distance) {
   board.ships = b.ships
   for (let i = 0; i < board.ships.length; i++) {
     let ship = board.ships[i]
+    let offset = DIR_OFFSETS[ship.dir]
 
     // check if ship is inside the board
-    if (ship.direction == SHIP_DIRECTION_HORIZONTAL) {
-      if (
-        ship.x < 0 ||
-        ship.x + ship.length > board.width ||
-        ship.y < 0 ||
-        ship.y >= board.height
-      )
-        return false
-    } else {
-      if (
-        ship.x < 0 ||
-        ship.x >= board.width ||
-        ship.y < 0 ||
-        ship.y + ship.length > board.height
-      )
-        return false
-    }
+    if (
+      ship.col < 0 ||
+      ship.col + ship.length * offset.col > board.width ||
+      ship.row < 0 ||
+      ship.row + ship.length * offset.row >= board.height
+    )
+      return false
+    
     // check if ship is overlapping
     let excludingShip = board.WithoutShip(ship)
 
     let valid = isValidPosition(
       excludingShip,
       ship,
-      ship.x,
-      ship.y,
-      ship.direction,
+      ship.col,
+      ship.row,
+      ship.dir,
       distance
     )
 
@@ -207,26 +207,24 @@ function isBoardValid(b, distance) {
 }
 
 function GetValidPositions(board, ship, direction) {
-  let maxX =
-    direction == SHIP_DIRECTION_HORIZONTAL
-      ? board.width - ship.length
-      : board.width - 1
-  let maxY =
-    direction == SHIP_DIRECTION_VERTICAL
-      ? board.height - ship.length
-      : board.height - 1
+  const offset = DIR_OFFSETS[ship.dir]
+
+  let minC = offset.col < 0 ? ship.length * offset.col - 1 : 0
+  let maxC = offset.col < 0 ? board.width - 1 : board.width - ship.length * offset.col - 1
+
+  let minR = offset.row < 0 ? ship.length * offset.row - 1 : 0
+  let maxR = offset.row < 0 ? board.height - 1 : board.height - ship.length * offset.row - 1
 
   // search every tile in the board for a valid position
   // ships cannot be touching each other
 
   let validPositions = []
-  for (let i = 0; i < (maxX + 1) * (maxY + 1); i++) {
-    // get x and y from index
-    let x = i % (maxX + 1)
-    let y = Math.floor(i / (maxX + 1))
 
-    if (isValidPosition(board, ship, x, y, direction)) {
-      validPositions.push({ x, y, direction })
+  for (let c = minC; c < maxC + 1; c++) {
+    for (let r = minR; r < maxR + 1; r++) {
+      if (isValidPosition(board, ship, c, r, direction)) {
+        validPositions.push({ col: c, row: r, direction })
+      }
     }
   }
   return validPositions
@@ -236,12 +234,12 @@ function GetRandomShipPosition(board, ship) {
   let validPositionsHorizontal = GetValidPositions(
     board,
     ship,
-    SHIP_DIRECTION_HORIZONTAL
+    1
   )
   let validPositionsVertical = GetValidPositions(
     board,
     ship,
-    SHIP_DIRECTION_VERTICAL
+    0
   )
 
   let validPositions = validPositionsHorizontal.concat(validPositionsVertical)
@@ -267,9 +265,9 @@ function PlaceShips(shipsRemaining, board) {
     // If it isn't possible to find such a position, this branch is bad.
     if (pos == null) return null
 
-    shipToPlace.x = pos.x
-    shipToPlace.y = pos.y
-    shipToPlace.direction = pos.direction
+    shipToPlace.col = pos.col
+    shipToPlace.row = pos.row
+    shipToPlace.dir = pos.dir
 
     // Create a new board, including the new ship.
     let newBoard = new board.WithShip(shipToPlace)
@@ -282,6 +280,7 @@ function PlaceShips(shipsRemaining, board) {
 }
 
 function getShipAt(board, x, y) {
+  // WRITE
   for (var i = 0; i < board.ships.length; i++) {
     var ship = board.ships[i]
     for (var j = 0; j < ship.length; j++) {
@@ -314,9 +313,7 @@ async function setShips(game, action) {
   return false
 }
 
-function getAvailableShips(playerIndex) {
-  
-}
+function getAvailableShips(playerIndex) {}
 
 export default {
   SHIP_DIRECTION_HORIZONTAL,
@@ -339,5 +336,5 @@ export default {
   getShipAt,
   setShips,
   Ship,
-  getAvailableShips
+  getAvailableShips,
 }
