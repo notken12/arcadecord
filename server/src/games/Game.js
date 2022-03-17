@@ -257,6 +257,10 @@ class Game {
           }
         }
       }
+
+      return {
+        success: true
+      }
     } else {
       // action not found
       return {

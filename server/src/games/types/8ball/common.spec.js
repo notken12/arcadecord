@@ -100,7 +100,6 @@ test('Initial 8ball game state', () => {
 
   const valid = validateGameState(game.data)
   expect(game.data.balls.length).toEqual(16)
-  console.log(game.data)
   expect(valid).toBe(true)
 
   expect(game.players[0].assignedPattern).toBe(undefined)

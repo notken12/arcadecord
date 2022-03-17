@@ -24,6 +24,21 @@ const GameFlow = {
 
     await game.emit('turn')
   },
+  isItMyTurn(game, ignoreGameEnd) {
+    return (
+      (!game.hasEnded || ignoreGameEnd) &&
+      this.isItUsersTurn(game, game.myIndex)
+    )
+  },
+  isItUsersTurn(game, userIndex) {
+    let i = userIndex
+    return (
+      game.turn == i || (!game.hasStarted && !this.isGameFull(game) && i == -1)
+    )
+  },
+  isGameFull(game) {
+    return game.players.length >= game.maxPlayers
+  },
 }
 
 export default GameFlow

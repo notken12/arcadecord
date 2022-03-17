@@ -33,7 +33,7 @@ class KnockoutGame extends Game {
     });
   }
 
-  onInit(game) {
+  async onInit(game) {
     spawn = await Common.spawn();
     game.data.ice = spawn.ice;
     game.data.dummies = spawn.dummies;
