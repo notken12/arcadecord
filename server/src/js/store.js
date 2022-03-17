@@ -11,6 +11,7 @@ function createStore() {
         game: null,
         me: null,
         error: null,
+        user: null,
       }
     },
     mutations: {
@@ -21,6 +22,7 @@ function createStore() {
         state.game = connectionResponse.game ?? null
         state.me = connectionResponse.discordUser ?? null
         state.error = connectionResponse.error ?? null
+        state.user = connectionResponse.user ?? null
       },
     },
   })

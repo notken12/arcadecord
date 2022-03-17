@@ -276,11 +276,20 @@ io.on('connection', (socket) => {
           // save game to db
           await db.games.update(gameId, game)
 
+          // Expose all user data except for refresh and access token
+          let { settings, _id, discordId, joined } = user._doc
+
           // send game info to user
           callback({
             status: 'success',
             game: game.getDataForClient(userId),
             discordUser: await fetchUser(userId),
+            user: {
+              settings,
+              _id,
+              discordId,
+              joined,
+            },
           })
 
           appInsightsClient.trackEvent({
@@ -423,7 +432,7 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('resend invite', async () => {
+  socket.on('resend invite', async (callback) => {
     try {
       // get which game the socket is in
       var gameId = socket.data.gameId
@@ -485,6 +494,49 @@ io.on('connection', (socket) => {
       appInsightsClient.trackEvent({
         name: 'Resend game invite error',
         properties: { gameId: gameId, userId: userId, error: e },
+      })
+
+      callback({
+        status: 'error',
+      })
+    }
+  })
+
+  socket.on('settings:update', async (newSettings, callback) => {
+    try {
+      // get which game the socket is in
+      var userId = socket.data.userId
+
+      if (userId === undefined || userId === null) {
+        console.log('Socket update user settings error: userId is missing')
+        callback({
+          error: 'Invalid user',
+        })
+
+        appInsightsClient.trackEvent({
+          name: 'Socket update user settings error',
+          properties: { error: 'Invalid user: userId is missing' },
+        })
+        return
+      }
+
+      await db.users.update(userId, {
+        settings: newSettings,
+      })
+
+      await callback({
+        status: 'success',
+      })
+
+      appInsightsClient.trackEvent({
+        name: 'User settings updated',
+        properties: { settings: newSettings },
+      })
+    } catch (e) {
+      console.error(e)
+      appInsightsClient.trackEvent({
+        name: 'Update user settings error',
+        properties: { userId: userId, error: e },
       })
 
       callback({

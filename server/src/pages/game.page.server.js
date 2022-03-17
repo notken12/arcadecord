@@ -20,6 +20,15 @@ export async function onBeforeRender(pageContext) {
   // if (userId === null || userId === undefined) {
   // }
 
+  const user = await db.users.getById(userId)
+  if (!user) {
+    return {
+      PageContext: {
+        redirectTo: '/sign-in',
+      },
+    }
+  }
+
   if (gameId) {
     var dbGame = await db.games.getById(gameId)
 
@@ -40,6 +49,7 @@ export async function onBeforeRender(pageContext) {
         pageProps.gameType = typeId
         pageContext.game = game.getDataForClient(userId)
         pageContext.discordUser = await fetchUser(userId)
+        pageContext.user = user._doc
       } else {
         // For some reason user isn't allowed to join (isn't in same server, game full, etc)
         throw RenderErrorPage({
@@ -75,6 +85,12 @@ export async function onBeforeRender(pageContext) {
 }
 
 export async function render(pageContext) {
+  // Pass it on to the server/index.js for redirection
+  if (pageContext.redirectTo) {
+    return pageContext
+  }
+
+  // Otherwise go ahead and render page
   const { app, store } = createApp(pageContext)
 
   // See https://vite-plugin-ssr.com/head
@@ -85,9 +101,18 @@ export async function render(pageContext) {
 
   const INITIAL_STATE = store.state
 
+  // Expose everything except for discord access and refresh token
+  let { settings, _id, discordId, joined } = pageContext.user
+
   store.commit('SETUP', {
     game: pageContext.game,
     discordUser: pageContext.discordUser,
+    user: {
+      settings,
+      _id,
+      discordId,
+      joined,
+    },
   })
   store.commit('REPLAY_TURN')
 

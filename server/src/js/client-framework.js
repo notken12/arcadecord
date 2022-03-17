@@ -238,6 +238,12 @@ function simulateAction(
   return game
 }
 
+async function updateSettings(newSettings) {
+  socket.emit('settings:update', newSettings, () => {
+    console.log('Updated settings!')
+  })
+}
+
 async function connect(gameId, callback) {
   let baseCallback = async (response) => {
     if (response.status != 'success') {
@@ -250,15 +256,14 @@ async function connect(gameId, callback) {
       return
     }
 
-    var game = response.game
+    let { discordUser, user, game } = response
 
     game = await utils.setUpGame(game)
-
-    discordUser = response.discordUser
 
     callback({
       status: response.status,
       game,
+      user,
       discordUser,
     })
   }
@@ -315,4 +320,5 @@ export {
   appInsights,
   listen,
   useOnClient,
+  updateSettings,
 }

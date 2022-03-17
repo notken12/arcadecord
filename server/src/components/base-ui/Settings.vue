@@ -2,13 +2,40 @@
 import Switch from './Switch.vue'
 
 import bus from '@app/js/vue-event-bus.js'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useStore } from 'vuex'
+import { updateSettings } from '@app/js/client-framework'
 
 const closeManual = () => {
   bus.emit('close-settings')
 }
 
-const confettiEnabled = ref(false)
+const store = useStore()
+
+const settings = store.state.user.settings
+
+const enableConfetti = ref(settings.enableConfetti ?? true)
+
+function debounce(callback, wait) {
+  let timerId
+  return (...args) => {
+    clearTimeout(timerId)
+    timerId = setTimeout(() => {
+      callback(...args)
+    }, wait)
+  }
+}
+
+watch(
+  [enableConfetti],
+  debounce(() => {
+    if (!window) return
+    console.log('updating settings...')
+    updateSettings({
+      enableConfetti: enableConfetti.value,
+    })
+  }, 300)
+)
 </script>
 
 <template>
@@ -29,7 +56,7 @@ const confettiEnabled = ref(false)
 
         <h2>Graphics</h2>
         <ul class="settings-items">
-          <li><Switch v-model="confettiEnabled">Enable confetti</Switch></li>
+          <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
         </ul>
         <h2>Account</h2>
         <ul class="settings-items">

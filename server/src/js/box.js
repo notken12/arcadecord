@@ -23,15 +23,18 @@ function createStore() {
         error: null,
         replaying: false,
         runningAction: false,
+        user: null,
       }
     },
     mutations: {
       SETUP(state, connectionResponse) {
         store.commit('SETUP', connectionResponse)
+        state.user = store.state.user
       },
       REPLAY_TURN(state) {
         state.me = store.state.me
         state.error = store.state.error
+        state.user = store.state.user
 
         if (
           (!GameFlow.isItMyTurn(store.state.game, true) &&

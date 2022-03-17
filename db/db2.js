@@ -13,6 +13,12 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  settings: {
+    enableConfetti: {
+      type: Boolean,
+      default: true,
+    },
+  },
 })
 
 const User = mongoose.models.User || mongoose.model('User', userSchema)
