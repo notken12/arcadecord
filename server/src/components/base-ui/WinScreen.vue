@@ -136,7 +136,8 @@ export default {
   },
   methods: {
     showConfetti() {
-      showConfetti2()
+      if (this.$store.user.settings.enableConfetti)
+        showConfetti2()
     },
   },
   mounted() {
