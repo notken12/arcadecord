@@ -54,12 +54,12 @@ function checkWinner(game) {
     }
     if (p1fallen == 4) winner = 1;
     else if (p0fallen == 4) winner = 0;
-    else if (p1fallen == 4 && p0fallen) //??? draw?? how do i do that
+    else if (p1fallen == 4 && p0fallen) return "draw";//??? draw?? how do i do that
     await GameFlow.end(game, {winner});
 
 }
 
-async function spawn() {
+function spawn() {
     var ice = new Ice(100);
     dummies = [];
 

@@ -1,5 +1,6 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade'
+import Common from '/gamecommons/knockout'
 const {
   game,
   me,
@@ -24,14 +25,13 @@ var Engine = Matter.Engine,
 var engine = Engine.create()
 
 // create two boxes and a ground
-var boxA = Bodies.rectangle(400, 200, 80, 80)
-var boxB = Bodies.rectangle(450, 50, 80, 80)
-var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true })
+
 
 // add all of the bodies to the world
 Composite.add(engine.world, [boxA, boxB, ground])
 
 const canvas = ref(null)
+engine.gravity.y = 0;
 
 Render.run(Render.create({ element: canvas.value, engine }))
 Runner.run(Runner.create(), engine)
