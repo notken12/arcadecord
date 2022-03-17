@@ -43,25 +43,24 @@ async function setDirections(game, action) {
   }
 }
 
-async function checkWinner(game) {
-  var p1fallen, p0fallen, winner
-  for (var i = 0; i < game.data.dummies.length; i++) {
-    cur = game.data.dummies[i]
-    if (!cur.fallen) continue //stop for loop if hasn't fallen
-    if (cur.playerIndex) p1fallen++
-    //player index is either 0 or 1
-    else p0fallen++
-  }
-  if (p1fallen == 4) winner = 1
-  else if (p0fallen == 4) winner = 0
-  else if (p1fallen == 4 && p0fallen)
-    //??? draw?? how do i do that
-    await GameFlow.end(game, { winner })
+function checkWinner(game) {
+    var p1fallen, p0fallen, winner;
+    for (var i = 0; i < game.data.dummies.length; i++) {
+        cur = game.data.dummies[i]
+        if (!cur.fallen) continue; //stop for loop if hasn't fallen
+        if (cur.playerIndex) p1fallen++; //player index is either 0 or 1
+        else p0fallen++;
+    }
+    if (p1fallen == 4) winner = 1;
+    else if (p0fallen == 4) winner = 0;
+    else if (p1fallen == 4 && p0fallen) return "draw";//??? draw?? how do i do that
+    await GameFlow.end(game, {winner});
+
 }
 
-async function spawn() {
-  var ice = new Ice(100)
-  dummies = []
+function spawn() {
+    var ice = new Ice(100);
+    dummies = [];
 
   //have to check if they collide with the other ones before they are pushed :/
   //GRRRRRRR ඞඞඞඞඞඞ
