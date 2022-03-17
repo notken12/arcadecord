@@ -84,7 +84,7 @@ class Chess extends Game {
       /*
       var canvas = Canvas.newCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height)
 
-      var rectangle = new Canvas.Component(0, 0, Game.thumbnailDimensions.width/1.5, Game.thumbnailDimensions.height, {type:"image", imageSource:"../server/src/public/assets/chess/bb.png"})
+      var rectangle = new Canvas.Component(0, 0, Game.thumbnailDimensions.width/1.5, Game.thumbnailDimensions.height, {type:"image", imageSource:"../server/src/assets/chess/bb.png"})
       canvas.draw(rectangle)
 
       return canvas.toBuffer();
@@ -103,7 +103,7 @@ class Chess extends Game {
 
       let boardSrc = path.resolve(
         __dirname,
-        '../../../public/assets/chess/board.svg'
+        '../../../assets/chess/board.svg'
       )
       let boardImg = await Canvas.loadImage(boardSrc)
       ctx.shadowBlur = 5
@@ -113,11 +113,11 @@ class Chess extends Game {
 
       let whitePiecesSrc = path.resolve(
         __dirname,
-        '../../../public/assets/chess/white_pieces.svg'
+        '../../../assets/chess/white_pieces.svg'
       )
       let blackPiecesSrc = path.resolve(
         __dirname,
-        '../../../public/assets/chess/black_pieces.svg'
+        '../../../assets/chess/black_pieces.svg'
       )
 
       let whitePieces = await Canvas.loadImage(whitePiecesSrc)

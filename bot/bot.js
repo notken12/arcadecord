@@ -174,7 +174,7 @@ async function getInviteMessage(game) {
   if (canvas) {
     let overlaySrc = path.resolve(
       __dirname,
-      '../server/src/public/icons/thumbnail_overlay.svg'
+      '../server/src/icons/thumbnail_overlay.svg'
     )
     let overlayImg = await Canvas.loadImage(overlaySrc)
     const ctx = canvas.getContext('2d')
@@ -199,7 +199,7 @@ async function getInviteMessage(game) {
 
     let defaultThumbnailSrc = path.resolve(
       __dirname,
-      '../server/src/public/ui-images/default_thumbnail.svg'
+      '../server/src/ui-images/default_thumbnail.svg'
     )
     let defaultThumbnailImg = await Canvas.loadImage(defaultThumbnailSrc)
 
