@@ -28,8 +28,8 @@ const stateSchema = {
       maxItems: 2,
       minItems: 2,
       items: {
-        type: 'boolean'
-      }
+        type: 'boolean',
+      },
     },
   },
 }
@@ -52,50 +52,47 @@ test('Initial game state', async () => {
 })
 
 describe('Action: place ships', async () => {
-  test(
-    'Valid placement will result in ships being set, dont end player 0s turn',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+  test('Valid placement will result in ships being set, dont end player 0s turn', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-      // Initialize the game
-      game.init()
+    // Initialize the game
+    game.init()
 
-      let availableShips = Common.getAvailableShips(1)
-      let shipPlacementBoard = Common.PlaceShips(
-        availableShips,
-        new Common.ShipPlacementBoard(10, 10)
-      )
-      let action = new Action(
-        'placeShips',
-        {
-          shipPlacementBoard
-        },
-        1
-      )
+    let availableShips = Common.getAvailableShips(1)
+    let shipPlacementBoard = Common.PlaceShips(
+      availableShips,
+      new Common.ShipPlacementBoard(10, 10)
+    )
+    let action = new Action(
+      'placeShips',
+      {
+        shipPlacementBoard,
+      },
+      1
+    )
 
-      await game.handleAction(action)
+    await game.handleAction(action)
 
-      expect(GameFlow.isItUsersTurn(game, 1)).toEqual(false)
-      expect(game.data.placed[1]).toEqual(true)
+    expect(GameFlow.isItUsersTurn(game, 1)).toEqual(false)
+    expect(game.data.placed[1]).toEqual(true)
 
-      let action2 = new Action(
-        'placeShips',
-        {
-          shipPlacementBoard,
-        },
-        0
-      )
-      await game.handleAction(action2)
+    let action2 = new Action(
+      'placeShips',
+      {
+        shipPlacementBoard,
+      },
+      0
+    )
+    await game.handleAction(action2)
 
-      expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
-      expect(game.data.placed[0]).toEqual(true)
-    }
-  )
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+    expect(game.data.placed[0]).toEqual(true)
+  })
 
   test('Ships cant be placed outside the board', async () => {
     // Create a new game
@@ -113,13 +110,13 @@ describe('Action: place ships', async () => {
       availableShips,
       new Common.ShipPlacementBoard(10, 10)
     )
-    let {ships} = shipPlacementBoard
+    let { ships } = shipPlacementBoard
     ships[0].row = 10 // set it to outside the board
 
     let action = new Action(
       'placeShips',
       {
-        shipPlacementBoard
+        shipPlacementBoard,
       },
       1
     )
@@ -143,22 +140,21 @@ describe('Action: place ships', async () => {
       availableShips,
       new Common.ShipPlacementBoard(10, 10)
     )
-    let {ships} = shipPlacementBoard;
+    let { ships } = shipPlacementBoard
     ships[0].row = 5
     ships[0].col = 5
     ships[1].row = 5
     ships[1].col = 5
 
-
     let action = new Action(
       'placeShips',
       {
-        shipPlacementBoard
+        shipPlacementBoard,
       },
       1
     )
 
-    expect((await game.handleAction(action))).toEqual({success: false})
+    expect(await game.handleAction(action)).toEqual({ success: false })
   })
 
   test('Amounts of ships must match the availableShips', async () => {
@@ -177,7 +173,7 @@ describe('Action: place ships', async () => {
       availableShips,
       new Common.ShipPlacementBoard(10, 10)
     )
-    let {ships} = shipPlacementBoard
+    let { ships } = shipPlacementBoard
 
     let oneShip = ships.find((s) => s.len === 1)
     oneShip.len = 2
@@ -185,7 +181,7 @@ describe('Action: place ships', async () => {
     let action = new Action(
       'placeShips',
       {
-        shipPlacementBoard
+        shipPlacementBoard,
       },
       1
     )
@@ -200,7 +196,7 @@ describe('Action: shoot', async () => {
     availableShips,
     new Common.ShipPlacementBoard(10, 10)
   )
-  let {ships} = shipPlacementBoard
+  let { ships } = shipPlacementBoard
 
   ships = ships.sort((a, b) => a.len - b.len) // SORT ASCENDING
   for (let i = 0; i < ships.length; i++) {
@@ -232,8 +228,7 @@ describe('Action: shoot', async () => {
   test('Missing will end turn', async () => {
     let game = await makePlacedGame()
 
-    let shoot = new Action('shoot', { row: 9, col: 0 }, 0)
-    console.log(game.data.shipBoards[1])
+    let shoot = new Action('shoot', { row: 0, col: 9 }, 0)
 
     await game.handleAction(shoot)
 
@@ -276,6 +271,7 @@ describe('Action: shoot', async () => {
       for (let i = 0; i < ship.len; i++) {
         let shoot = new Action('shoot', { row: ship.row, col: ship.col + i }, 0)
         await game.handleAction(shoot)
+        expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
       }
     }
 

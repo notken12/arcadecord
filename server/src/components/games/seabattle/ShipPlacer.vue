@@ -5,16 +5,6 @@
       <div class="ratio horizontal">
         <canvas width="500" height="500"></canvas>
         <div class="ship-placer-container">
-          <div class="ship-placer-grid" :style="gridStyles">
-            <placed-ship
-              v-for="ship of board.ships"
-              :ship="ship"
-              :board="board"
-              :selected="dragTarget == ship"
-              :key="ship.id"
-            ></placed-ship>
-          </div>
-
           <div
             class="ship-placer-board"
             @touchmove="touchmove($event)"
@@ -34,6 +24,16 @@
                 @touchstart="touchstart($event, x - 1, y - 1)"
               ></div>
             </div>
+          </div>
+
+          <div class="ship-placer-grid" :style="gridStyles">
+            <placed-ship
+              v-for="ship of board.ships"
+              :ship="ship"
+              :board="board"
+              :selected="dragTarget == ship"
+              :key="ship.id"
+            ></placed-ship>
           </div>
         </div>
       </div>

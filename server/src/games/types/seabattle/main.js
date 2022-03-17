@@ -129,9 +129,13 @@ class SeaBattleGame extends Game {
       properties: {
         row: {
           type: 'number',
+          minimum: 0,
+          maximum: 9,
         },
         col: {
           type: 'number',
+          minimum: 0,
+          maximum: 9,
         },
       },
       required: ['row', 'col'],

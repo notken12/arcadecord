@@ -1,7 +1,5 @@
 import GameFlow from '../../GameFlow.js'
 
-const SHIP_DIRECTION_HORIZONTAL = 0
-const SHIP_DIRECTION_VERTICAL = 1
 const SHIP_TYPES = ['Carrier', 'Battleship', 'Cruiser', 'Destroyer']
 const SHIP_LENGTHS = [4, 3, 2, 1]
 const SHIP_QUANTITIES = [1, 2, 3, 4]
@@ -60,7 +58,8 @@ async function shoot(game, action) {
     return false // already shot
   }
 
-  var board = game.data.shipBoards[(action.playerIndex + 1) % game.players.length] // the other player's board
+  var board =
+    game.data.shipBoards[(action.playerIndex + 1) % game.players.length] // the other player's board
   var hitBoard = game.data.hitBoards[action.playerIndex]
 
   if (!game.data.placed[action.playerIndex] || !board) {
@@ -82,17 +81,18 @@ async function shoot(game, action) {
   hitBoard.cells[r][c].state = BOARD_STATE_HIT
 
   // check if ship is sunk
-  var sunk = true
+  let sunk = true
 
-  let c1 = c
-  let r1 = r
+  let c1 = ship.col
+  let r1 = ship.row
 
   let offset = DIR_OFFSETS[ship.dir]
 
-  let c2 = c + (ship.len - 1) * offset.col
-  let r2 = r + (ship.len - 1) * offset.row
+  let c2 = ship.col + (ship.len - 1) * offset.col
+  let r2 = ship.row + (ship.len - 1) * offset.row
 
-  let [rangeC, rangeR] = [[c1, c2].sort(), [r1, r2].sort()]
+  let rangeC = [c1, c2].sort()
+  let rangeR = [r1, r2].sort()
 
   // Loop through the cells in the 2d bounding box
   for (let c = rangeC[0]; c <= rangeC[1]; c++) {
@@ -171,7 +171,7 @@ function isValidPosition(board, ship, c, r, dir, distance) {
   c1 = rangeC[0]
   c2 = rangeC[1]
   r1 = rangeR[0]
-  r1 = rangeR[1]
+  r2 = rangeR[1]
 
   let valid = true
   // ships cannot be touching each other
@@ -192,7 +192,7 @@ function isValidPosition(board, ship, c, r, dir, distance) {
     c1j = rangeCJ[0]
     c2j = rangeCJ[1]
     r1j = rangeRJ[0]
-    r1j = rangeRJ[1]
+    r2j = rangeRJ[1]
 
     // check if bounding boxes intersect with AABB
     if (c1 <= c2j && c2 >= c1j && r1 <= r2j && r2 >= r1j) {
@@ -205,6 +205,19 @@ function isValidPosition(board, ship, c, r, dir, distance) {
 }
 
 function isBoardValid(b, distance) {
+  let shipLengths = [] // Array<ShipLength, ShipQuantity>
+  for (let i = 0; i < b.ships.length; i++) {
+    shipLengths[b.ships[i].len] = (shipLengths[b.ships[i].len] || 0) + 1
+  }
+
+  for (let i = 0; i < shipLengths.length; i++) {
+    let typeIndex = SHIP_LENGTHS.indexOf(i)
+    let allowed = SHIP_QUANTITIES[typeIndex]
+    if (shipLengths[i] !== allowed) {
+      return false
+    }
+  }
+
   var board = new ShipPlacementBoard(b.width, b.height)
   board.ships = b.ships
   for (let i = 0; i < board.ships.length; i++) {
@@ -215,7 +228,7 @@ function isBoardValid(b, distance) {
     let offset = DIR_OFFSETS[ship.dir]
 
     let c2 = ship.col + (ship.len - 1) * offset.col
-    let r2 = ship.col + (ship.len - 1) * offset.row
+    let r2 = ship.row + (ship.len - 1) * offset.row
 
     let rangeC = [c1, c2].sort()
     let rangeR = [r1, r2].sort()
@@ -389,8 +402,6 @@ function getAvailableShips(playerIndex) {
 }
 
 export default {
-  SHIP_DIRECTION_HORIZONTAL,
-  SHIP_DIRECTION_VERTICAL,
   SHIP_TYPES,
   SHIP_LENGTHS,
   SHIP_QUANTITIES,

@@ -156,12 +156,6 @@ class Game {
       const validate = ajv.compile(actionSchema)
       const valid = validate(action.data)
       if (!valid) {
-        if (this.testing) {
-          throw new Error(
-            'Action data does not follow schema: ' +
-              JSON.stringify(validate.errors)
-          )
-        }
         console.warn(
           'Action data does not follow schema: ' +
             JSON.stringify(validate.errors)
@@ -259,7 +253,7 @@ class Game {
       }
 
       return {
-        success: true
+        success: true,
       }
     } else {
       // action not found

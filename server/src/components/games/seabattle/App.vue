@@ -83,7 +83,6 @@ export default {
         )
       )
       var t2 = performance.now()
-      console.log(this.shipPlacementBoard)
       console.log(
         'Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.'
       )
@@ -131,11 +130,12 @@ export default {
     },
   },
   mounted() {
+    window.Common = Common
+
     this.$replayTurn(() => {
       this.$endReplay()
     })
-    this.availableShips =
-      this.game.data.availableShips[this.myHitBoard.playerIndex]
+    this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex)
     console.log('mounted')
 
     if (
