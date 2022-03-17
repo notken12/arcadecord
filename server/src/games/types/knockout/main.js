@@ -20,28 +20,21 @@ class KnockoutGame extends Game {
     this.on('init', Game.eventHandlersDiscord.init)
     this.on('turn', Game.eventHandlersDiscord.turn)
 
-    this.setActionModel('setDirection', Common.setDirection);
-    this.setActionSchema('setDirection', {
+    this.setActionModel('setDirections', Common.setDirections);
+    this.setActionSchema('setDirections', {
         type: 'object',
         properties: {
-            direction: { 
-              type: 'object', 
-              properties: {
-                x: { type: 'number' },
-                y: { type: 'number' }
-              }
+            directions: { 
+              type: 'array',
+              maxItems:4,
+              minItems:4, // [{x, y}, {x, y}, null, {x, y}] null = fallen
             },
-            dummy: {
-              type:'number',
-              minimum:0,
-              maximum:3
-            }
         }
     });
   }
 
   onInit(game) {
-    spawn = Common.spawn();
+    spawn = await Common.spawn();
     game.data.ice = spawn.ice;
     game.data.dummies = spawn.dummies;
     return game
