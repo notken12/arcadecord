@@ -1,6 +1,22 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps(['modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+const value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  },
+})
+</script>
+
 <template>
   <div class="switch">
-    <input type="checkbox" name="switch" />
+    <input type="checkbox" id="switch" v-model="value" />
     <label for="switch"><slot></slot></label>
   </div>
 </template>
@@ -9,22 +25,18 @@
 label {
   position: relative;
   margin-bottom: 0;
-  vertical-align: top;
-  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+  height: 100%;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-label::before {
-  left: -2.25rem;
-  width: 1.75rem;
-  pointer-events: all;
-  border-radius: 0.5rem;
-  font-size: 23px;
 }
 
 label::before,
@@ -34,25 +46,30 @@ label {
 }
 
 label::before {
-  position: absolute;
-  top: 0.25rem;
-  left: -1.5rem;
   display: block;
   // width: 1rem;
-  height: 1rem;
+  height: 1.5rem;
+  width: 2.5rem;
   pointer-events: none;
   content: '';
-  background-color: #fff;
+  background-color: #333;
+  pointer-events: all;
+  border-radius: 10rem;
+  font-size: 23px;
   border: #adb5bd solid 1px;
 }
 
 label::after {
-  top: calc(0.25rem + 2px);
-  left: calc(-2.25rem + 2px);
-  width: calc(1rem - 4px);
-  height: calc(1rem - 4px);
-  background-color: #adb5bd;
-  border-radius: 0.5rem;
+  position: absolute;
+  display: block;
+  content: '';
+  background: 50% / 50% 50% no-repeat;
+  border: 1px gray solid;
+  left: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: white;
+  border-radius: 3rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
     box-shadow 0.15s ease-in-out, -webkit-transform 0.15s ease-in-out;
   transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out,
@@ -62,31 +79,19 @@ label::after {
     -webkit-transform 0.15s ease-in-out;
 }
 
-label::after {
-  position: absolute;
-  top: 0.25rem;
-  left: -1.5rem;
-  display: block;
-  width: 1rem;
-  height: 1rem;
-  content: '';
-  background: 50% / 50% 50% no-repeat;
-}
-
 input:checked ~ label::after {
   background-color: #fff;
-  -webkit-transform: translateX(0.75rem);
-  transform: translateX(0.75rem);
+  -webkit-transform: translateX(1rem);
+  transform: translateX(1rem);
 }
 
 input:checked ~ label::before {
   color: #fff;
-  border-color: #007bff;
-  background-color: #007bff;
+  border-color: #0077ff;
+  background-color: #0077ff;
 }
 
 input {
-  position: absolute;
   pointer-events: none;
   opacity: 0;
   box-sizing: border-box;
@@ -97,14 +102,14 @@ input {
   font-size: inherit;
   line-height: inherit;
   margin-left: 8px;
+  height: 0;
 }
 
 .switch {
-//   position: absolute;
-  left: 0;
-//   z-index: -1;
-  width: 1rem;
-  height: 1.25rem;
-//   opacity: 0;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
 }
 </style>

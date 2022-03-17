@@ -17,6 +17,8 @@ export async function onBeforeRender(pageContext) {
   // FETCH GAME HERE
 
   const { userId } = pageContext
+  // if (userId === null || userId === undefined) {
+  // }
 
   if (gameId) {
     var dbGame = await db.games.getById(gameId)

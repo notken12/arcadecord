@@ -140,6 +140,7 @@ button {
   text-decoration: none;
   gap: 8px;
   transition: background-color 0.2s, box-shadow 0.2s;
+  width: max-content;
 
   .material-icons {
     font-size: 18px;

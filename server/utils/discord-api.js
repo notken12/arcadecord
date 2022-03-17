@@ -109,6 +109,7 @@ async function fetchUserFromAccessToken(access_token) {
     console.error(
       "TODO: handle case where app is not authorized to access user's @me"
     )
+    return null
   }
 
   var user = await BotApi.fetchUser(id)

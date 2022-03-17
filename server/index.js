@@ -507,6 +507,7 @@ app.use(function (req, res, next) {
 
 // Use controllers to handle requests
 import authController from './controllers/auth.controller.js'
+import signOutController from './controllers/sign-out.controller.js'
 
 app.get('/discord-oauth', (req, res) => {
   res.redirect(
@@ -594,6 +595,8 @@ app.get('/discord-oauth2-invite-bot', (req, res) => {
       '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write'
   )
 })
+
+app.get('/sign-out', signOutController)
 
 import { createPageRenderer } from 'vite-plugin-ssr'
 
