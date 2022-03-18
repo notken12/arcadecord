@@ -11,6 +11,7 @@ export class Table {
   object
   surfaceBody
   cushionBodies
+  holeBodies
 
   constructor(scene, world) {
     const { PLAY_AREA } = Table
@@ -67,8 +68,8 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
-    const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.02 * 2 // cushion length for the short side (x axis)
-    const longCushionLen = PLAY_AREA.LEN_Z / 4 - 0.02 * 4 // cushion length for the long side (z axis)
+    const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.04 // cushion length for the short side (x axis)
+    const longCushionLen = PLAY_AREA.LEN_Z / 4 - 0.04 * 2 // cushion length for the long side (z axis)
 
     this.cushionBodies = [
       new CANNON.Body({
@@ -127,6 +128,44 @@ export class Table {
 
     for (let body of this.cushionBodies) {
       world.addBody(body)
+    }
+
+    let holeOptions = {
+      mass: 0,
+      material: new CANNON.Material({
+        friction: 0.1,
+        restitution: 0.2,
+      }),
+      type: CANNON.Body.KINEMATIC,
+    }
+
+    let s = Math.sqrt(x/2) // width of the hole edges
+    let hl = 0.03; // half length of hole edges
+    let a = longCushionLen - cw / 2 + 0.04;
+    let x = PLAY_AREA.LEN_X / 2 + cw / 2 + hl;
+    let z = a + hl;
+
+    this.holeBodies = [
+      [
+        // bottom left cushion right side (+x+z)
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, 0, s)),
+          position: new CANNON.Vec3(
+            x,
+            0,
+            z
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0)
+        }),
+
+      ]
+    ]
+
+    for (let group of holeBodies) {
+      for (let body of group) {
+        world.addBody(body)
+      }
     }
   }
 }
