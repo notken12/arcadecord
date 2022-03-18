@@ -41,7 +41,7 @@ export default {
       let url =
         this.showedPlayer.discordUser.displayAvatarURL ||
         this.showedPlayer.discordUser.defaultAvatarURL
-      return `${url}?size=64`
+      return `${url}?size=32`
     },
     isMe() {
       if (!this.player.discordUser) {
@@ -119,7 +119,7 @@ export default {
   border-radius: 6px;
   padding: 8px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   box-shadow: theme.$md-elevation-level3;
@@ -131,11 +131,12 @@ export default {
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  font-size: 0.8em;
 }
 
 .player img {
-  width: 56px;
-  height: 56px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   user-select: none;
 }

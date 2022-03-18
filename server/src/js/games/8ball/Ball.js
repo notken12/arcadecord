@@ -49,19 +49,19 @@ export class Ball {
   }
 
   createMesh() {
-    var geometry = new THREE.SphereGeometry(Ball.RADIUS, 8, 8)
+    var geometry = new THREE.SphereGeometry(Ball.RADIUS, 10, 10)
     var material = new THREE.MeshPhongMaterial({
       specular: 0xffffff,
-      shininess: 140,
+      shininess: 100,
       reflectivity: 0.1,
       //envMap: Ball.envMap,
       combine: THREE.AddOperation,
       flatShading: false,
-      color: new THREE.Color(this.color ?? 0xffffff),
+      color: new THREE.Color(this.color ?? 0xff0000),
     })
 
     if (typeof this.texture == 'undefined') {
-      material.color = new THREE.Color(this.color ?? 0xffffff)
+      material.color = new THREE.Color(this.color ?? 0xff0000)
     } else {
       /*textureLoader.load(this.texture, function (tex) {
               material.map = tex;
