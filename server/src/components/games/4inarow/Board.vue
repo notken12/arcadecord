@@ -123,17 +123,22 @@ export default {
   margin: auto;
 }
 .board-back {
-  background-image: url(/dist/assets/4inarow/FullBack.svg);
-  background-size: contain;
+  background-image: url(/dist/assets/4inarow/CellBack.svg);
+  background-size: 14.2857143% 16.6666667%;
+  background-repeat: repeat;
+  -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
   position: absolute;
   width: 100%;
   height: 100%;
 }
 .board-front {
   cursor: pointer;
-  background-image: url(/dist/assets/4inarow/FullFront.svg);
-  background-size: contain;
-  background-color: transparent;
+  background-image: url(/dist/assets/4inarow/CellFront.svg);
+  background-size: 14.2857143% 16.6666667%;
+  background-repeat: repeat;
+  -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
   position: absolute;
