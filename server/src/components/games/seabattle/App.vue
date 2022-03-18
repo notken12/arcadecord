@@ -88,7 +88,7 @@ export default {
       )
     },
     setShips() {
-      this.$runAction('set_ships', {
+      this.$runAction('placeShips', {
         shipPlacementBoard: this.shipPlacementBoard,
       })
       this.$endAnimation(500)
@@ -97,9 +97,8 @@ export default {
       var cell = this.targetedCell
 
       if (cell) {
-        var y = cell.y
-        var x = cell.x
-        this.$runAction('shoot', { y, x })
+        let { row, col } = cell
+        this.$runAction('shoot', { row, col })
         this.targetedCell = null
         this.$endAnimation(1500)
       }

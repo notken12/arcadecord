@@ -26,8 +26,8 @@ class HitBoard {
       for (var col = 0; col < height; col++) {
         this.cells[row][col] = {
           state: Common.BOARD_STATE_EMPTY,
-          x: col,
-          y: row,
+          col,
+          row,
           id: col + '-' + row,
         }
       }
