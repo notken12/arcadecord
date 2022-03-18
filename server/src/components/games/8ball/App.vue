@@ -112,7 +112,7 @@ const initThree = async () => {
   let time = new Date().getTime()
 
   let frames = 0
-  balls[0].body.applyForce(new CANNON.Vec3(0, 0, 30), balls[0].body.position)
+  balls[0].body.applyForce(new CANNON.Vec3(3, 0, 30), balls[0].body.position)
   function animate() {
     requestAnimationFrame(animate)
 
