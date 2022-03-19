@@ -53,8 +53,21 @@ export class CueBall extends Ball {
   }
 }
 
+async function shoot(game, action){
+  let balls = game.data.balls;
+}
+
+function getBalls(game, color, onlyIn){
+  let balls = game.data.balls;
+  let fetchedBalls = balls.filter(ball => ball.color === color && (onlyIn && !ball.out))
+
+  return fetchedBalls;
+}
+
 export default {
   Ball,
   CueBall,
   Table,
+  shoot,
+  getBalls
 }
