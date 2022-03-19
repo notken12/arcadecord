@@ -28,6 +28,8 @@ class EightBallGame extends Game {
 
     this.on('init', Game.eventHandlersDiscord.init)
     this.on('turn', Game.eventHandlersDiscord.turn)
+
+    this.on('shoot', Common.shoot)
   }
 
   onInit(game) {

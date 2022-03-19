@@ -266,4 +266,42 @@ describe('Action: shoot', () => {
     // expect(game.players[1].assignedPattern).toBe
     // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
   })
+
+  test.todo("Lose game if player shoots 8 ball in pocket prematurely", async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    await game.init()
+  })
+
+  test.todo("Win game if 8 ball is shot once all other colors are made.", async() => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    await game.init()
+  })
+
+  test.todo("Lose game if player shoots 8 ball and cue ball in the pocket at the same time", async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    await game.init()
+  })
+
+
 })
