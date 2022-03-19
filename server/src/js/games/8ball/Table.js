@@ -60,8 +60,8 @@ export class Table {
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
 
-    let cw = 0.0254 // cushion thickness (half extent)
-    let ch = 0.05 // cushion height (half extent)
+    let cw = 0.0454 // cushion thickness (half extent)
+    let ch = 0.2 // cushion height (half extent)
 
     let cushionOptions = {
       mass: 0,
@@ -165,9 +165,10 @@ export class Table {
 
     let mct = 0.018161 // middle hole cushion triangle part length
 
-    let mt = Math.tan(mct / (cw * 2)) // middle hole triangle tangent
+    let mt = Math.tan(mct / (0.0254 * 2)) // middle hole triangle tangent
     let ms = 0.0254
     let mbo = 0.145 // middle hole back offset
+    let mtl = 0.0254 // middle hole triangle length
 
     this.holeBodies = [
       [
@@ -343,23 +344,25 @@ export class Table {
         // middle right (+x)
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(mtl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            -cw * 0.5,
-            -longCushionLen - cw * 1.5
+            -mtl * 0.5 + 0.015,
+            -longCushionLen - 0.5 * mtl,
+            1,
+            1
           ),
           quaternion: new CANNON.Quaternion().setFromEuler(0, mt, 0),
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(mtl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            -cw * 0.5,
-            -longCushionLen - cw * 1.5,
+            -mtl * 0.5 + 0.015,
+            -longCushionLen - 0.5 * mtl,
             1,
             -1
           ),
@@ -371,8 +374,8 @@ export class Table {
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            hl,
-            -longCushionLen - cw * 1.5
+            hl + 0.01,
+            -longCushionLen - ms * 1.25
           ),
         }),
         new CANNON.Body({
@@ -381,8 +384,8 @@ export class Table {
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            hl,
-            -longCushionLen - cw * 1.5,
+            hl + 0.01,
+            -longCushionLen - ms * 1.25,
             1,
             -1
           ),
@@ -404,24 +407,25 @@ export class Table {
         // middle left (-x)
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(mtl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            -cw * 0.5,
-            -longCushionLen - cw * 1.5,
-            -1
+            -mtl * 0.5 + 0.015,
+            -longCushionLen - 0.5 * mtl,
+            -1,
+            1
           ),
           quaternion: new CANNON.Quaternion().setFromEuler(0, -mt, 0),
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(mtl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            -cw * 0.5,
-            -longCushionLen - cw * 1.5,
+            -mtl * 0.5 + 0.015,
+            -longCushionLen - 0.5 * mtl,
             -1,
             -1
           ),
@@ -433,8 +437,8 @@ export class Table {
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            hl,
-            -longCushionLen - cw * 1.5,
+            hl + 0.01,
+            -longCushionLen - ms * 1.25,
             -1
           ),
         }),
@@ -444,8 +448,8 @@ export class Table {
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
-            hl,
-            -longCushionLen - cw * 1.5,
+            hl + 0.01,
+            -longCushionLen - ms * 1.25,
             -1,
             -1
           ),

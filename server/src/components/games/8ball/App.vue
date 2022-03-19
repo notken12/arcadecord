@@ -58,11 +58,11 @@ const hitBall = () => {
     force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
     force = new CANNON.Vec3(force.x, force.y, force.z)
     balls[0].body.applyForce(force, cueBall.body.position)
-    simulationRunning.value = true
+    simulationRunning = true
   }
 }
 
-const simulationRunning = ref(false)
+let simulationRunning = false
 
 let scale
 
@@ -134,6 +134,7 @@ const initThree = async () => {
   window.camera = camera
   window.world = world
   window.game = game.value
+  window.balls = balls
 
   function createVector(x, y, z, camera, width, height) {
     var p = new THREE.Vector3(x, y, z)
@@ -180,15 +181,19 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
 
+    ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
+
+    if (simulationRunning) return
+
     let cueBallPos = createVector(
-      cueBall.position.x,
-      cueBall.position.y,
-      cueBall.position.z,
+      cueBall.body.position.x,
+      cueBall.body.position.y,
+      cueBall.body.position.z,
       camera,
       canvas.value.width,
       canvas.value.height
@@ -196,18 +201,13 @@ const initThree = async () => {
 
     let ballDisplayRadius =
       createVector(
-        cueBall.position.x + Ball.RADIUS,
-        cueBall.position.y,
-        cueBall.position.z,
+        cueBall.body.position.x + Ball.RADIUS,
+        cueBall.body.position.y,
+        cueBall.body.position.z,
         camera,
         canvas.value.width,
         canvas.value.height
       ).x - cueBallPos.x
-
-    ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
-
-    ctx.fillStyle = '#000'
-    ctx.fillRect(cueBallPos.x - 2, cueBallPos.y - 2, 4, 4)
 
     ctx.strokeStyle = '#fff'
     ctx.lineWidth = 2
@@ -223,18 +223,25 @@ const initThree = async () => {
     ctx.lineTo(cueBallPos.x + cos * 1000, cueBallPos.y + sin * 1000)
     ctx.stroke()
 
+    ctx.save()
+
     let oppCos = Math.cos(-shotAngle - Math.PI / 2)
     let oppSin = Math.sin(-shotAngle - Math.PI / 2)
+
+    ctx.translate(cueBallPos.x, cueBallPos.y)
+    ctx.rotate(-shotAngle - Math.PI)
 
     if (cueStickImageLoaded) {
       ctx.drawImage(
         cueStickImage,
-        scale * (cueBallPos.x - ballDisplayRadius),
-        scale * (cueBallPos.y - ballDisplayRadius),
+        -(cueStickImage.width / 2) * scale,
+        ballDisplayRadius * 2,
         scale * cueStickImage.width,
         scale * cueStickImage.height
       )
     }
+
+    ctx.restore()
   }
   animate()
 
@@ -301,6 +308,7 @@ onMounted(async () => {
       }
 
       renderer.setSize(newWidth, newHeight)
+      renderer.setPixelRatio(scale)
       controlsCanvas.value.width = newWidth * scale
       controlsCanvas.value.height = newHeight * scale
       controlsCanvas.value.style.width = newWidth + 'px'
@@ -336,7 +344,7 @@ onMounted(async () => {
       //   camera.rotation.setFromVector3(vec)
       // }
 
-      console.log(`resize: ${newWidth} x ${newHeight} ${mode}`)
+      console.log(`resize: ${newWidth} x ${newHeight} ${mode} scale: ${scale}`)
 
       camera.updateProjectionMatrix()
     }
