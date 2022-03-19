@@ -33,12 +33,38 @@ const world = new CANNON.World({
 })
 
 const canvas = ref(null)
+const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 
 let orbitControlsEnabled = true
-let scene, camera, orbitControls, renderer, tableSurfaceBody, table, balls
+let scene,
+  camera,
+  orbitControls,
+  renderer,
+  tableSurfaceBody,
+  table,
+  balls,
+  cueBall
 
 const fps = ref(0)
+
+let shotAngle = 0
+let shotPower = 40
+
+const hitBall = () => {
+  console.log('test hit')
+  if (balls) {
+    let force = new THREE.Vector3(0, 0, shotPower)
+    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
+    force = new CANNON.Vec3(force.x, force.y, force.z)
+    balls[0].body.applyForce(force, cueBall.body.position)
+    simulationRunning.value = true
+  }
+}
+
+const simulationRunning = ref(false)
+
+let scale
 
 const initThree = async () => {
   scene = new THREE.Scene()
@@ -70,8 +96,6 @@ const initThree = async () => {
   )
 
   camera.position.set(0, 2, 0)
-  camera.lookAt(0, 0, 0)
-  camera.updateProjectionMatrix()
 
   const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
   scene.add(light)
@@ -98,10 +122,12 @@ const initThree = async () => {
     balls.push(ball)
   }
 
+  cueBall = balls.find((b) => b.name === 'cueball')
+
   if (orbitControlsEnabled) {
     orbitControls = new OrbitControls(camera, renderer.domElement)
     orbitControls.enableDamping = true
-    orbitControls.dampingFactor = 0.25
+    orbitControls.dampingFactor = 0.1
   }
 
   window.scene = scene
@@ -109,11 +135,32 @@ const initThree = async () => {
   window.world = world
   window.game = game.value
 
+  function createVector(x, y, z, camera, width, height) {
+    var p = new THREE.Vector3(x, y, z)
+    var vector = p.project(camera)
+
+    vector.x = ((vector.x + 1) / 2) * width
+    vector.y = (-(vector.y - 1) / 2) * height
+
+    return vector
+  }
+
   let time = new Date().getTime()
 
   let frames = 0
-  balls[0].body.applyForce(new CANNON.Vec3(3, 0, 30), balls[0].body.position)
+
+  let ctx = controlsCanvas.value.getContext('2d')
+
+  let cueStickImage = new Image()
+  cueStickImage.src = '/dist/assets/8ball/cuestick.svg'
+  let cueStickImageLoaded = false
+
+  cueStickImage.onload = () => {
+    cueStickImageLoaded = true
+  }
+
   function animate() {
+    if (!controlsCanvas.value) return
     requestAnimationFrame(animate)
 
     let deltaTime = (new Date().getTime() - time) / 1000
@@ -133,10 +180,61 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    cannonDebugger.update() // Update the CannonDebugger meshes
+    // cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
+
+    let cueBallPos = createVector(
+      cueBall.position.x,
+      cueBall.position.y,
+      cueBall.position.z,
+      camera,
+      canvas.value.width,
+      canvas.value.height
+    )
+
+    let ballDisplayRadius =
+      createVector(
+        cueBall.position.x + Ball.RADIUS,
+        cueBall.position.y,
+        cueBall.position.z,
+        camera,
+        canvas.value.width,
+        canvas.value.height
+      ).x - cueBallPos.x
+
+    ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
+
+    ctx.fillStyle = '#000'
+    ctx.fillRect(cueBallPos.x - 2, cueBallPos.y - 2, 4, 4)
+
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+
+    let cos = Math.cos(-shotAngle + Math.PI / 2)
+    let sin = Math.sin(-shotAngle + Math.PI / 2)
+
+    ctx.moveTo(
+      cueBallPos.x + cos * ballDisplayRadius,
+      cueBallPos.y + sin * ballDisplayRadius
+    )
+    ctx.lineTo(cueBallPos.x + cos * 1000, cueBallPos.y + sin * 1000)
+    ctx.stroke()
+
+    let oppCos = Math.cos(-shotAngle - Math.PI / 2)
+    let oppSin = Math.sin(-shotAngle - Math.PI / 2)
+
+    if (cueStickImageLoaded) {
+      ctx.drawImage(
+        cueStickImage,
+        scale * (cueBallPos.x - ballDisplayRadius),
+        scale * (cueBallPos.y - ballDisplayRadius),
+        scale * cueStickImage.width,
+        scale * cueStickImage.height
+      )
+    }
   }
   animate()
 
@@ -147,27 +245,120 @@ const initThree = async () => {
 }
 
 onMounted(async () => {
+  scale = window.devicePixelRatio
+
   await initThree()
 
   function resize() {
     if (canvasWrapper.value) {
-      const aspect =
-        canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
-      const frustumSize = 3
+      scale = window.devicePixelRatio
+      //   const aspect =
+      //     canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
+      //   const frustumSize = 3.4
+      //   camera.left = (frustumSize * aspect) / -2
+      //   camera.right = (frustumSize * aspect) / 2
+      //   camera.top = frustumSize / 2
+      //   camera.bottom = frustumSize / -2
+      //   camera.updateProjectionMatrix()
+      //   renderer.setSize(
+      //     canvasWrapper.value.offsetWidth,
+      //     canvasWrapper.value.offsetHeight
+      //   )
+
+      //   controlsCanvas.value.width = canvasWrapper.value.offsetWidth
+      //   controlsCanvas.value.height = canvasWrapper.value.offsetHeight
+
+      var container = canvasWrapper.value
+      const cWidth = container.offsetWidth
+      const cHeight = container.offsetHeight
+
+      var newWidth
+      var newHeight
+
+      var mode = 'portrait'
+
+      if (cWidth > cHeight) {
+        // landscape
+        newHeight = cHeight
+        newWidth = (cHeight * 59) / 103
+
+        var correctionRatio = cHeight / newHeight
+        if (correctionRatio < 1) {
+          newWidth *= correctionRatio
+          newHeight *= correctionRatio
+        }
+        mode = 'landscape'
+      } else {
+        // portrait
+        newHeight = cHeight
+        newWidth = (cHeight * 59) / 103
+
+        var correctionRatio = cWidth / newWidth
+        if (correctionRatio < 1) {
+          newWidth *= correctionRatio
+          newHeight *= correctionRatio
+        }
+      }
+
+      renderer.setSize(newWidth, newHeight)
+      controlsCanvas.value.width = newWidth * scale
+      controlsCanvas.value.height = newHeight * scale
+      controlsCanvas.value.style.width = newWidth + 'px'
+      controlsCanvas.value.style.height = newHeight + 'px'
+
+      var frustumSize = 2.7
+
+      if (mode == 'portrait') {
+        frustumSize = 2.7
+      }
+
+      const aspect = newWidth / newHeight
+
       camera.left = (frustumSize * aspect) / -2
       camera.right = (frustumSize * aspect) / 2
       camera.top = frustumSize / 2
       camera.bottom = frustumSize / -2
+
+      camera.position.set(0, 2, 0)
+      camera.rotation.x = Math.PI / 2
+
+      // let vec = new THREE.Vector3(
+      //   camera.rotation.x,
+      //   camera.rotation.y,
+      //   camera.rotation.z
+      // )
+
+      // if (mode == 'landscape') {
+      //   // object is looking down
+      //   vec.applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI)
+      //   camera.rotation.setFromVector3(vec)
+      // } else {
+      //   camera.rotation.setFromVector3(vec)
+      // }
+
+      console.log(`resize: ${newWidth} x ${newHeight} ${mode}`)
+
       camera.updateProjectionMatrix()
-      renderer.setSize(
-        canvasWrapper.value.offsetWidth,
-        canvasWrapper.value.offsetHeight
-      )
     }
   }
 
   window.addEventListener('resize', resize)
   resize()
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === ' ') {
+      hitBall()
+    }
+  })
+
+  window.addEventListener('keypress', (e) => {
+    if (e.key === 'a') {
+      shotAngle += 0.02
+    }
+    if (e.key === 'd') {
+      shotAngle -= 0.02
+    }
+  })
 })
 </script>
 
@@ -177,22 +368,28 @@ onMounted(async () => {
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
 
-    <div class="middle" ref="canvasWrapper">
+    <div class="middle">
       <!-- Game UI just for 8 ball -->
-      <canvas id="game-canvas" ref="canvas"></canvas>
-      <p style="position: absolute; top: 16px">{{ fps }} fps</p>
+      <div></div>
+      <div class="canvas-wrapper" ref="canvasWrapper">
+        <canvas id="game-canvas" ref="canvas"></canvas>
+        <canvas id="controls-canvas" ref="controlsCanvas"></canvas>
+        <p style="position: absolute; top: 16px">{{ fps }} fps</p>
+      </div>
     </div>
   </game-view>
 </template>
 
 <style>
 .middle {
-  position: absolute;
+  /* position: absolute; */
   z-index: 0;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  display: flex;
+  flex-direction: row;
 }
 
 .drag-surface {
@@ -203,17 +400,24 @@ onMounted(async () => {
   display: none;
 }
 
-.canvas-overlay {
+#controls-canvas {
   position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
+  z-index: 10;
   pointer-events: none;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+#app,
+html {
+  background: #eeeeee;
+}
+
+.canvas-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
 }
 </style>

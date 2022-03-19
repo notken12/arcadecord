@@ -60,7 +60,7 @@ export class Table {
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
 
-    let cw = 0.02 // cushion thickness (half extent)
+    let cw = 0.0254 // cushion thickness (half extent)
     let ch = 0.05 // cushion height (half extent)
 
     let cushionOptions = {
@@ -72,8 +72,8 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
-    const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.04 * 2 // cushion length for the short side (x axis)
-    const longCushionLen = PLAY_AREA.LEN_Z / 4 - 0.04 * 2 // cushion length for the long side (z axis)
+    const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.02 * 4 // cushion length for the short side (x axis)
+    const longCushionLen = PLAY_AREA.LEN_Z / 4 - 0.02 * 4 // cushion length for the long side (z axis)
 
     this.cushionBodies = [
       new CANNON.Body({
@@ -143,6 +143,7 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
+    let hh = 0.1 // half hole height
     let hl = 0.08 // half length of hole edges
     let s = Math.sqrt(cw ** 2 * 2) / 2 // width of the hole edges
 
@@ -162,12 +163,18 @@ export class Table {
     let hbx = PLAY_AREA.LEN_X / 2 + hbo
     let hbz = PLAY_AREA.LEN_Z / 2 + hbo
 
+    let mct = 0.018161 // middle hole cushion triangle part length
+
+    let mt = Math.tan(mct / (cw * 2)) // middle hole triangle tangent
+    let ms = 0.0254
+    let mbo = 0.145 // middle hole back offset
+
     this.holeBodies = [
       [
-        // bottom right cushion (+x+z)
+        // bottom right (+x+z)
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
@@ -178,22 +185,32 @@ export class Table {
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
           position: getPosition(0, PLAY_AREA.LEN_Z / 2, shortCushionLen, cw),
           quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
           position: new CANNON.Vec3(hbx, 0, hbz),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(
+            PLAY_AREA.LEN_X / 2 - s * 2,
+            -hh,
+            PLAY_AREA.LEN_Z / 2 - s * 2
+          ),
           quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
         }),
       ],
       [
-        // bottom left cushion (+x-z)
+        // bottom left (-x+z)
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
           position: getPosition(
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
@@ -205,7 +222,7 @@ export class Table {
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
           position: getPosition(
             0,
             PLAY_AREA.LEN_Z / 2,
@@ -217,9 +234,233 @@ export class Table {
         }),
         new CANNON.Body({
           ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, ch, s)),
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
           position: new CANNON.Vec3(-hbx, 0, hbz),
           quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(
+            -(PLAY_AREA.LEN_X / 2 - s * 2),
+            -hh,
+            PLAY_AREA.LEN_Z / 2 - s * 2
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+      ],
+      [
+        // top right (+x-z)
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            cw,
+            longCushionLen,
+            1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
+          position: getPosition(
+            0,
+            PLAY_AREA.LEN_Z / 2,
+            shortCushionLen,
+            cw,
+            1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(hbx, 0, -hbz),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(
+            PLAY_AREA.LEN_X / 2 - s * 2,
+            -hh,
+            -(PLAY_AREA.LEN_Z / 2 - s * 2)
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+      ],
+      [
+        // top left (-x-z)
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            cw,
+            longCushionLen,
+            -1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, s)),
+          position: getPosition(
+            0,
+            PLAY_AREA.LEN_Z / 2,
+            shortCushionLen,
+            cw,
+            -1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(-hbx, 0, -hbz),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(
+            -(PLAY_AREA.LEN_X / 2 - s * 2),
+            -hh,
+            -(PLAY_AREA.LEN_Z / 2 - s * 2)
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        }),
+      ],
+      [
+        // middle right (+x)
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            -cw * 0.5,
+            -longCushionLen - cw * 1.5
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, mt, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            -cw * 0.5,
+            -longCushionLen - cw * 1.5,
+            1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -mt, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, ms)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            hl,
+            -longCushionLen - cw * 1.5
+          ),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, ms)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            hl,
+            -longCushionLen - cw * 1.5,
+            1,
+            -1
+          ),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, ms)),
+          position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 + mbo, 0, 0),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2, -hh, 0),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
+        }),
+      ],
+      [
+        // middle left (-x)
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            -cw * 0.5,
+            -longCushionLen - cw * 1.5,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, -mt, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(cw, hh, s)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            -cw * 0.5,
+            -longCushionLen - cw * 1.5,
+            -1,
+            -1
+          ),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, mt, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, ms)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            hl,
+            -longCushionLen - cw * 1.5,
+            -1
+          ),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hl, hh, ms)),
+          position: getPosition(
+            PLAY_AREA.LEN_X / 2,
+            PLAY_AREA.LEN_Z / 4,
+            hl,
+            -longCushionLen - cw * 1.5,
+            -1,
+            -1
+          ),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, ms)),
+          position: new CANNON.Vec3(-(PLAY_AREA.LEN_X / 2 + mbo), 0, 0),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
+        }),
+        new CANNON.Body({
+          ...holeOptions,
+          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+          position: new CANNON.Vec3(-PLAY_AREA.LEN_X / 2, -hh, 0),
+          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
         }),
       ],
     ]

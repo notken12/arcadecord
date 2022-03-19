@@ -29,7 +29,7 @@ class Ball {
     this.name = name ?? this.name
     this.quaternion = quaternion ?? this.quaternion
     this.out = out ?? this.out
-    this.color = color ?? 0xffffff
+    this.color = color ?? 0xff0000
   }
 }
 
