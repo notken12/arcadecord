@@ -84,7 +84,7 @@ const fps = ref(0)
 let shotAngle = 0
 let shotPower = 0
 
-let maxShotPower = 40
+let maxShotPower = 0.4
 
 const hitBall = () => {
   if (balls) {
@@ -92,10 +92,8 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
-    let force = new THREE.Vector3(0, 0, shotPower * maxShotPower)
-    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
-    force = new CANNON.Vec3(force.x, force.y, force.z)
-    balls[0].body.applyForce(force /* , cueBall.body.position */)
+    cueBall.hit(shotPower, shotAngle, { x: 0, y: 0 })
+
     simulationRunningRef.value = true
     shotPower = 0
   }

@@ -130,4 +130,14 @@ export class Ball {
       this.body.quaternion.w
     )
   }
+
+  hit(power, angle, spin /* Vector2 */) {
+    let force = new THREE.Vector3(0, 0, power)
+    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+    force = new CANNON.Vec3(force.x, force.y, force.z)
+
+    let point = new THREE.Vector3(spin.x, spin.y, 0)
+    point.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+    this.body.applyImpulse(force, point)
+  }
 }
