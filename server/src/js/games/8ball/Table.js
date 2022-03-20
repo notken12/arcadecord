@@ -44,7 +44,7 @@ export class Table {
     this.surfaceBody = new CANNON.Body({
       mass: 0,
       material: new CANNON.Material({
-        friction: 0.2,
+        // friction: 0.9,
         restitution: 0.5,
       }),
       shape: new CANNON.Box(
@@ -54,7 +54,7 @@ export class Table {
           PLAY_AREA.LEN_Z / 2 - Common.Ball.RADIUS
         )
       ),
-      type: CANNON.Body.KINEMATIC,
+      // type: CANNON.Body.KINEMATIC,
     })
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
@@ -65,7 +65,7 @@ export class Table {
     let cushionOptions = {
       mass: 0,
       material: new CANNON.Material({
-        friction: 0.1,
+        // friction: 0.1,
         restitution: 0.75,
       }),
       type: CANNON.Body.KINEMATIC,
@@ -195,16 +195,17 @@ export class Table {
           position: new CANNON.Vec3(hbx, 0, hbz),
           quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
         }),
-        new CANNON.Body({
-          ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(
-            PLAY_AREA.LEN_X / 2 - s * 2,
-            -hh,
-            PLAY_AREA.LEN_Z / 2 - s * 2
-          ),
-          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
-        }),
+        // extend table surface to hole
+        // new CANNON.Body({
+        //   ...holeOptions,
+        //   shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+        //   position: new CANNON.Vec3(
+        //     PLAY_AREA.LEN_X / 2 - s * 2,
+        //     -hh,
+        //     PLAY_AREA.LEN_Z / 2 - s * 2
+        //   ),
+        //   quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        // }),
       ],
       [
         // bottom left (-x+z)
@@ -238,16 +239,17 @@ export class Table {
           position: new CANNON.Vec3(-hbx, 0, hbz),
           quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
         }),
-        new CANNON.Body({
-          ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(
-            -(PLAY_AREA.LEN_X / 2 - s * 2),
-            -hh,
-            PLAY_AREA.LEN_Z / 2 - s * 2
-          ),
-          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
-        }),
+        // extend table surface to hole
+        // new CANNON.Body({
+        //   ...holeOptions,
+        //   shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+        //   position: new CANNON.Vec3(
+        //     -(PLAY_AREA.LEN_X / 2 - s * 2),
+        //     -hh,
+        //     PLAY_AREA.LEN_Z / 2 - s * 2
+        //   ),
+        //   quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        // }),
       ],
       [
         // top right (+x-z)
@@ -283,16 +285,17 @@ export class Table {
           position: new CANNON.Vec3(hbx, 0, -hbz),
           quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
         }),
-        new CANNON.Body({
-          ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(
-            PLAY_AREA.LEN_X / 2 - s * 2,
-            -hh,
-            -(PLAY_AREA.LEN_Z / 2 - s * 2)
-          ),
-          quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
-        }),
+        // extend table surface to hole
+        // new CANNON.Body({
+        //   ...holeOptions,
+        //   shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+        //   position: new CANNON.Vec3(
+        //     PLAY_AREA.LEN_X / 2 - s * 2,
+        //     -hh,
+        //     -(PLAY_AREA.LEN_Z / 2 - s * 2)
+        //   ),
+        //   quaternion: new CANNON.Quaternion().setFromEuler(0, -Math.PI / 4, 0),
+        // }),
       ],
       [
         // top left (-x-z)
@@ -328,16 +331,17 @@ export class Table {
           position: new CANNON.Vec3(-hbx, 0, -hbz),
           quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
         }),
-        new CANNON.Body({
-          ...holeOptions,
-          shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(
-            -(PLAY_AREA.LEN_X / 2 - s * 2),
-            -hh,
-            -(PLAY_AREA.LEN_Z / 2 - s * 2)
-          ),
-          quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
-        }),
+        // extend table surface to hole
+        // new CANNON.Body({
+        //   ...holeOptions,
+        //   shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
+        //   position: new CANNON.Vec3(
+        //     -(PLAY_AREA.LEN_X / 2 - s * 2),
+        //     -hh,
+        //     -(PLAY_AREA.LEN_Z / 2 - s * 2)
+        //   ),
+        //   quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 4, 0),
+        // }),
       ],
       [
         // middle right (+x)
@@ -398,7 +402,7 @@ export class Table {
         new CANNON.Body({
           ...holeOptions,
           shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2, -hh, 0),
+          position: new CANNON.Vec3(PLAY_AREA.LEN_X / 2 - 0.01, -hh, 0),
           quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
         }),
       ],
@@ -462,7 +466,7 @@ export class Table {
         new CANNON.Body({
           ...holeOptions,
           shape: new CANNON.Box(new CANNON.Vec3(hbl, hh, s)),
-          position: new CANNON.Vec3(-PLAY_AREA.LEN_X / 2, -hh, 0),
+          position: new CANNON.Vec3(-PLAY_AREA.LEN_X / 2 + 0.01, -hh, 0),
           quaternion: new CANNON.Quaternion().setFromEuler(0, Math.PI / 2, 0),
         }),
       ],

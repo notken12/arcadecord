@@ -35,7 +35,7 @@ let hint = computed(() => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
-world.solver.iterations = 10
+world.solver.iterations = 20
 world.solver.tolerance = 0 // Force solver to use all iterations
 world.allowSleep = true
 
@@ -74,7 +74,7 @@ const hitBall = () => {
     let force = new THREE.Vector3(0, 0, shotPower * maxShotPower)
     force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
     force = new CANNON.Vec3(force.x, force.y, force.z)
-    balls[0].body.applyForce(force, cueBall.body.position)
+    balls[0].body.applyForce(force /* , cueBall.body.position */)
     simulationRunningRef.value = true
     shotPower = 0
   }
@@ -273,7 +273,7 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)

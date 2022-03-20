@@ -89,22 +89,17 @@ export class Ball {
     let body = new CANNON.Body({
       mass: Ball.MASS,
       material: new CANNON.Material({
-        friction: 0.05,
+        friction: 0.3,
         restitution: 0.8,
       }),
       shape: new CANNON.Sphere(Ball.RADIUS),
-      linearDamping: 0.5,
-      angularDamping: 0.5,
-      allowSleep: true,
-      sleepSpeedLimit: 0.5, // Ball will get sleepy if its speed is < 0.5
-      sleepSpeedLimit: 1, // Fall asleep after 1s of sleepiness
     })
 
-    body.sleepSpeedLimit = 0.025
+    body.sleepSpeedLimit = 0.05
     body.sleepTimeLimit = 0.01
     body.allowSleep = true
-    body.linearDamping = 0.5
-    body.angularDamping = 0.5
+    body.linearDamping = 0.3
+    body.angularDamping = 0.3
 
     body.position.set(this.position.x, this.position.y, this.position.z)
     body.quaternion.set(
