@@ -35,6 +35,9 @@ let hint = computed(() => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
+world.solver.iterations = 10
+world.solver.tolerance = 0 // Force solver to use all iterations
+world.allowSleep = true
 
 const canvas = ref(null)
 const controlsCanvas = ref(null)
@@ -73,6 +76,7 @@ const hitBall = () => {
     force = new CANNON.Vec3(force.x, force.y, force.z)
     balls[0].body.applyForce(force, cueBall.body.position)
     simulationRunningRef.value = true
+    shotPower = 0
   }
 }
 
@@ -235,29 +239,33 @@ const initThree = async () => {
         balls[i].update()
       }
 
-      let allAtRest = true
+      if (simulationRunning) {
+        let allAtRest = true
 
-      for (let ball of balls) {
-        if (ball.body.position.y < -0.3) {
-          if (ball.body.type === CANNON.Body.STATIC) {
-            continue
+        for (let ball of balls) {
+          if (ball.body.position.y < -0.3) {
+            if (ball.body.type === CANNON.Body.STATIC) {
+              continue
+            }
+
+            ball.body.position.y = -0.3
+            ball.body.velocity.set(0, 0, 0)
+            ball.body.angularVelocity.set(0, 0, 0)
+            ball.body.type = CANNON.Body.STATIC
+            ball.body.mass = 0
+            ball.body.sleep()
+          } else if (
+            ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING
+          ) {
+            allAtRest = false
+            break
           }
-
-          ball.body.position.y = -0.3
-          ball.body.velocity.set(0, 0, 0)
-          ball.body.angularVelocity.set(0, 0, 0)
-          ball.body.type = CANNON.Body.STATIC
-          ball.body.mass = 0
-          ball.body.sleep()
-        } else if (ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING) {
-          allAtRest = false
-          break
         }
-      }
 
-      if (allAtRest) {
-        console.log('all balls at rest')
-        simulationRunningRef.value = false
+        if (allAtRest) {
+          // RUN ACTION HERE
+          simulationRunningRef.value = false
+        }
       }
     }
 
@@ -272,7 +280,7 @@ const initThree = async () => {
 
     ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
 
-    if (simulationRunning) return
+    // if (simulationRunning) return
 
     let cueBallPos = createVector(
       cueBall.body.position.x,
@@ -472,7 +480,11 @@ onMounted(async () => {
       </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
         <canvas id="game-canvas" ref="canvas"></canvas>
-        <canvas id="controls-canvas" ref="controlsCanvas"></canvas>
+        <canvas
+          id="controls-canvas"
+          ref="controlsCanvas"
+          :class="{ hidden: simulationRunningRef }"
+        ></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
         <div id="spinner" ref="spinner"></div>
       </div>
@@ -507,6 +519,7 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   cursor: grab;
+  transition: opacity 0.3s;
 }
 
 #app,
@@ -532,16 +545,16 @@ html {
   z-index: 12;
 }
 
-.controls-wrapper.hidden {
+.controls-wrapper.hidden,
+#controls-canvas.hidden {
   opacity: 0;
   pointer-events: none;
 }
 
 #spinner {
-  width: 30vw;
-  height: 30vh;
+  width: 300vw;
+  height: 300vh;
   position: absolute;
   z-index: 11;
-  background: #00000033;
 }
 </style>

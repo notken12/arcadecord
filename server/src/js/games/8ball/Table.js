@@ -142,7 +142,7 @@ export class Table {
       type: CANNON.Body.KINEMATIC,
     }
 
-    let hh = 0.1 // half hole height
+    let hh = 0.5 // half hole height
     let hl = 0.08 // half length of hole edges
     let s = Math.sqrt(cw ** 2 * 2) / 2 // width of the hole edges
 
