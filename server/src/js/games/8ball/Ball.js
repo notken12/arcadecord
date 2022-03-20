@@ -132,12 +132,16 @@ export class Ball {
   }
 
   hit(power, angle, spin /* Vector2 */) {
+    console.log(
+      `hit with power ${power} angle ${angle} spin ${JSON.stringify(spin)}`
+    )
     let force = new THREE.Vector3(0, 0, power)
     force.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
     force = new CANNON.Vec3(force.x, force.y, force.z)
 
-    let point = new THREE.Vector3(spin.x, spin.y, 0)
+    let point = new THREE.Vector3(spin.x * Ball.RADIUS, spin.y * Ball.RADIUS, 0)
     point.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+
     this.body.applyImpulse(force, point)
   }
 }

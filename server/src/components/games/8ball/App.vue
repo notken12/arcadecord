@@ -1,4 +1,7 @@
 <script setup>
+import PowerControl from './PowerControl.vue'
+import SpinControl from './SpinControl.vue'
+
 import { useFacade } from 'components/base-ui/facade'
 import { computed, ref, onMounted, watch } from 'vue'
 
@@ -12,7 +15,6 @@ import { Ball } from '@app/js/games/8ball/Ball'
 import { Table } from '@app/js/games/8ball/Table'
 
 import CannonDebugger from 'cannon-es-debugger'
-import PowerControl from './PowerControl.vue'
 
 import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable'
@@ -83,6 +85,7 @@ const fps = ref(0)
 
 let shotAngle = 0
 let shotPower = 0
+let shotSpin = { x: 0, y: 0 }
 
 let maxShotPower = 0.4
 
@@ -92,7 +95,7 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
-    cueBall.hit(shotPower, shotAngle, { x: 0, y: 0 })
+    cueBall.hit(shotPower, shotAngle, shotSpin)
 
     simulationRunningRef.value = true
     shotPower = 0
@@ -101,6 +104,10 @@ const hitBall = () => {
 
 const changeShotPower = (power) => {
   shotPower = power
+}
+
+const changeShotSpin = (spin) => {
+  shotSpin = spin
 }
 
 let simulationRunningRef = ref(false)
@@ -389,21 +396,6 @@ onMounted(async () => {
   function resize() {
     if (canvasWrapper.value) {
       scale = window.devicePixelRatio
-      //   const aspect =
-      //     canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
-      //   const frustumSize = 3.4
-      //   camera.left = (frustumSize * aspect) / -2
-      //   camera.right = (frustumSize * aspect) / 2
-      //   camera.top = frustumSize / 2
-      //   camera.bottom = frustumSize / -2
-      //   camera.updateProjectionMatrix()
-      //   renderer.setSize(
-      //     canvasWrapper.value.offsetWidth,
-      //     canvasWrapper.value.offsetHeight
-      //   )
-
-      //   controlsCanvas.value.width = canvasWrapper.value.offsetWidth
-      //   controlsCanvas.value.height = canvasWrapper.value.offsetHeight
 
       var container = canvasWrapper.value
       const cWidth = container.offsetWidth
@@ -497,6 +489,7 @@ onMounted(async () => {
     <div class="middle">
       <!-- Game UI just for 8 ball -->
       <div class="controls-wrapper" :class="{ hidden: simulationRunningRef }">
+        <SpinControl @spinchange="changeShotSpin($event)" />
         <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
       </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
@@ -562,8 +555,10 @@ html {
   align-items: center;
   padding: 16px;
   transition: opacity 0.2s;
-  position: relative;
+  /* position: relative; */
   z-index: 12;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .controls-wrapper.hidden,
