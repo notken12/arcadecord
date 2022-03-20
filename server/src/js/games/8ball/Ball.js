@@ -5,6 +5,7 @@ import Common from '/gamecommons/8ball'
 export class Ball {
   static RADIUS = Common.Ball.RADIUS // m
   static MASS = Common.Ball.MASS // kg
+  static CONTACT_MATERIAL = new CANNON.Material('ballMaterial')
 
   scene
   world
@@ -88,14 +89,11 @@ export class Ball {
   createBody() {
     let body = new CANNON.Body({
       mass: Ball.MASS,
-      material: new CANNON.Material({
-        friction: 0.3,
-        restitution: 0.8,
-      }),
+      material: Ball.CONTACT_MATERIAL,
       shape: new CANNON.Sphere(Ball.RADIUS),
     })
 
-    body.sleepSpeedLimit = 0.05
+    body.sleepSpeedLimit = 0.15
     body.sleepTimeLimit = 0.01
     body.allowSleep = true
     body.linearDamping = 0.3
@@ -114,6 +112,12 @@ export class Ball {
   }
 
   update() {
+    if (this.body.position.y > Ball.RADIUS) {
+      this.body.position.y = Ball.RADIUS
+    }
+    if (this.body.velocity.y > 0) {
+      this.body.velocity.y = 0
+    }
     this.mesh.position.set(
       this.body.position.x,
       this.body.position.y,

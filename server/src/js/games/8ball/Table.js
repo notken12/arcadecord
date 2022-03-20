@@ -5,6 +5,8 @@ import Common from '/gamecommons/8ball'
 
 export class Table {
   static PLAY_AREA = Common.Table.PLAY_AREA
+  static FLOOR_CONTACT_MATERIAL = new CANNON.Material('floorMaterial')
+  static WALL_CONTACT_MATERIAL = new CANNON.Material('wallMaterial')
 
   scene
   world
@@ -43,10 +45,7 @@ export class Table {
     })
     this.surfaceBody = new CANNON.Body({
       mass: 0,
-      material: new CANNON.Material({
-        // friction: 0.9,
-        restitution: 0.5,
-      }),
+      material: Table.FLOOR_CONTACT_MATERIAL,
       shape: new CANNON.Box(
         new CANNON.Vec3(
           PLAY_AREA.LEN_X / 2 - Common.Ball.RADIUS,
@@ -64,10 +63,7 @@ export class Table {
 
     let cushionOptions = {
       mass: 0,
-      material: new CANNON.Material({
-        // friction: 0.1,
-        restitution: 0.75,
-      }),
+      material: Table.WALL_CONTACT_MATERIAL,
       type: CANNON.Body.KINEMATIC,
     }
 
@@ -135,10 +131,7 @@ export class Table {
 
     let holeOptions = {
       mass: 0,
-      material: new CANNON.Material({
-        friction: 0.1,
-        restitution: 0.2,
-      }),
+      material: Table.WALL_CONTACT_MATERIAL,
       type: CANNON.Body.KINEMATIC,
     }
 

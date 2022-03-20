@@ -35,9 +35,29 @@ let hint = computed(() => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
-world.solver.iterations = 20
+world.solver.iterations = 10
 world.solver.tolerance = 0 // Force solver to use all iterations
 world.allowSleep = true
+
+function setCollisionBehavior() {
+  world.defaultContactMaterial.friction = 0.1
+  world.defaultContactMaterial.restitution = 0.85
+
+  var ball_floor = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Table.FLOOR_CONTACT_MATERIAL,
+    { friction: 0.7, restitution: 0.1 }
+  )
+
+  var ball_wall = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Table.WALL_CONTACT_MATERIAL,
+    { friction: 0.5, restitution: 0.9 }
+  )
+
+  world.addContactMaterial(ball_floor)
+  world.addContactMaterial(ball_wall)
+}
 
 const canvas = ref(null)
 const controlsCanvas = ref(null)
@@ -45,6 +65,7 @@ const canvasWrapper = ref(null)
 const spinner = ref(null)
 
 let orbitControlsEnabled = false
+let cannonDebuggerEnabled = false
 let scene,
   camera,
   orbitControls,
@@ -130,6 +151,8 @@ function createVector(x, y, z, camera, width, height) {
 }
 
 const initThree = async () => {
+  setCollisionBehavior()
+
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xeeeeee)
   const aspect =
@@ -273,7 +296,7 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    cannonDebugger.update() // Update the CannonDebugger meshes
+    if (cannonDebuggerEnabled) cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
