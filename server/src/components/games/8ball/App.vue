@@ -1,6 +1,6 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 
 import * as THREE from 'three'
 
@@ -13,6 +13,9 @@ import { Table } from '@app/js/games/8ball/Table'
 
 import CannonDebugger from 'cannon-es-debugger'
 import PowerControl from './PowerControl.vue'
+
+import gsap from 'gsap'
+import { Draggable } from 'gsap/dist/Draggable'
 
 const {
   game,
@@ -36,6 +39,7 @@ const world = new CANNON.World({
 const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
+const spinner = ref(null)
 
 let orbitControlsEnabled = false
 let scene,
@@ -52,22 +56,71 @@ let scene,
 const fps = ref(0)
 
 let shotAngle = 0
-let shotPower = 40
+let shotPower = 0
+
+let maxShotPower = 40
 
 const hitBall = () => {
-  console.log('test hit')
   if (balls) {
-    let force = new THREE.Vector3(0, 0, shotPower)
+    console.log('Shot power: ' + shotPower)
+    if (shotPower < 0.05) {
+      return
+    }
+    let force = new THREE.Vector3(0, 0, shotPower * maxShotPower)
     force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
     force = new CANNON.Vec3(force.x, force.y, force.z)
     balls[0].body.applyForce(force, cueBall.body.position)
-    simulationRunning = true
+    simulationRunningRef.value = true
   }
 }
 
+const changeShotPower = (power) => {
+  shotPower = power
+}
+
+let simulationRunningRef = ref(false)
 let simulationRunning = false
 
+watch(simulationRunningRef, (newValue) => {
+  simulationRunning = newValue
+  if (newValue === false) {
+    updateSpinner()
+    spinnerDraggable.enable()
+  } else {
+    spinnerDraggable.disable()
+  }
+})
+
 let scale
+
+const updateSpinner = () => {
+  let cbbox = canvas.value.getBoundingClientRect() // canvas bounding box
+  let sbbox = spinner.value.getBoundingClientRect() // spinner bounding box
+  let cueBallPos = createVector(
+    cueBall.body.position.x,
+    cueBall.body.position.y,
+    cueBall.body.position.z,
+    camera,
+    canvas.value.width,
+    canvas.value.height
+  )
+
+  gsap.to(spinner.value, {
+    duration: 0,
+    left: cueBallPos.x / scale + cbbox.left - sbbox.width / 2 + 'px',
+    top: cueBallPos.y / scale + cbbox.top - sbbox.height / 2 + 'px',
+  })
+}
+
+function createVector(x, y, z, camera, width, height) {
+  var p = new THREE.Vector3(x, y, z)
+  var vector = p.project(camera)
+
+  vector.x = ((vector.x + 1) / 2) * width
+  vector.y = (-(vector.y - 1) / 2) * height
+
+  return vector
+}
 
 const initThree = async () => {
   scene = new THREE.Scene()
@@ -139,16 +192,6 @@ const initThree = async () => {
   window.game = game.value
   window.balls = balls
 
-  function createVector(x, y, z, camera, width, height) {
-    var p = new THREE.Vector3(x, y, z)
-    var vector = p.project(camera)
-
-    vector.x = ((vector.x + 1) / 2) * width
-    vector.y = (-(vector.y - 1) / 2) * height
-
-    return vector
-  }
-
   let time = new Date().getTime()
 
   let frames = 0
@@ -163,12 +206,21 @@ const initThree = async () => {
     cueStickImageLoaded = true
   }
 
+  const timeStep = 1 / 60 // seconds
+  let lastCallTime
+
   function animate() {
     if (!controlsCanvas.value) return
     requestAnimationFrame(animate)
 
-    let deltaTime = (new Date().getTime() - time) / 1000
-    time = new Date().getTime()
+    const time = performance.now() / 1000 // seconds
+    if (!lastCallTime) {
+      world.step(timeStep)
+    } else {
+      const dt = time - lastCallTime
+      world.step(timeStep, dt)
+    }
+    lastCallTime = time
 
     frames++
 
@@ -202,15 +254,18 @@ const initThree = async () => {
       canvas.value.height
     )
 
-    let ballDisplayRadius =
-      createVector(
-        cueBall.body.position.x + Ball.RADIUS,
-        cueBall.body.position.y,
-        cueBall.body.position.z,
-        camera,
-        canvas.value.width,
-        canvas.value.height
-      ).x - cueBallPos.x
+    let offsetVector = createVector(
+      cueBall.body.position.x + Ball.RADIUS,
+      cueBall.body.position.y,
+      cueBall.body.position.z + Ball.RADIUS,
+      camera,
+      canvas.value.width,
+      canvas.value.height
+    )
+    let ballDisplayRadius = Math.max(
+      offsetVector.x - cueBallPos.x,
+      offsetVector.y - cueBallPos.y
+    )
 
     ctx.strokeStyle = '#fff'
     ctx.lineWidth = 2
@@ -240,7 +295,8 @@ const initThree = async () => {
       ctx.drawImage(
         cueStickImage,
         -(cueStickImage.width / 2) * scale,
-        ballDisplayRadius * 2,
+        ballDisplayRadius * 2 +
+          shotPower * Math.max(canvas.value.width, canvas.value.height) * 0.2,
         scale * cueStickImage.width,
         scale * cueStickImage.height
       )
@@ -256,10 +312,21 @@ const initThree = async () => {
   }, 1000)
 }
 
+let spinnerDraggable
+
 onMounted(async () => {
+  gsap.registerPlugin(Draggable)
   scale = window.devicePixelRatio
 
   await initThree()
+
+  spinnerDraggable = Draggable.create(spinner.value, {
+    type: 'rotation',
+    inertia: true,
+    onDrag: function () {
+      shotAngle = -this.rotation * (Math.PI / 180)
+    },
+  })[0]
 
   function resize() {
     if (canvasWrapper.value) {
@@ -352,27 +419,14 @@ onMounted(async () => {
 
       console.log(`resize: ${newWidth} x ${newHeight} ${mode} scale: ${scale}`)
 
+      setTimeout(updateSpinner, 0)
+
       camera.updateProjectionMatrix()
     }
   }
 
   window.addEventListener('resize', resize)
   resize()
-
-  window.addEventListener('keyup', (e) => {
-    if (e.key === ' ') {
-      hitBall()
-    }
-  })
-
-  window.addEventListener('keypress', (e) => {
-    if (e.key === 'a') {
-      shotAngle += 0.02
-    }
-    if (e.key === 'd') {
-      shotAngle -= 0.02
-    }
-  })
 })
 </script>
 
@@ -384,13 +438,14 @@ onMounted(async () => {
 
     <div class="middle">
       <!-- Game UI just for 8 ball -->
-      <div class="controls-wrapper">
-        <PowerControl />
+      <div class="controls-wrapper" :class="{ hidden: simulationRunningRef }">
+        <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
       </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
         <canvas id="game-canvas" ref="canvas"></canvas>
         <canvas id="controls-canvas" ref="controlsCanvas"></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
+        <div id="spinner" ref="spinner"></div>
       </div>
     </div>
   </game-view>
@@ -419,10 +474,10 @@ onMounted(async () => {
 #controls-canvas {
   position: absolute;
   z-index: 10;
-  pointer-events: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: grab;
 }
 
 #app,
@@ -443,5 +498,20 @@ html {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
+  transition: opacity 0.2s;
+  position: relative;
+  z-index: 12;
+}
+
+.controls-wrapper.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#spinner {
+  width: 300vw;
+  height: 300vh;
+  position: absolute;
+  z-index: 11;
 }
 </style>

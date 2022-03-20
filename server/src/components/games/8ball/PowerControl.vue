@@ -4,12 +4,13 @@ import { Draggable } from 'gsap/dist/Draggable.js'
 
 import { onMounted, ref } from 'vue'
 
-const emit = defineEmits(['hit'])
+const emit = defineEmits(['hit', 'powerchange'])
 
 const el = ref(null)
 const stick = ref(null)
 
 let isPointerDown = false
+let stickHeight
 
 function pointerDown(e) {
   let { clientX: x, clientY: y } = e.touches?.[0] || e
@@ -27,6 +28,7 @@ function pointerMove(e) {
   if (offset < 0) {
     offset = 0
   }
+
   stick.value.style.transform = `translateY(${offset}px)`
 }
 
@@ -70,7 +72,14 @@ onMounted(() => {
       })
       this.update()
     },
+    onDrag: function () {
+      emit('powerchange', this.y / height)
+    },
   })
+})
+
+onMounted(() => {
+  stickHeight = stick.value.getBoundingClientRect().height
 })
 </script>
 

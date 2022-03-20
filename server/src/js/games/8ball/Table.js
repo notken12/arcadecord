@@ -24,7 +24,6 @@ export class Table {
     const loader = new GLTFLoader()
     loader.load('/dist/assets/8ball/table.glb', (gltf) => {
       tableObject = new THREE.Group()
-      console.log('tableObject added')
 
       const meshes = gltf.scene.children.filter((child) => {
         return child.type == 'Mesh'
@@ -375,7 +374,7 @@ export class Table {
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
             hl + 0.01,
-            -longCushionLen - ms * 1.25
+            -longCushionLen - ms * 0.9
           ),
         }),
         new CANNON.Body({
@@ -385,7 +384,7 @@ export class Table {
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
             hl + 0.01,
-            -longCushionLen - ms * 1.25,
+            -longCushionLen - ms * 0.9,
             1,
             -1
           ),
@@ -438,7 +437,7 @@ export class Table {
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
             hl + 0.01,
-            -longCushionLen - ms * 1.25,
+            -longCushionLen - ms * 0.9,
             -1
           ),
         }),
@@ -449,7 +448,7 @@ export class Table {
             PLAY_AREA.LEN_X / 2,
             PLAY_AREA.LEN_Z / 4,
             hl + 0.01,
-            -longCushionLen - ms * 1.25,
+            -longCushionLen - ms * 0.9,
             -1,
             -1
           ),
