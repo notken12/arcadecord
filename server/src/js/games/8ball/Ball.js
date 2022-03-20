@@ -98,8 +98,9 @@ export class Ball {
       angularDamping: 0.5,
       allowSleep: true,
       sleepSpeedLimit: 0.5, // Ball will get sleepy if its speed is < 0.5
-      sleepSpeedLimit: 0.1, // Fall asleep after 1s of sleepiness
+      sleepSpeedLimit: 1, // Fall asleep after 1s of sleepiness
     })
+
     body.position.set(this.position.x, this.position.y, this.position.z)
     body.quaternion.set(
       this.quaternion.x,

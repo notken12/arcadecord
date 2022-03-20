@@ -58,8 +58,8 @@ const stateSchema = {
             type: 'boolean',
           },
           color: {
-            type: ['number', 'null']
-          }
+            type: ['number', 'null'],
+          },
         },
       },
       minItems: 16,
@@ -79,7 +79,7 @@ const stateSchema = {
         },
       },
       maxItems: 2,
-      minItems: 2
+      minItems: 2,
     },
   },
   required: ['balls', 'players'],
@@ -136,13 +136,14 @@ describe('Action: shoot', () => {
     let missedShot = new Action('shoot', {
       angle: Math.PI / 2, // radians, for UI
       force: 10, // for UI
-      newBallStates: {
-        10: {
+      newBallStates: [
+        {
+          name: '10ball',
           position: newPosition,
           quaternion: newQuaternion,
         },
         // in the real game, provide new ball positions for all balls
-      },
+      ],
     })
 
     // Run the actions
@@ -187,14 +188,15 @@ describe('Action: shoot', () => {
     let missedShot = new Action('shoot', {
       angle: Math.PI / 2, // radians, for UI
       force: 10, // for UI
-      newBallStates: {
-        10: {
+      newBallStates: [
+        {
+          name: '10ball',
           position: newPosition,
           quaternion: newQuaternion,
           out: true,
         },
         // in the real game, provide new ball positions for all balls
-      },
+      ],
     })
 
     // Run the actions
@@ -239,14 +241,15 @@ describe('Action: shoot', () => {
     let shot = new Action('shoot', {
       angle: Math.PI / 2, // radians, for UI
       force: 10, // for UI
-      newBallStates: {
-        10: {
+      newBallStates: [
+        {
+          name: '10ball',
           position: newPosition,
           quaternion: newQuaternion,
           out: true,
         },
         // in the real game, provide new ball positions for all balls
-      },
+      ],
     })
 
     // Run the actions
@@ -267,41 +270,48 @@ describe('Action: shoot', () => {
     // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
   })
 
-  test.todo("Lose game if player shoots 8 ball in pocket prematurely", async () => {
-    // Create a new game
-    let game = new main.Game()
-    // Activate testing mode
-    game.test()
-    // Add fake players
-    game.mockPlayers(2)
+  test.todo(
+    'Lose game if player shoots 8 ball in pocket prematurely',
+    async () => {
+      // Create a new game
+      let game = new main.Game()
+      // Activate testing mode
+      game.test()
+      // Add fake players
+      game.mockPlayers(2)
 
-    // Initialize the game
-    await game.init()
-  })
+      // Initialize the game
+      await game.init()
+    }
+  )
 
-  test.todo("Win game if 8 ball is shot once all other colors are made.", async() => {
-    // Create a new game
-    let game = new main.Game()
-    // Activate testing mode
-    game.test()
-    // Add fake players
-    game.mockPlayers(2)
+  test.todo(
+    'Win game if 8 ball is shot once all other colors are made.',
+    async () => {
+      // Create a new game
+      let game = new main.Game()
+      // Activate testing mode
+      game.test()
+      // Add fake players
+      game.mockPlayers(2)
 
-    // Initialize the game
-    await game.init()
-  })
+      // Initialize the game
+      await game.init()
+    }
+  )
 
-  test.todo("Lose game if player shoots 8 ball and cue ball in the pocket at the same time", async () => {
-    // Create a new game
-    let game = new main.Game()
-    // Activate testing mode
-    game.test()
-    // Add fake players
-    game.mockPlayers(2)
+  test.todo(
+    'Lose game if player shoots 8 ball and cue ball in the pocket at the same time',
+    async () => {
+      // Create a new game
+      let game = new main.Game()
+      // Activate testing mode
+      game.test()
+      // Add fake players
+      game.mockPlayers(2)
 
-    // Initialize the game
-    await game.init()
-  })
-
-
+      // Initialize the game
+      await game.init()
+    }
+  )
 })

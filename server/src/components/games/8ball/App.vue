@@ -53,6 +53,8 @@ let scene,
   mode,
   ctx
 
+let newBallStates = []
+
 const fps = ref(0)
 
 let shotAngle = 0
@@ -84,7 +86,7 @@ let simulationRunning = false
 watch(simulationRunningRef, (newValue) => {
   simulationRunning = newValue
   if (newValue === false) {
-    updateSpinner()
+    setTimeout(updateSpinner, 0)
     spinnerDraggable.enable()
   } else {
     spinnerDraggable.disable()
@@ -95,7 +97,6 @@ let scale
 
 const updateSpinner = () => {
   let cbbox = canvas.value.getBoundingClientRect() // canvas bounding box
-  let sbbox = spinner.value.getBoundingClientRect() // spinner bounding box
   let cueBallPos = createVector(
     cueBall.body.position.x,
     cueBall.body.position.y,
@@ -107,8 +108,10 @@ const updateSpinner = () => {
 
   gsap.to(spinner.value, {
     duration: 0,
-    left: cueBallPos.x / scale + cbbox.left - sbbox.width / 2 + 'px',
-    top: cueBallPos.y / scale + cbbox.top - sbbox.height / 2 + 'px',
+    left:
+      cueBallPos.x / scale + cbbox.left - spinner.value.offsetWidth / 2 + 'px',
+    top:
+      cueBallPos.y / scale + cbbox.top - spinner.value.offsetHeight / 2 + 'px',
   })
 }
 
@@ -214,10 +217,11 @@ const initThree = async () => {
     requestAnimationFrame(animate)
 
     const time = performance.now() / 1000 // seconds
+    let dt
     if (!lastCallTime) {
       world.step(timeStep)
     } else {
-      const dt = time - lastCallTime
+      dt = time - lastCallTime
       world.step(timeStep, dt)
     }
     lastCallTime = time
@@ -229,6 +233,31 @@ const initThree = async () => {
 
       for (let i = 0; i < balls.length; i++) {
         balls[i].update()
+      }
+
+      let allAtRest = true
+
+      for (let ball of balls) {
+        if (ball.body.position.y < -0.3) {
+          if (ball.body.type === CANNON.Body.STATIC) {
+            continue
+          }
+
+          ball.body.position.y = -0.3
+          ball.body.velocity.set(0, 0, 0)
+          ball.body.angularVelocity.set(0, 0, 0)
+          ball.body.type = CANNON.Body.STATIC
+          ball.body.mass = 0
+          ball.body.sleep()
+        } else if (ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING) {
+          allAtRest = false
+          break
+        }
+      }
+
+      if (allAtRest) {
+        console.log('all balls at rest')
+        simulationRunningRef.value = false
       }
     }
 
@@ -268,7 +297,7 @@ const initThree = async () => {
     )
 
     ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 2
+    ctx.lineWidth = 1 * scale
     ctx.beginPath()
 
     let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
@@ -509,9 +538,10 @@ html {
 }
 
 #spinner {
-  width: 300vw;
-  height: 300vh;
+  width: 30vw;
+  height: 30vh;
   position: absolute;
   z-index: 11;
+  background: #00000033;
 }
 </style>
