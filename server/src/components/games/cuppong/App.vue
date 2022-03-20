@@ -117,7 +117,7 @@ let scene,
   ballObject,
   ballBody
 
-let orbitControlsEnabled = true
+let orbitControlsEnabled = false
 
 const cupObjects = {}
 const cupBodies = {}

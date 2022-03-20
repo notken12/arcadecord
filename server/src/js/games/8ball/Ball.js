@@ -89,7 +89,7 @@ export class Ball {
     let body = new CANNON.Body({
       mass: Ball.MASS,
       material: new CANNON.Material({
-        friction: 0.06,
+        friction: 0.05,
         restitution: 0.93,
       }),
       shape: new CANNON.Sphere(Ball.RADIUS),

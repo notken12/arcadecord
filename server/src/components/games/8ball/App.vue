@@ -12,6 +12,7 @@ import { Ball } from '@app/js/games/8ball/Ball'
 import { Table } from '@app/js/games/8ball/Table'
 
 import CannonDebugger from 'cannon-es-debugger'
+import PowerControl from './PowerControl.vue'
 
 const {
   game,
@@ -36,7 +37,7 @@ const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 
-let orbitControlsEnabled = true
+let orbitControlsEnabled = false
 let scene,
   camera,
   orbitControls,
@@ -44,7 +45,9 @@ let scene,
   tableSurfaceBody,
   table,
   balls,
-  cueBall
+  cueBall,
+  mode,
+  ctx
 
 const fps = ref(0)
 
@@ -150,7 +153,7 @@ const initThree = async () => {
 
   let frames = 0
 
-  let ctx = controlsCanvas.value.getContext('2d')
+  ctx = controlsCanvas.value.getContext('2d')
 
   let cueStickImage = new Image()
   cueStickImage.src = '/dist/assets/8ball/cuestick.svg'
@@ -181,7 +184,7 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    cannonDebugger.update() // Update the CannonDebugger meshes
+    // cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
@@ -213,8 +216,10 @@ const initThree = async () => {
     ctx.lineWidth = 2
     ctx.beginPath()
 
-    let cos = Math.cos(-shotAngle + Math.PI / 2)
-    let sin = Math.sin(-shotAngle + Math.PI / 2)
+    let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+    let cos = Math.cos(angle + Math.PI / 2)
+    let sin = Math.sin(angle + Math.PI / 2)
 
     ctx.moveTo(
       cueBallPos.x + cos * ballDisplayRadius,
@@ -225,10 +230,10 @@ const initThree = async () => {
 
     ctx.save()
 
-    let oppCos = Math.cos(-shotAngle - Math.PI / 2)
-    let oppSin = Math.sin(-shotAngle - Math.PI / 2)
-
     ctx.translate(cueBallPos.x, cueBallPos.y)
+    if (mode == 'landscape') {
+      ctx.rotate(Math.PI / 2)
+    }
     ctx.rotate(-shotAngle - Math.PI)
 
     if (cueStickImageLoaded) {
@@ -282,12 +287,14 @@ onMounted(async () => {
       var newWidth
       var newHeight
 
-      var mode = 'portrait'
+      mode = 'portrait'
+
+      let maxWidth = 900
 
       if (cWidth > cHeight) {
         // landscape
-        newHeight = cHeight
-        newWidth = (cHeight * 59) / 103
+        newWidth = Math.min(cWidth, maxWidth)
+        newHeight = (newWidth * 59) / 103
 
         var correctionRatio = cHeight / newHeight
         if (correctionRatio < 1) {
@@ -314,7 +321,7 @@ onMounted(async () => {
       controlsCanvas.value.style.width = newWidth + 'px'
       controlsCanvas.value.style.height = newHeight + 'px'
 
-      var frustumSize = 2.7
+      var frustumSize = 1.55
 
       if (mode == 'portrait') {
         frustumSize = 2.7
@@ -328,7 +335,7 @@ onMounted(async () => {
       camera.bottom = frustumSize / -2
 
       camera.position.set(0, 2, 0)
-      camera.rotation.x = Math.PI / 2
+      camera.lookAt(new THREE.Vector3(0, 0, 0))
 
       // let vec = new THREE.Vector3(
       //   camera.rotation.x,
@@ -336,13 +343,12 @@ onMounted(async () => {
       //   camera.rotation.z
       // )
 
-      // if (mode == 'landscape') {
-      //   // object is looking down
-      //   vec.applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI)
-      //   camera.rotation.setFromVector3(vec)
-      // } else {
-      //   camera.rotation.setFromVector3(vec)
-      // }
+      if (mode == 'landscape') {
+        camera.rotation.x = -Math.PI / 2
+        camera.rotation.z = Math.PI / 2
+      } else {
+        camera.rotation.z = 0
+      }
 
       console.log(`resize: ${newWidth} x ${newHeight} ${mode} scale: ${scale}`)
 
@@ -378,7 +384,9 @@ onMounted(async () => {
 
     <div class="middle">
       <!-- Game UI just for 8 ball -->
-      <div></div>
+      <div class="controls-wrapper">
+        <PowerControl />
+      </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
         <canvas id="game-canvas" ref="canvas"></canvas>
         <canvas id="controls-canvas" ref="controlsCanvas"></canvas>
@@ -427,5 +435,13 @@ html {
   height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
 }
 </style>

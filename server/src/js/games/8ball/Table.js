@@ -45,7 +45,7 @@ export class Table {
     this.surfaceBody = new CANNON.Body({
       mass: 0,
       material: new CANNON.Material({
-        friction: 0.5,
+        friction: 0.2,
         restitution: 0.5,
       }),
       shape: new CANNON.Box(
