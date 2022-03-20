@@ -70,6 +70,7 @@ function pointerDown(e) {
 }
 
 function pointerMove(e) {
+  e.preventDefault()
   if (!isPointerDown) return
   let { clientX: x, clientY: y } = e.touches?.[0] || e
   let offsetX =
@@ -98,31 +99,9 @@ function pointerMove(e) {
 }
 
 function pointerUp(e) {
+  e.preventDefault()
   isPointerDown = false
   let { clientX: x, clientY: y } = e.touches?.[0] || e
-  let offsetX =
-    x - circle.value.getBoundingClientRect().left - circle.value.clientWidth / 2
-  let offsetY =
-    y - circle.value.getBoundingClientRect().top - circle.value.clientHeight / 2
-
-  let distFromCenter = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2))
-
-  let point = {
-    x: offsetX,
-    y: offsetY,
-  }
-
-  if (distFromCenter > 40) {
-    point = {
-      x: Math.cos(Math.atan2(offsetY, offsetX)) * 40,
-      y: Math.sin(Math.atan2(offsetY, offsetX)) * 40,
-    }
-  }
-  gsap.to(dot.value, {
-    duration: 0,
-    x: point.x,
-    y: point.y,
-  })
 
   spin.x = point.x
   spin.y = point.y
