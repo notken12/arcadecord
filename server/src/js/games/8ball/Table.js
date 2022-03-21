@@ -7,6 +7,28 @@ export class Table {
   static PLAY_AREA = Common.Table.PLAY_AREA
   static FLOOR_CONTACT_MATERIAL = new CANNON.Material('floorMaterial')
   static WALL_CONTACT_MATERIAL = new CANNON.Material('wallMaterial')
+  static WALL_LINES = [
+    [
+      // top
+      { x: -Table.PLAY_AREA.LEN_X / 2, y: -Table.PLAY_AREA.LEN_Z / 2 },
+      { x: Table.PLAY_AREA.LEN_X / 2, y: -Table.PLAY_AREA.LEN_Z / 2 },
+    ],
+    [
+      // bottom
+      { x: -Table.PLAY_AREA.LEN_X / 2, y: Table.PLAY_AREA.LEN_Z / 2 },
+      { x: Table.PLAY_AREA.LEN_X / 2, y: Table.PLAY_AREA.LEN_Z / 2 },
+    ],
+    [
+      // left
+      { x: -Table.PLAY_AREA.LEN_X / 2, y: -Table.PLAY_AREA.LEN_Z / 2 },
+      { x: -Table.PLAY_AREA.LEN_X / 2, y: Table.PLAY_AREA.LEN_Z / 2 },
+    ],
+    [
+      // right
+      { x: Table.PLAY_AREA.LEN_X / 2, y: -Table.PLAY_AREA.LEN_Z / 2 },
+      { x: Table.PLAY_AREA.LEN_X / 2, y: Table.PLAY_AREA.LEN_Z / 2 },
+    ],
+  ]
 
   scene
   world
