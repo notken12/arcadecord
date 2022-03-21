@@ -79,7 +79,7 @@ class EightBallGame extends Game {
         chosenPocket: null,
       },
     ]
-
+    game.data.cueFoul = false;
     return game
   }
 }

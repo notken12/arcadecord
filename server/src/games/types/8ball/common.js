@@ -23,13 +23,14 @@ class Ball {
   color
 
   constructor(x, y, z, name, quaternion, out, color) {
-    this.position.x = x ?? this.position.x
-    this.position.y = y ?? this.position.y
-    this.position.z = z ?? this.position.z
-    this.name = name ?? this.name
-    this.quaternion = quaternion ?? this.quaternion
-    this.out = out ?? this.out
-    this.color = color ?? 0xff0000
+    this.position.x = x ?? this.position.x;
+    this.position.y = y ?? this.position.y;
+    this.position.z = z ?? this.position.z;
+    this.name = name ?? this.name;
+    this.quaternion = quaternion ?? this.quaternion;
+    this.out = out ?? this.out;
+    this.color = color ?? 0xff0000;
+    this.pocket = undefined;
   }
 }
 
@@ -42,7 +43,8 @@ export class CueBall extends Ball {
       'cueball',
       undefined,
       undefined,
-      0xffffff
+      0xffffff,
+      undefined
     )
   }
 
@@ -54,12 +56,62 @@ export class CueBall extends Ball {
 }
 
 async function shoot(game, action){
-  let balls = game.data.balls;
+  game.data.balls = action.data.balls;
+
+  let ball8 = game.data.balls.find(ball => ball.name === "8ball")
+  let cueball = game.data.balls.find(ball => ball.name === "cueball")
+  let myInBalls = getBalls(game, game.turn, true);
+  let allMyBalls = getBalls(game, game.turn, false);
+
+  if(game.data.cueFoul) game.data.cueFoul = false
+
+  if(ball8.out){
+    if(cueball.out){
+      await GameFlow.end(game, {
+        winner:[1, 0][game.turn]
+      })
+      return game;
+    } else if(myInBalls.length == 0){
+      if(ball8.pocket == game.data.players[game.turn].chosenPocket){
+      await GameFlow.end(game, {
+        winner:game.turn
+      })
+      return game;
+    } else {
+      await GameFlow.end(game, {
+        winner:[1,0][game.turn]
+      })
+      return game
+    }
+    } else {
+      await GameFlow.end(game, {
+        winner:[1,0][game.turn]
+      })
+      return game;
+    }
+  }
+
+  if(cueball.out){
+    game.data.cueFoul = true;
+    await GameFlow.endTurn(game)
+    return game
+  }
+
+
 }
 
 function getBalls(game, color, onlyIn){
   let balls = game.data.balls;
-  let fetchedBalls = balls.filter(ball => ball.color === color && (onlyIn && !ball.out))
+  function ballFilter(ball){
+    if(ball.color == color){
+      if(onlyIn){
+        if(!ball.out) return true
+        return false;
+      }
+      return true;
+    }
+  }
+  let fetchedBalls = balls.filter(ballFilter)
 
   return fetchedBalls;
 }
