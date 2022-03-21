@@ -85,32 +85,39 @@ export function getCollisionLocation2Balls(ball1, ball2, vec) {
   let dx = cx - bx
   let dy = cy - by
 
+  // return null if the vector is not pointing towards the ball1
+  if (vtheta < 0 && vtheta > -Math.PI) {
+    return null
+  }
+
   let d = Math.sqrt(dx * dx + dy * dy)
 
   let dtheta = Math.atan2(dy, dx)
 
-  let theta = vtheta - dtheta
+  let theta = Math.abs(vtheta - dtheta)
 
-  let a = d * Math.sin(theta)
-  if (a > Ball.RADIUS) {
+  let a = Math.abs(d * Math.sin(theta))
+  if (a > Ball.RADIUS * 2) {
     return null
   }
 
   let b = Math.sqrt((2 * Ball.RADIUS) ** 2 - a ** 2)
 
-  let ivec = {
-    x: vx * -1,
-    y: vy * -1,
-  }
-  let ivectheta = Math.atan2(ivec.y, ivec.x)
+  let i1 = { x: bx - vy * 100, y: by + vx * 100 }
+  let i2 = { x: bx + vy * 100, y: by - vx * 100 }
+  let i3 = { x: cx - vx * 100, y: cy - vy * 100 }
+  let i4 = { x: cx + vx * 100, y: cy + vy * 100 }
+  let i = calculateIntersection(i1, i2, i3, i4)
 
-  let ix = b * Math.cos(ivectheta)
-  let iy = b * Math.sin(ivectheta)
+  let ox = -b * Math.cos(vtheta)
+  let oy = -b * Math.sin(vtheta)
 
   return {
-    x: bx + ix,
-    y: by + iy,
-    d: d,
+    x: i.x + ox,
+    y: i.y + oy,
+    // d: Math.sqrt((cx - (i.x + ox)) ** 2 + (cy - (i.y + oy)) ** 2),
+    d: Math.sqrt((cx - bx) ** 2 + (cy - by) ** 2),
+    ball: ball1,
   }
 }
 
@@ -124,27 +131,60 @@ export function getCollisionLocationBallLine(line, ball, vec) {
     },
     {
       x: ball.body.position.x + vec.x * 100,
-      y: ball.body.position.z + vec.y * 100,
+      y: ball.body.position.z + vec.z * 100,
     }
   )
-
-  let vec1 = {
-    x: vec.x * -1,
-    y: vec.y * -1,
+  if (i == null) {
+    return null
   }
-  let vec1theta = Math.atan2(vec1.y, vec1.x)
 
-  let dx = Ball.RADIUS * 2 * Math.cos(vec1theta)
-  let dy = Ball.RADIUS * 2 * Math.sin(vec1theta)
+  let vtheta = Math.atan2(vec.z, vec.x)
+
+  // incorrect
+  let dx = Ball.RADIUS * 2 * Math.cos(vtheta)
+  let dz = Ball.RADIUS * 2 * Math.sin(vtheta)
 
   let p = {
-    x: i.x + dx,
-    y: i.y + dy,
+    x: i.x,
+    y: i.y,
   }
 
   return p
 }
 
-export function getCollisionLocation(ball, vec) {
-  let walls = Table.PLAY_AREA.WALL_LINES
+export function getCollisionLocation(balls, ball, vec) {
+  let locations = []
+
+  for (let b of balls) {
+    if (b.name == ball.name) {
+      continue
+    }
+
+    let p = getCollisionLocation2Balls(b, ball, vec)
+    if (p != null) {
+      locations.push(p)
+    }
+  }
+
+  if (locations.length == 0) {
+    let walls = Table.WALL_LINES
+
+    for (let w of walls) {
+      let p = getCollisionLocationBallLine(w, ball, vec)
+      if (p != null) {
+        return p
+      }
+    }
+  } else {
+    let min = locations[0]
+    for (let l of locations) {
+      if (l.d < min.d) {
+        min = l
+      }
+    }
+    return min
+  }
+
+  // shouldn't happen
+  throw new Error('no collision location found')
 }

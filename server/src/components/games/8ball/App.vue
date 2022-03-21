@@ -19,6 +19,8 @@ import CannonDebugger from 'cannon-es-debugger'
 import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable'
 
+import { getCollisionLocation } from '@app/js/games/8ball/utils'
+
 const {
   game,
   me,
@@ -332,14 +334,40 @@ const initThree = async () => {
       offsetVector.y - cueBallPos.y
     )
 
-    ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 1 * scale
-    ctx.beginPath()
-
     let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
 
     let cos = Math.cos(angle + Math.PI / 2)
     let sin = Math.sin(angle + Math.PI / 2)
+
+    let vec = { x: cos, z: sin }
+    if (mode == 'landscape') {
+      let tx = vec.x + 0
+      let tz = vec.z + 0
+      vec.x = tx * Math.cos(Math.PI / -2) - tz * Math.sin(Math.PI / -2)
+      vec.z = tx * Math.sin(Math.PI / -2) + tz * Math.cos(Math.PI / -2)
+    }
+
+    let collision = getCollisionLocation(balls, cueBall, vec)
+    collision = createVector(
+      collision.x,
+      Ball.RADIUS,
+      collision.y,
+      camera,
+      canvas.value.width,
+      canvas.value.height
+    )
+
+    ctx.beginPath()
+    ctx.arc(collision.x, collision.y, ballDisplayRadius, 0, 2 * Math.PI, false)
+    // ctx.fillStyle = 'green'
+    // ctx.fill()
+    ctx.lineWidth = 1 * scale
+    ctx.strokeStyle = '#ffffff'
+    ctx.stroke()
+
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 1 * scale
+    ctx.beginPath()
 
     ctx.moveTo(
       cueBallPos.x + cos * ballDisplayRadius,
