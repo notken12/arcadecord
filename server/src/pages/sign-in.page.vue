@@ -2,7 +2,7 @@
   <div id="right-side">
     <img
       id="connect-svg"
-      src="@app/ui-images/connect-discord.svg"
+      src="/ui-images/connect-discord.svg"
       draggable="false"
     />
   </div>
