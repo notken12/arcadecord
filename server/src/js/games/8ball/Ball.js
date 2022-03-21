@@ -5,6 +5,7 @@ import Common from '/gamecommons/8ball'
 export class Ball {
   static RADIUS = Common.Ball.RADIUS // m
   static MASS = Common.Ball.MASS // kg
+  static CONTACT_MATERIAL = new CANNON.Material('ballMaterial')
 
   scene
   world
@@ -88,23 +89,15 @@ export class Ball {
   createBody() {
     let body = new CANNON.Body({
       mass: Ball.MASS,
-      material: new CANNON.Material({
-        friction: 0.05,
-        restitution: 0.8,
-      }),
+      material: Ball.CONTACT_MATERIAL,
       shape: new CANNON.Sphere(Ball.RADIUS),
-      linearDamping: 0.5,
-      angularDamping: 0.5,
-      allowSleep: true,
-      sleepSpeedLimit: 0.5, // Ball will get sleepy if its speed is < 0.5
-      sleepSpeedLimit: 1, // Fall asleep after 1s of sleepiness
     })
 
-    body.sleepSpeedLimit = 0.025
+    body.sleepSpeedLimit = 0.15
     body.sleepTimeLimit = 0.01
     body.allowSleep = true
-    body.linearDamping = 0.5
-    body.angularDamping = 0.5
+    body.linearDamping = 0.3
+    body.angularDamping = 0.3
 
     body.position.set(this.position.x, this.position.y, this.position.z)
     body.quaternion.set(
@@ -119,6 +112,12 @@ export class Ball {
   }
 
   update() {
+    if (this.body.position.y > Ball.RADIUS) {
+      this.body.position.y = Ball.RADIUS
+    }
+    if (this.body.velocity.y > 0) {
+      this.body.velocity.y = 0
+    }
     this.mesh.position.set(
       this.body.position.x,
       this.body.position.y,
@@ -130,5 +129,19 @@ export class Ball {
       this.body.quaternion.z,
       this.body.quaternion.w
     )
+  }
+
+  hit(power, angle, spin /* Vector2 */) {
+    console.log(
+      `hit with power ${power} angle ${angle} spin ${JSON.stringify(spin)}`
+    )
+    let force = new THREE.Vector3(0, 0, power)
+    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+    force = new CANNON.Vec3(force.x, force.y, force.z)
+
+    let point = new THREE.Vector3(spin.x * Ball.RADIUS, spin.y * Ball.RADIUS, 0)
+    point.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+
+    this.body.applyImpulse(force, point)
   }
 }

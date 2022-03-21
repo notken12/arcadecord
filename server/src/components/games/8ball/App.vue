@@ -1,4 +1,7 @@
 <script setup>
+import PowerControl from './PowerControl.vue'
+import SpinControl from './SpinControl.vue'
+
 import { useFacade } from 'components/base-ui/facade'
 import { computed, ref, onMounted, watch } from 'vue'
 
@@ -12,7 +15,6 @@ import { Ball } from '@app/js/games/8ball/Ball'
 import { Table } from '@app/js/games/8ball/Table'
 
 import CannonDebugger from 'cannon-es-debugger'
-import PowerControl from './PowerControl.vue'
 
 import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable'
@@ -39,12 +41,33 @@ world.solver.iterations = 10
 world.solver.tolerance = 0 // Force solver to use all iterations
 world.allowSleep = true
 
+function setCollisionBehavior() {
+  world.defaultContactMaterial.friction = 0.1
+  world.defaultContactMaterial.restitution = 0.85
+
+  var ball_floor = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Table.FLOOR_CONTACT_MATERIAL,
+    { friction: 0.7, restitution: 0.1 }
+  )
+
+  var ball_wall = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Table.WALL_CONTACT_MATERIAL,
+    { friction: 0.5, restitution: 0.9 }
+  )
+
+  world.addContactMaterial(ball_floor)
+  world.addContactMaterial(ball_wall)
+}
+
 const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 const spinner = ref(null)
 
 let orbitControlsEnabled = false
+let cannonDebuggerEnabled = false
 let scene,
   camera,
   orbitControls,
@@ -62,8 +85,9 @@ const fps = ref(0)
 
 let shotAngle = 0
 let shotPower = 0
+let shotSpin = { x: 0, y: 0 }
 
-let maxShotPower = 40
+let maxShotPower = 0.4
 
 const hitBall = () => {
   if (balls) {
@@ -71,10 +95,8 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
-    let force = new THREE.Vector3(0, 0, shotPower * maxShotPower)
-    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), shotAngle)
-    force = new CANNON.Vec3(force.x, force.y, force.z)
-    balls[0].body.applyForce(force, cueBall.body.position)
+    cueBall.hit(shotPower, shotAngle, shotSpin)
+
     simulationRunningRef.value = true
     shotPower = 0
   }
@@ -82,6 +104,10 @@ const hitBall = () => {
 
 const changeShotPower = (power) => {
   shotPower = power
+}
+
+const changeShotSpin = (spin) => {
+  shotSpin = spin
 }
 
 let simulationRunningRef = ref(false)
@@ -130,6 +156,8 @@ function createVector(x, y, z, camera, width, height) {
 }
 
 const initThree = async () => {
+  setCollisionBehavior()
+
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xeeeeee)
   const aspect =
@@ -273,7 +301,7 @@ const initThree = async () => {
       orbitControls.update()
     }
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    if (cannonDebuggerEnabled) cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
@@ -368,21 +396,6 @@ onMounted(async () => {
   function resize() {
     if (canvasWrapper.value) {
       scale = window.devicePixelRatio
-      //   const aspect =
-      //     canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
-      //   const frustumSize = 3.4
-      //   camera.left = (frustumSize * aspect) / -2
-      //   camera.right = (frustumSize * aspect) / 2
-      //   camera.top = frustumSize / 2
-      //   camera.bottom = frustumSize / -2
-      //   camera.updateProjectionMatrix()
-      //   renderer.setSize(
-      //     canvasWrapper.value.offsetWidth,
-      //     canvasWrapper.value.offsetHeight
-      //   )
-
-      //   controlsCanvas.value.width = canvasWrapper.value.offsetWidth
-      //   controlsCanvas.value.height = canvasWrapper.value.offsetHeight
 
       var container = canvasWrapper.value
       const cWidth = container.offsetWidth
@@ -476,6 +489,7 @@ onMounted(async () => {
     <div class="middle">
       <!-- Game UI just for 8 ball -->
       <div class="controls-wrapper" :class="{ hidden: simulationRunningRef }">
+        <SpinControl @spinchange="changeShotSpin($event)" />
         <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
       </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
@@ -541,8 +555,10 @@ html {
   align-items: center;
   padding: 16px;
   transition: opacity 0.2s;
-  position: relative;
+  /* position: relative; */
   z-index: 12;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .controls-wrapper.hidden,
