@@ -1,53 +1,52 @@
 <template>
-  <div class="board">
+  <div class="board" ref="el">
     <div v-for="row in board.cells" :key="board.cells.indexOf(row)" class="row">
-      <cell
+      <Cell
         v-for="cell in row"
         :key="cell.row + '-' + cell.col"
         :board="board"
         :cell="cell"
         :isblob="isCellBlob(cell)"
-      ></cell>
+      ></Cell>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import Cell from './Cell.vue'
 import Common from '/gamecommons/filler'
 import GameFlow from '@app/js/GameFlow.js'
+import { useFacade } from '@app/components/base-ui/facade'
+import { computed, ref } from 'vue'
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
 
-export default {
-  data() {
-    return {}
-  },
-  components: {
-    Cell,
-  },
-  computed: {
-    playerBlob() {
-      return Common.Board.getPlayerBlob(this.board, this.game.myIndex)
-    },
-    board() {
-      return this.game.data.board
-    },
-  },
-  methods: {
-    isCellBlob(cell) {
-      if (!GameFlow.isItMyTurn(this.game)) return false
-      for (let coord of this.playerBlob) {
-        if (cell.row === coord.row && cell.col === coord.col) {
-          return true
-        }
-      }
-      return false
-    },
-  },
+const el = ref(null)
+
+const { game } = useFacade()
+
+const board = computed(() => {
+  return game.value.data.board
+})
+
+useAspectRatio(game.value.data.board.width / game.value.data.board.height, el)
+
+const playerBlob = computed(() => {
+  return Common.Board.getPlayerBlob(board.value, game.value.myIndex)
+})
+
+const isCellBlob = (cell) => {
+  if (!GameFlow.isItMyTurn(game.value)) return false
+  for (let coord of playerBlob.value) {
+    if (cell.row === coord.row && cell.col === coord.col) {
+      return true
+    }
+  }
+  return false
 }
 </script>
 
 <style lang="scss">
-@use '../../../scss/base/_theme.scss' as theme;
+@use 'scss/base/theme' as theme;
 
 $gap: 0px;
 
@@ -56,11 +55,15 @@ $gap: 0px;
   flex-direction: column;
   gap: $gap;
   box-shadow: theme.$md-elevation-level4;
+  max-width: 400px;
+  max-height: 350px;
 }
 
 .row {
   display: flex;
   flex-direction: row;
   gap: $gap;
+  height: 100%;
+  width: 100%;
 }
 </style>

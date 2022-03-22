@@ -1,50 +1,49 @@
 <template>
-  <div class="ratio vertical">
-    <canvas width="350" height="300"></canvas>
-    <div>
-      <div
-        class="ratio horizontal"
-        style="position: relative"
-        @changeColumn="changeColumn($event)"
-      >
-        <canvas width="350" height="300"></canvas>
-        <div class="board-front">
-          <ColumnOverlay
-            v-for="col in board.width"
+  <div class="board-wrapper">
+    <div class="board" ref="el">
+      <div class="board-front">
+        <ColumnOverlay
+          v-for="col in board.width"
+          :selectedColumn="selectedColumn"
+          :column="col - 1"
+          :key="col"
+        ></ColumnOverlay>
+      </div>
+      <div class="board-back">
+        <TransitionGroup
+          name="piecedrop"
+          @enter="animatePiece"
+          @appear="updatePiecePos"
+        >
+          <Piece
+            v-for="piece in board.pieces"
+            :piece="piece"
+            :data-row="piece.row"
+            :data-column="piece.column"
+            :key="`${piece.row},${piece.column}`"
+          ></Piece>
+        </TransitionGroup>
+        <Transition name="fade">
+          <OverPiece
+            v-if="selectedColumn !== null"
             :selectedColumn="selectedColumn"
-            :column="col - 1"
-            :key="col"
-          ></ColumnOverlay>
-        </div>
-        <div class="board-back">
-          <TransitionGroup
-            name="piecedrop"
-            @enter="animatePiece"
-            @appear="updatePiecePos"
-          >
-            <Piece
-              v-for="piece in board.pieces"
-              :piece="piece"
-              :data-row="piece.row"
-              :data-column="piece.column"
-              :key="`${piece.row},${piece.column}`"
-            ></Piece>
-          </TransitionGroup>
-          <Transition name="fade">
-            <OverPiece
-              v-if="selectedColumn !== null"
-              :selectedColumn="selectedColumn"
-            ></OverPiece
-          ></Transition>
-        </div>
+          ></OverPiece
+        ></Transition>
       </div>
     </div>
   </div>
-  <DropButton
-    v-if="buttonShowing"
-    :selectedColumn="selectedColumn"
-  ></DropButton>
+  <div>
+    <DropButton :selectedColumn="selectedColumn"></DropButton>
+  </div>
 </template>
+
+<script setup>
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
+import { ref } from 'vue'
+
+const el = ref(null)
+useAspectRatio(7 / 7.5, el)
+</script>
 
 <script>
 import gsap from 'gsap'
@@ -119,18 +118,34 @@ export default {
 
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
+.board-wrapper {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.board {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
 .overUI {
   margin: auto;
 }
 .board-back {
-  background-image: url(/assets/4inarow/CellBack.svg);
-  background-size: 14.2857143% 16.6666667%;
+  background-image: url(/assets/4inarow/FullBack.svg);
+  background-size: contain;
   background-repeat: repeat;
   -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
   filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
-  position: absolute;
   width: 100%;
-  height: 100%;
+  height: 80%;
+  position: absolute;
+  bottom: 0;
 }
 .board-front {
   cursor: pointer;
@@ -141,16 +156,12 @@ export default {
   filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
   box-shadow: theme.$md-elevation-level5;
   box-sizing: border-box;
-  position: absolute;
   width: 100%;
-  height: 100%;
+  height: 80%;
   z-index: 1;
   display: flex;
-}
-
-.ratio.vertical,
-.ratio.vertical > canvas {
-  max-width: 500px;
+  position: absolute;
+  bottom: 0;
 }
 
 .piecedrop-enter-active {

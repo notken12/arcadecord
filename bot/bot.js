@@ -69,13 +69,16 @@ client.sendStartMessage = async function (g) {
   })
 
   if (game.invitedUsers.length > 0) {
+    // embed.setDescription(
+    //   `${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`
+    // )
     embed.setDescription(
-      `${game.description}\n\n<@${gameCreator.discordUser.id}> invited you to this game!`
+      `<@${gameCreator.discordUser.id}> invited you to this game!`
     )
   } else {
-    embed.setDescription(
-      `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
-    )
+    // embed.setDescription(
+    //   `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
+    // )
   }
 
   if (content.length > 0) {
@@ -138,6 +141,7 @@ client.sendTurnInvite = async function (g) {
   await channel.send(m)
 
   let invite = await getInviteMessage(game)
+  invite.embeds[0].setTitle(`${game.emoji || ''} ${game.name}`)
   invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`
 
   var embed = invite.embeds[0]
@@ -151,8 +155,8 @@ client.sendTurnInvite = async function (g) {
 
 async function getInviteMessage(game) {
   var embed = new MessageEmbed()
-    .setTitle(game.name)
-    .setDescription(`${game.description}`)
+    .setTitle(`Let's play ${game.name}!`)
+    // .setDescription(`${game.description}`)
     .setColor(game.color || '#0099ff')
     .setURL(game.getURL())
 

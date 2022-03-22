@@ -14,8 +14,8 @@
 
     <div class="middle">
       <!-- Game UI just for filler -->
-      <board></board>
-      <changer></changer>
+      <Board></Board>
+      <Changer></Changer>
     </div>
   </game-view>
 </template>
@@ -28,7 +28,6 @@ import Changer from './Changer.vue'
 // game-view, scores-view are automatically imported
 
 // Import scss styles
-import 'scss/games/filler.scss'
 
 import { replayAction } from '@app/js/client-framework.js'
 import Common from '/gamecommons/filler'
@@ -77,3 +76,5 @@ export default {
   methods: {},
 }
 </script>
+
+<style src="scss/games/filler.scss" lang="scss"></style>

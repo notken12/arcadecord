@@ -10,7 +10,7 @@
     </scores-view>
 
     <div class="middle">
-      <board></board>
+      <Board></Board>
     </div>
   </game-view>
 </template>
@@ -54,7 +54,12 @@ export default {
 }
 
 .middle {
-  overflow: initial;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
 }
 </style>
 <style lang="scss" src="scss/games/4inarow.scss"></style>
