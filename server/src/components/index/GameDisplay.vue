@@ -20,6 +20,7 @@ defineProps({
   justify-content: center;
   align-items: center;
   gap: 8px;
+  font-size: 12px;
 }
 
 img {

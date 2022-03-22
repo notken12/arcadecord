@@ -8,7 +8,7 @@ import Button from './Button.vue'
       <h2 class="f1">Play games in your Discord messages!</h2>
       <h3>
         <span
-          >Play classics inside any text channel. Easy as add to server
+          >Play classics inside any text channel. <br />Easy as add to server
           and</span
         >
         <div class="command">

@@ -128,6 +128,7 @@ h3 {
   gap: 32px;
   border-top: 1px #999 solid;
   border-bottom: 1px #999 solid;
+  flex-wrap: wrap;
 }
 
 .text {
