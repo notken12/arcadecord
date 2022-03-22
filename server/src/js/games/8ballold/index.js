@@ -163,7 +163,7 @@ function connectionCallback(response) {
 
           let loader = new GLTFLoader()
 
-          loader.load('/dist/3d_models/cue_stick.glb', (gltf) => {
+          loader.load('/3d_models/cue_stick.glb', (gltf) => {
             const mesh = gltf.scene.children.find((child) => {
               return child.type == 'Mesh' && child.name == 'Cue_Stick'
             })

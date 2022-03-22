@@ -50,7 +50,7 @@ export default {
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;
 .piece {
-  background-image: url('/dist/assets/4inarow/RedChecker.svg');
+  background-image: url('/assets/4inarow/RedChecker.svg');
   background-size: auto 100%;
   cursor: pointer;
   position: absolute;
@@ -64,7 +64,7 @@ export default {
   filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
 }
 .piece.yellow {
-  background-image: url('/dist/assets/4inarow/YellowChecker.svg');
+  background-image: url('/assets/4inarow/YellowChecker.svg');
 }
 .selected {
   background-color: #ffffff88;

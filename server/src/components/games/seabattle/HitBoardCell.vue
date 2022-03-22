@@ -34,7 +34,7 @@ export default {
       }
     },
     imgURL() {
-      return '/dist/assets/seabattle/cell-states/' + this.cell.state + '.png'
+      return '/assets/seabattle/cell-states/' + this.cell.state + '.png'
     },
   },
   methods: {

@@ -13,7 +13,7 @@ export class Table {
     this.scene = scene
 
     const loader = new GLTFLoader()
-    loader.load('/dist/3d_models/table.glb', (gltf) => {
+    loader.load('/3d_models/table.glb', (gltf) => {
       const meshes = gltf.scene.children.filter((child) => {
         return child.type == 'Mesh'
       })

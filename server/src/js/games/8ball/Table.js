@@ -25,7 +25,7 @@ export class Table {
     let tableObject
 
     const loader = new GLTFLoader()
-    loader.load('/dist/assets/8ball/table.glb', (gltf) => {
+    loader.load('/assets/8ball/table.glb', (gltf) => {
       tableObject = new THREE.Group()
 
       const meshes = gltf.scene.children.filter((child) => {

@@ -79,7 +79,7 @@ for (let key of nodeDependencies) {
 // https://vitejs.dev/config/
 export default defineConfig({
   root: path.resolve(__dirname, 'server/src'),
-  base: '/dist/',
+  base: './',
   publicDir: 'public',
   server: {
     port: 5000,

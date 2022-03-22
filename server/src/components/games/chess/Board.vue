@@ -202,7 +202,7 @@ export default {
 }
 
 .grid-container {
-  background-image: url(/dist/assets/chess/board.svg);
+  background-image: url(/assets/chess/board.svg);
   background-size: contain;
   box-sizing: border-box;
   // position: absolute;
@@ -231,12 +231,12 @@ export default {
 }
 
 .highlight {
-  background: url('/dist/assets/chess/highlight.svg');
+  background: url('/assets/chess/highlight.svg');
   background-size: contain;
 }
 
 .capture {
-  background: url('/dist/assets/chess/capture.svg');
+  background: url('/assets/chess/capture.svg');
   background-size: contain;
 }
 </style>

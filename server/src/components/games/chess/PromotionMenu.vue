@@ -118,7 +118,7 @@ h1 {
   justify-content: center;
   cursor: pointer;
   border-radius: 4px;
-  background-image: url('/dist/assets/chess/white_pieces.svg');
+  background-image: url('/assets/chess/white_pieces.svg');
   background-size: auto 100%;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.7));
   width: 100%;
@@ -127,7 +127,7 @@ h1 {
 }
 
 .promotion-piece.black {
-  background-image: url('/dist/assets/chess/black_pieces.svg');
+  background-image: url('/assets/chess/black_pieces.svg');
 }
 
 .promotion-piece:hover {

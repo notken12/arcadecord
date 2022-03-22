@@ -40,7 +40,7 @@ const styles = computed(() => {
 const imgURL = computed(() => {
   var ship = props.ship
   var shipType = ship.type
-  return '/dist/assets/seabattle/ships/' + shipType + '.png'
+  return '/assets/seabattle/ships/' + shipType + '.png'
 })
 
 const updatePos = (animate) => {

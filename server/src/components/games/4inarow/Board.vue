@@ -123,7 +123,7 @@ export default {
   margin: auto;
 }
 .board-back {
-  background-image: url(/dist/assets/4inarow/CellBack.svg);
+  background-image: url(/assets/4inarow/CellBack.svg);
   background-size: 14.2857143% 16.6666667%;
   background-repeat: repeat;
   -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
@@ -134,7 +134,7 @@ export default {
 }
 .board-front {
   cursor: pointer;
-  background-image: url(/dist/assets/4inarow/CellFront.svg);
+  background-image: url(/assets/4inarow/CellFront.svg);
   background-size: 14.2857143% 16.6666667%;
   background-repeat: repeat;
   -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));

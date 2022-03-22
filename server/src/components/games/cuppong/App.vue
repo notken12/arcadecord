@@ -284,7 +284,7 @@ const initThree = () => {
 
   // load table model
   const loader = new GLTFLoader()
-  loader.load('/dist/assets/cuppong/table.glb', (gltf) => {
+  loader.load('/assets/cuppong/table.glb', (gltf) => {
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
         // child.castShadow = true
@@ -317,11 +317,11 @@ const initThree = () => {
   })
 
   // load cup model
-  loader.load('/dist/assets/cuppong/red_cup.glb', (gltf) => {
+  loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
     addCups(sideCups0.value, gltf)
   })
 
-  loader.load('/dist/assets/cuppong/blue_cup.glb', (gltf) => {
+  loader.load('/assets/cuppong/blue_cup.glb', (gltf) => {
     let sideCups = toRefs(game.value.data.sides[1].cups)
     addCups(sideCups1.value, gltf)
   })

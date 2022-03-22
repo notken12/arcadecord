@@ -118,7 +118,7 @@ onMounted(() => {
 }
 
 .img {
-  background-image: url('/dist/assets/8ball/cuestick.svg');
+  background-image: url('/assets/8ball/cuestick.svg');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

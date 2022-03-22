@@ -236,7 +236,7 @@ const initThree = async () => {
   ctx = controlsCanvas.value.getContext('2d')
 
   let cueStickImage = new Image()
-  cueStickImage.src = '/dist/assets/8ball/cuestick.svg'
+  cueStickImage.src = '/assets/8ball/cuestick.svg'
   let cueStickImageLoaded = false
 
   cueStickImage.onload = () => {

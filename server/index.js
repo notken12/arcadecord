@@ -656,6 +656,9 @@ var viteDevServer
 const isProduction = process.env.NODE_ENV === 'production'
 // const root = `${path.dirname(import.meta.url)}/src`;
 const root = `${__dirname}/src`
+const base = '/'
+const baseAssets = '/'
+const outDir = `dist`
 
 if (!isProduction) {
   // IF DEVELOPMENT
@@ -682,15 +685,16 @@ if (!isProduction) {
   app.use(viteDevServer.middlewares)
 } else {
   // IF PRODUCTION
-  app.use('/dist', express.static(path.resolve(__dirname, 'src/dist/client')))
+  app.use('/', express.static(path.resolve(__dirname, 'src/dist/client')))
 }
 
 const renderPage = createPageRenderer({
   viteDevServer,
   isProduction,
   root,
-  outDir: 'dist',
-  baseAssets: '/dist/',
+  base,
+  baseAssets,
+  outDir,
 })
 
 const apiRoutes = [

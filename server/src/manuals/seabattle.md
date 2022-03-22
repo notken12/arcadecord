@@ -6,4 +6,4 @@ Players arrange their ships on the board and take turns attempting to shoot down
 
 Place your ships strategically to confuse your opponent. Click on a tile to target it.
 
-![Crosshair](/dist/assets/seabattle/crosshair.png)
+![Crosshair](/assets/seabattle/crosshair.png)

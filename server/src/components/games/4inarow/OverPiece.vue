@@ -69,10 +69,10 @@ export default {
   /* opacity: 0.7; */
 }
 .overThing.selected {
-  background-image: url('/dist/assets/4inarow/RedChecker.svg');
+  background-image: url('/assets/4inarow/RedChecker.svg');
 }
 .overThing.selected.yellow {
-  background-image: url('/dist/assets/4inarow/YellowChecker.svg');
+  background-image: url('/assets/4inarow/YellowChecker.svg');
 }
 
 @keyframes pulse {

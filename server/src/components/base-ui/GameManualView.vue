@@ -48,7 +48,7 @@ export default {
     } else {
       // manual not loaded yet
       // fetch and parse manual
-      var path = '/dist/manuals/' + this.game.typeId + '.md'
+      var path = '/manuals/' + this.game.typeId + '.md'
       fetch(path)
         .then((response) => {
           if (response.ok) {
