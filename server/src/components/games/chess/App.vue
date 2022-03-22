@@ -59,6 +59,9 @@ export default {
     bus.on('piece-selected', (piece) => {
       this.selectedPiece = piece
     })
+
+    window.Common = Common
+    window.game = this.game
   },
   components: {
     Board,
