@@ -1,6 +1,6 @@
 import { CueBall } from './CueBall'
 import { Ball } from './Ball'
-import { Table } from './Table'
+import { Table, WALL_LINES } from './Table'
 
 export function getBalls(scene, world) {
   var apex = Table.PLAY_AREA.LEN_Z / 4
@@ -201,7 +201,7 @@ export function getCollisionLocation(balls, ball, vec) {
   }
 
   if (locations.length == 0) {
-    let walls = Table.WALL_LINES
+    let walls = WALL_LINES
     let locations = []
     for (let w of walls) {
       let p = getCollisionLocationBallLine(w, ball, vec)
