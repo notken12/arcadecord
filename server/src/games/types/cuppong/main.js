@@ -140,7 +140,7 @@ class CupPongGame extends Game {
 
     let thumbnailSrc = path.resolve(
       __dirname,
-      '../../../assets/cuppong/thumbnail.png'
+      '../../../public/assets/cuppong/thumbnail.png'
     )
     let thumbnailImg = await Canvas.loadImage(thumbnailSrc)
 

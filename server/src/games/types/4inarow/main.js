@@ -63,22 +63,22 @@ class FourInARowGame extends Game {
       let board = this.data.board
 
       let cellBackgroundSrc = path.resolve(
-        __dirname + '../../../../assets/4inarow/FullBack.svg'
+        __dirname + '../../../../public/assets/4inarow/FullBack.svg'
       )
       let cellBackground = await Canvas.loadImage(cellBackgroundSrc)
 
       let cellFrontSrc = path.resolve(
-        __dirname + '../../../../assets/4inarow/FullFront.svg'
+        __dirname + '../../../../public/assets/4inarow/FullFront.svg'
       )
       let cellFront = await Canvas.loadImage(cellFrontSrc)
 
       let redCheckerSrc = path.resolve(
-        __dirname + '../../../../assets/4inarow/RedChecker.svg'
+        __dirname + '../../../../public/assets/4inarow/RedChecker.svg'
       )
       let redChecker = await Canvas.loadImage(redCheckerSrc)
 
       let yellowCheckerSrc = path.resolve(
-        __dirname + '../../../../assets/4inarow/YellowChecker.svg'
+        __dirname + '../../../../public/assets/4inarow/YellowChecker.svg'
       )
       let yellowChecker = await Canvas.loadImage(yellowCheckerSrc)
 

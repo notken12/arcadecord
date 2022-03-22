@@ -103,7 +103,7 @@ class Chess extends Game {
 
       let boardSrc = path.resolve(
         __dirname,
-        '../../../assets/chess/board.svg'
+        '../../../public/assets/chess/board.svg'
       )
       let boardImg = await Canvas.loadImage(boardSrc)
       ctx.shadowBlur = 5
@@ -113,11 +113,11 @@ class Chess extends Game {
 
       let whitePiecesSrc = path.resolve(
         __dirname,
-        '../../../assets/chess/white_pieces.svg'
+        '../../../public/assets/chess/white_pieces.svg'
       )
       let blackPiecesSrc = path.resolve(
         __dirname,
-        '../../../assets/chess/black_pieces.svg'
+        '../../../public/assets/chess/black_pieces.svg'
       )
 
       let whitePieces = await Canvas.loadImage(whitePiecesSrc)
