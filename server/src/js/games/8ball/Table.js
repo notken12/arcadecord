@@ -106,7 +106,7 @@ export class Table {
         position: new CANNON.Vec3(0, 0, PLAY_AREA.LEN_Z / -2 - cw),
       }),
       new CANNON.Body({
-        // bottom left (+x+z)
+        // bottom right (+x+z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
         position: new CANNON.Vec3(
@@ -116,7 +116,7 @@ export class Table {
         ),
       }),
       new CANNON.Body({
-        // bottom right (+x+z)
+        // bottom left (-x+z)
         ...cushionOptions,
         shape: new CANNON.Box(new CANNON.Vec3(cw, ch, longCushionLen)),
         position: new CANNON.Vec3(
