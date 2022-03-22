@@ -24,7 +24,9 @@ import Button from './Button.vue'
       </h3>
       <div class="buttons">
         <Button icon="add">Add to Discord</Button>
-        <Button outlined>See features</Button>
+        <a href="#features">
+          <Button outlined>See features</Button>
+        </a>
       </div>
     </div>
   </div>
@@ -101,5 +103,9 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 16px;
+}
+
+a {
+  text-decoration: none;
 }
 </style>

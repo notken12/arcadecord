@@ -1,21 +1,12 @@
 <script setup>
 import Link from './Link.vue'
 import Button from './Button.vue'
+import Logo from './Logo.vue'
 </script>
 
 <template>
   <div class="header">
-    <div class="logo">
-      <img
-        src="/icons/arcadecordicon.svg"
-        alt="Arcadecord"
-        class="icon"
-        width="40"
-        height="40"
-        draggable="false"
-      />
-      <h1 class="app-name f1">Arcadecord</h1>
-    </div>
+    <Logo></Logo>
     <div class="links">
       <Link href="/help">Help and feedback</Link>
       <Link href="/help">Support us</Link>
@@ -40,30 +31,6 @@ import Button from './Button.vue'
   justify-content: space-between;
   user-select: none;
   overflow: auto;
-}
-
-.logo {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 0px;
-  height: 100%;
-  gap: 16px;
-}
-
-.icon {
-  border-radius: 100px;
-}
-
-.app-name {
-  font-family: 'Work Sans';
-  font-style: normal;
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 28px;
-  color: #ffffff;
-  margin: 0;
 }
 
 .links {

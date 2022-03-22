@@ -1,9 +1,26 @@
+<script setup>
+import GameDisplay from './GameDisplay.vue'
+import Button from './Button.vue'
+
+defineProps({
+  id: String,
+})
+</script>
+
 <template>
-  <div class="content">
+  <div class="content" :id="id">
     <section class="stripe">
       Arcadecord is currently in beta. Feedback is greatly appreciated.
     </section>
-    <section class="games"></section>
+    <section class="games">
+      <GameDisplay game="8ball">8 Ball</GameDisplay>
+      <GameDisplay game="cuppong">Cup Pong</GameDisplay>
+      <GameDisplay game="seabattle">Sea Battle</GameDisplay>
+      <GameDisplay game="4inarow">4 in a Row</GameDisplay>
+      <GameDisplay game="chess">Chess</GameDisplay>
+      <GameDisplay game="knockout">Knockout</GameDisplay>
+      <GameDisplay game="filler">Filler</GameDisplay>
+    </section>
     <section>
       <div class="text">
         <h3>Your favorite games, <br />in your favorite servers.</h3>
@@ -16,6 +33,39 @@
       <div>
         <img src="" alt="" width="200" height="200" />
       </div>
+    </section>
+    <section class="reverse">
+      <div class="text">
+        <h3>Great for servers <br />big and small.</h3>
+        <p>
+          Whether you’re playing in a small server with your close friends or a
+          large community server, your games will always easy to find and play.
+          Arcadecord reduces the noise on large servers by making threads for
+          each game.
+        </p>
+      </div>
+      <div>
+        <img src="" alt="" width="200" height="200" />
+      </div>
+    </section>
+    <section>
+      <div class="text">
+        <h3>Play on any device, <br />no installation necessary.</h3>
+        <p>
+          Arcadecord games are played in your browser, so you don’t need to
+          install anything. No need to worry about what platform your friend
+          uses, just play!
+        </p>
+      </div>
+      <div>
+        <img src="" alt="" width="200" height="200" />
+      </div>
+    </section>
+    <section class="add">
+      <h3>Add and play today for free!</h3>
+      <a href="/invite">
+        <Button icon="add">Add to Discord</Button>
+      </a>
     </section>
   </div>
 </template>
@@ -39,12 +89,11 @@ section {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-top: 1px #999 solid;
   box-sizing: border-box;
   // flex-wrap: wrap;
 
   img {
-    display: block;
+    display: flex;
   }
 }
 
@@ -52,7 +101,7 @@ section {
   padding: 10px;
   background-color: #08234d;
   width: 100%;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -74,6 +123,11 @@ h3 {
 
 .games {
   padding: 16px;
+  flex-direction: row;
+  display: flex;
+  gap: 32px;
+  border-top: 1px #999 solid;
+  border-bottom: 1px #999 solid;
 }
 
 .text {
@@ -98,5 +152,17 @@ p {
   display: flex;
   align-items: center;
   letter-spacing: 0.1px;
+}
+
+.reverse {
+  flex-direction: row-reverse;
+}
+
+.add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
 }
 </style>

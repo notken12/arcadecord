@@ -38,7 +38,7 @@ button {
   box-shadow: theme.$md-elevation-level1;
   font-weight: theme.$md-sys-typescale-button-weight;
   max-height: 36px;
-  text-decoration: none;
+  text-decoration: none !important;
   gap: 8px;
   transition: background-color 0.2s, box-shadow 0.2s;
   width: max-content;
