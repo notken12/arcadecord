@@ -6,7 +6,7 @@ defineProps({
 
 <template>
   <div class="game-display">
-    <img :src="'/public/icons/' + game + '.svg'" :alt="game" width="64" />
+    <img :src="'/dist/icons/' + game + '.svg'" :alt="game" width="64" />
     <div>
       <slot></slot>
     </div>

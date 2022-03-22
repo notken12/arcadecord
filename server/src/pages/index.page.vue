@@ -39,7 +39,7 @@ html,
   width: 100%;
   // scroll-behavior: smooth;
   color: theme.$color-light;
-  background: #1b1b1f;
+  background: #212739;
 }
 
 html {
