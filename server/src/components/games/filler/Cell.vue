@@ -40,11 +40,9 @@ export default {
 <style lang="scss" scoped>
 @use '../../../scss/base/_theme.scss' as theme;
 
-$width: 40px;
-
 .cell {
-  width: $width;
-  height: $width;
+  width: 100%;
+  height: 100%;
   transition: background-color 0.5s;
 }
 

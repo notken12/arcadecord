@@ -42,8 +42,6 @@ export function useAspectRatio(ratio, element) {
     // update the element's style
     element.value.style.width = `${width.value}px`
     element.value.style.height = `${height.value}px`
-
-    console.log(width.value, height.value)
   }
 
   // a composable can also hook into its owner component's
