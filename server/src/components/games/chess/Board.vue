@@ -1,64 +1,64 @@
 <template>
-  <div class="ratio vertical">
-    <canvas width="500" height="500"></canvas>
-    <div>
-      <div class="ratio horizontal">
-        <canvas width="500" height="500"></canvas>
-        <div class="board">
-          <div
-            class="grid-container"
-            :style="styles"
-            @click.self="selectedPiece = null"
-            ref="grid"
-          >
-            <transition-group name="fade">
-              <div
-                class="highlight"
-                v-for="move in selectedPieceMoves"
-                :key="move.to"
-                :class="{ capture: move.capture }"
-                :style="getHighlightStyles(move)"
-              ></div>
-              <div
-                class="selected-square"
-                v-for="square in selectedSquares"
-                :key="square[0] + ',' + square[1]"
-                :style="getSquareStyles(square)"
-              ></div>
-            </transition-group>
+  <div class="board" ref="el">
+    <div
+      class="grid-container"
+      :style="styles"
+      @click.self="selectedPiece = null"
+      ref="grid"
+    >
+      <transition-group name="fade">
+        <div
+          class="highlight"
+          v-for="move in selectedPieceMoves"
+          :key="move.to"
+          :class="{ capture: move.capture }"
+          :style="getHighlightStyles(move)"
+        ></div>
+        <div
+          class="selected-square"
+          v-for="square in selectedSquares"
+          :key="square[0] + ',' + square[1]"
+          :style="getSquareStyles(square)"
+        ></div>
+      </transition-group>
 
-            <!-- 1-indexed -->
-            <piece
-              v-for="piece in board"
-              :key="piece.id"
-              :piece="piece"
-              :selected="piece === selectedPiece"
-              :incheck="
-                isInCheck && piece.type === 'k' && piece.color === myColor
-              "
-              :moves="selectedPieceMoves"
-            ></piece>
+      <!-- 1-indexed -->
+      <piece
+        v-for="piece in board"
+        :key="piece.id"
+        :piece="piece"
+        :selected="piece === selectedPiece"
+        :incheck="isInCheck && piece.type === 'k' && piece.color === myColor"
+        :moves="selectedPieceMoves"
+      ></piece>
 
-            <div
-              class="highlight-click"
-              v-for="move in selectedPieceMoves"
-              :key="move.to"
-              :style="getHighlightStyles(move)"
-              @click="makeMove(move)"
-            ></div>
+      <div
+        class="highlight-click"
+        v-for="move in selectedPieceMoves"
+        :key="move.to"
+        :style="getHighlightStyles(move)"
+        @click="makeMove(move)"
+      ></div>
 
-            <transition name="fade">
-              <promotion-menu
-                v-if="promotionMenuOpen"
-                :move="promotionMove"
-              ></promotion-menu>
-            </transition>
-          </div>
-        </div>
-      </div>
+      <transition name="fade">
+        <promotion-menu
+          v-if="promotionMenuOpen"
+          :move="promotionMove"
+        ></promotion-menu>
+      </transition>
     </div>
   </div>
 </template>
+
+<script setup>
+import { onMounted, ref } from 'vue'
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
+
+const el = ref(null)
+const grid = ref(null)
+
+useAspectRatio(1, el)
+</script>
 
 <script>
 import Piece from './Piece.vue'
@@ -88,7 +88,7 @@ export default {
     styles() {
       let transform = 'none'
       if (this.myColor === 1) {
-        transform = 'rotate(180.001deg)'
+        transform = 'rotate(180deg)'
       }
       return {
         transform,

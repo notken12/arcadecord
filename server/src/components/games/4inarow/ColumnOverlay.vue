@@ -35,9 +35,6 @@ export default {
 .over {
   background-size: auto 100%;
   cursor: pointer;
-  /* position: absolute; */
-  left: 0;
-  top: 0;
   width: 100%;
   height: 100%;
   box-sizing: border-box;

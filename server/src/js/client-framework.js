@@ -203,8 +203,8 @@ function simulateAction(
   if (playerIndex == -1) {
     // same code as in handleAction in Game.js: if game hasn't started, start game with this action
     if (game.hasStarted == false) {
-      game.players.push({ discordUser: discordUser })
-      playerIndex = game.players.length - 1
+      // game.players.push({ discordUser: discordUser })
+      playerIndex = game.players.length
       game.myIndex = playerIndex
 
       GameFlow.start(game)

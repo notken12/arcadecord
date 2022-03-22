@@ -1,5 +1,7 @@
 <template>
-  <div class="button" v-on:click="placePiece">Go</div>
+  <button v-on:click="placePiece" :class="{ hidden: selectedColumn === null }">
+    Go
+  </button>
 </template>
 
 <script>
@@ -20,18 +22,11 @@ export default {
   },
 }
 </script>
-<style type="scss">
+<style lang="scss">
 @use 'scss/base/_theme' as theme;
 
-.button {
-  color: black;
-  position: absolute;
-  bottom: 6%;
-  padding: 1%;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: lightskyblue;
-  cursor: pointer;
-  border-radius: 10%;
+.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 </style>
