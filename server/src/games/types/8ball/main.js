@@ -29,7 +29,63 @@ class EightBallGame extends Game {
     this.on('init', Game.eventHandlersDiscord.init)
     this.on('turn', Game.eventHandlersDiscord.turn)
 
-    this.on('shoot', Common.shoot)
+    this.setActionModel('shoot', Common.shoot)
+    this.setActionSchema('shoot', {
+      type:'object',
+      properties:{
+        balls:{
+          type:'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string', // 8ball, 1ball, 9ball, cueball
+              },
+              position: {
+                type: 'object',
+                properties: {
+                  x: {
+                    type: 'number',
+                  },
+                  y: {
+                    type: 'number',
+                  },
+                  z: {
+                    type: 'number',
+                  },
+                },
+                required: ['x', 'y', 'z'],
+              },
+              quaternion: {
+                type: 'object',
+                properties: {
+                  x: {
+                    type: 'number',
+                  },
+                  y: {
+                    type: 'number',
+                  },
+                  z: {
+                    type: 'number',
+                  },
+                  w: {
+                    type: 'number',
+                  },
+                },
+                required: ['x', 'y', 'z', 'w'],
+              },
+              out: {
+                type: 'boolean',
+              },
+              color: {
+                type: ['number', 'null'],
+              },
+            },
+          }
+        }
+      },
+      required:['balls'],
+    })
   }
 
   onInit(game) {

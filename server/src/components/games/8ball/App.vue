@@ -509,7 +509,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- GameView component, contains all basic game UI 
+  <!-- GameView component, contains all basic game UI
     like settings button-->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->

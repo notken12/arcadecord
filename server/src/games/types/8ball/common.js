@@ -56,12 +56,31 @@ export class CueBall extends Ball {
 }
 
 async function shoot(game, action){
-  game.data.balls = action.data.balls;
+  let continueTurn = false;
+  if(game.data.players[game.turn].assignedPattern){
+    if(checkHitIn(game, action, game.data.players[game.turn].assignedPattern)){
+      continueTurn = true;
+    }
+  } else {
+    let didSolid = checkHitIn(game, action, 0)
+    let didStriped = checkHitIn(game, action, 1)
+    if(!(didSolid && didStriped)){
+      if(didSolid){
+        game.data.players[game.turn].assignedPattern = 0;
+        game.data.players[[1,0][game.turn]].assignedPattern = 1;
+        continueTurn = true;
+      } else if(didStriped){
+        game.data.players[[1,0][game.turn]].assignedPattern = 0;
+        game.data.players[game.turn].assignedPattern = 1;
+        continueTurn = true;
+      }
+    }
+  }
+  game.data.balls = action.data.newBallStates;
+
 
   let ball8 = game.data.balls.find(ball => ball.name === "8ball")
   let cueball = game.data.balls.find(ball => ball.name === "cueball")
-  let myInBalls = getBalls(game, game.turn, true);
-  let allMyBalls = getBalls(game, game.turn, false);
 
   if(game.data.cueFoul) game.data.cueFoul = false
 
@@ -70,23 +89,27 @@ async function shoot(game, action){
       await GameFlow.end(game, {
         winner:[1, 0][game.turn]
       })
+      game.data.players[game.turn].chosenPocket = undefined;
       return game;
     } else if(myInBalls.length == 0){
       if(ball8.pocket == game.data.players[game.turn].chosenPocket){
       await GameFlow.end(game, {
         winner:game.turn
       })
+      game.data.players[game.turn].chosenPocket = undefined;
       return game;
     } else {
       await GameFlow.end(game, {
         winner:[1,0][game.turn]
       })
+      game.data.players[game.turn].chosenPocket = undefined;
       return game
     }
     } else {
       await GameFlow.end(game, {
         winner:[1,0][game.turn]
       })
+      game.data.players[game.turn].chosenPocket = undefined;
       return game;
     }
   }
@@ -98,10 +121,16 @@ async function shoot(game, action){
   }
 
 
+  if(game.data.players[game.turn].chosenPocket) game.data.players[game.turn].chosenPocket = undefined
+
+  if(!continueTurn){
+    await GameFlow.endTurn(game)
+  }
+
+      return game;
 }
 
-function getBalls(game, color, onlyIn){
-  let balls = game.data.balls;
+function getBalls(balls, color, onlyIn){
   function ballFilter(ball){
     if(ball.color == color){
       if(onlyIn){
@@ -115,11 +144,22 @@ function getBalls(game, color, onlyIn){
 
   return fetchedBalls;
 }
+function checkHitIn(game, action, color){
+  let oldBalls = getBalls(game.data.balls, color, true)
+  let newBalls = getBalls(action.data.newBallStates, color, true)
+
+  if(newBalls.length == oldBalls.length){
+    return false
+  } else {
+    return true
+  }
+}
 
 export default {
   Ball,
   CueBall,
   Table,
   shoot,
-  getBalls
+  getBalls,
+  checkHitIn
 }
