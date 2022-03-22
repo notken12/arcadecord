@@ -123,6 +123,7 @@ async function shoot(game, action){
 
   if(game.data.players[game.turn].chosenPocket) game.data.players[game.turn].chosenPocket = undefined
 
+  throw new Error(continueTurn)
   if(!continueTurn){
     await GameFlow.endTurn(game)
   }

@@ -121,24 +121,13 @@ describe('8ball Action: shoot', () => {
     await game.init()
 
     // Define the actions to be made
-    let newPosition = {
-      x: 1,
-      y: 1,
-      z: 1,
-    }
-    let newQuaternion = {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 1,
-    }
 
     let newBallStates = game.data.balls
     let missedShot = new Action('shoot', {
       angle: Math.PI / 2, // radians, for UI
       force: 10, // for UI
       newBallStates: newBallStates,
-    })
+    }, 1)
 
     // Run the actions
     await game.handleAction(missedShot)
@@ -146,10 +135,6 @@ describe('8ball Action: shoot', () => {
     // Check the game state
     const valid = validateGameState(game.data)
     expect(valid).toBe(true)
-
-    expect(game.data.balls[10].out).toBe(false)
-    expect(game.data.balls[10].position).toEqual(newPosition)
-    expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
 
     let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
     expect(stillTheirTurn).toBe(false)
@@ -167,24 +152,13 @@ describe('8ball Action: shoot', () => {
     await game.init()
 
     // Define the actions to be made
-    let newPosition = {
-      x: 1,
-      y: 1,
-      z: 1,
-    }
-    let newQuaternion = {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 1,
-    }
-    let newBallStates = game.data.balls;
 
+    let newBallStates = game.data.balls
     let missedShot = new Action('shoot', {
       angle: Math.PI / 2, // radians, for UI
       force: 10, // for UI
       newBallStates: newBallStates,
-    })
+    }, 1)
 
     // Run the actions
     await game.handleAction(missedShot)
@@ -193,6 +167,8 @@ describe('8ball Action: shoot', () => {
     const valid = validateGameState(game.data)
     expect(valid).toBe(true)
 
+    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+    expect(stillTheirTurn).toBe(true)
   })
 
   test.todo("Set player's assigned color", async () => {
