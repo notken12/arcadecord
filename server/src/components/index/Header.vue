@@ -9,8 +9,8 @@ import Logo from './Logo.vue'
     <Logo></Logo>
     <div class="links">
       <Link href="/help">Help and feedback</Link>
-      <Link href="/help">Support us</Link>
-      <Link href="/help">Sign in</Link>
+      <Link href="/support-us">Support us</Link>
+      <Link href="/sign-in">Sign in</Link>
     </div>
     <a href="/invite">
       <Button icon="add">Add to Discord</Button>

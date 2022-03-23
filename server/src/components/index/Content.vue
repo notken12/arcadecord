@@ -87,10 +87,11 @@ section {
   padding: 64px var(--padding-x);
   width: 100%;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
-  // flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 
   img {
     display: flex;
@@ -122,13 +123,20 @@ h3 {
 }
 
 .games {
-  padding: 16px;
+  padding: 16px var(--padding-x);
   flex-direction: row;
   display: flex;
-  gap: 32px;
+  gap: 48px;
   border-top: 1px #999 solid;
   border-bottom: 1px #999 solid;
   flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 500px) {
+  .games {
+    gap: 32px !important;
+  }
 }
 
 .text {
