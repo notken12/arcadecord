@@ -86,7 +86,10 @@ export default {
         })
       }
 
-      let inThread = interaction.guild.memberCount >= THREAD_THRESHOLD
+      // Don't allow player to play games in thread if they are in a thread
+      let inThread =
+        interaction.guild.memberCount >= THREAD_THRESHOLD &&
+        interaction.channel.type === 'GUILD_TEXT'
 
       var message = getMessage(undefined, ids)
 

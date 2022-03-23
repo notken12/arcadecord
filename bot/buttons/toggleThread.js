@@ -19,7 +19,7 @@ export default {
       inThread: !inThread,
     })
 
-    let msg = getOptionsMessage(dbOptions)
+    let msg = getOptionsMessage(dbOptions, interaction)
     interaction.editReply(msg).catch(console.error)
   },
 }
