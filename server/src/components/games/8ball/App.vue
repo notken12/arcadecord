@@ -50,17 +50,29 @@ function setCollisionBehavior() {
   var ball_floor = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.FLOOR_CONTACT_MATERIAL,
-    { friction: 0.7, restitution: 0.1 }
+    { friction: 0.2, restitution: 0.5 }
   )
 
   var ball_wall = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.WALL_CONTACT_MATERIAL,
-    { friction: 0.5, restitution: 0.9 }
+    { friction: 0.5, restitution: 0.75 }
+  )
+
+  var ball_ball = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Ball.CONTACT_MATERIAL,
+    {
+      friction: 0.9,
+      restitution: 0.96,
+      // contactEquationStiffness: 1e15,
+      // contactEquationRelaxation: 1,
+    }
   )
 
   world.addContactMaterial(ball_floor)
   world.addContactMaterial(ball_wall)
+  world.addContactMaterial(ball_ball)
 }
 
 const canvas = ref(null)
@@ -246,6 +258,8 @@ const initThree = async () => {
   const timeStep = 1 / 60 // seconds
   let lastCallTime
 
+  let directionLineLength = 8
+
   function animate() {
     if (!controlsCanvas.value) return
     requestAnimationFrame(animate)
@@ -348,6 +362,7 @@ const initThree = async () => {
     }
 
     let collision = getCollisionLocation(balls, cueBall, vec)
+    if (!collision) return
     let cpos = createVector(
       collision.x,
       Ball.RADIUS,
@@ -374,11 +389,65 @@ const initThree = async () => {
       cueBallPos.y + sin * ballDisplayRadius
     )
 
-    ctx.lineTo(
-      cpos.x - vec.x * ballDisplayRadius,
-      cpos.y - vec.z * ballDisplayRadius
-    )
+    if (mode == 'portrait') {
+      ctx.lineTo(
+        cpos.x - cos * ballDisplayRadius,
+        cpos.y - sin * ballDisplayRadius
+      )
+    } else {
+      ctx.lineTo(
+        cpos.x - cos * ballDisplayRadius,
+        cpos.y - sin * ballDisplayRadius
+      )
+    }
+
     ctx.stroke()
+
+    if (collision.ballBounceAngle) {
+      let ballBounceAngle =
+        collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+      let bbcos = Math.cos(ballBounceAngle)
+      let bbsin = Math.sin(ballBounceAngle)
+      ctx.moveTo(
+        cpos.x + bbcos * ballDisplayRadius * 2,
+        cpos.y + bbsin * ballDisplayRadius * 2
+      )
+      ctx.lineTo(
+        cpos.x +
+          bbcos *
+            ballDisplayRadius *
+            (2 + directionLineLength * collision.hitPower),
+        cpos.y +
+          bbsin *
+            ballDisplayRadius *
+            (2 + directionLineLength * collision.hitPower)
+      )
+
+      ctx.stroke()
+
+      let cueBounceAngle =
+        collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+      let cbcos = Math.cos(cueBounceAngle)
+      let cbsin = Math.sin(cueBounceAngle)
+      ctx.moveTo(
+        cpos.x + cbcos * ballDisplayRadius,
+        cpos.y + cbsin * ballDisplayRadius
+      )
+      ctx.lineTo(
+        cpos.x +
+          cbcos *
+            ballDisplayRadius *
+            (1 + directionLineLength * (1 - collision.hitPower)),
+        cpos.y +
+          cbsin *
+            ballDisplayRadius *
+            (1 + directionLineLength * (1 - collision.hitPower))
+      )
+
+      ctx.stroke()
+    }
 
     ctx.save()
 
