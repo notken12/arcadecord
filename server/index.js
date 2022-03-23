@@ -728,9 +728,15 @@ app.get('*', async (req, res, next) => {
   }
   const pageContext = await renderPage(pageContextInit)
   const { httpResponse } = pageContext
-  if (!httpResponse) return next()
-  const { body, statusCode, contentType } = httpResponse
-  res.status(statusCode).type(contentType).send(body)
+
+  if (pageContext.redirectTo) {
+    res.redirect(307, pageContext.redirectTo)
+  } else if (!pageContext.httpResponse) {
+    return next()
+  } else {
+    const { body, statusCode, contentType } = pageContext.httpResponse
+    res.status(statusCode).type(contentType).send(body)
+  }
 })
 
 export const handler = app

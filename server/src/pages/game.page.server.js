@@ -23,7 +23,8 @@ export async function onBeforeRender(pageContext) {
   const user = await db.users.getById(userId)
   if (!user) {
     return {
-      PageContext: {
+      pageContext: {
+        documentHtml: null,
         redirectTo: '/sign-in',
       },
     }

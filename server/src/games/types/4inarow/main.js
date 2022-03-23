@@ -85,7 +85,7 @@ class FourInARowGame extends Game {
       ctx.fillStyle = 'white'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      let bh = canvas.height - 32 // board height
+      let bh = canvas.height - 64 // board height
       let bw = (bh * board.width) / board.height // board width
 
       let tlx = canvas.width / 2 - bw / 2 // top left x
