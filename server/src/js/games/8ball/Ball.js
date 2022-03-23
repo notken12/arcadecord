@@ -93,11 +93,12 @@ export class Ball {
       shape: new CANNON.Sphere(Ball.RADIUS),
     })
 
-    body.sleepSpeedLimit = 0.15
-    body.sleepTimeLimit = 0.01
+    body.linearDamping = body.angularDamping = 0.5 // Hardcode
     body.allowSleep = true
-    body.linearDamping = 0.3
-    body.angularDamping = 0.3
+
+    // Sleep parameters
+    body.sleepSpeedLimit = 0.5 // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
+    body.sleepTimeLimit = 0.1 // Body falls asleep after 1s of sleepiness
 
     body.position.set(this.position.x, this.position.y, this.position.z)
     body.quaternion.set(

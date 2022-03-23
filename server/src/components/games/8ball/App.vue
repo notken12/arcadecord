@@ -50,29 +50,17 @@ function setCollisionBehavior() {
   var ball_floor = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.FLOOR_CONTACT_MATERIAL,
-    { friction: 0.2, restitution: 0.5 }
+    { friction: 0.7, restitution: 0.1 }
   )
 
   var ball_wall = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.WALL_CONTACT_MATERIAL,
-    { friction: 0.5, restitution: 0.75 }
-  )
-
-  var ball_ball = new CANNON.ContactMaterial(
-    Ball.CONTACT_MATERIAL,
-    Ball.CONTACT_MATERIAL,
-    {
-      friction: 0.9,
-      restitution: 0.96,
-      // contactEquationStiffness: 1e15,
-      // contactEquationRelaxation: 1,
-    }
+    { friction: 0.5, restitution: 0.9 }
   )
 
   world.addContactMaterial(ball_floor)
   world.addContactMaterial(ball_wall)
-  world.addContactMaterial(ball_ball)
 }
 
 const canvas = ref(null)
