@@ -141,7 +141,7 @@ client.sendTurnInvite = async function (g) {
   await channel.send(m)
 
   let invite = await getInviteMessage(game)
-  invite.embeds[0].setTitle(`${game.emoji || ''} ${game.name}`)
+  invite.embeds[0].setTitle(`${game.emoji || ''}  ${game.name}`)
   invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`
 
   var embed = invite.embeds[0]

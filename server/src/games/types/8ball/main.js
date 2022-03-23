@@ -31,10 +31,16 @@ class EightBallGame extends Game {
 
     this.setActionModel('shoot', Common.shoot)
     this.setActionSchema('shoot', {
-      type:'object',
-      properties:{
-        balls:{
-          type:'array',
+      type: 'object',
+      properties: {
+        angle: {
+          type: 'number',
+        },
+        force: {
+          type: 'number',
+        },
+        newBallStates: {
+          type: 'array',
           items: {
             type: 'object',
             properties: {
@@ -81,10 +87,10 @@ class EightBallGame extends Game {
                 type: ['number', 'null'],
               },
             },
-          }
-        }
+          },
+        },
       },
-      required:['balls'],
+      required: ['angle', 'force', 'newBallStates'],
     })
   }
 
@@ -135,7 +141,7 @@ class EightBallGame extends Game {
         chosenPocket: null,
       },
     ]
-    game.data.cueFoul = false;
+    game.data.cueFoul = false
     return game
   }
 }

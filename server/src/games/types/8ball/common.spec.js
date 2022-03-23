@@ -123,14 +123,18 @@ describe('8ball Action: shoot', () => {
     // Define the actions to be made
 
     let newBallStates = game.data.balls
-    let missedShot = new Action('shoot', {
-      angle: Math.PI / 2, // radians, for UI
-      force: 10, // for UI
-      newBallStates: newBallStates,
-    }, 1)
+    let missedShot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2, // radians, for UI
+        force: 10, // for UI
+        newBallStates: newBallStates,
+      },
+      1
+    )
 
     // Run the actions
-    await game.handleAction(missedShot)
+    expect(await game.handleAction(missedShot)).toEqual({ success: true })
 
     // Check the game state
     const valid = validateGameState(game.data)
@@ -154,14 +158,18 @@ describe('8ball Action: shoot', () => {
     // Define the actions to be made
 
     let newBallStates = game.data.balls
-    let missedShot = new Action('shoot', {
-      angle: Math.PI / 2, // radians, for UI
-      force: 10, // for UI
-      newBallStates: newBallStates,
-    }, 1)
+    let missedShot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2, // radians, for UI
+        force: 10, // for UI
+        newBallStates: newBallStates,
+      },
+      1
+    )
 
     // Run the actions
-    await game.handleAction(missedShot)
+    expect(await game.handleAction(missedShot)).toEqual({ success: true })
 
     // Check the game state
     const valid = validateGameState(game.data)

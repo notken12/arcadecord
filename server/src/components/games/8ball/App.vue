@@ -348,7 +348,7 @@ const initThree = async () => {
     }
 
     let collision = getCollisionLocation(balls, cueBall, vec)
-    collision = createVector(
+    let cpos = createVector(
       collision.x,
       Ball.RADIUS,
       collision.y,
@@ -358,7 +358,7 @@ const initThree = async () => {
     )
 
     ctx.beginPath()
-    ctx.arc(collision.x, collision.y, ballDisplayRadius, 0, 2 * Math.PI, false)
+    ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false)
     // ctx.fillStyle = 'green'
     // ctx.fill()
     ctx.lineWidth = 1 * scale
@@ -373,7 +373,11 @@ const initThree = async () => {
       cueBallPos.x + cos * ballDisplayRadius,
       cueBallPos.y + sin * ballDisplayRadius
     )
-    ctx.lineTo(cueBallPos.x + cos * 1000, cueBallPos.y + sin * 1000)
+
+    ctx.lineTo(
+      cpos.x - vec.x * ballDisplayRadius,
+      cpos.y - vec.z * ballDisplayRadius
+    )
     ctx.stroke()
 
     ctx.save()

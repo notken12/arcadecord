@@ -229,7 +229,17 @@ export function getCollisionLocation(balls, ball, vec) {
         min = l
       }
     }
-    return min
+    let ballBounceAngle = Math.atan2(
+      min.y - ball.body.position.z,
+      min.x - ball.body.position.x
+    )
+    return {
+      x: min.x,
+      y: min.y,
+      d: min.d,
+      ball: min.ball,
+      ballBounceAngle,
+    }
   }
 
   // shouldn't happen
