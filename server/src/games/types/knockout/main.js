@@ -34,7 +34,7 @@ class KnockoutGame extends Game {
   }
 
   onInit(game) {
-    spawn = Common.spawn();
+    var spawn = Common.spawn();
     game.data.ice = spawn.ice;
     game.data.dummies = spawn.dummies;
     return game

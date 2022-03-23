@@ -25,6 +25,8 @@ async function setDirections(game, action) {
             game.data.dummies[
                 index + !action.userId * 4 //player 1's indexes are 0 to 3
             ].moveDir = direction;
+        } else {
+            game.data.dummies[index + !action.userId * 4 ].fallen = true
         }
 
     });
