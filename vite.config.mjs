@@ -173,9 +173,7 @@ export default defineConfig({
       prune: true
     })*/
   ],
-  // Peeky config
+  // Vitest config
   test: {
-    // Use the DOM environment for all tests by default
-    // runtimeEnv: 'dom',
   },
 })

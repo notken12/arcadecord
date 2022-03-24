@@ -1,3 +1,4 @@
+import { expect, test, describe } from 'vitest'
 // common.spec.js - Arcadecord
 //
 // Copyright (C) 2022 Ken Zhou

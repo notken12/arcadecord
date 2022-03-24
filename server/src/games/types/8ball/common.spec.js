@@ -1,3 +1,5 @@
+import { expect, test, describe } from 'vitest'
+
 // Import the main module for this game type
 import main from './main.js'
 // Import the Action class to make actions
