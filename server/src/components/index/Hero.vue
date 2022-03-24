@@ -38,6 +38,7 @@ import Button from './Button.vue'
 .hero {
   width: 100%;
   padding: var(--padding-x);
+  overflow: hidden;
 }
 
 .left {
@@ -101,8 +102,9 @@ h3 {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 a {

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import Common from '/gamecommons/8ball'
+import { textureLoader } from './textureLoader.js'
 
 export class Ball {
   static RADIUS = Common.Ball.RADIUS // m
@@ -20,7 +21,7 @@ export class Ball {
   sphere
   body
 
-  constructor(scene, world, x, y, z, name, color, quaternion, out) {
+  constructor(scene, world, x, y, z, name, color, quaternion, out, texture) {
     this.color = color ?? 0xaa0000
 
     this.scene = scene
@@ -36,6 +37,8 @@ export class Ball {
     }
     this.out = out ?? false
     this.name = name ?? 'Ball'
+
+    this.texture = texture
 
     this.mesh = this.createMesh()
     this.scene.add(this.mesh)
@@ -64,10 +67,10 @@ export class Ball {
     if (typeof this.texture == 'undefined') {
       material.color = new THREE.Color(this.color ?? 0xff0000)
     } else {
-      /*textureLoader.load(this.texture, function (tex) {
-              material.map = tex;
-              material.needsUpdate = true;
-            });*/
+      textureLoader.load(this.texture, function (tex) {
+        material.map = tex
+        material.needsUpdate = true
+      })
     }
 
     var sphere = new THREE.Mesh(geometry, material)

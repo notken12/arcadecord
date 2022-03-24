@@ -40,6 +40,7 @@ html,
   // scroll-behavior: smooth;
   color: theme.$color-light;
   background: #212739;
+  max-width: 100%;
 }
 
 html {

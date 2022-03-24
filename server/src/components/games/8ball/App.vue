@@ -210,7 +210,8 @@ const initThree = async () => {
       b.name,
       b.color,
       b.quaternion,
-      b.out
+      b.out,
+      `/assets/8ball/${b.name}.jpg`
     )
     balls.push(ball)
   }
@@ -228,8 +229,6 @@ const initThree = async () => {
   window.world = world
   window.game = game.value
   window.balls = balls
-
-  let time = new Date().getTime()
 
   let frames = 0
 
