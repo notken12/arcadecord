@@ -93,7 +93,7 @@ class FourInARowGame extends Game {
 
       ctx.shadowBlur = 6
       ctx.shadowColor = 'gray'
-      ctx.shadowOffsetY = 3
+      ctx.shadowOffsetY = 2
 
       ctx.drawImage(cellBackground, tlx, tly, bw, bh)
 

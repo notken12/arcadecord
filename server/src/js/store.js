@@ -24,6 +24,12 @@ function createStore() {
         state.error = connectionResponse.error ?? null
         state.user = connectionResponse.user ?? null
       },
+      UPDATE_SETTINGS(state, settings) {
+        if (!state.user.settings) {
+          state.user.settings = {}
+        }
+        Object.assign(state.user.settings, settings)
+      },
     },
   })
   return store

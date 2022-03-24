@@ -89,9 +89,9 @@ class FillerGame extends Game {
     }
 
     ctx.shadowBlur = 6
-    ctx.shadowColor = 'gray'
+    ctx.shadowColor = '#000000ee'
     ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 2
+    ctx.shadowOffsetY = 0
     ctx.fillStyle = 'transparent'
 
     ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl)

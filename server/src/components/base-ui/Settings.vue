@@ -4,7 +4,7 @@ import Switch from './Switch.vue'
 import bus from '@app/js/vue-event-bus.js'
 import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { updateSettings } from '@app/js/client-framework'
+import { updateSettings, resendInvite } from '@app/js/client-framework'
 
 const closeManual = () => {
   bus.emit('close-settings')
@@ -33,9 +33,22 @@ watch(
     console.log('updating settings...')
     updateSettings({
       enableConfetti: enableConfetti.value,
+    }).then(() => {
+      store.commit('UPDATE_SETTINGS', {
+        enableConfetti: enableConfetti.value,
+      })
     })
   }, 300)
 )
+
+const resending = ref(false)
+function resend() {
+  console.log('resending invite...')
+  resending.value = true
+  resendInvite().then(() => {
+    resending.value = false
+  })
+}
 </script>
 
 <template>
@@ -52,7 +65,7 @@ watch(
         </div>
       </div>
       <div class="modal-content">
-        <button>Resend invite</button>
+        <button @click="resend" :disabled="resending">Resend invite</button>
 
         <h2>Graphics</h2>
         <ul class="settings-items">

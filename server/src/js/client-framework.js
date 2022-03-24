@@ -239,8 +239,20 @@ function simulateAction(
 }
 
 async function updateSettings(newSettings) {
-  socket.emit('settings:update', newSettings, () => {
-    console.log('Updated settings!')
+  return new Promise((resolve, reject) => {
+    socket.emit('settings:update', newSettings, () => {
+      log('[arcadecord] updated settings!')
+      resolve()
+    })
+  })
+}
+
+async function resendInvite() {
+  return new Promise((resolve, reject) => {
+    socket.emit('resend invite', () => {
+      console.log('[arcadecord] resent invite!')
+      resolve()
+    })
   })
 }
 
@@ -321,4 +333,5 @@ export {
   listen,
   useOnClient,
   updateSettings,
+  resendInvite,
 }

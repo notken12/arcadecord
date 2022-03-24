@@ -444,7 +444,7 @@ io.on('connection', (socket) => {
         gameId === null ||
         userId === null
       ) {
-        console.log('Socket action error: gameId or userId is undefined')
+        console.log('Socket resend invite error: gameId or userId is undefined')
         callback({
           error: 'Invalid game or user',
         })
@@ -467,6 +467,7 @@ io.on('connection', (socket) => {
       // create instance of game
       var game = new gameType.Game(dbGame._doc)
 
+      game.resending = true
       // trigger turn event handler to resend invite
       await game.emit('turn')
 

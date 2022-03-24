@@ -1,6 +1,10 @@
 <template>
   <div class="win-view dialog-container">
-    <div class="win-view-chip dialog-chip" @click="showConfetti">
+    <div
+      class="win-view-chip dialog-chip"
+      @click="showConfetti2"
+      :style="buttonStyles"
+    >
       <span>🎉 You win!!!</span>
     </div>
   </div>
@@ -29,7 +33,7 @@ var colors = [
 ]
 colors = ['#3d5afe', '#651fff', '#2979ff', '#00b0ff', '#00e5ff']
 
-function showConfetti() {
+function showConfetti1() {
   var duration = 10 * 1000
   var animationEnd = Date.now() + duration
   var skew = 1
@@ -135,13 +139,26 @@ export default {
     return {}
   },
   methods: {
-    showConfetti() {
-      if (this.$store.user.settings.enableConfetti)
+    showConfetti2() {
+      if (this.confettiEnabled) {
         showConfetti2()
+      }
+    },
+  },
+  computed: {
+    confettiEnabled() {
+      return this.$store.state.user.settings.enableConfetti
+    },
+    buttonStyles() {
+      return {
+        cursor: this.confettiEnabled ? 'pointer' : 'default',
+      }
     },
   },
   mounted() {
-    showConfetti()
+    if (this.confettiEnabled) {
+      showConfetti1()
+    }
   },
 }
 </script>

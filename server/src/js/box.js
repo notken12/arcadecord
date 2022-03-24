@@ -31,6 +31,9 @@ function createStore() {
         store.commit('SETUP', connectionResponse)
         state.user = store.state.user
       },
+      UPDATE_SETTINGS(state, settings) {
+        store.commit('UPDATE_SETTINGS', settings)
+      },
       REPLAY_TURN(state) {
         state.me = store.state.me
         state.error = store.state.error
