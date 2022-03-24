@@ -115,12 +115,12 @@ export class Ball {
   }
 
   update() {
-    if (this.body.position.y > Ball.RADIUS) {
-      this.body.position.y = Ball.RADIUS
-    }
-    if (this.body.velocity.y > 0) {
-      this.body.velocity.y = 0
-    }
+    // if (this.body.position.y > Ball.RADIUS) {
+    //   this.body.position.y = Ball.RADIUS
+    // }
+    // if (this.body.velocity.y > 0) {
+    //   this.body.velocity.y = 0
+    // }
     this.mesh.position.set(
       this.body.position.x,
       this.body.position.y,
