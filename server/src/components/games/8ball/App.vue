@@ -89,7 +89,7 @@ let shotAngle = 0
 let shotPower = 0
 let shotSpin = { x: 0, y: 0 }
 
-let maxShotPower = 0.4
+let maxShotPower = 3
 
 const hitBall = () => {
   if (balls) {
@@ -97,7 +97,7 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
-    cueBall.hit(shotPower, shotAngle, shotSpin)
+    cueBall.hit(shotPower * maxShotPower, shotAngle, shotSpin)
 
     simulationRunningRef.value = true
     shotPower = 0

@@ -61,7 +61,6 @@ export class Ball {
       //envMap: Ball.envMap,
       combine: THREE.AddOperation,
       flatShading: false,
-      color: new THREE.Color(this.color ?? 0xff0000),
     })
 
     if (typeof this.texture == 'undefined') {
