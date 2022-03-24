@@ -279,7 +279,7 @@ const initThree = async () => {
               continue
             }
 
-            ball.body.position.y = -0.3
+            ball.body.position.set(0, -0.3, 0)
             ball.body.velocity.set(0, 0, 0)
             ball.body.angularVelocity.set(0, 0, 0)
             ball.body.type = CANNON.Body.STATIC
