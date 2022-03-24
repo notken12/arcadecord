@@ -64,7 +64,7 @@ test('pieces stack 4inarow', async () => {
     )
   )
 
-  for (i = 0; i < actions.length; i++) {
+  for (let i = 0; i < actions.length; i++) {
     await game.handleAction(actions[i])
   }
 

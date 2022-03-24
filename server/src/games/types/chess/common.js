@@ -764,29 +764,26 @@ function getSituation(game, color) {
       }
     }
   }
-  var i
-  var movesSinceCounter = 0
-  for (i = 0; i < game.data.previousMoves.length; i++) {
-    if (
-      game.data.previousMoves[game.data.previousMoves.length - 1].capture ||
-      game.data.previousMoves[game.data.previousMoves.length - 1].pieceType ===
-        'p'
-    ) {
-      movesSinceCounter = 0
-    } else {
-      movesSinceCounter += 1
-    }
 
-    if (movesSinceCounter >= 100) {
-      //Shouldn't ever get over 50 but idk
-      return '50move'
-    }
-  }
   if (!checkSufficientMaterial(game)) {
     return 'insufficientMaterial'
   }
 
-  return null
+  if (game.data.previousMoves.length < 100) return null
+  for (
+    let i = game.data.previousMoves.length;
+    i > game.data.previousMoves.length - 100;
+    i--
+  ) {
+    if (
+      game.data.previousMoves[i].capture ||
+      game.data.previousMoves[i].pieceType === 'p'
+    ) {
+      return null
+    }
+  }
+
+  return '50move'
 }
 function checkSufficientMaterial(game) {
   var i
