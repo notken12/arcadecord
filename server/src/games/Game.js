@@ -320,9 +320,10 @@ class Game {
       dbUser.discordId
     )
 
+    if (!res) return false
     if (!res.ok) return false
 
-    var error
+    let error
     var perms = await res.json().catch(() => (error = true))
 
     if (error) return false

@@ -50,6 +50,14 @@ export async function onBeforeRender(pageContext) {
         pageProps.gameType = typeId
         pageContext.game = game.getDataForClient(userId)
         pageContext.discordUser = await fetchUser(userId)
+        if (!pageContext.discordUser) {
+          return {
+            pageContext: {
+              documentHtml: null,
+              redirectTo: '/sign-in',
+            },
+          }
+        }
         pageContext.user = user._doc
       } else {
         // For some reason user isn't allowed to join (isn't in same server, game full, etc)
