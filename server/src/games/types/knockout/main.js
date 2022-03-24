@@ -5,11 +5,11 @@ import Game from '../../Game.js'
 const options = {
   typeId: 'knockout',
   name: 'Knockout',
-  description: "drown your friends lmao",
+  description: 'drown your friends lmao',
   aliases: ['boom', 'knockout'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '💥',
+  emoji: '<:knockout:956316584476049469>',
   data: {},
 }
 
@@ -20,23 +20,23 @@ class KnockoutGame extends Game {
     this.on('init', Game.eventHandlersDiscord.init)
     this.on('turn', Game.eventHandlersDiscord.turn)
 
-    this.setActionModel('setDirections', Common.setDirections);
+    this.setActionModel('setDirections', Common.setDirections)
     this.setActionSchema('setDirections', {
-        type: 'object',
-        properties: {
-            directions: { 
-              type: 'array',
-              maxItems:4,
-              minItems:4, // [{x, y}, {x, y}, null, {x, y}] null = fallen
-            },
-        }
-    });
+      type: 'object',
+      properties: {
+        directions: {
+          type: 'array',
+          maxItems: 4,
+          minItems: 4, // [{x, y}, {x, y}, null, {x, y}] null = fallen
+        },
+      },
+    })
   }
 
   onInit(game) {
-    var spawn = Common.spawn();
-    game.data.ice = spawn.ice;
-    game.data.dummies = spawn.dummies;
+    var spawn = Common.spawn()
+    game.data.ice = spawn.ice
+    game.data.dummies = spawn.dummies
     return game
   }
 }

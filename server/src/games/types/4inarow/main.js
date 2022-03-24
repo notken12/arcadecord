@@ -25,7 +25,7 @@ const options = {
   aliases: ['connect4', '4inarow'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '🔵',
+  emoji: '<:4inarow:956316582064291881>',
   data: {
     board: new Common.Board(7, 6),
     colors: [1, 0],
@@ -91,6 +91,10 @@ class FourInARowGame extends Game {
       let tlx = canvas.width / 2 - bw / 2 // top left x
       let tly = canvas.height / 2 - bh / 2 // top left y
 
+      ctx.shadowBlur = 6
+      ctx.shadowColor = 'gray'
+      ctx.shadowOffsetY = 3
+
       ctx.drawImage(cellBackground, tlx, tly, bw, bh)
 
       for (let i = 0; i < board.pieces.length; i++) {
@@ -109,6 +113,7 @@ class FourInARowGame extends Game {
       }
 
       ctx.drawImage(cellFront, tlx, tly, bw, bh)
+      ctx.shadowBlur = 0
 
       return canvas
     }

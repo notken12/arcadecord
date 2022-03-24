@@ -177,11 +177,13 @@ export default {
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.fade-enter-active {
   transition: opacity 0.5s ease;
 }
 
+.fade-leave-active {
+  transition: opacity 0.1s ease;
+}
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

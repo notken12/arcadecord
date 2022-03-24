@@ -105,10 +105,10 @@ client.sendTurnInvite = async function (g) {
   if (game.inThread) {
     if (!game.threadChannel) {
       let thread = await textChannel.threads.create({
-        name: `${game.emoji || ''} ${game.name}`,
+        name: `${Emoji.JOYSTICK} ${game.name}`,
         autoArchiveDuration: 'MAX',
         reason: `Arcadecord game`,
-        // startMessage: game.startMessage
+        // startMessage: game.startMessage,
       })
       for (let player of game.players) {
         thread.members.add(player.discordUser.id)
@@ -155,9 +155,9 @@ client.sendTurnInvite = async function (g) {
 
 async function getInviteMessage(game) {
   var embed = new MessageEmbed()
-    .setTitle(`Let's play ${game.name}!`)
+    .setTitle(`${game.emoji || ''}  Let's play ${game.name}!`)
     // .setDescription(`${game.description}`)
-    .setColor(game.color || '#0099ff')
+    .setColor(game.color || '#5253f9')
     .setURL(game.getURL())
 
   var button = new MessageButton()
