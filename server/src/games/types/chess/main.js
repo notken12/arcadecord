@@ -107,7 +107,7 @@ class Chess extends Game {
       )
       let boardImg = await Canvas.loadImage(boardSrc)
       ctx.shadowBlur = 5
-      ctx.shadowColor = 'gray'
+      ctx.shadowColor = '#000000ee'
 
       ctx.drawImage(boardImg, 54, 8, 184, 184)
 
@@ -119,6 +119,9 @@ class Chess extends Game {
         __dirname,
         '../../../public/assets/chess/black_pieces.svg'
       )
+
+      ctx.shadowBlur = 3
+      ctx.shadowOffsetY = 2
 
       let whitePieces = await Canvas.loadImage(whitePiecesSrc)
       let blackPieces = await Canvas.loadImage(blackPiecesSrc)

@@ -176,16 +176,19 @@ async function getInviteMessage(game) {
   var canvas = await game.getThumbnail()
   let image
   if (canvas) {
-    let overlaySrc = path.resolve(
-      __dirname,
-      '../server/src/public/icons/thumbnail_overlay.svg'
-    )
-    let overlayImg = await Canvas.loadImage(overlaySrc)
     const ctx = canvas.getContext('2d')
 
-    ctx.antialias = 'subpixel'
-    ctx.imageSmoothingEnabled = true
-    ctx.patternQuality = 'best'
+    ctx.shadowBlur = 0
+    ctx.shadowColor = 'transparent'
+    let overlaySrc = path.resolve(
+      __dirname,
+      '../server/src/ui-images/thumbnail_overlay.png'
+    )
+    let overlayImg = await Canvas.loadImage(overlaySrc)
+
+    // ctx.antialias = 'subpixel'
+    // ctx.imageSmoothingEnabled = true
+    // ctx.patternQuality = 'best'
 
     ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height)
 
@@ -197,13 +200,13 @@ async function getInviteMessage(game) {
     )
     let ctx = canvas.getContext('2d')
 
-    ctx.antialias = 'subpixel'
-    ctx.imageSmoothingEnabled = true
-    ctx.patternQuality = 'best'
+    // ctx.antialias = 'subpixel'
+    // ctx.imageSmoothingEnabled = true
+    // ctx.patternQuality = 'best'
 
     let defaultThumbnailSrc = path.resolve(
       __dirname,
-      '../server/src/ui-images/default_thumbnail.svg'
+      '../server/src/ui-images/default_thumbnail.png'
     )
     let defaultThumbnailImg = await Canvas.loadImage(defaultThumbnailSrc)
 
