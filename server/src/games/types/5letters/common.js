@@ -41,7 +41,6 @@ function getHints(guess, answer) {
       if (guess[j] === letter) {
         hints[j] = HINT.ELSEWHERE
         used[j] = true
-        found = true
         break
       }
     }
