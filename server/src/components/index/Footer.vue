@@ -13,7 +13,7 @@ import Link from './Link.vue'
     <div class="right">
       <Link href="/team">Our team</Link>
       <Link href="/support-us">Support us</Link>
-      <Link href="/help">Help and feedback</Link>
+      <Link href="/help-feedback">Help and feedback</Link>
       <Link href="/server">Support server</Link>
       <Link href="/contact">Contact us</Link>
       <Link href="/terms-of-service">Terms of service</Link>

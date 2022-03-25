@@ -56,6 +56,7 @@ import Button from './Button.vue'
 h2,
 h3 {
   margin: 0;
+  display: initial;
 }
 
 h2 {
@@ -107,7 +108,8 @@ h3 {
   flex-wrap: wrap;
 }
 
-a {
-  text-decoration: none;
+a,
+a:hover {
+  text-decoration: none !important;
 }
 </style>

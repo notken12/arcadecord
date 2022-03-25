@@ -8,7 +8,7 @@ import Logo from './Logo.vue'
   <div class="header">
     <Logo></Logo>
     <div class="links">
-      <Link href="/help">Help and feedback</Link>
+      <Link href="/help-feedback">Help and feedback</Link>
       <Link href="/support-us">Support us</Link>
       <Link href="/sign-in">Sign in</Link>
     </div>
