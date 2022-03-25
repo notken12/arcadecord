@@ -13,7 +13,8 @@ import { LogOutput } from 'concurrently'
 
 // ok  ok ok ok ok ok ok okok okok o
 
-test('set a direction for all dummies, complete a cycle and test if a dummy as fallen', async () => {
+
+test.todo('set a direction for all dummies, complete a cycle and test if a dummy as fallen', async () => {
   let game = new main.Game()
   // Activate testing mode
   game.test()
@@ -27,32 +28,36 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
 
   actions.push(
     new Action(
-      'setDirections', //null means they fell
-      { directions: [null, { x: 1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 0 }] },
+      'setDummies',
+      {
+        directions: [
+          {x: 30, y:50, fallen:false, moveDir: {x: 1, y: 0}, faceDir: 30},
+          {x: 40, y:50, fallen:false, moveDir: {x: -5, y: 0}, faceDir: 80},
+          {x: 50, y:50, fallen:false, moveDir: {x: -6, y: 0}, faceDir: 30},
+          {x: 60, y:50, fallen:false, moveDir: {x: 7, y: 0}, faceDir: 120},
+        ],
+      },
       1
     )
-  )
+  );
 
   actions.push(
     new Action(
-      'setDirections',
+      'setDummies',
       {
         directions: [
-          { x: 1, y: 0 },
-          { x: 1, y: 0 },
-          { x: 1, y: 0 },
-          { x: 1, y: 0 },
+            {x: 30, y:50, fallen:false, moveDir: {x: 1, y: 0}, faceDir: 30},
+            {x: 40, y:50, fallen:false, moveDir: {x: -5, y: 0}, faceDir: 80},
+            {x: 50, y:50, fallen:false, moveDir: {x: -6, y: 0}, faceDir: 30},
+            {x: 60, y:50, fallen:false, moveDir: {x: 7, y: 0}, faceDir: 120},
         ],
       },
       0
     )
-  )
+  );
 
   actions.forEach(async (action) => await game.handleAction(action))
 
-  expect(game.data.dummies[0].fallen).toBe(true) // dummy should have fallen
-  expect(game.data.dummies[1].moveDir.x).toBe(1)
-  expect(GameFlow.isItUsersTurn(game, 1)).toBe(true) // it should still be player 1's turn
-
-  //expect(game.data.ice.size).toBeLessThan(100) // percent should have decreased
+  expect(GameFlow.isItUsersTurn(game, 0)).toBe(true) // it should still be player 0's turn
+  expect(game.data.ice.size).toBeLessThan(100) // percent should have decreased
 })
