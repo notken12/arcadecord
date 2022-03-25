@@ -19,45 +19,38 @@ class Ice {
   }
 }
 
-async function setDirections(game, action) {
-  action.data.directions.forEach((direction, index) => {
-    if (direction) {
-      game.data.dummies[
-        index + !action.userId * 4 //player 1's indexes are 0 to 3
-      ].moveDir = direction
-    } else {
-      game.data.dummies[index + !action.userId * 4].fallen = true
+async function setDummies(game, action) {
+  action.data.directions.forEach((setTo, index) => {
+    if (setTo) {
+      var i = index + !action.userId * 4
+      game.data.dummies[i] = new Dummy(
+        setTo.x,
+        setTo.y,
+        setTo.faceDir,
+        i,
+        setTo.moveDir,
+        setTo.fallen
+      )
     }
   })
-  await GameFlow.end(game, { winner: checkWinner(game) })
-  var moving, fallen //was gonna use arrays but numbers is faster
-  for (var i = 0; i < game.data.dummies.length; i++) {
-    let cur = game.data.dummies[i]
-    if (cur.moveDir != undefined) moving++
-    if (cur.fallen == true) fallen++
-  }
-  if (moving == 8 - fallen) {
-    // do not switch turns, push everything and decrease size
-    // everything needs to be moved in client
-    game.data.ice.size -= Ice.decrease
-  } else {
-    await GameFlow.endTurn(game)
-  }
+  var winner = checkWinner(game)
+  if (winner) await GameFlow.end(game, { winner });
 }
 
 function checkWinner(game) {
-  var p1, p0, winner
+  var p1,
+    p0,
+    winner = undefined,
+    cur
   for (var i = 0; i < game.data.dummies.length; i++) {
-    let cur = game.data.dummies[i]
+    cur = game.data.dummies[i]
     if (!cur.fallen) continue //stop for loop if hasn't fallen
     if (cur.playerIndex) p1++
     //player index is either 0 or 1
     else p0++
   }
   if (p1 == 4) winner = 1
-  //p1
   else if (p0 == 4) winner = 0
-  //p2
   else if (p1 == 4 && p0 == 4) winner = -1 // draw cause they can all fall
   return winner
 }
@@ -88,4 +81,4 @@ function randRange(min, max) {
   return Math.random() * (max - min) + min
 }
 
-export default { Ice, Dummy, setDirections, spawn }
+export default { Ice, Dummy, setDummies, spawn }
