@@ -157,13 +157,13 @@ client.sendTurnInvite = async function (g) {
       }>`
     } else {
       if (game.winner === game.turn) {
-        invite.content = `${Emoji.CHECK} You win! <@${
+        invite.content = `${Emoji.CHECK} You win, <@${
           game.players[game.turn].discordUser.id
-        }>`
+        }>!`
       } else {
-        invite.content = `${Emoji.X} You lose! <@${
+        invite.content = `${Emoji.X} You lose, <@${
           game.players[game.turn].discordUser.id
-        }>`
+        }>!`
       }
     }
   }

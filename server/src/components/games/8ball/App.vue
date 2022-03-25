@@ -68,7 +68,7 @@ const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 const spinner = ref(null)
 
-let orbitControlsEnabled = false
+let orbitControlsEnabled = true
 let cannonDebuggerEnabled = false
 let scene,
   camera,
@@ -604,14 +604,6 @@ onMounted(async () => {
   bottom: 0;
   display: flex;
   flex-direction: row;
-}
-
-.drag-surface {
-  width: 100%;
-  height: 100%;
-  background: #00000033;
-  position: absolute;
-  display: none;
 }
 
 #controls-canvas {
