@@ -12,7 +12,7 @@ export class Ball {
   world
   color
   position = { x: 0, y: 0, z: 0 }
-  quaternion = { x: 0, y: 0, z: 0, w: 0 }
+  quaternion = { x: 0, y: 0, z: 0, w: 1 }
   out = false
   name
   texture
@@ -48,8 +48,10 @@ export class Ball {
     this.fallen = false
 
     this.body = this.createBody()
+    this.world.addBody(this.body)
 
     // console.log(this.mesh.quaternion)
+    this.forward = new THREE.Vector3(1, 0, 0)
   }
 
   createMesh() {
@@ -83,7 +85,7 @@ export class Ball {
     )
 
     sphere.castShadow = true
-    sphere.receiveShadow = true
+    sphere.receiveShadow = false
 
     return sphere
   }
@@ -93,6 +95,17 @@ export class Ball {
       mass: Ball.MASS,
       material: Ball.CONTACT_MATERIAL,
       shape: new CANNON.Sphere(Ball.RADIUS),
+      position: new CANNON.Vec3(
+        this.position.x,
+        this.position.y,
+        this.position.z
+      ),
+      quaternion: new CANNON.Quaternion(
+        this.quaternion.x,
+        this.quaternion.y,
+        this.quaternion.z,
+        this.quaternion.w
+      ),
     })
 
     body.linearDamping = body.angularDamping = 0.5 // Hardcode
@@ -101,15 +114,6 @@ export class Ball {
     // Sleep parameters
     body.sleepSpeedLimit = 0.5 // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
     body.sleepTimeLimit = 0.1 // Body falls asleep after 1s of sleepiness
-
-    body.position.set(this.position.x, this.position.y, this.position.z)
-    body.quaternion.set(
-      this.quaternion.x,
-      this.quaternion.y,
-      this.quaternion.z,
-      this.quaternion.w
-    )
-    this.world.addBody(body)
 
     return body
   }
@@ -134,17 +138,52 @@ export class Ball {
     )
   }
 
-  hit(power, angle, spin /* Vector2 */) {
+  hit(strength, angle, spin /* Vector2 */) {
+    let a = (angle - Math.PI / 2) % (2 * Math.PI)
+    this.forward.set(Math.cos(a), 0, -Math.sin(a))
     console.log(
-      `hit with power ${power} angle ${angle} spin ${JSON.stringify(spin)}`
+      `hit with power ${strength} angle ${angle} spin ${JSON.stringify(spin)}`
     )
-    let force = new THREE.Vector3(0, 0, power)
-    force.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
-    force = new CANNON.Vec3(force.x, force.y, force.z)
+    let s = strength * 30
+    var force = new CANNON.Vec3()
+    force.copy(this.forward.normalize())
+    force.scale(s, force)
+    var point = new CANNON.Vec3()
+    point.copy(this.body.position)
+    var vec = new CANNON.Vec3()
+    vec.copy(this.forward)
+    vec.normalize()
+    vec.scale(Ball.RADIUS, vec)
+    point.vsub(vec, point)
+    // point.set(point.x, point.y, point.z)
+    this.body.applyForce(force, point)
+    console.log(vec, force, point)
 
-    let point = new THREE.Vector3(spin.x * Ball.RADIUS, spin.y * Ball.RADIUS, 0)
-    point.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+    // let a = (angle - Math.PI / 2) % (2 * Math.PI)
 
-    this.body.applyImpulse(force, point)
+    // this.forward.set(Math.cos(a), 0, -Math.sin(a))
+    // this.forward.normalize()
+    // this.body.wakeUp()
+    // var point = new CANNON.Vec3()
+    // point.copy(this.body.position)
+    // var vec = new CANNON.Vec3()
+    // vec.copy(this.forward)
+    // vec.normalize()
+    // vec.scale(Ball.RADIUS, vec)
+    // point.vsub(vec, point)
+    // var force = new CANNON.Vec3()
+    // force.copy(this.forward.normalize())
+    // force.scale(strength, force)
+    // this.body.applyImpulse(force, point)
+    // force.scale(strength * 20, force)
+    // this.body.applyForce(force, point)
+
+    let sphereGeometry = new THREE.SphereGeometry(Ball.RADIUS / 3, 10, 10)
+    let sphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+    })
+    let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.position.set(point.x, point.y, point.z)
+    this.scene.add(sphere)
   }
 }

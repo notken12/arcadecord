@@ -3,7 +3,7 @@ import PowerControl from './PowerControl.vue'
 import SpinControl from './SpinControl.vue'
 
 import { useFacade } from 'components/base-ui/facade'
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 
 import * as THREE from 'three'
 
@@ -50,23 +50,31 @@ function setCollisionBehavior() {
   var ball_floor = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.FLOOR_CONTACT_MATERIAL,
-    { friction: 0.7, restitution: 0.1 }
+    { friction: 0.2, restitution: 0.5 }
   )
 
   var ball_wall = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.WALL_CONTACT_MATERIAL,
-    { friction: 0.5, restitution: 0.9 }
+    { friction: 0.01, restitution: 0.75 }
+  )
+
+  var ball_ball = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Ball.CONTACT_MATERIAL,
+    { friction: 0.055, restitution: 0.93, frictionEquationRelaxation: 1 }
   )
 
   world.addContactMaterial(ball_floor)
   world.addContactMaterial(ball_wall)
+  world.addContactMaterial(ball_ball)
 }
 
 const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 const spinner = ref(null)
+const spinnerEnabled = ref(true)
 
 let orbitControlsEnabled = true
 let cannonDebuggerEnabled = false
@@ -89,7 +97,7 @@ let shotAngle = 0
 let shotPower = 0
 let shotSpin = { x: 0, y: 0 }
 
-let maxShotPower = 3
+let maxShotPower = 1
 
 const hitBall = () => {
   if (balls) {
@@ -180,8 +188,8 @@ const initThree = async () => {
   )
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
-  /* renderer.shadowMap.enabled = true */
-  /* renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap */
+  renderer.shadowMap.enabled = true
+  renderer.shadowMapSoft = true
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.offsetWidth,
@@ -191,10 +199,14 @@ const initThree = async () => {
   camera.position.set(0, 2, 0)
 
   const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
-  scene.add(light)
+  // scene.add(light)
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
   scene.add(ambientLight)
+
+  const pointLight = new THREE.PointLight(0xffffff, 1.2)
+  pointLight.position.set(0, 2, 0)
+  scene.add(pointLight)
 
   table = new Table(scene, world)
 
@@ -255,11 +267,14 @@ const initThree = async () => {
     let dt
     if (!lastCallTime) {
       world.step(timeStep)
+      lastCallTime = time
     } else {
       dt = time - lastCallTime
-      world.step(timeStep, dt)
+      if (dt >= 1000 * timeStep) {
+        world.step(timeStep)
+        lastCallTime = time - (1000 * timeStep - dt)
+      }
     }
-    lastCallTime = time
 
     frames++
 
@@ -565,6 +580,21 @@ onMounted(async () => {
 
   window.addEventListener('resize', resize)
   resize()
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'a') {
+      spinnerEnabled.value = !spinnerEnabled.value
+    }
+    if (e.key === 's') {
+      cannonDebuggerEnabled = !cannonDebuggerEnabled
+    }
+  })
+})
+
+onUnmounted(() => {
+  scene = null
+  renderer = null
+  camera = null
 })
 </script>
 
@@ -585,10 +615,10 @@ onMounted(async () => {
         <canvas
           id="controls-canvas"
           ref="controlsCanvas"
-          :class="{ hidden: simulationRunningRef }"
+          :class="{ hidden: simulationRunningRef || !spinnerEnabled }"
         ></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
-        <div id="spinner" ref="spinner"></div>
+        <div id="spinner" ref="spinner" v-if="spinnerEnabled"></div>
       </div>
     </div>
   </game-view>

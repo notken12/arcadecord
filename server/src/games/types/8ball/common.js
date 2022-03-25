@@ -18,7 +18,7 @@ class Ball {
 
   name
   position = { x: 0, y: 0, z: 0 }
-  quaternion = { x: 0, y: 0, z: 0, w: 0 }
+  quaternion = { x: 0, y: 0, z: 0, w: 1 }
   out = false
   color
 

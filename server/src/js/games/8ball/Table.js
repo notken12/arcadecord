@@ -54,7 +54,6 @@ export class Table {
           PLAY_AREA.LEN_Z / 2 - Common.Ball.RADIUS
         )
       ),
-      // type: CANNON.Body.KINEMATIC,
     })
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
@@ -63,9 +62,8 @@ export class Table {
     let ch = 0.2 // cushion height (half extent)
 
     let cushionOptions = {
-      mass: 0,
       material: Table.WALL_CONTACT_MATERIAL,
-      type: CANNON.Body.KINEMATIC,
+      type: CANNON.Body.STATIC,
     }
 
     const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.02 * 4 // cushion length for the short side (x axis)
@@ -133,7 +131,6 @@ export class Table {
     let holeOptions = {
       mass: 0,
       material: Table.WALL_CONTACT_MATERIAL,
-      type: CANNON.Body.KINEMATIC,
     }
 
     let hh = 0.5 // half hole height
