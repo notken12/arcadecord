@@ -276,8 +276,14 @@ class Game {
 
     var user = await db.users.getById(id)
     if (!user) return false
+    if (user.banned) return false
 
-    var discordUser = await BotApi.fetchUser(user.discordId)
+    let discordUser
+    if (!this.testing) discordUser = await BotApi.fetchUser(user.discordId)
+    else
+      discordUser = {
+        tag: 'fakeplayer#0000',
+      }
     var player = new Player(id, discordUser)
 
     this.players.push(player)
@@ -313,6 +319,8 @@ class Game {
   async doesUserHavePermission(id) {
     var dbUser = await db.users.getById(id)
     if (!dbUser) return false
+    if (dbUser.banned) return false
+    if (this.testing) return true // ignore discord permissions when testing, TODO: use real discord data and don't ignore
 
     var res = await BotApi.getUserPermissionsInChannel(
       this.guild,
