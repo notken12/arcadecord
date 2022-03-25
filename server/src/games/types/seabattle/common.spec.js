@@ -272,7 +272,8 @@ describe('Action: shoot', async () => {
       for (let i = 0; i < ship.len; i++) {
         let shoot = new Action('shoot', { row: ship.row, col: ship.col + i }, 0)
         await game.handleAction(shoot)
-        expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
+        if (!game.hasEnded)
+          expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
       }
     }
 
