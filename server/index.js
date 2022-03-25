@@ -14,8 +14,6 @@ dotenv.config({
   path: './server/.env',
 })
 
-import bases from 'bases'
-
 import express from 'express'
 const app = express()
 
@@ -66,7 +64,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Connect to database
-db.connect()
+await db.connect()
 
 // get architecture from config
 import architecture from './config/architecture.js'
@@ -580,54 +578,8 @@ app.get('/game/:gameId', async (req, res, next) => {
   next()
 })
 
-app.post('/create-game', async (req, res) => {
-  try {
-    // get token from headers
-    var authHeader = req.headers.authorization
-    if (!authHeader) {
-      res.status(401).send('Access denied. No token provided.')
-      return
-    }
-    if (!authHeader.startsWith('Bearer ')) {
-      res.status(401).send('Access denied. Invalid token.')
-      return
-    }
-    // Remove Bearer from string
-    var token = authHeader.slice(7, authHeader.length)
-
-    if (token !== process.env.GAME_SERVER_TOKEN) {
-      res.status(401).send('Access denied. Invalid token.')
-      return
-    }
-
-    // get game options
-    var options = req.body.options
-    var typeId = options.typeId
-
-    // get game constructor
-    var Game = gameTypes[typeId].Game
-
-    var game = new Game(options)
-
-    // Set game ID
-    var snowflake = SnowflakeGenerator.generate()
-    var snowflakeNum = Number(snowflake)
-    game.id = bases.toBase62(snowflakeNum)
-
-    // add player to game
-    var user = await db.users.getById(req.body.userId)
-    await game.addPlayer(user._id)
-    await game.init()
-
-    // add game to database
-    await db.games.create(game)
-
-    res.json(game)
-  } catch (e) {
-    console.error(e)
-    res.status(500).send('Internal Server Error')
-  }
-})
+import createGameController from './controllers/create-game.controller.js'
+app.post('/create-game', createGameController)
 
 app.get('/discord-oauth2-sign-in', (req, res) => {
   res.redirect(

@@ -30,6 +30,14 @@ export async function onBeforeRender(pageContext) {
     }
   }
 
+  if (user.banned) {
+    throw RenderErrorPage({
+      pageContext: {
+        errorInfo: 'You are not allowed to join this game.',
+      },
+    })
+  }
+
   if (gameId) {
     var dbGame = await db.games.getById(gameId)
 

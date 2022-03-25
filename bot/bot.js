@@ -19,7 +19,7 @@ import Game from '../server/src/games/Game.js'
 
 // connect to the database
 import db from '../db/db2.js'
-db.connect()
+await db.connect()
 
 // .env is used for all shards
 config()

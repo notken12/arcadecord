@@ -19,6 +19,10 @@ const userSchema = new Schema({
       default: true,
     },
   },
+  banned: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const User = mongoose.models.User || mongoose.model('User', userSchema)
@@ -74,8 +78,8 @@ const SlashCommandOptions =
   mongoose.model('SlashCommandOptions', slashCommandOptionsSchema)
 
 const db = {
-  connect() {
-    mongoose.connect(process.env.MONGODB_URI)
+  async connect(uri) {
+    await mongoose.connect(uri ?? process.env.MONGODB_URI)
   },
   users: {
     getHash: function (token) {
