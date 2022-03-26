@@ -33,7 +33,7 @@ export class Ball {
       x: 0,
       y: 0,
       z: 0,
-      w: 0,
+      w: 1,
     }
     this.out = out ?? false
     this.name = name ?? 'Ball'
@@ -144,19 +144,22 @@ export class Ball {
     console.log(
       `hit with power ${strength} angle ${angle} spin ${JSON.stringify(spin)}`
     )
-    let s = strength * 30
+    let s = strength * 1
     var force = new CANNON.Vec3()
     force.copy(this.forward.normalize())
     force.scale(s, force)
     var point = new CANNON.Vec3()
-    point.copy(this.body.position)
+    // point.copy(this.body.position)
     var vec = new CANNON.Vec3()
     vec.copy(this.forward)
     vec.normalize()
     vec.scale(Ball.RADIUS, vec)
     point.vsub(vec, point)
+    // point = new CANNON.Vec3(0, 0, 0)
+    // point.copy(this.body.position)
     // point.set(point.x, point.y, point.z)
-    this.body.applyForce(force, point)
+    this.body.applyImpulse(force, point)
+    // this.body.applyForce(force, point)
     console.log(vec, force, point)
 
     // let a = (angle - Math.PI / 2) % (2 * Math.PI)
@@ -178,12 +181,12 @@ export class Ball {
     // force.scale(strength * 20, force)
     // this.body.applyForce(force, point)
 
-    let sphereGeometry = new THREE.SphereGeometry(Ball.RADIUS / 3, 10, 10)
-    let sphereMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffff00,
-    })
-    let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-    sphere.position.set(point.x, point.y, point.z)
-    this.scene.add(sphere)
+    // let sphereGeometry = new THREE.SphereGeometry(Ball.RADIUS / 3, 10, 10)
+    // let sphereMaterial = new THREE.MeshBasicMaterial({
+    //   color: 0xffff00,
+    // })
+    // let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    // sphere.position.set(point.x, point.y, point.z)
+    // this.scene.add(sphere)
   }
 }

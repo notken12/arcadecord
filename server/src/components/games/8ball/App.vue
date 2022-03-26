@@ -44,30 +44,48 @@ world.solver.tolerance = 0 // Force solver to use all iterations
 world.allowSleep = true
 
 function setCollisionBehavior() {
+  // world.defaultContactMaterial.friction = 0.1
+  // world.defaultContactMaterial.restitution = 0.85
+
+  // var ball_floor = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Table.FLOOR_CONTACT_MATERIAL,
+  //   { friction: 0.2, restitution: 0.5 }
+  // )
+
+  // var ball_wall = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Table.WALL_CONTACT_MATERIAL,
+  //   { friction: 0.01, restitution: 0.75 }
+  // )
+
+  // var ball_ball = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Ball.CONTACT_MATERIAL,
+  //   { friction: 0.055, restitution: 0.93, frictionEquationRelaxation: 1 }
+  // )
+
+  // world.addContactMaterial(ball_floor)
+  // world.addContactMaterial(ball_wall)
+  // world.addContactMaterial(ball_ball)
+
   world.defaultContactMaterial.friction = 0.1
   world.defaultContactMaterial.restitution = 0.85
 
   var ball_floor = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.FLOOR_CONTACT_MATERIAL,
-    { friction: 0.2, restitution: 0.5 }
+    { friction: 0.7, restitution: 0.1 }
   )
 
   var ball_wall = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.WALL_CONTACT_MATERIAL,
-    { friction: 0.01, restitution: 0.75 }
-  )
-
-  var ball_ball = new CANNON.ContactMaterial(
-    Ball.CONTACT_MATERIAL,
-    Ball.CONTACT_MATERIAL,
-    { friction: 0.055, restitution: 0.93, frictionEquationRelaxation: 1 }
+    { friction: 0.5, restitution: 0.9 }
   )
 
   world.addContactMaterial(ball_floor)
   world.addContactMaterial(ball_wall)
-  world.addContactMaterial(ball_ball)
 }
 
 const canvas = ref(null)
@@ -189,7 +207,7 @@ const initThree = async () => {
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
   renderer.shadowMap.enabled = true
-  renderer.shadowMapSoft = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.offsetWidth,
@@ -206,6 +224,12 @@ const initThree = async () => {
 
   const pointLight = new THREE.PointLight(0xffffff, 1.2)
   pointLight.position.set(0, 2, 0)
+  pointLight.castShadow = true
+  pointLight.shadow.mapSize.width = 2048 // default
+  pointLight.shadow.mapSize.height = 2048 // default
+  pointLight.shadow.camera.near = 0.1 // default
+  pointLight.shadow.camera.far = 4 // default
+  pointLight.shadow.radius = 1
   scene.add(pointLight)
 
   table = new Table(scene, world)
@@ -264,23 +288,20 @@ const initThree = async () => {
     requestAnimationFrame(animate)
 
     const time = performance.now() / 1000 // seconds
-    let dt
     if (!lastCallTime) {
       world.step(timeStep)
       lastCallTime = time
     } else {
-      dt = time - lastCallTime
-      if (dt >= 1000 * timeStep) {
+      let dt = time - lastCallTime
+      if (dt >= timeStep) {
         world.step(timeStep)
-        lastCallTime = time - (1000 * timeStep - dt)
+        lastCallTime = time - (dt - timeStep)
       }
     }
 
     frames++
 
     if (table.surfaceBody) {
-      world.fixedStep()
-
       for (let i = 0; i < balls.length; i++) {
         balls[i].update()
       }
