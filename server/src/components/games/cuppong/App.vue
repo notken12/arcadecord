@@ -322,7 +322,7 @@ const initThree = () => {
   })
 
   // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7)
   scene.add(ambientLight)
 
   // add point light
@@ -332,10 +332,24 @@ const initThree = () => {
   // //Set up shadow properties for the light
   // pointLight.shadow.mapSize.width = 1024 // default
   // pointLight.shadow.mapSize.height = 1024 // default
-  // pointLight.shadow.camera.near = 0.4 // default
-  // pointLight.shadow.camera.far = 1.2 // default
-  // pointLight.shadow.radius = 2
+  // pointLight.shadow.camera.near = 0.1 // default
+  // pointLight.shadow.camera.far = 2.2 // default
+  // pointLight.shadow.radius = 1
   scene.add(pointLight)
+
+  const spotLight = new THREE.SpotLight(0xffffff)
+  spotLight.position.set(0.3, 0.75, 0)
+  spotLight.lookAt(new THREE.Vector3(0, 0, 0))
+  // spotLight.castShadow = true
+
+  // spotLight.shadow.mapSize.width = 1024
+  // spotLight.shadow.mapSize.height = 1024
+
+  // spotLight.shadow.camera.near = 0.1
+  // spotLight.shadow.camera.far = 5
+  // spotLight.shadow.camera.fov = 30
+
+  // scene.add(spotLight)
 
   const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1)
   // scene.add(pointLightHelper)
@@ -355,8 +369,8 @@ const initThree = () => {
     })
   )
 
-  ballObject.castShadow = true
-  ballObject.receiveShadow = true
+  ballObject.castShadow = false
+  ballObject.receiveShadow = false
 
   ballObject.position.setY(0.02)
   scene.add(ballObject)
