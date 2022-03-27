@@ -17,13 +17,12 @@ import {
   watchEffect,
   toRef,
   toRefs,
+  onUnmounted,
 } from 'vue'
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-// import CannonDebugger from 'cannon-es-debugger'
-
-import { threeToCannon, ShapeType } from 'three-to-cannon'
+import CannonDebugger from 'cannon-es-debugger'
 
 import gsap from 'gsap'
 
@@ -33,6 +32,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useFacade } from 'components/base-ui/facade'
 
 import {
+  getCupBody,
   getCupPosition,
   tableLength,
   tableWidth,
@@ -105,6 +105,7 @@ const cameraPosition = computed(() => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
+world.enableSleep = true
 
 const canvasWrapper = ref(null)
 
@@ -118,6 +119,7 @@ let scene,
   ballBody
 
 let orbitControlsEnabled = false
+let cannonDebuggerEnabled = false
 
 const cupObjects = {}
 const cupBodies = {}
@@ -153,64 +155,62 @@ watch(
   { deep: true, flush: 'post' }
 )
 
-watch(
-  () => game.value.data.sides,
-  () => {
-    for (let i = 0; i < sides.value.length; i++) {
-      let side = sides.value[i]
-      for (let j = 0; j < side.cups.length; j++) {
-        let cup = side.cups[j]
-        let cupObject = cupObjects[cup.id]
-        let cupBody = cupBodies[cup.id]
+function updateCups() {
+  for (let i = 0; i < sides.value.length; i++) {
+    let side = sides.value[i]
+    for (let j = 0; j < side.cups.length; j++) {
+      let cup = side.cups[j]
+      let cupObject = cupObjects[cup.id]
+      let cupBody = cupBodies[cup.id]
 
-        if (cup.out || cup.color === mySide.value.color) {
-          cupBody.type = CANNON.Body.STATIC
-        }
+      if (cup.out || cup.color === mySide.value.color) {
+        cupBody.type = CANNON.Body.STATIC
+        cupBody.sleep()
+      }
 
-        let position = getCupPosition(cup)
+      let position = getCupPosition(cup)
 
-        if (cup.out) {
-          cupBody.type = CANNON.Body.STATIC
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            y: position.y,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              gsap.to(cupObject.position, {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                duration: 0.5,
-                ease: 'power3.inOut',
-              })
-            },
-          })
-        } else {
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            ease: 'power3.inOut',
-          })
-          cupBody.type = CANNON.Body.KINEMATIC
-          cupBody.position = new CANNON.Vec3(
-            position.x,
-            position.y + 0.117,
-            position.z
-          )
-        }
+      if (cup.out) {
+        cupBody.type = CANNON.Body.STATIC
+        cupBody.sleep()
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          y: position.y,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            gsap.to(cupObject.position, {
+              x: position.x,
+              y: position.y,
+              z: position.z,
+              duration: 0.5,
+              ease: 'power3.inOut',
+            })
+          },
+        })
+      } else {
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          x: position.x,
+          y: position.y,
+          z: position.z,
+          ease: 'power3.inOut',
+        })
+        cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.position = new CANNON.Vec3(position.x, position.y, position.z)
       }
     }
-    // let cup = newValue
-    // console.log(cup)
-    // console.log(game.value)
-    // console.log(replaying.value)
-  },
-  { deep: true }
-)
+  }
+}
+
+watch(() => game.value.data.sides, updateCups, { deep: true })
+
+watch(() => game.value.turn, updateCups)
+
+const fps = ref(0)
 
 const initThree = () => {
+  let frames = 0
+
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xaaaaaa)
   camera = new THREE.PerspectiveCamera(
@@ -221,13 +221,17 @@ const initThree = () => {
   )
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
-  renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
+  // renderer.shadowMap.enabled = true
+  // renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.clientWidth,
     canvasWrapper.value.clientHeight
   )
+
+  const cannonDebugger = new CannonDebugger(scene, world, {
+    // options...
+  })
 
   if (orbitControlsEnabled) {
     orbitControls = new OrbitControls(camera, renderer.domElement)
@@ -255,27 +259,11 @@ const initThree = () => {
       scene.add(cupObject)
       cupObjects[cup.id] = cupObject
 
-      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], {
-        type: ShapeType.MESH,
-      })
-      let cupPosition = getCupPosition(cup)
-      let cupBody = new CANNON.Body({
-        mass: 0,
-        material: new CANNON.Material({
-          friction: 1,
-          restitution: 0.5,
-        }),
-        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
-        shape,
-        offset,
-        quaternion,
-        position: new CANNON.Vec3(
-          cupPosition.x,
-          cupPosition.y + 0.117,
-          cupPosition.z
-        ),
-      })
-      if (cup.out) cupBody.type = CANNON.Body.STATIC
+      let cupBody = getCupBody(cup)
+      if (cup.out || cup.color === mySide.value.color) {
+        cupBody.type = CANNON.Body.STATIC
+        cupBody.sleep()
+      }
 
       world.addBody(cupBody)
       cupBodies[cup.id] = cupBody
@@ -333,13 +321,13 @@ const initThree = () => {
   // add point light
   const pointLight = new THREE.PointLight(0xffffff, 0.7)
   pointLight.position.set(0, 0.4, 0)
-  pointLight.castShadow = true
-  //Set up shadow properties for the light
-  pointLight.shadow.mapSize.width = 1024 // default
-  pointLight.shadow.mapSize.height = 1024 // default
-  pointLight.shadow.camera.near = 0.4 // default
-  pointLight.shadow.camera.far = 1.2 // default
-  pointLight.shadow.radius = 2
+  // pointLight.castShadow = true
+  // //Set up shadow properties for the light
+  // pointLight.shadow.mapSize.width = 1024 // default
+  // pointLight.shadow.mapSize.height = 1024 // default
+  // pointLight.shadow.camera.near = 0.4 // default
+  // pointLight.shadow.camera.far = 1.2 // default
+  // pointLight.shadow.radius = 2
   scene.add(pointLight)
 
   const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1)
@@ -356,7 +344,7 @@ const initThree = () => {
       shininess: 100,
       reflectivity: 0.1,
       combine: THREE.AddOperation,
-      shading: THREE.SmoothShading,
+      flatShading: false,
     })
   )
 
@@ -443,6 +431,7 @@ const initThree = () => {
   let firstActionReplayed = false
   function animate() {
     requestAnimationFrame(animate)
+    frames++
 
     let deltaTime = (new Date().getTime() - time) / 1000
     time = new Date().getTime()
@@ -463,7 +452,7 @@ const initThree = () => {
 
     if (orbitControls) orbitControls.update()
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    if (cannonDebuggerEnabled) cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
@@ -502,6 +491,11 @@ const initThree = () => {
     }
   }
   animate()
+
+  setInterval(() => {
+    fps.value = frames
+    frames = 0
+  }, 1000)
 }
 
 function throwBall() {
@@ -579,7 +573,12 @@ function pointerMove(e) {
 }
 
 function pointerUp(e) {
-  if (replaying.value || runningAction.value || simulationStartTime !== null) {
+  if (
+    replaying.value ||
+    runningAction.value ||
+    simulationStartTime !== null ||
+    orbitControlsEnabled
+  ) {
     return
   }
 
@@ -647,6 +646,8 @@ onMounted(() => {
   window.zForce = function (x) {
     return window.getBaseLog(50, x * -0.4 + 1.5)
   }
+  window.world = world
+  window.cupBodies = cupBodies
 
   $replayTurn(() => {
     setTimeout(() => {
@@ -711,6 +712,7 @@ onMounted(() => {
         @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
       ></canvas>
+      <p style="position: absolute; top: 16px">{{ fps }} fps</p>
       <div
         class="canvas-overlay"
         @animationend="overlayAnimated = false"
