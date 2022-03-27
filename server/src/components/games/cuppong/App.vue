@@ -166,15 +166,9 @@ function updateCups() {
       let cupObject = cupObjects[cup.id]
       let cupBody = cupBodies[cup.id]
 
-      if (cup.out || cup.color === mySide.value.color) {
-        cupBody.type = CANNON.Body.STATIC
-        cupBody.isTrigger = true
-        cupBody.sleep()
-      }
-
       let position = getCupPosition(cup)
 
-      if (cup.out) {
+      if (cup.out || (cup.color === mySide.value.color && !replaying.value)) {
         cupBody.type = CANNON.Body.STATIC
         cupBody.isTrigger = true
         cupBody.sleep()
@@ -201,7 +195,9 @@ function updateCups() {
           ease: 'power3.inOut',
         })
         cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.isTrigger = false
         cupBody.position = new CANNON.Vec3(position.x, position.y, position.z)
+        cupBody.wakeUp()
       }
     }
   }
@@ -210,6 +206,8 @@ function updateCups() {
 watch(() => game.value.data.sides, updateCups, { deep: true })
 
 watch(() => game.value.turn, updateCups)
+
+watch(() => replaying.value, updateCups)
 
 const fps = ref(0)
 
@@ -265,10 +263,14 @@ const initThree = () => {
       cupObjects[cup.id] = cupObject
 
       let cupBody = getCupBody(cup)
-      if (cup.out || cup.color === mySide.value.color) {
+      if (cup.out || (cup.color === mySide.value.color && !replaying.value)) {
         cupBody.type = CANNON.Body.STATIC
         cupBody.isTrigger = true
         cupBody.sleep()
+      } else {
+        cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.isTrigger = false
+        cupBody.wakeUp()
       }
 
       world.addBody(cupBody)

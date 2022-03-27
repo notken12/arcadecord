@@ -114,7 +114,7 @@ export function getCupBody(cup) {
   let cupBody = new CANNON.Body({
     mass: 0,
     material: new CANNON.Material({
-      friction: 1,
+      friction: 0.5,
       restitution: 0.5,
     }),
     type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
