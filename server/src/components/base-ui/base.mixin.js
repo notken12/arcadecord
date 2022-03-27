@@ -2,9 +2,8 @@ import { reactive } from 'vue'
 import cloneDeep from 'lodash.clonedeep'
 
 import bus from '@app/js/vue-event-bus'
+import { turnReplayDelay } from './replay-constants'
 import { mapState } from 'vuex'
-
-const turnReplayDelay = 250
 
 export default {
   data() {

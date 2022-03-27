@@ -1,9 +1,15 @@
 <template>
-  <div class="cell" :class="classes" @animationend="animated = false"></div>
+  <div
+    class="cell"
+    :class="classes"
+    @animationend="animated = false"
+    ref="el"
+  ></div>
 </template>
 
 <script>
 import Common from '/gamecommons/filler'
+import gsap from 'gsap'
 
 export default {
   data() {
@@ -22,7 +28,6 @@ export default {
       var classes = [color]
 
       if (this.isblob && !this.replaying) classes.push('partofblob')
-      if (this.animated) classes.push('animated')
 
       return classes // an array with one string; the string is the color's name.
       // the class will be set to the color name
@@ -31,7 +36,19 @@ export default {
   watch: {
     'cell.color': function (newVal, oldVal) {
       // Play css animation when the color of the cell changes
-      this.animated = true
+      let tl = gsap.timeline()
+      tl.to(this.$refs.el, {
+        scale: 1.4,
+        duration: 0.25,
+      })
+      tl.to(
+        this.$refs.el,
+        {
+          scale: 1,
+          duration: 0.25,
+        },
+        '<0.3'
+      )
     },
   },
 }
@@ -44,6 +61,8 @@ export default {
   width: 100%;
   height: 100%;
   transition: background-color 0.5s;
+  border: none;
+  outline: none;
 }
 
 .cell.partofblob {
@@ -61,7 +80,7 @@ export default {
     filter: brightness(0.8);
   }
   50% {
-    filter: brightness(1.5);
+    filter: brightness(1.2);
   }
   100% {
     filter: brightness(0.8);

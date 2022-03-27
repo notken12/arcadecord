@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue'
 import bus from '@app/js/vue-event-bus'
 import { useStore } from 'vuex'
 
-const turnReplayDelay = 250
+import { turnReplayDelay } from './replay-constants'
 
 let replayTurnFunc = () => {}
 let replayTurnFuncSet = false
