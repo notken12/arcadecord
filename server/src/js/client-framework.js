@@ -288,8 +288,6 @@ async function connect(gameId, callback) {
     baseCallback
   )
 
-  // TODO: update game on reconnect
-
   function reconnect() {
     if (!socket.connected && !intentionalDisconnect) {
       log('[arcadecord.socket] disconnected. reconnecting...')
