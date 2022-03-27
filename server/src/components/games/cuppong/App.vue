@@ -226,8 +226,8 @@ const initThree = () => {
   )
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
-  // renderer.shadowMap.enabled = true
-  // renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
+  renderer.shadowMap.enabled = true
+  // renderer.shadowMap.type = THREE.BasicShadowMap // default THREE.PCFShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.clientWidth,
@@ -322,11 +322,11 @@ const initThree = () => {
   })
 
   // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
   scene.add(ambientLight)
 
   // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 0.7)
+  const pointLight = new THREE.PointLight(0xffffff, 0.5)
   pointLight.position.set(0, 0.4, 0)
   // pointLight.castShadow = true
   // //Set up shadow properties for the light
@@ -335,7 +335,7 @@ const initThree = () => {
   // pointLight.shadow.camera.near = 0.1 // default
   // pointLight.shadow.camera.far = 2.2 // default
   // pointLight.shadow.radius = 1
-  scene.add(pointLight)
+  // scene.add(pointLight)
 
   const spotLight = new THREE.SpotLight(0xffffff)
   spotLight.position.set(0.3, 0.75, 0)
@@ -350,6 +350,37 @@ const initThree = () => {
   // spotLight.shadow.camera.fov = 30
 
   // scene.add(spotLight)
+
+  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.7)
+  directionalLight1.position.set(0.4, 0.4, 0.8)
+  directionalLight1.castShadow = true
+
+  scene.add(directionalLight1)
+  scene.add(directionalLight1.target)
+  directionalLight1.target.position.set(0, 0, 0.8)
+
+  directionalLight1.shadow.camera.top = 0.4
+  directionalLight1.shadow.camera.bottom = -0.15
+  directionalLight1.shadow.camera.left = -0.2
+  directionalLight1.shadow.camera.right = 0.2
+  directionalLight1.shadow.camera.near = 0.1
+  directionalLight1.shadow.camera.far = 0.9
+  directionalLight1.shadow.mapSize.width = 256
+  directionalLight1.shadow.mapSize.height = 256
+
+  const directionalLight2 = directionalLight1.clone()
+  directionalLight2.position.set(0.4, 0.4, -0.8)
+
+  directionalLight1.castShadow = true
+
+  scene.add(directionalLight2)
+  scene.add(directionalLight2.target)
+  directionalLight2.target.position.set(0, 0, -0.8)
+
+  if (orbitControlsEnabled) {
+    scene.add(new THREE.CameraHelper(directionalLight1.shadow.camera))
+    scene.add(new THREE.CameraHelper(directionalLight2.shadow.camera))
+  }
 
   const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1)
   // scene.add(pointLightHelper)
