@@ -56,14 +56,20 @@ function forwardRequest(host, req, res) {
     options.body = undefined
   }
   //console.log('Proxying to ' + options.url);
-  fetch(options.url, options).then(async (response) => {
-    // send response back
-    res.status(response.status)
-    res.set(Object.fromEntries(response.headers))
+  fetch(options.url, options)
+    .then(async (response) => {
+      // send response back
+      res.status(response.status)
+      res.set(Object.fromEntries(response.headers))
 
-    var text = await response.text()
-    res.send(text || '')
-  })
+      var text = await response.text()
+      res.send(text || '')
+    })
+    .catch((err) => {
+      console.error(err)
+      res.status(500)
+      res.send('Internal Server Error')
+    })
 }
 
 function proxyRoundRobin(req, res) {

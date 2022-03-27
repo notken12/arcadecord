@@ -262,14 +262,6 @@ class Game {
         message: 'Action model not found',
       }
     }
-
-    if (this.actionHandlers[action.type]) {
-      for (let callback of this.actionHandlers[action.type]) {
-        await callback(action)
-      }
-    }
-
-    return actionResult
   }
   async addPlayer(id) {
     if (!(await this.canUserJoin(id))) return false
@@ -284,6 +276,11 @@ class Game {
       discordUser = {
         tag: 'fakeplayer#0000',
       }
+
+    if (!discordUser) {
+      console.warn('[WARNING] Could not find discord user for user: ' + user.id)
+      return false
+    }
     var player = new Player(id, discordUser)
 
     this.players.push(player)

@@ -13,7 +13,19 @@ const host = hosts.find((host) => host.id === hostId)
 import { Generator } from 'snowflake-generator'
 const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host))
 
-import bases from 'bases'
+function toBase62(n) {
+  if (n === 0) {
+    return '0'
+  }
+  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  var result = ''
+  while (n > 0) {
+    result = digits[n % digits.length] + result
+    n = parseInt(n / digits.length, 10)
+  }
+
+  return result
+}
 
 export default async (req, res) => {
   try {
@@ -65,7 +77,7 @@ export async function createGame(reqBody, testing) {
   // Set game ID
   var snowflake = SnowflakeGenerator.generate()
   var snowflakeNum = Number(snowflake)
-  game.id = bases.toBase62(snowflakeNum)
+  game.id = toBase62(snowflakeNum)
 
   // add player to game
   var user = await db.users.getById(userId)
