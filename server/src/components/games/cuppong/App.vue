@@ -322,7 +322,7 @@ const initThree = () => {
   })
 
   // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7)
   scene.add(ambientLight)
 
   // add point light
@@ -351,7 +351,7 @@ const initThree = () => {
 
   // scene.add(spotLight)
 
-  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.7)
+  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.5)
   directionalLight1.position.set(0.4, 0.4, 0.8)
   directionalLight1.castShadow = true
 
@@ -393,10 +393,11 @@ const initThree = () => {
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshPhongMaterial({
       specular: 0xffffff,
-      shininess: 100,
-      reflectivity: 0.1,
+      shininess: 0,
+      reflectivity: 0,
       combine: THREE.AddOperation,
       flatShading: false,
+      color: 0xe87902,
     })
   )
 
