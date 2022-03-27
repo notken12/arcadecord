@@ -418,7 +418,7 @@ const initThree = () => {
       return
     }
 
-    if (!knockedCup) return // dev cheat
+    // if (!knockedCup) return // dev cheat
 
     $runAction('throw', {
       force: throwForce,
