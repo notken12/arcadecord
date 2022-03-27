@@ -7,8 +7,6 @@ import Game from '../../Game.js'
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js'
 
-import Canvas from 'canvas'
-
 // get __dirname
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -54,6 +52,8 @@ class FourInARowGame extends Game {
     })
 
     this.getThumbnail = async function () {
+      const { default: Canvas } = await import('canvas')
+
       const canvas = Canvas.createCanvas(
         Game.thumbnailDimensions.width,
         Game.thumbnailDimensions.height

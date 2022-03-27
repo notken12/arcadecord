@@ -105,25 +105,15 @@ class CupPongGame extends Game {
     //       rowPos 0
 
     game.data.sides.forEach((side) => {
-      for (let rowNum = 0; rowNum < 4; rowNum++) {
-        // Row 0 is the back row
-        let cupCount = 4 - rowNum
-        // rowPos 0 is the center of the row
-
-        let offset = 0.5
-        for (
-          let rowPos = -cupCount / 2 + offset;
-          rowPos <= cupCount / 2 - offset;
-          rowPos++
-        ) {
-          let cup = new Common.Cup(
-            `${side.color}:${rowNum}-${rowPos}`,
-            side.color,
-            rowNum,
-            rowPos
-          )
-          side.cups.push(cup)
-        }
+      let positions = Common.getTriangleArrangement(4, 4)
+      for (let pos of positions) {
+        let cup = new Common.Cup(
+          `${side.color}:${pos.rowNum}-${pos.rowPos}`,
+          side.color,
+          pos.rowNum,
+          pos.rowPos
+        )
+        side.cups.push(cup)
       }
     })
   }
