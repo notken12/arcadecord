@@ -118,10 +118,11 @@ export function getCupBody(cup) {
       restitution: 0.5,
     }),
     type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
+    isTrigger: cup.out,
     position: new CANNON.Vec3(cupPosition.x, cupPosition.y, cupPosition.z),
   })
 
-  addRimShapes(cupBody, rimBoxes, innerRadius, radius, height, 0.005)
+  addRimShapes(cupBody, rimBoxes, innerRadius, radius, height, 0.01)
 
   return cupBody
 }

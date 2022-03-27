@@ -106,6 +106,9 @@ const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
 world.enableSleep = true
+// world.solver = new CANNON.SplitSolver(new CANNON.GSSolver())
+world.solver.iterations = 10
+world.solver.tolerance = 0
 
 const canvasWrapper = ref(null)
 
@@ -137,8 +140,8 @@ function ballsBackWatcher(newValue, oldValue) {
 }
 
 function inRedemptionWatcher(newValue, oldValue) {
-  if (newValue[0] === true || newValue[1] === true) {
-    message.value = 'In redemption'
+  if ((newValue[0] === true || newValue[1] === true) && !game.hasEnded) {
+    message.value = 'Redemption'
     overlayAnimated.value = true
   }
 }
@@ -165,6 +168,7 @@ function updateCups() {
 
       if (cup.out || cup.color === mySide.value.color) {
         cupBody.type = CANNON.Body.STATIC
+        cupBody.isTrigger = true
         cupBody.sleep()
       }
 
@@ -172,6 +176,7 @@ function updateCups() {
 
       if (cup.out) {
         cupBody.type = CANNON.Body.STATIC
+        cupBody.isTrigger = true
         cupBody.sleep()
         gsap.to(cupObject.position, {
           duration: 0.5,
@@ -262,6 +267,7 @@ const initThree = () => {
       let cupBody = getCupBody(cup)
       if (cup.out || cup.color === mySide.value.color) {
         cupBody.type = CANNON.Body.STATIC
+        cupBody.isTrigger = true
         cupBody.sleep()
       }
 
@@ -286,23 +292,24 @@ const initThree = () => {
         // tableObject.receiveShadow = true
 
         // add table body
-        tableBody = new CANNON.Body({
-          mass: 0,
-          shape: new CANNON.Box(
-            new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)
-          ),
-          position: new CANNON.Vec3(0, 0, 0),
-          material: new CANNON.Material({
-            friction: 0.5,
-            restitution: 0.9,
-          }),
-          type: CANNON.Body.STATIC,
-        })
-        tableBody.position.set(0, -0.1, 0)
-        world.addBody(tableBody)
       }
     })
   })
+
+  tableBody = new CANNON.Body({
+    mass: 0,
+    shape: new CANNON.Box(
+      new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)
+    ),
+    position: new CANNON.Vec3(0, 0, 0),
+    material: new CANNON.Material({
+      friction: 0.5,
+      restitution: 0.9,
+    }),
+    type: CANNON.Body.STATIC,
+  })
+  tableBody.position.set(0, -0.1, 0)
+  world.addBody(tableBody)
 
   // load cup model
   loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
@@ -383,7 +390,7 @@ const initThree = () => {
 
   world.addBody(ballBody)
 
-  const simulationDuration = 3000
+  const simulationDuration = 3 // seconds
 
   function endSimulation(throwForce, knockedCup) {
     simulationStartTime = null
@@ -411,7 +418,7 @@ const initThree = () => {
       return
     }
 
-    // if (!knockedCup) return // dev cheat
+    if (!knockedCup) return // dev cheat
 
     $runAction('throw', {
       force: throwForce,
@@ -424,17 +431,31 @@ const initThree = () => {
     let action = actionsToReplay[0]
     let { x, y, z } = action.data.force
     ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
-    simulationStartTime = Date.now()
+    simulationStartTime = performance.now() / 1000
   }
 
-  let time = new Date().getTime()
   let firstActionReplayed = false
+
+  const timeStep = 1 / 60 // seconds
+  let lastCallTime
   function animate() {
     requestAnimationFrame(animate)
     frames++
 
-    let deltaTime = (new Date().getTime() - time) / 1000
-    time = new Date().getTime()
+    let dt = 0
+
+    const time = performance.now() / 1000 // seconds
+    // if (!lastCallTime) {
+    //   world.step(timeStep)
+    //   lastCallTime = time
+    // } else {
+    //   dt = time - lastCallTime
+    //   if (dt >= timeStep) {
+    //     lastCallTime = time
+    //     world.step(timeStep)
+    //   }
+    // }
+    world.fixedStep()
 
     // Step Cannon World
     if (tableBody && ballBody) {
@@ -477,7 +498,8 @@ const initThree = () => {
 
     if (
       ballBody.velocity.clone().normalize() <= 0.05 &&
-      ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03
+      ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03 &&
+      ballBody.position.y < 0.03
     ) {
       endSimulation(throwForce)
       return
@@ -628,7 +650,7 @@ function pointerUp(e) {
       new CANNON.Vec3(force.x, force.y, force.z),
       ballBody.position
     )
-    simulationStartTime = Date.now()
+    simulationStartTime = performance.now() / 1000
   }
 }
 
