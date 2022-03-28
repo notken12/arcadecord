@@ -55,6 +55,8 @@ export default async (req, res) => {
       return
     }
 
+    game = await db.games.create(game)
+
     res.json(game)
   } catch (e) {
     console.error(e)
@@ -87,6 +89,5 @@ export async function createGame(reqBody, testing) {
   await game.addPlayer(user._id)
   await game.init()
 
-  // add game to database
-  return await db.games.create(game)
+  return game
 }

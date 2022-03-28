@@ -48,7 +48,7 @@ export async function onBeforeRender(pageContext) {
       // create instance of game
       var game = new gameType.Game(dbGame._doc)
 
-      if (await game.canUserSocketConnect(userId)) {
+      if ((await game.canUserSocketConnect(userId)).ok) {
         // send game info to user
         const { typeId } = game
 

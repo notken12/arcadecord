@@ -10,6 +10,12 @@ import Emoji from '../../../Emoji.js'
 import db from '../../../db/db2.js'
 import Ajv from 'ajv'
 
+import {
+  GameConnectionError,
+  CanUserJoinError,
+  AddPlayerError,
+} from './GameErrors.js'
+
 config()
 
 const ajv = new Ajv()
@@ -264,11 +270,23 @@ class Game {
     }
   }
   async addPlayer(id) {
-    if (!(await this.canUserJoin(id))) return false
-
     var user = await db.users.getById(id)
-    if (!user) return false
-    if (user.banned) return false
+    if (!user)
+      return {
+        ok: false,
+        error: AddPlayerError.USER_NOT_FOUND,
+      }
+
+    // TODO: provide more information
+    let canUserJoinResult = await this.canUserJoin(user)
+    if (!canUserJoinResult.ok) {
+      if (canUserJoinResult.error === CanUserJoinError.GAME_FULL) {
+        return {
+          ok: false,
+          error: AddPlayerError.GAME_FULL,
+        }
+      }
+    }
 
     let discordUser
     if (!this.testing) discordUser = await BotApi.fetchUser(user.discordId)
@@ -279,14 +297,19 @@ class Game {
 
     if (!discordUser) {
       console.warn('[WARNING] Could not find discord user for user: ' + user.id)
-      return false
+      return {
+        ok: false,
+        error: AddPlayerError.DISCORD_USER_NOT_FOUND,
+      }
     }
     var player = new Player(id, discordUser)
 
     this.players.push(player)
     this.emit('join', player)
 
-    return true
+    return {
+      ok: true,
+    }
   }
   mockPlayers(count) {
     if (!this.testing) {
@@ -313,8 +336,8 @@ class Game {
   async onInit(game) {
     return game
   }
-  async doesUserHavePermission(id) {
-    var dbUser = await db.users.getById(id)
+  // TODO: change to using an object with {ok: bool, error: UserPermissionError}
+  async doesUserHavePermission(dbUser) {
     if (!dbUser) return false
     if (dbUser.banned) return false
     if (this.testing) return true // ignore discord permissions when testing, TODO: use real discord data and don't ignore
@@ -351,31 +374,76 @@ class Game {
     }
     return false
   }
-  async canUserJoin(id) {
-    if (!(await this.doesUserHavePermission(id))) return false
+  async canUserJoin(user) {
     if (this.isGameFull()) {
       this.emit('error', 'Game is full')
-      return false
+      return {
+        ok: false,
+        error: CanUserJoinError.GAME_FULL,
+      }
     }
-    if (this.players.filter((player) => player.id === id).length > 0) {
+
+    // TODO: add more specific message
+    if (!(await this.doesUserHavePermission(user)))
+      return {
+        ok: false,
+      }
+
+    if (this.players.filter((player) => player.id === user.id).length > 0) {
       this.emit('error', 'Player already in game')
-      return false
+      return {
+        ok: false,
+        error: CanUserJoinError.ALREADY_IN_GAME,
+      }
     }
-    return true
+    return {
+      ok: true,
+    }
+  }
+  isConnectionContested(id) {
+    let unjoinedSockets = [] // user ids of unjoined players that have sockets connected
+    for (let pid in this.sockets) {
+      unjoinedSockets.push(pid)
+    }
+    for (let player of this.players) {
+      if (unjoinedSockets.includes(player.id))
+        unjoinedSockets.splice(unjoinedSockets.indexOf(player.id), 1)
+    }
+    return !unjoinedSockets.includes(id) && unjoinedSockets.length > 0
   }
   async canUserSocketConnect(id) {
     if (this.isPlayerInGame(id)) {
-      return true
+      return {
+        ok: true,
+      } // shortcut, we know the user can connect so don't bother using HTTP requests to check permissions
     }
 
     if (this.isGameFull()) {
       this.emit('error', 'Game is full')
-      return false
+      return {
+        ok: false,
+        error: GameConnectionError.GAME_FULL,
+      }
     }
 
-    if (!(await this.doesUserHavePermission(id))) return false
+    // TODO: add more specific message
+    let dbUser = await db.users.getById(id)
+    if (!dbUser) {
+      this.emit('error', 'User not found')
+      return {
+        ok: false,
+        error: GameConnectionError.USER_NOT_FOUND,
+      }
+    }
 
-    return true
+    if (!(await this.doesUserHavePermission(dbUser)))
+      return {
+        ok: false,
+      }
+
+    return {
+      ok: true,
+    }
   }
   isGameFull() {
     return this.players.length >= this.maxPlayers

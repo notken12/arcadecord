@@ -254,7 +254,7 @@ io.on('connection', (socket) => {
         // create instance of game
         var game = new gameType.Game(dbGame._doc)
 
-        if (await game.canUserSocketConnect(userId)) {
+        if ((await game.canUserSocketConnect(userId)).ok) {
           // Disconnect socket from other tab
           let oldSocket = game.getSocket(userId)
           io.to(oldSocket).disconnectSockets(true)
