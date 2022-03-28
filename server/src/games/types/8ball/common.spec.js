@@ -2,6 +2,8 @@
 import main from './main.js'
 // Import the Action class to make actions
 import Action from '../../Action.js'
+
+import Common from './common.js'
 // Import the GameFlow class to control game flow
 import GameFlow from '../../GameFlow.js'
 
@@ -158,6 +160,8 @@ describe('8ball Action: shoot', () => {
     // Define the actions to be made
 
     let newBallStates = game.data.balls
+
+    newBallStates[1].out = true;
     let missedShot = new Action(
       'shoot',
       {
