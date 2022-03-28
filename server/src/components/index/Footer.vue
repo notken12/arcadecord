@@ -1,5 +1,6 @@
 <script setup>
 import Logo from './Logo.vue'
+import Link from './Link.vue'
 </script>
 
 <template>
@@ -9,7 +10,15 @@ import Logo from './Logo.vue'
       <p class="f1">Message games for Discord</p>
       <p class="xlight">Copyright © 2022 Arcadecord</p>
     </div>
-    <div></div>
+    <div class="right">
+      <Link href="/team">Our team</Link>
+      <Link href="/support-us">Support us</Link>
+      <Link href="/help-feedback">Help and feedback</Link>
+      <Link href="/server">Support server</Link>
+      <Link href="/contact">Contact us</Link>
+      <Link href="/terms-of-service">Terms of service</Link>
+      <Link href="/privacy-policy">Privacy policy</Link>
+    </div>
   </div>
 </template>
 
@@ -18,10 +27,13 @@ import Logo from './Logo.vue'
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
   width: 100%;
   background: #212739;
-  padding: var(--padding-x);
+  padding: 32px var(--padding-x);
+  flex-wrap: wrap-reverse;
+  gap: 32px;
+  max-width: 100%;
 }
 
 div {
@@ -31,5 +43,24 @@ div {
 .left {
   flex-direction: column;
   gap: 16px;
+}
+
+.right {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  grid-auto-rows: auto;
+  height: 100%;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  a {
+    width: minmax(120px, 1fr);
+  }
 }
 </style>

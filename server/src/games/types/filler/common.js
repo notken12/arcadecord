@@ -17,18 +17,31 @@ class Board {
     for (var i = 0; i < height; i++) {
       // new row
       var row = []
+      this.cells.push(row)
       for (var x = 0; x < width; x++) {
         // pick a random color
-        var randomIndex = Math.floor(Math.random() * COLORS.length)
+        let aboveColor = Board.getColor(this, i - 1, x)
+        let leftColor = Board.getColor(this, i, x - 1)
+
+        // cannot be the same color as the one above or to the left
+        let availableColors = []
+        for (let i = 0; i < COLORS.length; i++) {
+          if (i !== aboveColor && i !== leftColor) {
+            availableColors.push(i)
+          }
+        }
+
+        let randomColorIndex =
+          availableColors[Math.floor(Math.random() * availableColors.length)]
+
         var cell = {
-          color: randomIndex,
+          color: randomColorIndex,
           row: i,
           col: x,
         }
         // add the colored tile to the row
         row.push(cell)
       }
-      this.cells.push(row)
     }
   }
   static getCorner(board, playerIndex) {

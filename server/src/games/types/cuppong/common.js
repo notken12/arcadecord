@@ -90,9 +90,8 @@ async function action_throw(game, action) {
   return game
 }
 function getCupsLeft(cups) {
-  var i
   let cupsLeft = []
-  for (i = 0; i < cups.length; i++) {
+  for (let i = 0; i < cups.length; i++) {
     if (!cups[i].out) {
       cupsLeft.push(cups[i])
     }
@@ -101,50 +100,61 @@ function getCupsLeft(cups) {
 }
 
 function rearrangeCups(game) {
-  let cupsLeft = getCupsLeft(game.data.sides[game.turn].cups)
-  let opponentsCupsLeft = getCupsLeft(game.data.sides[[1, 0][game.turn]])
+  game.data.sides.forEach((side) => {
+    let remainingCups = getCupsLeft(side.cups)
 
-  if (cupsLeft.length === 6) {
-    //Three Rows of Cups
-    ;(cupsLeft[0].rowNum = 3), (cupsLeft[0].rowPos = 0)
-    /////////////////////////////////////////////
-    ;(cupsLeft[1].rowNum = 2), (cupsLeft[1].rowPos = -0.5)
-    ;(cupsLeft[2].rowNum = 2), (cupsLeft[2].rowPos = 0.5)
-    /////////////////////////////////////////////
-    ;(cupsLeft[3].rowNum = 1), (cupsLeft[3].rowPos = 0)
-    ;(cupsLeft[4].rowNum = 1), (cupsLeft[4].rowPos = -1)
-    ;(cupsLeft[5].rowNum = 1), (cupsLeft[5].rowPos = 1)
-  } else if (cupsLeft.length === 3) {
-    //Two Rows of Cups
-    ;(cupsLeft[0].rowNum = 3), (cupsLeft[0].rowPos = 0)
-    /////////////////////////////////////////////
-    ;(cupsLeft[1].rowNum = 2), (cupsLeft[1].rowPos = -0.5)
-    ;(cupsLeft[2].rowNum = 2), (cupsLeft[2].rowPos = 0.5)
-  } else if (cupsLeft.length === 1) {
-    //One Cup
-    ;(cupsLeft[0].rowNum = 3), (cupsLeft[0].rowPos = 0)
-  }
+    // Do not rearrange if its just 1 cup left
+    if (remainingCups.length === 1) {
+      return
+    }
 
-  if (opponentsCupsLeft.length === 6) {
-    //Three Rows of Cups
-    ;(opponentsCupsLeft[0].rowNum = 3), (opponentsCupsLeft[0].rowPos = 0)
-    /////////////////////////////////////////////
-    ;(opponentsCupsLeft[1].rowNum = 2), (opponentsCupsLeft[1].rowPos = -0.5)
-    ;(opponentsCupsLeft[2].rowNum = 2), (opponentsCupsLeft[2].rowPos = 0.5)
-    /////////////////////////////////////////////
-    ;(opponentsCupsLeft[3].rowNum = 1), (opponentsCupsLeft[3].rowPos = 0)
-    ;(opponentsCupsLeft[4].rowNum = 1), (opponentsCupsLeft[4].rowPos = -1)
-    ;(opponentsCupsLeft[5].rowNum = 1), (opponentsCupsLeft[5].rowPos = 1)
-  } else if (opponentsCupsLeft.length === 3) {
-    //Two Rows of Cups
-    ;(opponentsCupsLeft[0].rowNum = 3), (opponentsCupsLeft[0].rowPos = 0)
-    /////////////////////////////////////////////
-    ;(opponentsCupsLeft[1].rowNum = 2), (opponentsCupsLeft[1].rowPos = -0.5)
-    ;(opponentsCupsLeft[2].rowNum = 2), (opponentsCupsLeft[2].rowPos = 0.5)
-  } else if (opponentsCupsLeft.length === 1) {
-    //One Cup
-    ;(opponentsCupsLeft[0].rowNum = 3), (opponentsCupsLeft[0].rowPos = 0)
+    let totalCups = 0
+    let canBeRearranged = false
+    let rows
+    for (rows = 1; totalCups <= remainingCups.length; rows++) {
+      totalCups += rows
+      if (totalCups === remainingCups.length) {
+        canBeRearranged = true
+        break
+      }
+    }
+
+    if (!canBeRearranged) {
+      return
+    }
+
+    let positions = getTriangleArrangement(rows, 4)
+    for (let i = 0; i < remainingCups.length; i++) {
+      let cup = remainingCups[i]
+      let pos = positions[i]
+      cup.rowNum = pos.rowNum
+      cup.rowPos = pos.rowPos
+    }
+  })
+}
+
+function getTriangleArrangement(rows, maxRows) {
+  let positions = []
+  let diff = maxRows - rows
+  for (let rowNum = diff; rowNum < maxRows; rowNum++) {
+    // Row 0 is the back row
+    let cupCount = maxRows - rowNum
+    // rowPos 0 is the center of the row
+
+    let offset = 0.5
+    for (
+      let rowPos = -cupCount / 2 + offset;
+      rowPos <= cupCount / 2 - offset;
+      rowPos++
+    ) {
+      let pos = {
+        rowNum: rowNum,
+        rowPos: rowPos,
+      }
+      positions.push(pos)
+    }
   }
+  return positions
 }
 
 // Export all the action models and useful variables
@@ -153,4 +163,5 @@ export default {
   action_throw,
   getCupsLeft,
   rearrangeCups,
+  getTriangleArrangement,
 }

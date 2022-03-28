@@ -10,6 +10,13 @@ import Emoji from '../../../Emoji.js'
 import db from '../../../db/db2.js'
 import Ajv from 'ajv'
 
+import {
+  GameConnectionError,
+  CanUserJoinError,
+  AddPlayerError,
+  UserPermissionError,
+} from './GameErrors.js'
+
 config()
 
 const ajv = new Ajv()
@@ -262,28 +269,63 @@ class Game {
         message: 'Action model not found',
       }
     }
+  }
+  async addPlayer(id) {
+    var user = await db.users.getById(id)
+    if (!user)
+      return {
+        ok: false,
+        error: AddPlayerError.USER_NOT_FOUND,
+      }
 
-    if (this.actionHandlers[action.type]) {
-      for (let callback of this.actionHandlers[action.type]) {
-        await callback(action)
+    // TODO: provide more information
+    let canUserJoinResult = await this.canUserJoin(user)
+    if (!canUserJoinResult.ok) {
+      switch (canUserJoinResult.error) {
+        case CanUserJoinError.GAME_NOT_FOUND:
+          return {
+            ok: false,
+            error: AddPlayerError.GAME_NOT_FOUND,
+          }
+        case CanUserJoinError.GAME_FULL:
+          return {
+            ok: false,
+            error: AddPlayerError.GAME_FULL,
+          }
+        case CanUserJoinError.ALREADY_IN_GAME:
+          return {
+            ok: false,
+            error: AddPlayerError.ALREADY_IN_GAME,
+          }
+        default:
+          return {
+            ok: false,
+          }
       }
     }
 
-    return actionResult
-  }
-  async addPlayer(id) {
-    if (!(await this.canUserJoin(id))) return false
+    let discordUser
+    if (!this.testing) discordUser = await BotApi.fetchUser(user.discordId)
+    else
+      discordUser = {
+        tag: 'fakeplayer#0000',
+      }
 
-    var user = await db.users.getById(id)
-    if (!user) return false
-
-    var discordUser = await BotApi.fetchUser(user.discordId)
+    if (!discordUser) {
+      console.warn('[WARNING] Could not find discord user for user: ' + user.id)
+      return {
+        ok: false,
+        error: AddPlayerError.DISCORD_USER_NOT_FOUND,
+      }
+    }
     var player = new Player(id, discordUser)
 
     this.players.push(player)
     this.emit('join', player)
 
-    return true
+    return {
+      ok: true,
+    }
   }
   mockPlayers(count) {
     if (!this.testing) {
@@ -310,9 +352,22 @@ class Game {
   async onInit(game) {
     return game
   }
-  async doesUserHavePermission(id) {
-    var dbUser = await db.users.getById(id)
-    if (!dbUser) return false
+  // TODO: change to using an object with {ok: bool, error: UserPermissionError}
+  async doesUserHavePermission(dbUser) {
+    if (!dbUser)
+      return {
+        ok: false,
+        error: UserPermissionError.USER_NOT_FOUND,
+      }
+    if (dbUser.banned)
+      return {
+        ok: false,
+        error: UserPermissionError.USER_BANNED,
+      }
+    if (this.testing)
+      return {
+        ok: true,
+      } // ignore discord permissions when testing, TODO: use real discord data and don't ignore
 
     var res = await BotApi.getUserPermissionsInChannel(
       this.guild,
@@ -320,56 +375,156 @@ class Game {
       dbUser.discordId
     )
 
-    if (!res.ok) return false
+    if (!res)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
+    if (!res.ok)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
 
-    var error
+    let error
     var perms = await res.json().catch(() => (error = true))
 
-    if (error) return false
+    if (error)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
 
     // must have perms to use slash commands to join games
     if (!perms.USE_APPLICATION_COMMANDS) {
-      return false
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_UNAUTHORIZED,
+      }
     }
 
     var freeSpaces = this.maxPlayers - this.players.length
 
     if (freeSpaces > this.invitedUsers.length) {
       // there are free spaces that an uninvited player can join into
-      return true
+      return {
+        ok: true,
+      }
     } else {
       // no more extra spaces for uninvited players, only invited users can join
       if (this.invitedUsers.includes(dbUser.discordId)) {
-        return true
+        return {
+          ok: true,
+        }
+      } else {
+        return {
+          ok: false,
+          error: UserPermissionError.GAME_FULL,
+        }
       }
     }
-    return false
   }
-  async canUserJoin(id) {
-    if (!(await this.doesUserHavePermission(id))) return false
+  async canUserJoin(user) {
     if (this.isGameFull()) {
       this.emit('error', 'Game is full')
-      return false
+      return {
+        ok: false,
+        error: CanUserJoinError.GAME_FULL,
+      }
     }
-    if (this.players.filter((player) => player.id === id).length > 0) {
+
+    // TODO: add more specific message
+    if (!(await this.doesUserHavePermission(user)).ok)
+      return {
+        ok: false,
+      }
+
+    if (this.players.filter((player) => player.id === user.id).length > 0) {
       this.emit('error', 'Player already in game')
-      return false
+      return {
+        ok: false,
+        error: CanUserJoinError.ALREADY_IN_GAME,
+      }
     }
-    return true
+    return {
+      ok: true,
+    }
+  }
+  isConnectionContested(id) {
+    let unjoinedSockets = [] // user ids of unjoined players that have sockets connected
+    for (let pid in this.sockets) {
+      unjoinedSockets.push(pid)
+    }
+    for (let player of this.players) {
+      if (unjoinedSockets.includes(player.id))
+        unjoinedSockets.splice(unjoinedSockets.indexOf(player.id), 1)
+    }
+    return !unjoinedSockets.includes(id) && unjoinedSockets.length > 0
   }
   async canUserSocketConnect(id) {
     if (this.isPlayerInGame(id)) {
-      return true
+      return {
+        ok: true,
+      } // shortcut, we know the user can connect so don't bother using HTTP requests to check permissions
     }
 
     if (this.isGameFull()) {
       this.emit('error', 'Game is full')
-      return false
+      return {
+        ok: false,
+        error: GameConnectionError.GAME_FULL,
+      }
     }
 
-    if (!(await this.doesUserHavePermission(id))) return false
+    // TODO: add more specific message
+    let dbUser = await db.users.getById(id)
+    if (!dbUser) {
+      this.emit('error', 'User not found')
+      return {
+        ok: false,
+        error: GameConnectionError.USER_NOT_FOUND,
+      }
+    }
 
-    return true
+    let uperm = await this.doesUserHavePermission(dbUser)
+
+    if (uperm.ok) {
+      return {
+        ok: true,
+      }
+    }
+
+    switch (uperm.error) {
+      case UserPermissionError.USER_NOT_FOUND:
+        return {
+          ok: false,
+          error: GameConnectionError.USER_NOT_FOUND,
+        }
+      case UserPermissionError.USER_BANNED:
+        return {
+          ok: false,
+          error: GameConnectionError.USER_BANNED,
+        }
+      case UserPermissionError.DISCORD_USER_NOT_FOUND:
+        return {
+          ok: false,
+          error: GameConnectionError.DISCORD_USER_NOT_FOUND,
+        }
+      case UserPermissionError.DISCORD_USER_UNAUTHORIZED:
+        return {
+          ok: false,
+          error: GameConnectionError.DISCORD_USER_UNAUTHORIZED,
+        }
+      case UserPermissionError.GAME_FULL:
+        return {
+          ok: false,
+          error: GameConnectionError.GAME_FULL,
+        }
+      default:
+        return {
+          ok: false,
+        }
+    }
   }
   isGameFull() {
     return this.players.length >= this.maxPlayers

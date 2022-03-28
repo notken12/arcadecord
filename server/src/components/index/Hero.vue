@@ -17,6 +17,7 @@ import Button from './Button.vue'
             alt="Arcadecord"
             class="icon"
             width="24"
+            height="24"
           />
           <span class="mono">/play</span>
         </div>
@@ -38,6 +39,7 @@ import Button from './Button.vue'
 .hero {
   width: 100%;
   padding: var(--padding-x);
+  overflow: hidden;
 }
 
 .left {
@@ -55,6 +57,7 @@ import Button from './Button.vue'
 h2,
 h3 {
   margin: 0;
+  display: initial;
 }
 
 h2 {
@@ -101,11 +104,13 @@ h3 {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
-a {
-  text-decoration: none;
+a,
+a:hover {
+  text-decoration: none !important;
 }
 </style>

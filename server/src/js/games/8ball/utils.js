@@ -103,6 +103,7 @@ export function getCollisionLocation2Balls(ball1, ball2, vec) {
 
   let theta = Math.abs(vtheta - dtheta)
 
+  let side = Math.sign(d * Math.sin(theta)) * Math.sign(vtheta - dtheta)
   let a = Math.abs(d * Math.sin(theta))
   if (a > Ball.RADIUS * 2) {
     return null
@@ -139,6 +140,8 @@ export function getCollisionLocation2Balls(ball1, ball2, vec) {
     // d: Math.sqrt((cx - (i.x + ox)) ** 2 + (cy - (i.y + oy)) ** 2),
     d: Math.sqrt((cx - bx) ** 2 + (cy - by) ** 2),
     ball: ball1,
+    side,
+    a,
   }
 }
 
@@ -190,7 +193,7 @@ export function getCollisionLocation(balls, ball, vec) {
   let locations = []
 
   for (let b of balls) {
-    if (b.name == ball.name) {
+    if (b.name == ball.name || ball.out) {
       continue
     }
 
@@ -211,7 +214,7 @@ export function getCollisionLocation(balls, ball, vec) {
     }
 
     if (locations.length == 0) {
-      throw new Error('no collision location found')
+      return
     }
 
     let min = locations[0]
@@ -230,18 +233,24 @@ export function getCollisionLocation(balls, ball, vec) {
       }
     }
     let ballBounceAngle = Math.atan2(
-      min.y - ball.body.position.z,
-      min.x - ball.body.position.x
+      min.ball.body.position.z - min.y,
+      min.ball.body.position.x - min.x
     )
+
+    let cueBounceAngle = ballBounceAngle + (Math.PI / 2) * -min.side
+
+    let hitPower = min.a === Ball.RADIUS * 2 ? 0 : 1 - min.a / (Ball.RADIUS * 2)
+
     return {
       x: min.x,
       y: min.y,
       d: min.d,
+      a: min.a,
+      side: min.side,
       ball: min.ball,
       ballBounceAngle,
+      cueBounceAngle,
+      hitPower,
     }
   }
-
-  // shouldn't happen
-  throw new Error('no collision location found')
 }

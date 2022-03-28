@@ -19,7 +19,7 @@ import Game from '../server/src/games/Game.js'
 
 // connect to the database
 import db from '../db/db2.js'
-db.connect()
+await db.connect(process.env.MONGODB_URI)
 
 // .env is used for all shards
 config()
@@ -40,6 +40,12 @@ client.selectMenus = new Collection()
 client.buttons = new Collection()
 client.gameTypes = gameTypes
 client.Emoji = Emoji
+
+// Register font for showing winner names
+Canvas.registerFont(
+  path.resolve(__dirname, './fonts/Work Sans/WorkSans-Bold.ttf'),
+  { family: 'Work Sans' }
+)
 
 client.sendStartMessage = async function (g) {
   // get game type
@@ -105,10 +111,10 @@ client.sendTurnInvite = async function (g) {
   if (game.inThread) {
     if (!game.threadChannel) {
       let thread = await textChannel.threads.create({
-        name: `${game.emoji || ''} ${game.name}`,
+        name: `${Emoji.CONTROLLER} ${game.name}`,
         autoArchiveDuration: 'MAX',
         reason: `Arcadecord game`,
-        // startMessage: game.startMessage
+        // startMessage: game.startMessage,
       })
       for (let player of game.players) {
         thread.members.add(player.discordUser.id)
@@ -138,11 +144,29 @@ client.sendTurnInvite = async function (g) {
 
   m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`
 
-  await channel.send(m)
+  if (!game.resending) await channel.send(m)
 
   let invite = await getInviteMessage(game)
   invite.embeds[0].setTitle(`${game.emoji || ''}  ${game.name}`)
-  invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`
+  if (!game.hasEnded) {
+    invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`
+  } else {
+    if (game.winner === -1) {
+      invite.content = `It's a draw! <@${
+        game.players[game.turn].discordUser.id
+      }>`
+    } else {
+      if (game.winner === game.turn) {
+        invite.content = `${Emoji.CHECK} You win, <@${
+          game.players[game.turn].discordUser.id
+        }>!`
+      } else {
+        invite.content = `${Emoji.X} You lose, <@${
+          game.players[game.turn].discordUser.id
+        }>!`
+      }
+    }
+  }
 
   var embed = invite.embeds[0]
   embed.setAuthor({
@@ -153,11 +177,24 @@ client.sendTurnInvite = async function (g) {
   return await channel.send(invite)
 }
 
+function roundRect(ctx, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2
+  if (h < 2 * r) r = h / 2
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + w, y, x + w, y + h, r)
+  ctx.arcTo(x + w, y + h, x, y + h, r)
+  ctx.arcTo(x, y + h, x, y, r)
+  ctx.arcTo(x, y, x + w, y, r)
+  ctx.closePath()
+  return ctx
+}
+
 async function getInviteMessage(game) {
   var embed = new MessageEmbed()
-    .setTitle(`Let's play ${game.name}!`)
+    .setTitle(`${game.emoji || ''}  Let's play ${game.name}!`)
     // .setDescription(`${game.description}`)
-    .setColor(game.color || '#0099ff')
+    .setColor(game.color || '#5253f9')
     .setURL(game.getURL())
 
   var button = new MessageButton()
@@ -176,16 +213,68 @@ async function getInviteMessage(game) {
   var canvas = await game.getThumbnail()
   let image
   if (canvas) {
-    let overlaySrc = path.resolve(
-      __dirname,
-      '../server/src/public/icons/thumbnail_overlay.svg'
-    )
-    let overlayImg = await Canvas.loadImage(overlaySrc)
     const ctx = canvas.getContext('2d')
 
-    ctx.antialias = 'subpixel'
-    ctx.imageSmoothingEnabled = true
-    ctx.patternQuality = 'best'
+    if (game.hasEnded) {
+      if (game.winner === -1) {
+        let drawOverlaySrc = path.resolve(
+          __dirname,
+          '../server/src/ui-images/thumbnail_draw_overlay.png'
+        )
+        let drawOverlay = await Canvas.loadImage(drawOverlaySrc)
+        ctx.drawImage(drawOverlay, 0, 0, canvas.width, canvas.height)
+      } else {
+        let winOverlaySrc = path.resolve(
+          __dirname,
+          '../server/src/ui-images/thumbnail_win_overlay.png'
+        )
+        let winOverlay = await Canvas.loadImage(winOverlaySrc)
+        ctx.drawImage(winOverlay, 0, 0, canvas.width, canvas.height)
+
+        let winner = game.players[game.winner]
+
+        ctx.font = '14px "Work Sans"'
+        ctx.textAlign = 'center'
+        ctx.shadowBlur = 0
+        ctx.shadowOffsetX = 0
+        ctx.shadowOffsetY = 0
+        ctx.shadowColor = 'transparent'
+
+        let winMsg = `${winner.discordUser.tag} wins!`
+
+        let bottom = 25
+        let paddingX = 6
+        let paddingY = 6
+
+        let textBox = ctx.measureText(winMsg)
+        let textBoxWidth = textBox.width + paddingX * 2
+        let textBoxHeight =
+          textBox.actualBoundingBoxAscent +
+          textBox.actualBoundingBoxDescent +
+          paddingY * 2
+        let textBoxX = canvas.width / 2 - textBoxWidth / 2
+        let textBoxY =
+          canvas.height - textBoxHeight / 2 - bottom - paddingY * 0.8
+
+        ctx.fillStyle = 'white'
+        ctx.fillRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight)
+
+        ctx.fillStyle = 'black'
+        ctx.fillText(winMsg, canvas.width / 2, canvas.height - bottom)
+      }
+    }
+
+    ctx.shadowBlur = 0
+    ctx.shadowColor = 'transparent'
+    let overlaySrc = path.resolve(
+      __dirname,
+      '../server/src/ui-images/thumbnail_overlay.png'
+    )
+    let overlayImg = await Canvas.loadImage(overlaySrc)
+
+    // ctx.antialias = 'subpixel'
+    // ctx.imageSmoothingEnabled = true
+    // ctx.patternQuality = 'best'
 
     ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height)
 
@@ -197,13 +286,13 @@ async function getInviteMessage(game) {
     )
     let ctx = canvas.getContext('2d')
 
-    ctx.antialias = 'subpixel'
-    ctx.imageSmoothingEnabled = true
-    ctx.patternQuality = 'best'
+    // ctx.antialias = 'subpixel'
+    // ctx.imageSmoothingEnabled = true
+    // ctx.patternQuality = 'best'
 
     let defaultThumbnailSrc = path.resolve(
       __dirname,
-      '../server/src/ui-images/default_thumbnail.svg'
+      '../server/src/ui-images/default_thumbnail.png'
     )
     let defaultThumbnailImg = await Canvas.loadImage(defaultThumbnailSrc)
 

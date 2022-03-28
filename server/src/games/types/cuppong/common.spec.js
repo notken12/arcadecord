@@ -1,9 +1,11 @@
+import { expect, test, describe } from 'vitest'
 // Import the main module for this game type
 import main from './main.js'
 // Import the Action class to make actions
 import Action from '../../Action.js'
 // Import the GameFlow class to control game flow
 import GameFlow from '../../GameFlow.js'
+import Common from './common.js'
 
 // https://jestjs.io/docs/asynchronous
 
@@ -288,4 +290,42 @@ test('Making a shot on redemption will put the last cup back and end redemption'
   // The last knocked cup will be put back
   let cupsLeft = theirSide.cups.filter((cup) => !cup.out)
   expect(cupsLeft.length).toBe(1)
+})
+
+test('Rearrange cups into triangle formation when possible', async () => {
+  // Create a new game
+  let game = new main.Game()
+  // Activate testing mode
+  game.test()
+  // Add fake players
+  game.mockPlayers(2)
+
+  // Initialize the game
+  await game.init()
+
+  // Knock down the front 4 cups so it will be rearranged
+  for (let i = 0; i < 4; i++) {
+    let action = new Action(
+      'throw',
+      {
+        force: { x: 0, y: 0, z: 0 },
+        knockedCup:
+          game.data.sides[0].cups[game.data.sides[0].cups.length - i - 1].id,
+      },
+      1
+    )
+    await game.handleAction(action)
+  }
+
+  // Is it still the player's turn?
+  let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+  expect(stillTheirTurn).toBe(true)
+
+  // The cups should be rearranged
+  let positions = Common.getTriangleArrangement(3, 4)
+  let cups = game.data.sides[0].cups
+  for (let i = 0; i < positions.length; i++) {
+    expect(cups[i].rowNum).toEqual(positions[i].rowNum)
+    expect(cups[i].rowPos).toEqual(positions[i].rowPos)
+  }
 })

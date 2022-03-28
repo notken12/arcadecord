@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     changeColumnSelect() {
-      bus.emit('changeColumn', this.column)
+      if (!this.replaying) bus.emit('changeColumn', this.column)
     },
   },
   mounted() {},

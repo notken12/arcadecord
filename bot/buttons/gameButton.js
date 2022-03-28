@@ -4,7 +4,7 @@ import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js'
 import { gameTypes } from '../../server/src/games/game-types.js'
 import Emoji from '../../Emoji.js'
 
-function getOptionsMessage(dbOptions) {
+function getOptionsMessage(dbOptions, interaction) {
   let gameType = gameTypes[dbOptions.typeId]
 
   let emoji = gameType.options.emoji || Emoji.ICON_ROUND
@@ -35,17 +35,19 @@ function getOptionsMessage(dbOptions) {
     .setEmoji(Emoji.BACK)
   row.addComponents([backButton])
 
-  let threadToggleBtn = new MessageButton()
-    .setStyle('SECONDARY')
-    .setLabel('Play in thread')
-    .setCustomId('toggleThread:' + dbOptions.inThread)
+  if (interaction.channel.type === 'GUILD_TEXT') {
+    let threadToggleBtn = new MessageButton()
+      .setStyle('SECONDARY')
+      .setLabel('Play in thread')
+      .setCustomId('toggleThread:' + dbOptions.inThread)
 
-  if (dbOptions.inThread) {
-    threadToggleBtn.setEmoji(Emoji.CHECK)
-  } else {
-    threadToggleBtn.setEmoji(Emoji.X)
+    if (dbOptions.inThread) {
+      threadToggleBtn.setEmoji(Emoji.CHECK)
+    } else {
+      threadToggleBtn.setEmoji(Emoji.X)
+    }
+    row.addComponents([threadToggleBtn])
   }
-  row.addComponents([threadToggleBtn])
 
   let playBtn = new MessageButton()
     .setStyle('SUCCESS')
@@ -80,7 +82,7 @@ export default {
 
     var dbOptions = await db.slashCommandOptions.update(dbOptionsId, { typeId })
 
-    var msg = getOptionsMessage(dbOptions)
+    var msg = getOptionsMessage(dbOptions, interaction)
     interaction.editReply(msg).catch(console.error)
 
     // const body = {

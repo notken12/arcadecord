@@ -1,5 +1,5 @@
 <template>
-  <div class="logo">
+  <a class="logo" href="/">
     <img
       src="/icons/arcadecordicon.svg"
       alt="Arcadecord"
@@ -9,10 +9,12 @@
       draggable="false"
     />
     <h1 class="app-name f1">Arcadecord</h1>
-  </div>
+  </a>
 </template>
 
 <style lang="scss" scoped>
+@use 'scss/base/theme' as theme;
+
 .logo {
   display: flex;
   flex-direction: row;
@@ -35,5 +37,9 @@
   line-height: 28px;
   color: #ffffff;
   margin: 0;
+}
+
+a {
+  color: theme.$color;
 }
 </style>

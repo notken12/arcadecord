@@ -5,6 +5,8 @@ const Emoji = {
   BACK: '⬅️',
   CHECK: '✅',
   X: '❌',
+  JOYSTICK: '🕹️',
+  CONTROLLER: '🎮',
 }
 
 export default Emoji

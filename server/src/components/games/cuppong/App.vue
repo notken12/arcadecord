@@ -17,13 +17,12 @@ import {
   watchEffect,
   toRef,
   toRefs,
+  onUnmounted,
 } from 'vue'
 
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-// import CannonDebugger from 'cannon-es-debugger'
-
-import { threeToCannon, ShapeType } from 'three-to-cannon'
+import CannonDebugger from 'cannon-es-debugger'
 
 import gsap from 'gsap'
 
@@ -33,6 +32,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useFacade } from 'components/base-ui/facade'
 
 import {
+  getCupBody,
   getCupPosition,
   tableLength,
   tableWidth,
@@ -105,6 +105,10 @@ const cameraPosition = computed(() => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
 })
+world.enableSleep = true
+// world.solver = new CANNON.SplitSolver(new CANNON.GSSolver())
+world.solver.iterations = 10
+world.solver.tolerance = 0
 
 const canvasWrapper = ref(null)
 
@@ -118,6 +122,7 @@ let scene,
   ballBody
 
 let orbitControlsEnabled = false
+let cannonDebuggerEnabled = false
 
 const cupObjects = {}
 const cupBodies = {}
@@ -135,8 +140,8 @@ function ballsBackWatcher(newValue, oldValue) {
 }
 
 function inRedemptionWatcher(newValue, oldValue) {
-  if (newValue[0] === true || newValue[1] === true) {
-    message.value = 'In redemption'
+  if ((newValue[0] === true || newValue[1] === true) && !game.hasEnded) {
+    message.value = 'Redemption'
     overlayAnimated.value = true
   }
 }
@@ -153,64 +158,62 @@ watch(
   { deep: true, flush: 'post' }
 )
 
-watch(
-  () => game.value.data.sides,
-  () => {
-    for (let i = 0; i < sides.value.length; i++) {
-      let side = sides.value[i]
-      for (let j = 0; j < side.cups.length; j++) {
-        let cup = side.cups[j]
-        let cupObject = cupObjects[cup.id]
-        let cupBody = cupBodies[cup.id]
+function updateCups() {
+  for (let i = 0; i < sides.value.length; i++) {
+    let side = sides.value[i]
+    for (let j = 0; j < side.cups.length; j++) {
+      let cup = side.cups[j]
+      let cupObject = cupObjects[cup.id]
+      let cupBody = cupBodies[cup.id]
 
-        if (cup.out || cup.color === mySide.value.color) {
-          cupBody.type = CANNON.Body.STATIC
-        }
+      let position = getCupPosition(cup)
 
-        let position = getCupPosition(cup)
-
-        if (cup.out) {
-          cupBody.type = CANNON.Body.STATIC
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            y: position.y,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              gsap.to(cupObject.position, {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                duration: 0.5,
-                ease: 'power3.inOut',
-              })
-            },
-          })
-        } else {
-          gsap.to(cupObject.position, {
-            duration: 0.5,
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            ease: 'power3.inOut',
-          })
-          cupBody.type = CANNON.Body.KINEMATIC
-          cupBody.position = new CANNON.Vec3(
-            position.x,
-            position.y + 0.117,
-            position.z
-          )
-        }
+      if (cup.out || (cup.color === mySide.value.color && !replaying.value)) {
+        cupBody.type = CANNON.Body.STATIC
+        cupBody.isTrigger = true
+        cupBody.sleep()
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          y: position.y,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            gsap.to(cupObject.position, {
+              x: position.x,
+              y: position.y,
+              z: position.z,
+              duration: 0.5,
+              ease: 'power3.inOut',
+            })
+          },
+        })
+      } else {
+        gsap.to(cupObject.position, {
+          duration: 0.5,
+          x: position.x,
+          y: position.y,
+          z: position.z,
+          ease: 'power3.inOut',
+        })
+        cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.isTrigger = false
+        cupBody.position = new CANNON.Vec3(position.x, position.y, position.z)
+        cupBody.wakeUp()
       }
     }
-    // let cup = newValue
-    // console.log(cup)
-    // console.log(game.value)
-    // console.log(replaying.value)
-  },
-  { deep: true }
-)
+  }
+}
+
+watch(() => game.value.data.sides, updateCups, { deep: true })
+
+watch(() => game.value.turn, updateCups)
+
+watch(() => replaying.value, updateCups)
+
+const fps = ref(0)
 
 const initThree = () => {
+  let frames = 0
+
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xaaaaaa)
   camera = new THREE.PerspectiveCamera(
@@ -222,12 +225,16 @@ const initThree = () => {
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
   renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
+  // renderer.shadowMap.type = THREE.BasicShadowMap // default THREE.PCFShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.clientWidth,
     canvasWrapper.value.clientHeight
   )
+
+  const cannonDebugger = new CannonDebugger(scene, world, {
+    // options...
+  })
 
   if (orbitControlsEnabled) {
     orbitControls = new OrbitControls(camera, renderer.domElement)
@@ -255,27 +262,16 @@ const initThree = () => {
       scene.add(cupObject)
       cupObjects[cup.id] = cupObject
 
-      let { shape, offset, quaternion } = threeToCannon(cupObject.children[1], {
-        type: ShapeType.MESH,
-      })
-      let cupPosition = getCupPosition(cup)
-      let cupBody = new CANNON.Body({
-        mass: 0,
-        material: new CANNON.Material({
-          friction: 1,
-          restitution: 0.5,
-        }),
-        type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
-        shape,
-        offset,
-        quaternion,
-        position: new CANNON.Vec3(
-          cupPosition.x,
-          cupPosition.y + 0.117,
-          cupPosition.z
-        ),
-      })
-      if (cup.out) cupBody.type = CANNON.Body.STATIC
+      let cupBody = getCupBody(cup)
+      if (cup.out || (cup.color === mySide.value.color && !replaying.value)) {
+        cupBody.type = CANNON.Body.STATIC
+        cupBody.isTrigger = true
+        cupBody.sleep()
+      } else {
+        cupBody.type = CANNON.Body.KINEMATIC
+        cupBody.isTrigger = false
+        cupBody.wakeUp()
+      }
 
       world.addBody(cupBody)
       cupBodies[cup.id] = cupBody
@@ -298,23 +294,24 @@ const initThree = () => {
         // tableObject.receiveShadow = true
 
         // add table body
-        tableBody = new CANNON.Body({
-          mass: 0,
-          shape: new CANNON.Box(
-            new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)
-          ),
-          position: new CANNON.Vec3(0, 0, 0),
-          material: new CANNON.Material({
-            friction: 0.5,
-            restitution: 0.9,
-          }),
-          type: CANNON.Body.STATIC,
-        })
-        tableBody.position.set(0, -0.1, 0)
-        world.addBody(tableBody)
       }
     })
   })
+
+  tableBody = new CANNON.Body({
+    mass: 0,
+    shape: new CANNON.Box(
+      new CANNON.Vec3(tableWidth / 2, 0.1, tableLength / 2)
+    ),
+    position: new CANNON.Vec3(0, 0, 0),
+    material: new CANNON.Material({
+      friction: 0.5,
+      restitution: 0.9,
+    }),
+    type: CANNON.Body.STATIC,
+  })
+  tableBody.position.set(0, -0.1, 0)
+  world.addBody(tableBody)
 
   // load cup model
   loader.load('/assets/cuppong/red_cup.glb', (gltf) => {
@@ -327,20 +324,65 @@ const initThree = () => {
   })
 
   // add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7)
   scene.add(ambientLight)
 
   // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 0.7)
+  const pointLight = new THREE.PointLight(0xffffff, 0.5)
   pointLight.position.set(0, 0.4, 0)
-  pointLight.castShadow = true
-  //Set up shadow properties for the light
-  pointLight.shadow.mapSize.width = 1024 // default
-  pointLight.shadow.mapSize.height = 1024 // default
-  pointLight.shadow.camera.near = 0.4 // default
-  pointLight.shadow.camera.far = 1.2 // default
-  pointLight.shadow.radius = 2
-  scene.add(pointLight)
+  // pointLight.castShadow = true
+  // //Set up shadow properties for the light
+  // pointLight.shadow.mapSize.width = 1024 // default
+  // pointLight.shadow.mapSize.height = 1024 // default
+  // pointLight.shadow.camera.near = 0.1 // default
+  // pointLight.shadow.camera.far = 2.2 // default
+  // pointLight.shadow.radius = 1
+  // scene.add(pointLight)
+
+  const spotLight = new THREE.SpotLight(0xffffff)
+  spotLight.position.set(0.3, 0.75, 0)
+  spotLight.lookAt(new THREE.Vector3(0, 0, 0))
+  // spotLight.castShadow = true
+
+  // spotLight.shadow.mapSize.width = 1024
+  // spotLight.shadow.mapSize.height = 1024
+
+  // spotLight.shadow.camera.near = 0.1
+  // spotLight.shadow.camera.far = 5
+  // spotLight.shadow.camera.fov = 30
+
+  // scene.add(spotLight)
+
+  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.5)
+  directionalLight1.position.set(0.4, 0.4, 0.8)
+  directionalLight1.castShadow = true
+
+  scene.add(directionalLight1)
+  scene.add(directionalLight1.target)
+  directionalLight1.target.position.set(0, 0, 0.8)
+
+  directionalLight1.shadow.camera.top = 0.4
+  directionalLight1.shadow.camera.bottom = -0.15
+  directionalLight1.shadow.camera.left = -0.2
+  directionalLight1.shadow.camera.right = 0.2
+  directionalLight1.shadow.camera.near = 0.1
+  directionalLight1.shadow.camera.far = 0.9
+  directionalLight1.shadow.mapSize.width = 256
+  directionalLight1.shadow.mapSize.height = 256
+
+  const directionalLight2 = directionalLight1.clone()
+  directionalLight2.position.set(0.4, 0.4, -0.8)
+
+  directionalLight1.castShadow = true
+
+  scene.add(directionalLight2)
+  scene.add(directionalLight2.target)
+  directionalLight2.target.position.set(0, 0, -0.8)
+
+  if (orbitControlsEnabled) {
+    scene.add(new THREE.CameraHelper(directionalLight1.shadow.camera))
+    scene.add(new THREE.CameraHelper(directionalLight2.shadow.camera))
+  }
 
   const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1)
   // scene.add(pointLightHelper)
@@ -353,15 +395,16 @@ const initThree = () => {
     new THREE.SphereGeometry(0.02, 16, 16),
     new THREE.MeshPhongMaterial({
       specular: 0xffffff,
-      shininess: 100,
-      reflectivity: 0.1,
+      shininess: 0,
+      reflectivity: 0,
       combine: THREE.AddOperation,
-      shading: THREE.SmoothShading,
+      flatShading: false,
+      color: 0xe87902,
     })
   )
 
-  ballObject.castShadow = true
-  ballObject.receiveShadow = true
+  ballObject.castShadow = false
+  ballObject.receiveShadow = false
 
   ballObject.position.setY(0.02)
   scene.add(ballObject)
@@ -395,7 +438,7 @@ const initThree = () => {
 
   world.addBody(ballBody)
 
-  const simulationDuration = 3000
+  const simulationDuration = 3 // seconds
 
   function endSimulation(throwForce, knockedCup) {
     simulationStartTime = null
@@ -436,16 +479,31 @@ const initThree = () => {
     let action = actionsToReplay[0]
     let { x, y, z } = action.data.force
     ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
-    simulationStartTime = Date.now()
+    simulationStartTime = performance.now() / 1000
   }
 
-  let time = new Date().getTime()
   let firstActionReplayed = false
+
+  const timeStep = 1 / 60 // seconds
+  let lastCallTime
   function animate() {
     requestAnimationFrame(animate)
+    frames++
 
-    let deltaTime = (new Date().getTime() - time) / 1000
-    time = new Date().getTime()
+    let dt = 0
+
+    const time = performance.now() / 1000 // seconds
+    // if (!lastCallTime) {
+    //   world.step(timeStep)
+    //   lastCallTime = time
+    // } else {
+    //   dt = time - lastCallTime
+    //   if (dt >= timeStep) {
+    //     lastCallTime = time
+    //     world.step(timeStep)
+    //   }
+    // }
+    world.fixedStep()
 
     // Step Cannon World
     if (tableBody && ballBody) {
@@ -463,7 +521,7 @@ const initThree = () => {
 
     if (orbitControls) orbitControls.update()
 
-    // cannonDebugger.update() // Update the CannonDebugger meshes
+    if (cannonDebuggerEnabled) cannonDebugger.update() // Update the CannonDebugger meshes
 
     // Render THREE.js
     renderer.render(scene, camera)
@@ -488,7 +546,8 @@ const initThree = () => {
 
     if (
       ballBody.velocity.clone().normalize() <= 0.05 &&
-      ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03
+      ballBody.position.distanceTo(new CANNON.Vec3(0, 0, 0)) > 0.03 &&
+      ballBody.position.y < 0.03
     ) {
       endSimulation(throwForce)
       return
@@ -502,6 +561,11 @@ const initThree = () => {
     }
   }
   animate()
+
+  setInterval(() => {
+    fps.value = frames
+    frames = 0
+  }, 1000)
 }
 
 function throwBall() {
@@ -579,7 +643,12 @@ function pointerMove(e) {
 }
 
 function pointerUp(e) {
-  if (replaying.value || runningAction.value || simulationStartTime !== null) {
+  if (
+    replaying.value ||
+    runningAction.value ||
+    simulationStartTime !== null ||
+    orbitControlsEnabled
+  ) {
     return
   }
 
@@ -629,7 +698,7 @@ function pointerUp(e) {
       new CANNON.Vec3(force.x, force.y, force.z),
       ballBody.position
     )
-    simulationStartTime = Date.now()
+    simulationStartTime = performance.now() / 1000
   }
 }
 
@@ -647,6 +716,8 @@ onMounted(() => {
   window.zForce = function (x) {
     return window.getBaseLog(50, x * -0.4 + 1.5)
   }
+  window.world = world
+  window.cupBodies = cupBodies
 
   $replayTurn(() => {
     setTimeout(() => {
@@ -711,6 +782,7 @@ onMounted(() => {
         @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
       ></canvas>
+      <p style="position: absolute; top: 16px">{{ fps }} fps</p>
       <div
         class="canvas-overlay"
         @animationend="overlayAnimated = false"

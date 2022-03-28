@@ -7,8 +7,6 @@ import Game from '../../Game.js'
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js'
 
-import Canvas from 'canvas'
-
 // get __dirname
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -25,7 +23,7 @@ const options = {
   aliases: ['connect4', '4inarow'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '🔵',
+  emoji: '<:4inarow:956316582064291881>',
   data: {
     board: new Common.Board(7, 6),
     colors: [1, 0],
@@ -54,6 +52,8 @@ class FourInARowGame extends Game {
     })
 
     this.getThumbnail = async function () {
+      const { default: Canvas } = await import('canvas')
+
       const canvas = Canvas.createCanvas(
         Game.thumbnailDimensions.width,
         Game.thumbnailDimensions.height
@@ -85,7 +85,17 @@ class FourInARowGame extends Game {
       ctx.fillStyle = 'white'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.drawImage(cellBackground, 45, 10, 210, 180)
+      let bh = canvas.height - 32 // board height
+      let bw = (bh * board.width) / board.height // board width
+
+      let tlx = canvas.width / 2 - bw / 2 // top left x
+      let tly = canvas.height / 2 - bh / 2 // top left y
+
+      ctx.shadowBlur = 6
+      ctx.shadowColor = 'gray'
+      ctx.shadowOffsetY = 2
+
+      ctx.drawImage(cellBackground, tlx, tly, bw, bh)
 
       for (let i = 0; i < board.pieces.length; i++) {
         let checkerType = yellowChecker
@@ -93,10 +103,17 @@ class FourInARowGame extends Game {
         let col = board.pieces[i].column
         let row = Common.reversedRows(this)[board.pieces[i].row]
 
-        ctx.drawImage(checkerType, 45 + 30 * col, 10 + 30 * row, 30, 30)
+        ctx.drawImage(
+          checkerType,
+          tlx + (col / board.width) * bw,
+          tly + (row / board.height) * bh,
+          (1 / board.width) * bw,
+          (1 / board.height) * bh
+        )
       }
 
-      ctx.drawImage(cellFront, 45, 10, 210, 180)
+      ctx.drawImage(cellFront, tlx, tly, bw, bh)
+      ctx.shadowBlur = 0
 
       return canvas
     }

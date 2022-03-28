@@ -3,7 +3,7 @@ import PowerControl from './PowerControl.vue'
 import SpinControl from './SpinControl.vue'
 
 import { useFacade } from 'components/base-ui/facade'
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 
 import * as THREE from 'three'
 
@@ -44,6 +44,31 @@ world.solver.tolerance = 0 // Force solver to use all iterations
 world.allowSleep = true
 
 function setCollisionBehavior() {
+  // world.defaultContactMaterial.friction = 0.1
+  // world.defaultContactMaterial.restitution = 0.85
+
+  // var ball_floor = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Table.FLOOR_CONTACT_MATERIAL,
+  //   { friction: 0.2, restitution: 0.5 }
+  // )
+
+  // var ball_wall = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Table.WALL_CONTACT_MATERIAL,
+  //   { friction: 0.01, restitution: 0.75 }
+  // )
+
+  // var ball_ball = new CANNON.ContactMaterial(
+  //   Ball.CONTACT_MATERIAL,
+  //   Ball.CONTACT_MATERIAL,
+  //   { friction: 0.055, restitution: 0.93, frictionEquationRelaxation: 1 }
+  // )
+
+  // world.addContactMaterial(ball_floor)
+  // world.addContactMaterial(ball_wall)
+  // world.addContactMaterial(ball_ball)
+
   world.defaultContactMaterial.friction = 0.1
   world.defaultContactMaterial.restitution = 0.85
 
@@ -67,8 +92,9 @@ const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 const spinner = ref(null)
+const spinnerEnabled = ref(true)
 
-let orbitControlsEnabled = false
+let orbitControlsEnabled = true
 let cannonDebuggerEnabled = false
 let scene,
   camera,
@@ -89,7 +115,7 @@ let shotAngle = 0
 let shotPower = 0
 let shotSpin = { x: 0, y: 0 }
 
-let maxShotPower = 0.4
+let maxShotPower = 1
 
 const hitBall = () => {
   if (balls) {
@@ -97,7 +123,7 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
-    cueBall.hit(shotPower, shotAngle, shotSpin)
+    cueBall.hit(shotPower * maxShotPower, shotAngle, shotSpin)
 
     simulationRunningRef.value = true
     shotPower = 0
@@ -180,8 +206,8 @@ const initThree = async () => {
   )
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
-  /* renderer.shadowMap.enabled = true */
-  /* renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap */
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(
     canvasWrapper.value.offsetWidth,
@@ -191,10 +217,20 @@ const initThree = async () => {
   camera.position.set(0, 2, 0)
 
   const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
-  scene.add(light)
+  // scene.add(light)
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
   scene.add(ambientLight)
+
+  const pointLight = new THREE.PointLight(0xffffff, 1.2)
+  pointLight.position.set(0, 2, 0)
+  pointLight.castShadow = true
+  pointLight.shadow.mapSize.width = 2048 // default
+  pointLight.shadow.mapSize.height = 2048 // default
+  pointLight.shadow.camera.near = 0.1 // default
+  pointLight.shadow.camera.far = 4 // default
+  pointLight.shadow.radius = 1
+  scene.add(pointLight)
 
   table = new Table(scene, world)
 
@@ -210,7 +246,8 @@ const initThree = async () => {
       b.name,
       b.color,
       b.quaternion,
-      b.out
+      b.out,
+      `/assets/8ball/${b.name}.jpg`
     )
     balls.push(ball)
   }
@@ -229,8 +266,6 @@ const initThree = async () => {
   window.game = game.value
   window.balls = balls
 
-  let time = new Date().getTime()
-
   let frames = 0
 
   ctx = controlsCanvas.value.getContext('2d')
@@ -246,25 +281,27 @@ const initThree = async () => {
   const timeStep = 1 / 60 // seconds
   let lastCallTime
 
+  let directionLineLength = 8
+
   function animate() {
     if (!controlsCanvas.value) return
     requestAnimationFrame(animate)
 
     const time = performance.now() / 1000 // seconds
-    let dt
     if (!lastCallTime) {
       world.step(timeStep)
+      lastCallTime = time
     } else {
-      dt = time - lastCallTime
-      world.step(timeStep, dt)
+      let dt = time - lastCallTime
+      if (dt >= timeStep) {
+        world.step(timeStep)
+        lastCallTime = time - (dt - timeStep)
+      }
     }
-    lastCallTime = time
 
     frames++
 
     if (table.surfaceBody) {
-      world.fixedStep()
-
       for (let i = 0; i < balls.length; i++) {
         balls[i].update()
       }
@@ -278,7 +315,7 @@ const initThree = async () => {
               continue
             }
 
-            ball.body.position.y = -0.3
+            ball.body.position.set(0, -0.3, 0)
             ball.body.velocity.set(0, 0, 0)
             ball.body.angularVelocity.set(0, 0, 0)
             ball.body.type = CANNON.Body.STATIC
@@ -348,6 +385,7 @@ const initThree = async () => {
     }
 
     let collision = getCollisionLocation(balls, cueBall, vec)
+    if (!collision) return
     let cpos = createVector(
       collision.x,
       Ball.RADIUS,
@@ -374,11 +412,65 @@ const initThree = async () => {
       cueBallPos.y + sin * ballDisplayRadius
     )
 
-    ctx.lineTo(
-      cpos.x - vec.x * ballDisplayRadius,
-      cpos.y - vec.z * ballDisplayRadius
-    )
+    if (mode == 'portrait') {
+      ctx.lineTo(
+        cpos.x - cos * ballDisplayRadius,
+        cpos.y - sin * ballDisplayRadius
+      )
+    } else {
+      ctx.lineTo(
+        cpos.x - cos * ballDisplayRadius,
+        cpos.y - sin * ballDisplayRadius
+      )
+    }
+
     ctx.stroke()
+
+    if (collision.ballBounceAngle) {
+      let ballBounceAngle =
+        collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+      let bbcos = Math.cos(ballBounceAngle)
+      let bbsin = Math.sin(ballBounceAngle)
+      ctx.moveTo(
+        cpos.x + bbcos * ballDisplayRadius * 2,
+        cpos.y + bbsin * ballDisplayRadius * 2
+      )
+      ctx.lineTo(
+        cpos.x +
+          bbcos *
+            ballDisplayRadius *
+            (2 + directionLineLength * collision.hitPower),
+        cpos.y +
+          bbsin *
+            ballDisplayRadius *
+            (2 + directionLineLength * collision.hitPower)
+      )
+
+      ctx.stroke()
+
+      let cueBounceAngle =
+        collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+      let cbcos = Math.cos(cueBounceAngle)
+      let cbsin = Math.sin(cueBounceAngle)
+      ctx.moveTo(
+        cpos.x + cbcos * ballDisplayRadius,
+        cpos.y + cbsin * ballDisplayRadius
+      )
+      ctx.lineTo(
+        cpos.x +
+          cbcos *
+            ballDisplayRadius *
+            (1 + directionLineLength * (1 - collision.hitPower)),
+        cpos.y +
+          cbsin *
+            ballDisplayRadius *
+            (1 + directionLineLength * (1 - collision.hitPower))
+      )
+
+      ctx.stroke()
+    }
 
     ctx.save()
 
@@ -509,6 +601,21 @@ onMounted(async () => {
 
   window.addEventListener('resize', resize)
   resize()
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'a') {
+      spinnerEnabled.value = !spinnerEnabled.value
+    }
+    if (e.key === 's') {
+      cannonDebuggerEnabled = !cannonDebuggerEnabled
+    }
+  })
+})
+
+onUnmounted(() => {
+  scene = null
+  renderer = null
+  camera = null
 })
 </script>
 
@@ -529,10 +636,10 @@ onMounted(async () => {
         <canvas
           id="controls-canvas"
           ref="controlsCanvas"
-          :class="{ hidden: simulationRunningRef }"
+          :class="{ hidden: simulationRunningRef || !spinnerEnabled }"
         ></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
-        <div id="spinner" ref="spinner"></div>
+        <div id="spinner" ref="spinner" v-if="spinnerEnabled"></div>
       </div>
     </div>
   </game-view>
@@ -548,14 +655,6 @@ onMounted(async () => {
   bottom: 0;
   display: flex;
   flex-direction: row;
-}
-
-.drag-surface {
-  width: 100%;
-  height: 100%;
-  background: #00000033;
-  position: absolute;
-  display: none;
 }
 
 #controls-canvas {

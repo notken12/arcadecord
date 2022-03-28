@@ -14,10 +14,11 @@ dotenv.config({
   path: './server/.env',
 })
 
-import bases from 'bases'
-
 import express from 'express'
 const app = express()
+
+// Compress all requests
+app.use(shrinkRay())
 
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser())
@@ -66,7 +67,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Connect to database
-db.connect()
+await db.connect(process.env.MONGODB_URI)
 
 // get architecture from config
 import architecture from './config/architecture.js'
@@ -93,8 +94,6 @@ import { Generator } from 'snowflake-generator'
 const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host))
 
 app.use(cors())
-
-app.use(shrinkRay())
 
 // Health check
 app.head('/health', function (req, res) {
@@ -256,7 +255,7 @@ io.on('connection', (socket) => {
         // create instance of game
         var game = new gameType.Game(dbGame._doc)
 
-        if (await game.canUserSocketConnect(userId)) {
+        if ((await game.canUserSocketConnect(userId)).ok) {
           // Disconnect socket from other tab
           let oldSocket = game.getSocket(userId)
           io.to(oldSocket).disconnectSockets(true)
@@ -444,7 +443,7 @@ io.on('connection', (socket) => {
         gameId === null ||
         userId === null
       ) {
-        console.log('Socket action error: gameId or userId is undefined')
+        console.log('Socket resend invite error: gameId or userId is undefined')
         callback({
           error: 'Invalid game or user',
         })
@@ -467,6 +466,7 @@ io.on('connection', (socket) => {
       // create instance of game
       var game = new gameType.Game(dbGame._doc)
 
+      game.resending = true
       // trigger turn event handler to resend invite
       await game.emit('turn')
 
@@ -579,54 +579,8 @@ app.get('/game/:gameId', async (req, res, next) => {
   next()
 })
 
-app.post('/create-game', async (req, res) => {
-  try {
-    // get token from headers
-    var authHeader = req.headers.authorization
-    if (!authHeader) {
-      res.status(401).send('Access denied. No token provided.')
-      return
-    }
-    if (!authHeader.startsWith('Bearer ')) {
-      res.status(401).send('Access denied. Invalid token.')
-      return
-    }
-    // Remove Bearer from string
-    var token = authHeader.slice(7, authHeader.length)
-
-    if (token !== process.env.GAME_SERVER_TOKEN) {
-      res.status(401).send('Access denied. Invalid token.')
-      return
-    }
-
-    // get game options
-    var options = req.body.options
-    var typeId = options.typeId
-
-    // get game constructor
-    var Game = gameTypes[typeId].Game
-
-    var game = new Game(options)
-
-    // Set game ID
-    var snowflake = SnowflakeGenerator.generate()
-    var snowflakeNum = Number(snowflake)
-    game.id = bases.toBase62(snowflakeNum)
-
-    // add player to game
-    var user = await db.users.getById(req.body.userId)
-    await game.addPlayer(user._id)
-    await game.init()
-
-    // add game to database
-    await db.games.create(game)
-
-    res.json(game)
-  } catch (e) {
-    console.error(e)
-    res.status(500).send('Internal Server Error')
-  }
-})
+import createGameController from './controllers/create-game.controller.js'
+app.post('/create-game', createGameController)
 
 app.get('/discord-oauth2-sign-in', (req, res) => {
   res.redirect(
@@ -634,17 +588,17 @@ app.get('/discord-oauth2-sign-in', (req, res) => {
       process.env.BOT_CLIENT_ID +
       '&redirect_uri=' +
       encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=identify%20email%20connections'
+      '&response_type=code&scope=identify%20email'
   )
 })
 
-app.get('/discord-oauth2-invite-bot', (req, res) => {
+app.get('/invite', (req, res) => {
   res.redirect(
     'https://discord.com/api/oauth2/authorize?client_id=' +
       process.env.BOT_CLIENT_ID +
       '&redirect_uri=' +
       encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=bot%20applications.commands%20identify%20email%20rpc%20rpc.activities.write'
+      '&response_type=code&scope=bot%20applications.commands%20identify%20email'
   )
 })
 
@@ -728,9 +682,15 @@ app.get('*', async (req, res, next) => {
   }
   const pageContext = await renderPage(pageContextInit)
   const { httpResponse } = pageContext
-  if (!httpResponse) return next()
-  const { body, statusCode, contentType } = httpResponse
-  res.status(statusCode).type(contentType).send(body)
+
+  if (pageContext.redirectTo) {
+    res.redirect(307, pageContext.redirectTo)
+  } else if (!pageContext.httpResponse) {
+    return next()
+  } else {
+    const { body, statusCode, contentType } = pageContext.httpResponse
+    res.status(statusCode).type(contentType).send(body)
+  }
 })
 
 export const handler = app

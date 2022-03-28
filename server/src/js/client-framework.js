@@ -239,8 +239,20 @@ function simulateAction(
 }
 
 async function updateSettings(newSettings) {
-  socket.emit('settings:update', newSettings, () => {
-    console.log('Updated settings!')
+  return new Promise((resolve, reject) => {
+    socket.emit('settings:update', newSettings, () => {
+      log('[arcadecord] updated settings!')
+      resolve()
+    })
+  })
+}
+
+async function resendInvite() {
+  return new Promise((resolve, reject) => {
+    socket.emit('resend invite', () => {
+      console.log('[arcadecord] resent invite!')
+      resolve()
+    })
   })
 }
 
@@ -276,13 +288,8 @@ async function connect(gameId, callback) {
     baseCallback
   )
 
-  socket.on('disconnect', async (reason) => {
-    log('[arcadecord.socket] disconnected from server with reason: ' + reason)
-    if (
-      reason !== 'io server disconnect' &&
-      reason !== 'io client disconnect'
-    ) {
-      // Reconnect
+  function reconnect() {
+    if (!socket.connected && !intentionalDisconnect) {
       log('[arcadecord.socket] disconnected. reconnecting...')
       socket = socket.connect()
       socket.emit(
@@ -290,10 +297,40 @@ async function connect(gameId, callback) {
         {
           gameId: gameId,
         },
-        baseCallback
+        () => {
+          setTimeout(baseCallback, 1000)
+        }
       )
     }
+  }
+
+  let intentionalDisconnect = false
+
+  socket.on('disconnect', async (reason) => {
+    log('[arcadecord.socket] disconnected from server with reason: ' + reason)
+    if (
+      reason !== 'io server disconnect' &&
+      reason !== 'io client disconnect'
+    ) {
+      // Reconnect
+      reconnect()
+    } else {
+      // If the disconnect was intentional, don't reconnect
+      intentionalDisconnect = true
+    }
   })
+
+  window.addEventListener('focus', () => {
+    reconnect()
+  })
+
+  window.addEventListener('blur', () => {
+    reconnect()
+  })
+
+  window.setInterval(() => {
+    reconnect()
+  }, 3000)
 }
 
 function listen() {
@@ -321,4 +358,5 @@ export {
   listen,
   useOnClient,
   updateSettings,
+  resendInvite,
 }

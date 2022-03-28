@@ -16,7 +16,7 @@ const options = {
   aliases: ['switch', 'squaregame'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '🟧',
+  emoji: '<:filler:956316583016403045>',
   data: {},
 }
 
@@ -77,7 +77,7 @@ class FillerGame extends Game {
     )
     const ctx = canvas.getContext('2d')
 
-    ctx.fillStyle = '#e4e1e6'
+    ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     let board = this.data.board
@@ -89,9 +89,9 @@ class FillerGame extends Game {
     }
 
     ctx.shadowBlur = 6
-    ctx.shadowColor = 'gray'
+    ctx.shadowColor = '#000000ee'
     ctx.shadowOffsetX = 0
-    // ctx.shadowOffsetY = 4;
+    ctx.shadowOffsetY = 0
     ctx.fillStyle = 'transparent'
 
     ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl)

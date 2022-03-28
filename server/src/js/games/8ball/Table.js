@@ -34,12 +34,13 @@ export class Table {
       for (let mesh of meshes) {
         // if (mesh.name != 'Table_Bed')
         // return;
+        mesh.castShadow = false
+        mesh.receiveShadow = true
         tableObject.add(mesh)
-        tableObject.castShadow = false
-        tableObject.receiveShadow = true
       }
 
       tableObject.scale.multiplyScalar(0.01)
+      // tableObject.receiveShadow = true
       scene.add(tableObject)
 
       this.object = tableObject
@@ -54,18 +55,16 @@ export class Table {
           PLAY_AREA.LEN_Z / 2 - Common.Ball.RADIUS
         )
       ),
-      // type: CANNON.Body.KINEMATIC,
     })
     this.surfaceBody.position.set(0, -0.0254, 0)
     this.world.addBody(this.surfaceBody)
 
-    let cw = 0.0454 // cushion thickness (half extent)
+    let cw = 0.0227 // cushion thickness (half extent)
     let ch = 0.2 // cushion height (half extent)
 
     let cushionOptions = {
       mass: 0,
       material: Table.WALL_CONTACT_MATERIAL,
-      type: CANNON.Body.KINEMATIC,
     }
 
     const shortCushionLen = PLAY_AREA.LEN_X / 2 - 0.02 * 4 // cushion length for the short side (x axis)
@@ -133,7 +132,6 @@ export class Table {
     let holeOptions = {
       mass: 0,
       material: Table.WALL_CONTACT_MATERIAL,
-      type: CANNON.Body.KINEMATIC,
     }
 
     let hh = 0.5 // half hole height

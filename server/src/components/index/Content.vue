@@ -9,68 +9,11 @@ defineProps({
 
 <template>
   <div class="content" :id="id">
-    <section class="stripe">
-      Arcadecord is currently in beta. Feedback is greatly appreciated.
-    </section>
-    <section class="games">
-      <GameDisplay game="8ball">8 Ball</GameDisplay>
-      <GameDisplay game="cuppong">Cup Pong</GameDisplay>
-      <GameDisplay game="seabattle">Sea Battle</GameDisplay>
-      <GameDisplay game="4inarow">4 in a Row</GameDisplay>
-      <GameDisplay game="chess">Chess</GameDisplay>
-      <GameDisplay game="knockout">Knockout</GameDisplay>
-      <GameDisplay game="filler">Filler</GameDisplay>
-    </section>
-    <section>
-      <div class="text">
-        <h3>Your favorite games, <br />in your favorite servers.</h3>
-        <p>
-          Play with anyone, on any device. Arcadecord has a rich and growing
-          collection of games. Play with randoms on your server or invite your
-          best friends only.
-        </p>
-      </div>
-      <div>
-        <img src="" alt="" width="200" height="200" />
-      </div>
-    </section>
-    <section class="reverse">
-      <div class="text">
-        <h3>Great for servers <br />big and small.</h3>
-        <p>
-          Whether you’re playing in a small server with your close friends or a
-          large community server, your games will always easy to find and play.
-          Arcadecord reduces the noise on large servers by making threads for
-          each game.
-        </p>
-      </div>
-      <div>
-        <img src="" alt="" width="200" height="200" />
-      </div>
-    </section>
-    <section>
-      <div class="text">
-        <h3>Play on any device, <br />no installation necessary.</h3>
-        <p>
-          Arcadecord games are played in your browser, so you don’t need to
-          install anything. No need to worry about what platform your friend
-          uses, just play!
-        </p>
-      </div>
-      <div>
-        <img src="" alt="" width="200" height="200" />
-      </div>
-    </section>
-    <section class="add">
-      <h3>Add and play today for free!</h3>
-      <a href="/invite">
-        <Button icon="add">Add to Discord</Button>
-      </a>
-    </section>
+    <slot></slot>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use 'scss/base/theme' as theme;
 
 .content {
@@ -86,11 +29,12 @@ defineProps({
 section {
   padding: 64px var(--padding-x);
   width: 100%;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
   box-sizing: border-box;
-  // flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 
   img {
     display: flex;
@@ -122,13 +66,20 @@ h3 {
 }
 
 .games {
-  padding: 16px;
+  padding: 16px var(--padding-x);
   flex-direction: row;
   display: flex;
-  gap: 32px;
+  gap: 48px;
   border-top: 1px #999 solid;
   border-bottom: 1px #999 solid;
   flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 500px) {
+  .games {
+    gap: 32px !important;
+  }
 }
 
 .text {
@@ -155,7 +106,13 @@ p {
   letter-spacing: 0.1px;
 }
 
-.reverse {
+.row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.row-reverse {
+  align-items: center;
   flex-direction: row-reverse;
 }
 
