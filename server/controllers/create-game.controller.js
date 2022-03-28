@@ -51,9 +51,11 @@ export default async (req, res) => {
     let game = await createGame(req.body)
 
     if (!game) {
+      console.log('User not authorized')
       res.status(401).send('User not authorized')
       return
     }
+    game = await db.games.create(game)
 
     res.json(game)
   } catch (e) {
@@ -87,6 +89,5 @@ export async function createGame(reqBody, testing) {
   await game.addPlayer(user._id)
   await game.init()
 
-  // add game to database
-  return await db.games.create(game)
+  return game
 }

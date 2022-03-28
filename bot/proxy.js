@@ -24,7 +24,7 @@ function getShardByGuild(guild_id) {
   var num_shards = totalShards
 
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-  var shard_id = (guild_id >> 22) % num_shards
+  var shard_id = (guild_id >>> 22) % num_shards
   return shard_id
 }
 
@@ -76,12 +76,18 @@ function proxyRoundRobin(req, res) {
   var host = getHostByRoundRobin()
   // forward request to host
   if (host) return forwardRequest(host, req, res)
+  else {
+    res.status(500).send('Internal Server Error')
+  }
 }
 
 function proxyByGuild(guildId, req, res) {
   var host = getHostByGuild(guildId)
   // forward request to host
   if (host) return forwardRequest(host, req, res)
+  else {
+    res.status(404).send('Guild not found')
+  }
 }
 
 app.get('/users/:id', (req, res) => {
@@ -111,12 +117,12 @@ app.post('/message', (req, res) => {
 
 app.post('/startmessage', (req, res) => {
   //console.log('post start message');
-  proxyByGuild(req.body.guild, req, res)
+  proxyByGuild(req.body.game.guild, req, res)
 })
 
 app.post('/turninvite', (req, res) => {
   //console.log('post turn invite');
-  proxyByGuild(req.body.guild, req, res)
+  proxyByGuild(req.body.game.guild, req, res)
 })
 
 app.delete('/message/:guild/:channel/:message', (req, res) => {

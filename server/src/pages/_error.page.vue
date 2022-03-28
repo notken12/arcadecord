@@ -4,11 +4,26 @@
 
 <script setup>
 import { computed, inject } from 'vue'
+import { GameConnectionError } from '../games/GameErrors.js'
 const pageContext = inject('pageContext')
 
 const errorText = computed(() => {
   if (pageContext.errorInfo) {
-    return pageContext.errorInfo
+    switch (pageContext.errorInfo) {
+      case GameConnectionError.DISCORD_USER_NOT_FOUND:
+        return "You aren't in this game's Discord server. Please join the server and try again."
+      case GameConnectionError.DISCORD_USER_UNAUTHORIZED:
+        return 'You must have slash command permissions to play!'
+      case GameConnectionError.GAME_FULL:
+        return 'The game is full!'
+      case GameConnectionError.GAME_NOT_FOUND:
+        return 'Game not found'
+      case GameConnectionError.USER_BANNED:
+        // TODO: add link to help and feedback page
+        return "We're sorry, but you've been banned from Arcadecord. If you think this is a mistake, please contact us."
+      default:
+        return pageContext.errorInfo
+    }
   }
   if (pageContext.is404) {
     return 'Page not found'

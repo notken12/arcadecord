@@ -67,7 +67,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Connect to database
-await db.connect()
+await db.connect(process.env.MONGODB_URI)
 
 // get architecture from config
 import architecture from './config/architecture.js'
@@ -255,7 +255,7 @@ io.on('connection', (socket) => {
         // create instance of game
         var game = new gameType.Game(dbGame._doc)
 
-        if (await game.canUserSocketConnect(userId)) {
+        if ((await game.canUserSocketConnect(userId)).ok) {
           // Disconnect socket from other tab
           let oldSocket = game.getSocket(userId)
           io.to(oldSocket).disconnectSockets(true)

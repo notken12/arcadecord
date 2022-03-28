@@ -26,17 +26,16 @@ import Emoji from '../Emoji.js'
 // import multer from 'multer'
 // const upload = multer({ dest: 'uploads/' })
 
-var totalShards = architecture.totalShards
-var hosts = architecture.hosts
+const totalShards = architecture.totalShards
+const hosts = architecture.hosts
 
 const config = hosts.find((host) => host.id === hostId)
 
-var shardList = config.shardList.map((id) => Number(id))
-var port = config.port
-var totalShards = Number(totalShards)
+const shardList = config.shardList.map((id) => Number(id))
+const port = config.port
 
 // load balancing for tasks that can be done on any shard
-var shardIndex = 0
+let shardIndex = 0
 
 function getShardByRoundRobin() {
   shardIndex = (shardIndex + 1) % totalShards
@@ -47,7 +46,7 @@ function getShardByGuild(guild_id) {
   var num_shards = totalShards
 
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-  var shard_id = (guild_id >> 22) % num_shards
+  var shard_id = (guild_id >>> 22) % num_shards
   return shard_id
 }
 
@@ -139,7 +138,11 @@ app.post('/message', (req, res) => {
 })
 
 app.post('/startmessage', async (req, res) => {
-  var shard = getShardByGuild(req.body.guild)
+  if (!req.body.game?.guild) {
+    res.status(400).send('Missing guild')
+    return
+  }
+  var shard = getShardByGuild(req.body.game.guild)
 
   manager
     .broadcastEval(

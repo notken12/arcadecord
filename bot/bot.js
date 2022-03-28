@@ -19,7 +19,7 @@ import Game from '../server/src/games/Game.js'
 
 // connect to the database
 import db from '../db/db2.js'
-await db.connect()
+await db.connect(process.env.MONGODB_URI)
 
 // .env is used for all shards
 config()
