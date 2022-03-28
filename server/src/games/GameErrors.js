@@ -2,8 +2,10 @@ export const GameConnectionError = {
   GAME_NOT_FOUND: 'GAME_NOT_FOUND',
   GAME_NOT_STARTED: 'GAME_NOT_STARTED',
   GAME_FULL: 'GAME_FULL',
-  DISCORD_UNAUTHORIZED: 'DISCORD_UNAUTHORIZED', // User doesn't have permission to use /commands in the channel that the game is in
+  DISCORD_USER_UNAUTHORIZED: 'DISCORD_USER_UNAUTHORIZED', // User doesn't have permission to use /commands in the channel that the game is in
   USER_NOT_FOUND: 'USER_NOT_FOUND',
+  USER_BANNED: 'USER_BANNED',
+  DISCORD_USER_NOT_FOUND: 'DISCORD_USER_NOT_FOUND',
 }
 
 export const CanUserJoinError = {
@@ -16,4 +18,11 @@ export const AddPlayerError = {
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   DISCORD_USER_NOT_FOUND: 'DISCORD_USER_NOT_FOUND',
   GAME_FULL: 'GAME_FULL',
+  ALREADY_IN_GAME: 'ALREADY_IN_GAME',
+  GAME_NOT_FOUND: 'GAME_NOT_FOUND',
+}
+
+export const UserPermissionError = {
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+  USER_BANNED: 'USER_BANNED',
 }

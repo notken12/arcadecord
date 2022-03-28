@@ -64,7 +64,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Connect to database
-await db.connect()
+await db.connect(process.env.MONGODB_URI)
 
 // get architecture from config
 import architecture from './config/architecture.js'

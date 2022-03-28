@@ -7,6 +7,7 @@ import { createApp } from '@app/renderer/gameApp'
 import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import * as Client from '@app/js/client-framework.js'
+import { GameConnectionError } from '../games/GameErrors.js'
 
 export async function onBeforeRender(pageContext) {
   // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
@@ -48,7 +49,9 @@ export async function onBeforeRender(pageContext) {
       // create instance of game
       var game = new gameType.Game(dbGame._doc)
 
-      if ((await game.canUserSocketConnect(userId)).ok) {
+      let cperm = await game.canUserSocketConnect(userId)
+
+      if (cperm.ok) {
         // send game info to user
         const { typeId } = game
 
@@ -71,8 +74,7 @@ export async function onBeforeRender(pageContext) {
         // For some reason user isn't allowed to join (isn't in same server, game full, etc)
         throw RenderErrorPage({
           pageContext: {
-            errorInfo:
-              'You are not allowed to join this game. (You are not in the same server, game is full, etc)',
+            errorInfo: cperm.error,
           },
         })
       }

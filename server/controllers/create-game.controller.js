@@ -51,10 +51,10 @@ export default async (req, res) => {
     let game = await createGame(req.body)
 
     if (!game) {
+      console.log('User not authorized')
       res.status(401).send('User not authorized')
       return
     }
-
     game = await db.games.create(game)
 
     res.json(game)

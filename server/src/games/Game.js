@@ -14,6 +14,7 @@ import {
   GameConnectionError,
   CanUserJoinError,
   AddPlayerError,
+  UserPermissionError,
 } from './GameErrors.js'
 
 config()
@@ -280,11 +281,26 @@ class Game {
     // TODO: provide more information
     let canUserJoinResult = await this.canUserJoin(user)
     if (!canUserJoinResult.ok) {
-      if (canUserJoinResult.error === CanUserJoinError.GAME_FULL) {
-        return {
-          ok: false,
-          error: AddPlayerError.GAME_FULL,
-        }
+      switch (canUserJoinResult.error) {
+        case CanUserJoinError.GAME_NOT_FOUND:
+          return {
+            ok: false,
+            error: AddPlayerError.GAME_NOT_FOUND,
+          }
+        case CanUserJoinError.GAME_FULL:
+          return {
+            ok: false,
+            error: AddPlayerError.GAME_FULL,
+          }
+        case CanUserJoinError.ALREADY_IN_GAME:
+          return {
+            ok: false,
+            error: AddPlayerError.ALREADY_IN_GAME,
+          }
+        default:
+          return {
+            ok: false,
+          }
       }
     }
 
@@ -338,9 +354,20 @@ class Game {
   }
   // TODO: change to using an object with {ok: bool, error: UserPermissionError}
   async doesUserHavePermission(dbUser) {
-    if (!dbUser) return false
-    if (dbUser.banned) return false
-    if (this.testing) return true // ignore discord permissions when testing, TODO: use real discord data and don't ignore
+    if (!dbUser)
+      return {
+        ok: false,
+        error: UserPermissionError.USER_NOT_FOUND,
+      }
+    if (dbUser.banned)
+      return {
+        ok: false,
+        error: UserPermissionError.USER_BANNED,
+      }
+    if (this.testing)
+      return {
+        ok: true,
+      } // ignore discord permissions when testing, TODO: use real discord data and don't ignore
 
     var res = await BotApi.getUserPermissionsInChannel(
       this.guild,
@@ -348,31 +375,54 @@ class Game {
       dbUser.discordId
     )
 
-    if (!res) return false
-    if (!res.ok) return false
+    if (!res)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
+    if (!res.ok)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
 
     let error
     var perms = await res.json().catch(() => (error = true))
 
-    if (error) return false
+    if (error)
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_NOT_FOUND,
+      }
 
     // must have perms to use slash commands to join games
     if (!perms.USE_APPLICATION_COMMANDS) {
-      return false
+      return {
+        ok: false,
+        error: UserPermissionError.DISCORD_USER_UNAUTHORIZED,
+      }
     }
 
     var freeSpaces = this.maxPlayers - this.players.length
 
     if (freeSpaces > this.invitedUsers.length) {
       // there are free spaces that an uninvited player can join into
-      return true
+      return {
+        ok: true,
+      }
     } else {
       // no more extra spaces for uninvited players, only invited users can join
       if (this.invitedUsers.includes(dbUser.discordId)) {
-        return true
+        return {
+          ok: true,
+        }
+      } else {
+        return {
+          ok: false,
+          error: UserPermissionError.GAME_FULL,
+        }
       }
     }
-    return false
   }
   async canUserJoin(user) {
     if (this.isGameFull()) {
@@ -384,7 +434,7 @@ class Game {
     }
 
     // TODO: add more specific message
-    if (!(await this.doesUserHavePermission(user)))
+    if (!(await this.doesUserHavePermission(user)).ok)
       return {
         ok: false,
       }
@@ -436,13 +486,44 @@ class Game {
       }
     }
 
-    if (!(await this.doesUserHavePermission(dbUser)))
-      return {
-        ok: false,
-      }
+    let uperm = await this.doesUserHavePermission(dbUser)
 
-    return {
-      ok: true,
+    if (uperm.ok) {
+      return {
+        ok: true,
+      }
+    }
+
+    switch (uperm.error) {
+      case UserPermissionError.USER_NOT_FOUND:
+        return {
+          ok: false,
+          error: GameConnectionError.USER_NOT_FOUND,
+        }
+      case UserPermissionError.USER_BANNED:
+        return {
+          ok: false,
+          error: GameConnectionError.USER_BANNED,
+        }
+      case UserPermissionError.DISCORD_USER_NOT_FOUND:
+        return {
+          ok: false,
+          error: GameConnectionError.DISCORD_USER_NOT_FOUND,
+        }
+      case UserPermissionError.DISCORD_USER_UNAUTHORIZED:
+        return {
+          ok: false,
+          error: GameConnectionError.DISCORD_USER_UNAUTHORIZED,
+        }
+      case UserPermissionError.GAME_FULL:
+        return {
+          ok: false,
+          error: GameConnectionError.GAME_FULL,
+        }
+      default:
+        return {
+          ok: false,
+        }
     }
   }
   isGameFull() {
