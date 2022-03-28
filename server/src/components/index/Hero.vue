@@ -17,6 +17,7 @@ import Button from './Button.vue'
             alt="Arcadecord"
             class="icon"
             width="24"
+            height="24"
           />
           <span class="mono">/play</span>
         </div>
