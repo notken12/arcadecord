@@ -17,6 +17,9 @@ dotenv.config({
 import express from 'express'
 const app = express()
 
+// Compress all requests
+app.use(shrinkRay())
+
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser())
 
@@ -91,8 +94,6 @@ import { Generator } from 'snowflake-generator'
 const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host))
 
 app.use(cors())
-
-app.use(shrinkRay())
 
 // Health check
 app.head('/health', function (req, res) {

@@ -115,23 +115,23 @@ export default defineConfig({
     rollupOptions: {
       output: {
         format: 'es',
-        manualChunks(id) {
-          // add shared modules to the vendor chunk
-          console.log(id)
-          if (id.includes('node_modules')) {
-            for (let i = 0; i < sharedModules.length; i++) {
-              if (id.includes(sharedModules[i])) {
-                return 'vendor'
-              }
-            }
-            for (let i = 0; i < nonSharedModules.length; i++) {
-              if (id.includes(nonSharedModules[i])) {
-                return nonSharedModules[i]
-              }
-            }
-          }
-        },
-        //sourcemap: true,
+        // manualChunks(id) {
+        //   // add shared modules to the vendor chunk
+        //   console.log(id)
+        //   if (id.includes('node_modules')) {
+        //     for (let i = 0; i < sharedModules.length; i++) {
+        //       if (id.includes(sharedModules[i])) {
+        //         return 'vendor'
+        //       }
+        //     }
+        //     for (let i = 0; i < nonSharedModules.length; i++) {
+        //       if (id.includes(nonSharedModules[i])) {
+        //         return nonSharedModules[i]
+        //       }
+        //     }
+        //   }
+        // },
+        manualChunks: undefined
       },
       external: [
         /server\/src\/games\/types\/(.*)main.(.*)$/,
