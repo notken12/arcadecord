@@ -148,7 +148,7 @@ describe('8ball Action: shoot', () => {
     expect(stillTheirTurn).toBe(false)
   })
 
-  test.todo('Do not end turn if ball is shot into pocket', async () => {
+  test('Do not end turn if ball is shot into pocket', async () => {
     // Create a new game
     let game = new main.Game()
     // Activate testing mode
@@ -175,6 +175,7 @@ describe('8ball Action: shoot', () => {
     )
 
     // Run the actions
+    expect(Common.getBalls(game.data.balls, 1, false).length).toBe(7)
     expect(await game.handleAction(missedShot)).toEqual({ success: true })
 
     // Check the game state

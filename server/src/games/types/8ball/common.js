@@ -5,6 +5,9 @@
 // tests if global scope is bound to window
 import GameFlow from '../../GameFlow.js'
 
+let ballColors = [['1ball','2ball','3ball','4ball','5ball','6ball','7ball'], ['9ball','10ball','11ball','12ball','13ball','14ball','15ball']]
+
+
 class Table {
   static PLAY_AREA = {
     LEN_Z: 2.2352, // m
@@ -58,7 +61,7 @@ export class CueBall extends Ball {
 async function shoot(game, action) {
   let continueTurn = false;
   let pattern = game.data.players[game.turn].assignedPattern;
-  if (pattern === null || pattern === undefined) {
+  if (pattern !== null || pattern !== undefined) {
     // check if the assigned pattern hasn't been assigned yet
     if (checkHitIn(game, action, pattern)) {
       continueTurn = true;
@@ -133,8 +136,9 @@ async function shoot(game, action) {
 }
 
 function getBalls(balls, color, onlyIn) {
+  /*
   function ballFilter(ball) {
-    if (ball.color == color) {
+    if (ballColors[color].includes(ball.name)) {
       if (onlyIn) {
         if (!ball.out) return true
         return false
@@ -145,6 +149,22 @@ function getBalls(balls, color, onlyIn) {
   let fetchedBalls = balls.filter(ballFilter)
 
   return fetchedBalls
+  */
+  var yesBalls = [];
+  var i;
+  for(i=0;i<balls.length;i++){
+    var pushBall = true;
+    if(ballColors[color].includes(balls[i].name)){
+      pushBall = false;
+    } else {
+      if(onlyIn && balls[i].out){
+        pushBall = false;
+      }
+    }
+
+    if(pushBall){yesBalls.push(balls[i])}
+  }
+  return yesBalls
 }
 function checkHitIn(game, action, color) {
   let oldBalls = getBalls(game.data.balls, color, true)
@@ -158,6 +178,7 @@ function checkHitIn(game, action, color) {
 }
 
 export default {
+  ballColors,
   Ball,
   CueBall,
   Table,
