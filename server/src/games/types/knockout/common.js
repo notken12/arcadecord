@@ -24,11 +24,10 @@ class Ice {
 }
 
 async function setDummies(game, action) {
-  game.data.hello = 'hello'
   action.data.dummies.forEach((setTo, index) => {
     if (setTo) {
       var i = index + !action.userId * 4
-      game.data.dummies[i] = new Dummy(
+      game.data.dummies[index] = new Dummy(
         setTo.x,
         setTo.y,
         setTo.faceDir,
@@ -47,7 +46,9 @@ async function setDummies(game, action) {
 
   game.data.ice.size -= Ice.decrease
   var winner = checkWinner(game)
+  game.data.winner = winner;
   if (winner) await GameFlow.end(game, { winner })
+  return game;
 }
 
 function checkWinner(game) {

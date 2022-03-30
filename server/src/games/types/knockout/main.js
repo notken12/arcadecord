@@ -26,8 +26,7 @@ class KnockoutGame extends Game {
       properties: {
         dummies: {
           type: 'array',
-          maxItems: 4,
-          minItems: 4,
+          maxItems: 8,
         },
       },
     })
@@ -37,6 +36,7 @@ class KnockoutGame extends Game {
     var spawn = Common.spawn()
     game.data.ice = spawn.ice
     game.data.dummies = spawn.dummies
+    game.data.firing = true
     return game
   }
 }
