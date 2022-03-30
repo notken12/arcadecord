@@ -1,12 +1,3 @@
-// chess.js - Arcadecord
-
-// Copyright (C) 2022 Ken Zhou
-
-// This file is part of Arcadecord.
-
-// Arcadecord can not be copied and/or distributed
-// without the express permission of Ken Zhou.
-
 import * as Client from '../client-framework.js'
 
 var gameId = Client.utils.getGameId(window.location)

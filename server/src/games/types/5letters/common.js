@@ -1,12 +1,3 @@
-// common.js - Arcadecord
-
-// Copyright (C) 2022 Ken Zhou
-
-// This file is part of Arcadecord.
-
-// Arcadecord can not be copied and/or distributed
-// without the express permission of Ken Zhou.
-
 import Common from './common.js'
 import GameFlow from '../../GameFlow.js'
 import { GUESS_WORDS, ANSWER_WORDS } from './words.js'

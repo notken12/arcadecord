@@ -1,12 +1,3 @@
-// game.page.client.js - Arcadecord
-
-// Copyright (C) 2022 Ken Zhou
-
-// This file is part of Arcadecord.
-
-// Arcadecord can not be copied and/or distributed
-// without the express permission of Ken Zhou.
-
 import { getPage } from 'vite-plugin-ssr/client'
 import { createApp } from '@app/renderer/gameApp.js'
 

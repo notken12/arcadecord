@@ -1,12 +1,3 @@
-// InputHandler.js - Arcadecord
-
-// Copyright (C) 2022 Ken Zhou
-
-// This file is part of Arcadecord.
-
-// Arcadecord can not be copied and/or distributed
-// without the express permission of Ken Zhou.
-
 function InputHandler(renderer, scene, game) {
   this.renderer = renderer
   this.scene = scene

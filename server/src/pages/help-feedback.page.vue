@@ -1,12 +1,3 @@
-<!--  help-feedback.page.vue - Arcadecord
-
-  Copyright (C) 2022 Ken Zhou
-
-  This file is part of Arcadecord.
-
-  Arcadecord can not be copied and/or distributed
-  without the express permission of Ken Zhou.-->
-
 <script setup>
 import Header from 'components/index/Header.vue'
 import Content from 'components/index/Content.vue'

@@ -1,12 +1,3 @@
-// filter.js - Arcadecord
-
-// Copyright (C) 2022 Ken Zhou
-
-// This file is part of Arcadecord.
-
-// Arcadecord can not be copied and/or distributed
-// without the express permission of Ken Zhou.
-
 function filter(obj, schema, inProperty) {
   // recursively filter object
   let result = {}
