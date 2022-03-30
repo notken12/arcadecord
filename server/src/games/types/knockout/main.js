@@ -24,7 +24,7 @@ class KnockoutGame extends Game {
     this.setActionSchema('setDummies', {
       type: 'object',
       properties: {
-        directions: {
+        dummies: {
           type: 'array',
           maxItems: 4,
           minItems: 4,

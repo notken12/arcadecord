@@ -4,6 +4,10 @@ class Dummy {
   constructor(x, y, faceDir, playerIndex, moveDir, fallen) {
     this.x = x //x and y relative to ice size
     this.y = y
+    this.velocity = {
+      x: 0,
+      y: 0,
+    }
     this.moveDir = moveDir || undefined //vector
     this.faceDir = faceDir //angle in degrees
     this.playerIndex = playerIndex
@@ -20,7 +24,8 @@ class Ice {
 }
 
 async function setDummies(game, action) {
-  action.data.directions.forEach((setTo, index) => {
+  game.data.hello = 'hello'
+  action.data.dummies.forEach((setTo, index) => {
     if (setTo) {
       var i = index + !action.userId * 4
       game.data.dummies[i] = new Dummy(
@@ -33,8 +38,16 @@ async function setDummies(game, action) {
       )
     }
   })
+  if (game.data.firing) {
+    game.data.firing = false
+    await GameFlow.endTurn(game)
+  } else {
+    game.data.firing = true
+  }
+
+  game.data.ice.size -= Ice.decrease
   var winner = checkWinner(game)
-  if (winner) await GameFlow.end(game, { winner });
+  if (winner) await GameFlow.end(game, { winner })
 }
 
 function checkWinner(game) {
@@ -56,23 +69,29 @@ function checkWinner(game) {
 }
 
 function spawn() {
-  var ice = new Ice(100)
-  let dummies = []
-
-  //have to check if they collide with the other ones before they are pushed :/
-  //GRRRRRRR ඞඞඞඞඞඞ
-  //it's ok i'll fix it later maybe in the client
-
-  for (var i = 0; i < 8; i++) {
-    dummies.push(
-      // don't want to have x or y be at the very edge of the ice
-      new Dummy(
-        randRange(10, 90),
-        randRange(10, 90),
-        randRange(0, 360),
-        i < 4 ? 1 : 0
-      )
+  var ice = new Ice(100),
+    dummies = [],
+    collision = (x1, y1, x2, y2) => (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2,
+    overlap,
+    newd,
+    i = 0
+  while (i < 8) {
+    overlap = false
+    newd = new Dummy(
+      randRange(10, 90),
+      randRange(10, 90),
+      randRange(0, 360),
+      i < 4 ? 1 : 0
     )
+    for (var j = 0; j < dummies.length; j++) {
+      var other = dummies[j]
+      overlap = collision(other.x, other.y, newd.x, newd.y)
+      if (overlap) break
+    }
+    if (!overlap || i == 0) {
+      dummies.push(newd)
+      i++
+    }
   }
   return { ice, dummies }
 }

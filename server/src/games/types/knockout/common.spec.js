@@ -14,7 +14,7 @@ import { LogOutput } from 'concurrently'
 // ok  ok ok ok ok ok ok okok okok o
 
 
-test.todo('set a direction for all dummies, complete a cycle and test if a dummy as fallen', async () => {
+test('set a direction for all dummies, complete a cycle and test if a dummy as fallen', async () => {
   let game = new main.Game()
   // Activate testing mode
   game.test()
@@ -26,38 +26,64 @@ test.todo('set a direction for all dummies, complete a cycle and test if a dummy
 
   let actions = []
 
-  actions.push(
+  actions.push( // player 1 sets
     new Action(
       'setDummies',
       {
-        directions: [
+        dummies: [
           {x: 30, y:50, fallen:false, moveDir: {x: 1, y: 0}, faceDir: 30},
           {x: 40, y:50, fallen:false, moveDir: {x: -5, y: 0}, faceDir: 80},
           {x: 50, y:50, fallen:false, moveDir: {x: -6, y: 0}, faceDir: 30},
           {x: 60, y:50, fallen:false, moveDir: {x: 7, y: 0}, faceDir: 120},
+          {x: 30, y:70, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 30},
+          {x: 40, y:70, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 80},
+          {x: 50, y:70, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 30},
+          {x: 60, y:70, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 120},
         ],
       },
       1
     )
   );
-
-  actions.push(
+  actions.push( //player 0 sets
     new Action(
       'setDummies',
       {
-        directions: [
-            {x: 30, y:50, fallen:false, moveDir: {x: 1, y: 0}, faceDir: 30},
-            {x: 40, y:50, fallen:false, moveDir: {x: -5, y: 0}, faceDir: 80},
-            {x: 50, y:50, fallen:false, moveDir: {x: -6, y: 0}, faceDir: 30},
-            {x: 60, y:50, fallen:false, moveDir: {x: 7, y: 0}, faceDir: 120},
+        dummies: [
+          {x: -5, y:10, fallen:true, moveDir: {x: 1, y: 0}, faceDir: 30},
+          {x: 40, y:50, fallen:false, moveDir: {x: -5, y: 0}, faceDir: 80},
+          {x: 50, y:50, fallen:false, moveDir: {x: -6, y: 0}, faceDir: 30},
+          {x: 60, y:50, fallen:false, moveDir: {x: 7, y: 0}, faceDir: 120},
+          {x: 30, y:80, fallen:false, moveDir: {x: 3, y: 0}, faceDir: 30},
+          {x: 40, y:30, fallen:false, moveDir: {x: 5, y: 0}, faceDir: 80},
+          {x: 50, y:70, fallen:false, moveDir: {x: 1, y: 0}, faceDir: 30},
+          {x: 80, y:20, fallen:false, moveDir: {x: 2, y: 0}, faceDir: 120},
         ],
       },
       0
     )
   );
-
+  
+  actions.push( //player 0 sets
+    new Action(
+      'setDummies',
+      {
+        dummies: [
+          {x: -5, y:10, fallen:true, moveDir: {x: 0, y: 0}, faceDir: 30},
+          {x: 40, y:50, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 80},
+          {x: 50, y:50, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 30},
+          {x: 60, y:50, fallen:false, moveDir: {x: 0, y: 0}, faceDir: 120},
+          {x: 30, y:80, fallen:false, moveDir: {x: 2, y: 0}, faceDir: 30},
+          {x: 40, y:30, fallen:false, moveDir: {x: 10, y: 0}, faceDir: 80},
+          {x: 50, y:70, fallen:false, moveDir: {x: -3, y: 0}, faceDir: 30},
+          {x: 80, y:20, fallen:false, moveDir: {x: 20, y: 0}, faceDir: 120},
+        ],
+      },
+      0
+    )
+  );
   actions.forEach(async (action) => await game.handleAction(action))
-
-  expect(GameFlow.isItUsersTurn(game, 0)).toBe(true) // it should still be player 0's turn
-  expect(game.data.ice.size).toBeLessThan(100) // percent should have decreased
+  
+  expect(GameFlow.isItUsersTurn(game, 1)).toBe(true) // it should be player 1's turn
+  expect(game.data.firing).toBe(false) // percent should have decreased
+  expect(game.ice.size).toBeLessThan(100)
 })
