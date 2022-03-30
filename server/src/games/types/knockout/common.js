@@ -19,7 +19,7 @@ class Dummy {
 class Ice {
   static decrease = 5
   constructor(size) {
-    this.size = size
+    this.size = size || 100;
   }
 }
 
@@ -37,23 +37,26 @@ async function setDummies(game, action) {
       )
     }
   })
-  if (game.data.firing) {
-    game.data.firing = false
-    await GameFlow.endTurn(game)
+  if (game.data.firing == true) {
+    game.data.firing = false;await GameFlow.endTurn(game);
   } else {
     game.data.firing = true
   }
 
-  game.data.ice.size -= Ice.decrease
+
   var winner = checkWinner(game)
   game.data.winner = winner;
+  game.data.ice.size -= Ice.decrease
+  
+  game.data.player = [GameFlow.isItUsersTurn(game, 0), winner];
   if (winner) await GameFlow.end(game, { winner })
+  
   return game;
 }
 
 function checkWinner(game) {
-  var p1,
-    p0,
+  var p1 = 0,
+    p0 = 0,
     winner = undefined,
     cur
   for (var i = 0; i < game.data.dummies.length; i++) {
@@ -70,7 +73,7 @@ function checkWinner(game) {
 }
 
 function spawn() {
-  var ice = new Ice(100),
+  var ice = new Ice(),
     dummies = [],
     collision = (x1, y1, x2, y2) => (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2,
     overlap,
