@@ -374,8 +374,6 @@ io.on('connection', (socket) => {
       await callback(result)
 
       if (game.turn !== oldTurn) {
-        console.log(`Game ${game.id} turn`)
-
         var player = game.players[game.turn]
         //console.log(`Player ${player.id}`);
         var s = game.sockets[player.id]

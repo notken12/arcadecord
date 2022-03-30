@@ -55,8 +55,8 @@ async function action_throw(game, action) {
 
   thisSide.ballsBack = false
 
+  thisSide.throwCount += 1
   if (!hitCupID) {
-    thisSide.throwCount += 1
     if (thisSide.inRedemption && thisSide.throwCount === 2) {
       //Failed Redemption
       // End the game and set the winner to the opponent
@@ -65,7 +65,6 @@ async function action_throw(game, action) {
       })
     }
   } else {
-    thisSide.throwCount += 1
     thisSide.throwsMade += 1
     let hitCup = opponentsCups.find((c) => c.id === hitCupID)
     if (!hitCup) {
@@ -77,15 +76,27 @@ async function action_throw(game, action) {
       thisSide.cups.find((f) => f.id === thisSide.lastKnocked).out = false
       thisSide.inRedemption = false
     }
+
+    rearrangeCups(game)
+
+    // If you knock over all of the cups, the opponent gets a redemption turn
     if (getCupsLeft(opponentsCups).length === 0) {
       opponentSide.inRedemption = true
+
+      // Reset throws
+      thisSide.throwCount = 0
+      thisSide.throwsMade = 0
+
+      // End turn
       await GameFlow.endTurn(game)
+      return game
     }
-    rearrangeCups(game)
   }
 
+  // If this is your second shot...
   if (thisSide.throwCount === 2) {
     if (thisSide.throwsMade !== 2) {
+      // If you don't make both shots, your turn ends
       await GameFlow.endTurn(game)
     } else {
       // Player hit both shots, balls back

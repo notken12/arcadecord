@@ -149,7 +149,10 @@ function ballsBackWatcher(newValue, oldValue) {
 }
 
 function inRedemptionWatcher(newValue, oldValue) {
-  if ((newValue[0] === true || newValue[1] === true) && !game.hasEnded) {
+  if (
+    (newValue[0] === true || (newValue[1] === true && replaying.value)) &&
+    !game.hasEnded
+  ) {
     message.value = 'Redemption'
     overlayAnimated.value = true
   }
@@ -719,7 +722,7 @@ onMounted(() => {
   }
 
   window.yForce = function (x) {
-    return window.getBaseLog(50, x * -0.6 + 9)
+    return window.getBaseLog(50, x * -0.5 + 9)
   }
 
   window.zForce = function (x) {

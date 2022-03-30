@@ -102,7 +102,7 @@ function addRimShapes(body, count, innerRadius, radius, height, thickness) {
   for (let i = 0; i < count; i++) {
     let shape = getRimTrimesh(height, thickness, x_len, innerRadius, radius)
 
-    let point = { x: 0, y: (radius + innerRadius) / 2 }
+    let point = { x: 0, y: (radius + innerRadius) / 2 + thickness / 2 }
     let rotatedPoint = rotatePoint(point, i * box_increment_angle, {
       x: 0,
       y: 0,
@@ -124,14 +124,14 @@ export function getCupBody(cup) {
     mass: 0,
     material: new CANNON.Material({
       friction: 0.5,
-      restitution: 0.5,
+      restitution: 0.6,
     }),
     type: cup.out ? CANNON.Body.STATIC : CANNON.Body.KINEMATIC,
     isTrigger: cup.out,
     position: new CANNON.Vec3(cupPosition.x, cupPosition.y, cupPosition.z),
   })
 
-  addRimShapes(cupBody, rimBoxes, innerRadius, radius, height, 0.01)
+  addRimShapes(cupBody, rimBoxes, innerRadius, radius, height, 0.015)
 
   return cupBody
 }
