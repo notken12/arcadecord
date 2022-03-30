@@ -1,3 +1,12 @@
+// ammo.js - Arcadecord
+
+// Copyright (C) 2022 Ken Zhou
+
+// This file is part of Arcadecord.
+
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 // This is ammo.js, a port of Bullet Physics to JavaScript. zlib licensed.
 
 

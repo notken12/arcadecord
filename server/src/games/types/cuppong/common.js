@@ -1,3 +1,12 @@
+// common.js - Arcadecord
+
+// Copyright (C) 2022 Ken Zhou
+
+// This file is part of Arcadecord.
+
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 // common.js is used to define values and functions that are used by both the client and the server
 // Write the main game logic here
 // Common action models

@@ -1,3 +1,12 @@
+// CueBall.ts - Arcadecord
+
+// Copyright (C) 2022 Ken Zhou
+
+// This file is part of Arcadecord.
+
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 import { Scene3D } from 'enable3d'
 import { Ball } from './Ball'
 import { Table } from './Table'

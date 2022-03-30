@@ -1,3 +1,12 @@
+<!--  ScoreView.vue - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.-->
+
 <template>
   <div class="container" v-if="!isMe || alwaysshow">
     <slot :player="player" :playerindex="playerIndex"></slot>

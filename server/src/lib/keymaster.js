@@ -1,3 +1,12 @@
+// keymaster.js - Arcadecord
+
+// Copyright (C) 2022 Ken Zhou
+
+// This file is part of Arcadecord.
+
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 //     keymaster.js
 //     (c) 2011-2013 Thomas Fuchs
 //     keymaster.js may be freely distributed under the MIT license.
