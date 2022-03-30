@@ -61,7 +61,8 @@ export class CueBall extends Ball {
 async function shoot(game, action) {
   let continueTurn = false;
   let pattern = game.data.players[game.turn].assignedPattern;
-  if (pattern !== null || pattern !== undefined) {
+  if (pattern !== null && pattern !== undefined) {
+  // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
     if (checkHitIn(game, action, pattern)) {
       continueTurn = true;
@@ -135,7 +136,7 @@ async function shoot(game, action) {
   return game;
 }
 
-function getBalls(balls, color, onlyIn) {
+function getBalls(balls, pattern, onlyIn) { // ken: I changed color into pattern. Looks like your code is filtering by pattern and not color.
   /*
   function ballFilter(ball) {
     if (ballColors[color].includes(ball.name)) {
@@ -151,15 +152,12 @@ function getBalls(balls, color, onlyIn) {
   return fetchedBalls
   */
   var yesBalls = [];
-  var i;
-  for(i=0;i<balls.length;i++){
+  for(let i=0;i<balls.length;i++){
     var pushBall = true;
-    if(ballColors[color].includes(balls[i].name)){
+    if(!ballColors[pattern].includes(balls[i].name)){
       pushBall = false;
-    } else {
-      if(onlyIn && balls[i].out){
+    } else if (onlyIn && balls[i].out) {
         pushBall = false;
-      }
     }
 
     if(pushBall){yesBalls.push(balls[i])}
