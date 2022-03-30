@@ -1,3 +1,12 @@
+// box.js - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 import { reactive, ref } from 'vue'
 import { createStore as createVuexStore } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'

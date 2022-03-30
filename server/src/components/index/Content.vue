@@ -1,3 +1,14 @@
+<!--
+  Content.vue - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <script setup>
 import GameDisplay from './GameDisplay.vue'
 import Button from './Button.vue'

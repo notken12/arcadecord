@@ -1,3 +1,12 @@
+// Emoji.js - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 const Emoji = {
   // Emoji
   ICON_ROUND: '<:icon_round:919631091952910336>',

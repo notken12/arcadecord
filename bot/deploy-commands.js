@@ -1,3 +1,12 @@
+// deploy-commands.js - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import { config } from 'dotenv'
