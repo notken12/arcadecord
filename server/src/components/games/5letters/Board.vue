@@ -10,6 +10,7 @@
 -->
 
 <script setup>
+import { ref, reactive } from 'vue'
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
 
 const boardEl = ref(null)
@@ -35,7 +36,7 @@ for (let i = 0; i < 6; i++) {
 </script>
 
 <template>
-  <div class="board">
+  <div class="board" ref="boardEl">
     <div v-for="row in grid" :key="grid.indexOf(row)" class="row">
       <div class="cell" v-for="letter in row" :key="row.indexOf(letter)">
         {{ letter }}
@@ -46,25 +47,4 @@ for (let i = 0; i < 6; i++) {
 
 <style lang="scss" scoped>
 $gap: 8px;
-
-.board {
-  display: flex;
-  flex-direction: column;
-  gap: $gap;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  gap: $gap;
-}
-
-.cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-weight: bold;
-}
 </style>

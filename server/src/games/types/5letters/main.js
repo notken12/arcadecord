@@ -24,7 +24,6 @@ const options = {
   maxPlayers: 2,
   emoji: '🔠',
   data: {},
-  hidden: true,
 }
 
 // Game constructor, extends base Game class

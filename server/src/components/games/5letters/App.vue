@@ -17,9 +17,10 @@ import Toast from './Toast.vue'
 
 import { useFacade } from '@app/components/base-ui/facade'
 import bus from '@app/js/vue-event-bus'
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-const { game, me } = useFacade()
+const { game, me, replaying, $replayTurn, $endReplay, $endAnimation } =
+  useFacade()
 
 const toast = ref(null)
 
@@ -35,18 +36,38 @@ const myIndex = computed(() => {
 })
 
 const theirIndex = computed(() => {
-  return (myIndex + 1) % 2
+  return (myIndex.value + 1) % 2
 })
 
 const myGuesses = computed(() => {
-  return game.value.guesses[myIndex.value]
+  return game.value.data.guesses[myIndex.value]
 })
 
 const myAnswer = computed(() => {
-  return game.value.answers[myIndex.value]
+  return game.value.data.answers[myIndex.value]
 })
 
-const theirGuesses = computed()
+const theirGuesses = computed(() => {
+  return game.value.data.guesses[theirIndex.value]
+})
+
+const middleStyles = computed(() => {
+  let transform = 'translateX(0px)'
+  if (game.value.turn === myIndex.value) {
+    transform = 'translateX(-50%)'
+  }
+  return {
+    transform,
+  }
+})
+
+onMounted(() => {
+  window.game = game.value
+
+  $replayTurn(() => {
+    $endReplay(0)
+  })
+})
 </script>
 
 <template>
@@ -55,7 +76,7 @@ const theirGuesses = computed()
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
 
-    <div class="middle">
+    <div class="middle" :style="middleStyles">
       <!-- Game UI just for 5letters -->
       <div class="theirs">
         <div>
@@ -65,8 +86,12 @@ const theirGuesses = computed()
         <Board :guesses="theirGuesses"></Board>
       </div>
       <div class="mine">
-        <WordChooser v-if="!myAnswer"></WordChooser>
-        <Board :guesses="myGuesses" v-if="myAnswer"></Board>
+        <h2>Choose a secret word</h2>
+        <div class="container">
+          <WordChooser v-if="!myAnswer"></WordChooser>
+          <Board :guesses="myGuesses" v-if="myAnswer"></Board>
+        </div>
+
         <Keyboard :guesses="myGuesses"></Keyboard>
         <Toast></Toast>
       </div>
@@ -75,7 +100,59 @@ const theirGuesses = computed()
 </template>
 
 <style lang="scss" scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  overflow: hidden;
+  flex-direction: row;
+  max-width: 500px;
+  width: 100%;
+}
+
+.middle {
+  width: 200%;
+  max-width: 200vw;
+  display: flex;
+  flex-direction: row;
+  transition: transform 0.3s ease;
+}
+
+.middle > div {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
 .mine {
   position: relative;
+}
+</style>
+
+<style lang="scss">
+* {
+  box-sizing: border-box;
+}
+
+.triangle {
+  border-bottom-color: white !important;
+}
+
+.board {
+  display: grid;
+  gap: 6px;
+  grid-template-rows: repeat(6, 1fr);
+  width: 380px;
+  height: 72px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 6px;
 }
 </style>

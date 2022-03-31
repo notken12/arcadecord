@@ -111,7 +111,7 @@ export default {
   max-width: 100%;
   max-height: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   animation: fadein 0.5s;
   // position: absolute;
   top: 0;
