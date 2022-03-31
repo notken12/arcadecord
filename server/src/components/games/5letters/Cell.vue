@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import Common from '/gamecommons/5letters'
 
 const props = defineProps({
-  letter: {
-    type: String,
+  cell: {
+    type: Object,
     required: true,
   },
 })
@@ -11,23 +12,27 @@ const props = defineProps({
 const animated = ref(false)
 
 watch(
-  () => props.letter,
-  (letter) => {
-    if (letter !== '') animated.value = true
-  }
+  () => props.cell,
+  (cell) => {
+    if (cell.letter !== '') animated.value = true
+  },
+  { deep: true }
 )
 
 const classes = computed(() => {
   return {
     animated: animated.value,
-    empty: props.letter === '',
+    empty: props.cell.letter === '',
+    wrong: props.cell.hint === Common.HINT.WRONG,
+    correct: props.cell.hint === Common.HINT.CORRECT,
+    elsewhere: props.cell.hint === Common.HINT.ELSEWHERE,
   }
 })
 </script>
 
 <template>
   <div class="cell" :class="classes" @animationend="animated = false">
-    {{ letter }}
+    {{ cell.letter }}
   </div>
 </template>
 
@@ -47,6 +52,24 @@ const classes = computed(() => {
   border: 2px #bbb solid;
   border-radius: 6px;
   transition: border-color 0.1s;
+}
+
+.wrong,
+.elsewhere,
+.correct {
+  border: none;
+}
+
+.wrong {
+  background: #333;
+}
+
+.elsewhere {
+  background: #dea335;
+}
+
+.correct {
+  background: #4ed230;
 }
 
 .empty {
