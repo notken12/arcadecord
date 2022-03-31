@@ -10,13 +10,14 @@
 -->
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
 import Cell from './Cell.vue'
 import bus from '@app/js/vue-event-bus'
 import { useFacade } from '@app/components/base-ui/facade'
+import { letterAnimationLength } from '@app/js/games/5letters/constants'
 
-const { $runAction, game } = useFacade()
+const { $runAction, game, replaying } = useFacade()
 
 const boardEl = ref(null)
 
@@ -36,10 +37,22 @@ const grid = reactive([])
 for (let i = 0; i < 6; i++) {
   let row = []
   for (let i = 0; i < 5; i++) {
-    row.push('')
+    row.push({ letter: '' })
   }
   grid.push(row)
 }
+
+for (let j = 0; j < props.guesses.length; j++) {
+  let guess = props.guesses[j]
+
+  if (guess)
+    for (let i = 0; i < guess.word.length; i++) {
+      grid[j][i].letter = guess.word[i]
+      grid[j][i].hint = guess.hints[i]
+    }
+}
+
+console.log(grid)
 
 const getInsertionRow = () => {
   return props.guesses.length
@@ -52,7 +65,7 @@ const getInsertionIndex = () => {
   }
   let index = -1
   for (let i = 0; i < row.length; i++) {
-    if (row[i] === '') {
+    if (row[i].letter === '') {
       index = i
       break
     }
@@ -66,7 +79,7 @@ const keyboardPress = (letter) => {
   const row = getInsertionRow()
   const index = getInsertionIndex()
   if (index !== -1 && row !== -1) {
-    grid[row][index] = letter
+    grid[row][index].letter = letter
   }
 }
 
@@ -78,7 +91,10 @@ const keyboardBackspace = () => {
   if (index === -2) {
     index = grid[row].length - 1
   }
-  grid[row][index] = ''
+  if (index === -1) {
+    return
+  }
+  grid[row][index].letter = ''
 }
 
 const keyboardEnter = () => {
@@ -88,7 +104,12 @@ const keyboardEnter = () => {
   const index = getInsertionIndex()
   if (index === -1 && rowIndex !== -1) {
     let row = grid[rowIndex]
-    $runAction('guess', { word: row.join('') })
+    let word = ''
+    for (let letter of row) {
+      word += letter.letter
+    }
+    $runAction('guess', { word })
+    $endAnimation(letterAnimationLength * 5)
   }
 }
 
@@ -103,12 +124,38 @@ onUnmounted(() => {
   bus.off('keyboard:backspace', keyboardBackspace)
   bus.off('keyboard:enter', keyboardEnter)
 })
+
+const wait = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+let lastGuessWord = null
+
+watch(
+  () => props.guesses,
+  async (guesses, oldVal) => {
+    let lastGuess = guesses[guesses.length - 1]
+    if (!lastGuess) return
+
+    if (lastGuess.word === lastGuessWord) return
+    lastGuessWord = lastGuess.word
+
+    for (let i = 0; i < lastGuess.word.length; i++) {
+      grid[guesses.length - 1][i].letter = lastGuess.word[i]
+      grid[guesses.length - 1][i].hint = lastGuess.hints[i]
+      await wait(letterAnimationLength)
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <template>
   <div class="board" ref="boardEl">
     <div v-for="row in grid" :key="grid.indexOf(row)" class="row">
-      <Cell v-for="i in row.length" :letter="row[i - 1]" :key="i - 1" />
+      <Cell v-for="i in row.length" :cell="row[i - 1]" :key="i - 1" />
     </div>
   </div>
 </template>

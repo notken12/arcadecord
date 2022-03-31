@@ -13,11 +13,8 @@
   <!-- GameView component, contains all basic game UI 
             like settings button -->
   <game-view :game="game" :me="me" :hint="hint">
-    <scores-view> </scores-view>
+    <div class="middle">  <game-canvas></game-canvas> </div>
 
-    <div class="middle">
-      <game-canvas></game-canvas>
-    </div>
   </game-view>
 </template>
 

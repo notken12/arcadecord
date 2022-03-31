@@ -12,9 +12,9 @@ import GameFlow from '../../GameFlow.js'
 import { GUESS_WORDS, ANSWER_WORDS } from './words.js'
 
 const HINT = {
-  WRONG: '⬛',
-  ELSEWHERE: '🟨',
-  CORRECT: '🟩',
+  WRONG: 0,
+  ELSEWHERE: 1,
+  CORRECT: 2,
 }
 
 const WORD_LENGTH = 5

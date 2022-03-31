@@ -7,6 +7,16 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
+
 .middle {
-  padding: 16px;
+  position:absolute;
+  z-index:0;
+  width:100vw;
+  height:100vh;
+  padding:0;
+}
+
+body {
+  user-select:none;
+
 }

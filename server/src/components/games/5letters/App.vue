@@ -18,9 +18,18 @@ import Toast from './Toast.vue'
 import { useFacade } from '@app/components/base-ui/facade'
 import bus from '@app/js/vue-event-bus'
 import { ref, computed, onMounted } from 'vue'
+import { letterAnimationLength } from '@app/js/games/5letters/constants'
+import { replayAction, utils } from '@app/js/client-framework'
 
-const { game, me, replaying, $replayTurn, $endReplay, $endAnimation } =
-  useFacade()
+const {
+  game,
+  me,
+  replaying,
+  $replayTurn,
+  $endReplay,
+  $endAnimation,
+  previousTurn,
+} = useFacade()
 
 const toast = ref(null)
 
@@ -58,7 +67,7 @@ const theirAnswer = computed(() => {
 const middleStyles = computed(() => {
   let transform = 'translateX(-50%)'
   if (
-    replaying.value ||
+    (replaying.value && myAnswer.value) ||
     (game.value.turn !== myIndex.value && myAnswer.value && !theirAnswer.value)
   ) {
     transform = 'translateX(0)'
@@ -71,8 +80,14 @@ const middleStyles = computed(() => {
 onMounted(() => {
   window.game = game.value
 
-  $replayTurn(() => {
-    $endReplay(0)
+  $replayTurn(async () => {
+    for (let action of previousTurn.value.actions) {
+      replayAction(game.value, action)
+      if (action.type === 'guess') {
+        await utils.wait(letterAnimationLength * 5)
+      }
+    }
+    $endReplay(300)
   })
 })
 </script>
@@ -128,7 +143,7 @@ onMounted(() => {
   max-width: 200vw;
   display: flex;
   flex-direction: row;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .middle > div {

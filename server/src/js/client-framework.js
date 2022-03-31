@@ -142,6 +142,9 @@ const utils = {
       game[prop] = g[prop]
     }
   },
+  wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  },
 }
 
 var actionEmissionQueue = []

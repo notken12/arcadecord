@@ -45,6 +45,9 @@ const keyboardBackspace = () => {
   if (index === -2) {
     index = letters.length - 1
   }
+  if (index === -1) {
+    return
+  }
   letters[index] = ''
 }
 
@@ -73,7 +76,7 @@ onUnmounted(() => {
     <div class="row" ref="el">
       <Cell
         v-for="letter in letters.length"
-        :letter="letters[letter - 1]"
+        :cell="{ letter: letters[letter - 1] }"
         :key="letter"
       />
     </div>
