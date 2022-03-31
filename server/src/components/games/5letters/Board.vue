@@ -12,10 +12,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
+import Cell from './Cell.vue'
 
 const boardEl = ref(null)
-
-useAspectRatio(5 / 6, boardEl)
 
 const props = defineProps({
   guesses: {
@@ -38,9 +37,7 @@ for (let i = 0; i < 6; i++) {
 <template>
   <div class="board" ref="boardEl">
     <div v-for="row in grid" :key="grid.indexOf(row)" class="row">
-      <div class="cell" v-for="letter in row" :key="row.indexOf(letter)">
-        {{ letter }}
-      </div>
+      <Cell v-for="i in row.length" :letter="row[i - 1]" :key="i - 1" />
     </div>
   </div>
 </template>

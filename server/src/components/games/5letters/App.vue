@@ -51,6 +51,10 @@ const theirGuesses = computed(() => {
   return game.value.data.guesses[theirIndex.value]
 })
 
+const theirAnswer = computed(() => {
+  return game.value.data.answers[theirIndex.value]
+})
+
 const middleStyles = computed(() => {
   let transform = 'translateX(0px)'
   if (game.value.turn === myIndex.value) {
@@ -83,13 +87,15 @@ onMounted(() => {
           <div>Word:</div>
           <div class="yourword">{{ myAnswer }}</div>
         </div>
-        <Board :guesses="theirGuesses"></Board>
+        <div class="container">
+          <Board :guesses="theirGuesses"></Board>
+        </div>
       </div>
       <div class="mine">
-        <h2>Choose a secret word</h2>
+        <h2 v-if="!theirAnswer">Choose a secret word</h2>
         <div class="container">
-          <WordChooser v-if="!myAnswer"></WordChooser>
-          <Board :guesses="myGuesses" v-if="myAnswer"></Board>
+          <WordChooser v-if="!theirAnswer"></WordChooser>
+          <Board :guesses="myGuesses" v-if="theirAnswer"></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>
@@ -103,7 +109,7 @@ onMounted(() => {
 .container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   flex-grow: 1;
   overflow: hidden;
   flex-direction: row;
@@ -126,6 +132,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 16px;
+  gap: 32px;
 }
 
 .mine {
