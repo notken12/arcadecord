@@ -53,6 +53,11 @@ async function action_chooseWord(game, action) {
   let { playerIndex } = action
   let { word } = action.data
 
+  // Word must be in lowercase
+  if (word.toLowerCase() != word) {
+    return false
+  }
+
   // Can't choose a word if you already have one
   if (game.data.answers[playerIndex] !== undefined) {
     return false
