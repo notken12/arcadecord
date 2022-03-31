@@ -68,8 +68,8 @@ export class CueBall extends Ball {
 }
 
 async function shoot(game, action) {
-  let continueTurn = false;
-  let pattern = game.data.players[game.turn].assignedPattern;
+  var continueTurn = false;
+  var pattern = game.data.players[game.turn].assignedPattern;
   if (pattern !== null && pattern !== undefined) {
   // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
@@ -99,6 +99,14 @@ async function shoot(game, action) {
   if (game.data.cueFoul) game.data.cueFoul = false;
 
   if (ball8.out) {
+    if(pattern !== undefined && pattern !== undefined){
+      var myInBalls = getBalls(game.data.balls, pattern, true)
+    } else {
+      await GameFlow.end(game, {
+        winner: [1,0][game.turn]
+      });
+      return game
+    }
     if (cueball.out) {
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],

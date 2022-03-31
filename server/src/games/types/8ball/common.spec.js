@@ -170,7 +170,7 @@ describe('8ball Action: shoot', () => {
 
     // Define the actions to be made
 
-    let newBallStates = game.data.balls
+    let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
     newBallStates[1].out = true;
     let missedShot = new Action(
@@ -184,18 +184,24 @@ describe('8ball Action: shoot', () => {
     )
 
     // Run the actions
-    expect(Common.getBalls(game.data.balls, 1, false).length).toBe(7)
+    expect(Common.getBalls(game.data.balls, 1, true).length).toBe(7)
+    expect(Common.getBalls(missedShot.data.newBallStates, 1, true).length).toBe(6)
+    expect(Common.checkHitIn(game, missedShot, 1)).toBe(true)
+
     expect(await game.handleAction(missedShot)).toEqual({ success: true })
 
     // Check the game state
     const valid = validateGameState(game.data)
     expect(valid).toBe(true)
 
+    expect(Common.getBalls(game.data.balls, 1, true).length).toBe(6)
+
+    expect(game.turn).toBe(1)
     let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
     expect(stillTheirTurn).toBe(true)
   })
 
-  test.todo("Set player's assigned color", async () => {
+  test("Set player's assigned color", async () => {
     // Create a new game
     let game = new main.Game()
     // Activate testing mode
@@ -207,51 +213,28 @@ describe('8ball Action: shoot', () => {
     await game.init()
 
     // Define the actions to be made
-    let newPosition = {
-      x: 1,
-      y: 1,
-      z: 1,
-    }
-    let newQuaternion = {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 1,
-    }
+    let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-    let shot = new Action('shoot', {
-      angle: Math.PI / 2, // radians, for UI
-      force: 10, // for UI
-      newBallStates: [
-        {
-          name: '10ball',
-          position: newPosition,
-          quaternion: newQuaternion,
-          out: true,
-        },
-        // in the real game, provide new ball positions for all balls
-      ],
-    })
-
+    newBallStates[1].out = true;
+    let shot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2, // radians, for UI
+        force: 10, // for UI
+        newBallStates: newBallStates,
+      },
+      1
+    )
     // Run the actions
-    await game.handleAction(shot)
+    expect(Common.checkHitIn(game, shot, 1)).toBe(true)
+    expect(await game.handleAction(shot)).toEqual({ success: true })
 
     // Check the game state
-    const valid = validateGameState(game.data)
-    expect(valid).toBe(true)
 
-    expect(game.data.balls[10].out).toBe(true)
-    expect(game.data.balls[10].position).toEqual(newPosition)
-    expect(game.data.balls[10].quaternion).toEqual(newQuaternion)
-
-    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-    expect(stillTheirTurn).toBe(true)
-
-    // expect(game.players[1].assignedPattern).toBe
-    // TODO: expect the assigned pattern to be the pattern of the ball that was pocketed
+     expect(game.data.players[1].assignedPattern).toBe(1)
   })
 
-  test.todo(
+  test(
     'Lose game if player shoots 8 ball in pocket prematurely',
     async () => {
       // Create a new game
@@ -263,6 +246,30 @@ describe('8ball Action: shoot', () => {
 
       // Initialize the game
       await game.init()
+
+      game.data.players[1].assignedPattern = 1
+
+      let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+
+      newBallStates[5].out = true;
+
+
+      var shot = new Action(
+        'shoot',
+        {
+          angle: Math.PI / 2, // radians, for UI
+          force: 10, // for UI
+          newBallStates: newBallStates,
+        },
+        1
+      )
+      //Tests
+      expect(await game.handleAction(shot)).toEqual({ success: true })
+    //  expect(await Common.shoot(game, shot)).toEqual("aw")
+
+      expect(game.hasEnded).toBe(true)
+      expect(game.winner).toBe(0)
+
     }
   )
 
