@@ -59,7 +59,10 @@ async function action_chooseWord(game, action) {
   }
 
   // Can't choose a word if you already have one
-  if (game.data.answers[playerIndex] !== undefined) {
+  if (
+    game.data.answers[playerIndex] !== undefined &&
+    game.data.answers[playerIndex] !== null
+  ) {
     return false
   }
 

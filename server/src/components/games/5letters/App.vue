@@ -56,9 +56,12 @@ const theirAnswer = computed(() => {
 })
 
 const middleStyles = computed(() => {
-  let transform = 'translateX(0px)'
-  if (game.value.turn === myIndex.value) {
-    transform = 'translateX(-50%)'
+  let transform = 'translateX(-50%)'
+  if (
+    replaying.value ||
+    (game.value.turn !== myIndex.value && myAnswer.value && !theirAnswer.value)
+  ) {
+    transform = 'translateX(0)'
   }
   return {
     transform,
@@ -92,10 +95,14 @@ onMounted(() => {
         </div>
       </div>
       <div class="mine">
-        <h2 v-if="!theirAnswer">Choose a secret word</h2>
+        <h2 v-if="!myAnswer">Choose a secret word</h2>
         <div class="container">
-          <WordChooser v-if="!theirAnswer"></WordChooser>
-          <Board :guesses="myGuesses" v-if="theirAnswer"></Board>
+          <WordChooser v-if="!myAnswer"></WordChooser>
+          <Board
+            :guesses="myGuesses"
+            v-if="myAnswer && theirAnswer"
+            active
+          ></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>
@@ -111,7 +118,6 @@ onMounted(() => {
   justify-content: center;
   align-items: flex-start;
   flex-grow: 1;
-  overflow: hidden;
   flex-direction: row;
   max-width: 500px;
   width: 100%;

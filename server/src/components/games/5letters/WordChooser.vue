@@ -22,8 +22,6 @@ const letters = reactive(['', '', '', '', ''])
 
 const el = ref(null)
 
-// useAspectRatio(5, el)
-
 const getInsertionIndex = () => {
   let index = -1
   for (let i = 0; i < letters.length; i++) {

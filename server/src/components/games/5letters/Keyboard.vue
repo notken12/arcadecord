@@ -14,6 +14,10 @@ import { onMounted } from 'vue'
 import bus from '@app/js/vue-event-bus'
 import layout from './Keyboard.layout.json'
 import Key from './Key.vue'
+import { useFacade } from '@app/components/base-ui/facade'
+import GameFlow from '@app/js/GameFlow'
+
+const { replaying, runningAction, game } = useFacade()
 
 const props = defineProps({
   guesses: {
@@ -36,6 +40,13 @@ const alphabet = 'qwertyuiopasdfghjklzxcvbnm'
 
 onMounted(() => {
   window.addEventListener('keydown', (e) => {
+    if (
+      replaying.value ||
+      runningAction.value ||
+      !GameFlow.isItMyTurn(game.value)
+    ) {
+      return
+    }
     if (e.key === 'Enter') {
       hitEnter()
     } else if (e.key === 'Backspace') {
@@ -47,6 +58,13 @@ onMounted(() => {
 })
 
 const pressKey = (key) => {
+  if (
+    replaying.value ||
+    runningAction.value ||
+    !GameFlow.isItMyTurn(game.value)
+  ) {
+    return
+  }
   if (key.key === 'enter') {
     hitEnter()
   } else if (key.key === 'backspace') {
