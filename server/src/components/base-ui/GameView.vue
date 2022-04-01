@@ -29,13 +29,15 @@
       :hint="hint"
       :isitmyturn="isItMyTurn"
     ></GameHeader>
+    <Transition name="fade">
+      <FastForward v-if="replayingForAWhile"></FastForward>
+    </Transition>
     <slot></slot>
   </div>
 </template>
 
-<script>
+<script setup>
 import bus from '@app/js/vue-event-bus.js'
-import * as Client from '@app/js/client-framework.js'
 import GameHeader from './GameHeader.vue'
 import WaitingView from './WaitingView.vue'
 import ResultView from './ResultView.vue'
@@ -43,64 +45,81 @@ import GameManualView from './GameManualView.vue'
 import SendingView from './SendingView.vue'
 import GameFlow from '@app/js/GameFlow.js'
 import Settings from './Settings.vue'
+import FastForward from './FastForward.vue'
 
-export default {
-  data() {
-    return {
-      manualOpen: false,
-      sending: false,
-      sendingAnimationLength: 500,
-      settingsOpen: false,
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useFacade } from './facade'
+
+const props = defineProps({
+  hint: String,
+})
+
+const { game, replaying } = useFacade()
+
+const manualOpen = ref(false)
+const settingsOpen = ref(false)
+const sending = ref(false)
+const sendingAnimationLength = 500
+
+const isItMyTurn = computed(() => {
+  return GameFlow.isItMyTurn(game.value) || replaying.value
+})
+
+const openManual = () => {
+  manualOpen.value = true
+}
+const closeManual = () => {
+  manualOpen.value = false
+}
+const onSending = (sending) => {
+  if (!sending) {
+    setTimeout(() => {
+      sending.value = false
+    }, sendingAnimationLength)
+  } else {
+    sending.value = true
+  }
+}
+const openSettings = () => {
+  settingsOpen.value = true
+}
+const closeSettings = () => {
+  settingsOpen.value = false
+}
+
+onMounted(() => {
+  bus.on('open-manual', openManual)
+  bus.on('close-manual', closeManual)
+  bus.on('sending', onSending)
+  bus.on('open-settings', openSettings)
+  bus.on('close-settings', closeSettings)
+})
+
+onUnmounted(() => {
+  bus.off('open-manual', openManual)
+  bus.off('close-manual', closeManual)
+  bus.off('sending', onSending)
+  bus.off('open-settings', openSettings)
+  bus.off('close-settings', closeSettings)
+})
+
+const replayingForAWhile = ref(false)
+
+watch(
+  replaying,
+  (newVal) => {
+    if (newVal) {
+      setTimeout(() => {
+        if (replaying.value) {
+          replayingForAWhile.value = true
+        }
+      }, 2000)
+    } else {
+      replayingForAWhile.value = false
     }
   },
-  props: ['hint'],
-  components: {
-    GameHeader,
-    WaitingView,
-    GameManualView,
-    ResultView,
-    SendingView,
-    Settings,
-  },
-  computed: {
-    isItMyTurn() {
-      return GameFlow.isItMyTurn(this.game) || this.replaying
-    },
-  },
-  mounted() {
-    bus.on('open-manual', () => {
-      this.manualOpen = true
-    })
-    bus.on('close-manual', () => {
-      this.manualOpen = false
-    })
-    bus.on('sending', (sending) => {
-      if (!sending) {
-        setTimeout(() => {
-          this.sending = false
-        }, this.sendingAnimationLength)
-      } else {
-        this.sending = true
-      }
-    })
-    bus.on('open-settings', () => {
-      this.settingsOpen = true
-    })
-    bus.on('close-settings', () => {
-      this.settingsOpen = false
-    })
-  },
-  watch: {
-    // 'game.turn': function (newTurn) {
-    //   var player = this.game.players[newTurn]
-    //   console.log(`[arcadecord] turn changed to ${newTurn}, it's now ${player.discordUser.tag}'s turn`)
-    //   this.isItMyTurn = GameFlow.isItMyTurn(this.game) || this.replaying;
-    // },
-    // replaying: function (newValue) {
-    //   this.isItMyTurn = GameFlow.isItMyTurn(this.game) || newValue;
-    // },
-  },
-}
+  { immediate: true }
+)
 </script>
 
 <style lang="scss">
