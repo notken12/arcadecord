@@ -74,8 +74,8 @@ export default {
   height: 16.6666667%;
   box-sizing: border-box;
   z-index: 1;
-  -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
-  filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
+  -webkit-filter: drop-shadow(3px 8px 5px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(3px 8px 5px rgba(0, 0, 0, 0.3));
   /* animation: pulse 1s infinite; */
   /* opacity: 0.7; */
 }

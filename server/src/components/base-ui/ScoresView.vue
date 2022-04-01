@@ -52,9 +52,11 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: calc(100% - 32px);
+  width: 100%;
   overflow: visible;
   gap: 8px;
   flex-wrap: nowrap;
+  box-sizing: border-box;
+  padding: 0 16px;
 }
 </style>

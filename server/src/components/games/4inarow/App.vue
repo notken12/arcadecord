@@ -71,6 +71,7 @@ export default {
   align-items: center;
   gap: 16px;
   padding: 16px;
+  overflow: visible;
 }
 </style>
 <style lang="scss" src="scss/games/4inarow.scss"></style>
