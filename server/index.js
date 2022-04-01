@@ -360,7 +360,7 @@ io.on('connection', (socket) => {
       var action = new Action(type, data, userId)
       var result = await game.handleAction(action)
 
-      if (!result) {
+      if (!result.success) {
         callback({
           error: 'Invalid action',
         })

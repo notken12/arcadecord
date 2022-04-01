@@ -71,7 +71,7 @@ async function action_chooseWord(game, action) {
   }
 
   // Checking if the word is valid
-  if (binarySearch(ANSWER_WORDS, word) === -1) {
+  if (!inWordList(word)) {
     return false
   }
 
@@ -81,6 +81,10 @@ async function action_chooseWord(game, action) {
     await GameFlow.endTurn(game)
   }
   return game
+}
+
+function inWordList(word) {
+  return binarySearch(GUESS_WORDS, word) !== -1
 }
 
 async function action_guess(game, action) {
@@ -175,4 +179,5 @@ export default {
   WORD_LENGTH,
   MAX_GUESSES,
   action_guess,
+  inWordList,
 }

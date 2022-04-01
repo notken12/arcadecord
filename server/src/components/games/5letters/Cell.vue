@@ -80,6 +80,8 @@ const backStyles = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+@use 'scss/games/5letters.scss' as *;
+
 .cell {
   width: 100%;
   display: inline-flex;
@@ -109,15 +111,15 @@ const backStyles = computed(() => {
 }
 
 .wrong .back {
-  background: #333;
+  background: $wrong-color;
 }
 
 .elsewhere .back {
-  background: #dea335;
+  background: $elsewhere-color;
 }
 
 .correct .back {
-  background: #4ed230;
+  background: $correct-color;
 }
 
 .front {

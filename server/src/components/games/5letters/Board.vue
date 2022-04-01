@@ -18,6 +18,7 @@ import { useFacade } from '@app/components/base-ui/facade'
 import { letterAnimationLength } from '@app/js/games/5letters/constants'
 import cloneDeep from 'lodash.clonedeep'
 import { utils } from '@app/js/client-framework'
+import Common from '/gamecommons/5letters'
 
 const { $runAction, game, replaying, $endAnimation } = useFacade()
 
@@ -108,8 +109,21 @@ const keyboardEnter = () => {
     for (let letter of row) {
       word += letter.letter
     }
-    $runAction('guess', { word })
-    $endAnimation(letterAnimationLength * 5 + 300)
+    if (word.length < 5) {
+      bus.emit('toast', 'Too short!')
+      return
+    } else if (word.length > 5) {
+      bus.emit('toast', 'Too long!')
+      return
+    }
+
+    if (Common.inWordList(word)) {
+      $runAction('guess', { word })
+      $endAnimation(letterAnimationLength * 5 + 300)
+    } else {
+      bus.emit('toast', 'Not in word list')
+      return
+    }
     bus.emit('updateGuesses')
   }
 }

@@ -185,6 +185,7 @@ var discordUser
 
 function runAction(game, type, data, callback, clone) {
   var game = simulateAction(game, type, data, game.myIndex, false, clone)
+  if (!game) return // action failed
   emitAction(game, type, data, callback)
   return game
 }
