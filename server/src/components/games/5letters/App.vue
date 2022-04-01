@@ -78,12 +78,13 @@ const middleStyles = computed(() => {
 })
 
 onMounted(() => {
-  window.game = game.value
-
   $replayTurn(async () => {
     for (let action of previousTurn.value.actions) {
+      console.log(previousTurn.value.actions)
       replayAction(game.value, action)
+
       if (action.type === 'guess') {
+        bus.emit('updateGuesses')
         await utils.wait(letterAnimationLength * 5)
       }
     }

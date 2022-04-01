@@ -10,7 +10,7 @@
 -->
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import bus from '@app/js/vue-event-bus'
 import layout from './Keyboard.layout.json'
 import Key from './Key.vue'
@@ -38,23 +38,29 @@ const hitBackspace = () => {
 
 const alphabet = 'qwertyuiopasdfghjklzxcvbnm'
 
+const eventListener = (e) => {
+  if (
+    replaying.value ||
+    runningAction.value ||
+    !GameFlow.isItMyTurn(game.value)
+  ) {
+    return
+  }
+  if (e.key === 'Enter') {
+    hitEnter()
+  } else if (e.key === 'Backspace') {
+    hitBackspace()
+  } else if (alphabet.includes(e.key)) {
+    typeLetter(e.key)
+  }
+}
+
 onMounted(() => {
-  window.addEventListener('keydown', (e) => {
-    if (
-      replaying.value ||
-      runningAction.value ||
-      !GameFlow.isItMyTurn(game.value)
-    ) {
-      return
-    }
-    if (e.key === 'Enter') {
-      hitEnter()
-    } else if (e.key === 'Backspace') {
-      hitBackspace()
-    } else if (alphabet.includes(e.key)) {
-      typeLetter(e.key)
-    }
-  })
+  window.addEventListener('keydown', eventListener)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', eventListener)
 })
 
 const pressKey = (key) => {

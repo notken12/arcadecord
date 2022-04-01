@@ -14,6 +14,8 @@ import bus from '@app/js/vue-event-bus'
 import { turnReplayDelay } from './replay-constants'
 import { mapState } from 'vuex'
 
+let replaySubscribed = false
+
 export default {
   data() {
     return {
@@ -71,6 +73,10 @@ export default {
     },
   },
   mounted() {
-    bus.on('facade:replay-turn', this.$replayTurn)
+    if (!replaySubscribed) bus.on('facade:replay-turn', this.$replayTurn)
+    replaySubscribed = true
+  },
+  unmounted() {
+    bus.off('facade:replay-turn', this.$replayTurn)
   },
 }

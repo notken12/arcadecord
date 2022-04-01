@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import bus from '@app/js/vue-event-bus'
 import { useStore } from 'vuex'
 
@@ -15,6 +15,8 @@ import { turnReplayDelay } from './replay-constants'
 
 let replayTurnFunc = () => {}
 let replayTurnFuncSet = false
+
+let replaySubscribed = false
 
 // by convention, composable function names start with "use"
 export function useFacade() {
@@ -57,7 +59,15 @@ export function useFacade() {
       }, turnReplayDelay)
     }
   }
-  bus.on('facade:replay-turn', $replayTurn)
+
+  onMounted(() => {
+    if (!replaySubscribed) bus.on('facade:replay-turn', $replayTurn)
+    replaySubscribed = true
+  })
+
+  onUnmounted(() => {
+    bus.off('facade:replay-turn', $replayTurn)
+  })
 
   const $endAnimation = (delayMS) => {
     facade.commit('START_ACTION_ANIMATION')

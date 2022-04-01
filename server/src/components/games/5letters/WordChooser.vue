@@ -75,9 +75,10 @@ onUnmounted(() => {
   <div class="board">
     <div class="row" ref="el">
       <Cell
-        v-for="letter in letters.length"
-        :cell="{ letter: letters[letter - 1] }"
-        :key="letter"
+        v-for="i in letters.length"
+        :cell="{ letter: letters[i - 1] }"
+        :key="i - 1"
+        :index="i - 1"
       />
     </div>
   </div>

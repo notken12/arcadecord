@@ -1,38 +1,69 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import Common from '/gamecommons/5letters'
+import { letterAnimationLength } from '@app/js/games/5letters/constants'
+import { utils } from '@app/js/client-framework'
 
 const props = defineProps({
   cell: {
     type: Object,
     required: true,
   },
+  index: {
+    type: Number,
+    required: true,
+  },
 })
+
+const letter = ref('')
+letter.value = props.cell.letter
+const hint = ref(null)
+hint.value = props.cell.hint
 
 const animated = ref(false)
 
-watch(
-  () => props.cell,
-  (cell) => {
-    if (cell.letter !== '') animated.value = true
-  },
-  { deep: true }
-)
+const updateRefs = () => {
+  letter.value = props.cell.letter
+  hint.value = props.cell.hint
+  if (letter.value) animated.value = true
+}
+
+const cellWatcher = async (newVal, oldVal) => {
+  if (newVal === oldVal) return
+  if (props.cell.hint !== null && props.cell.hint !== undefined)
+    setTimeout(updateRefs, letterAnimationLength * props.index)
+  else updateRefs()
+}
+
+watch(() => props.cell.letter, cellWatcher)
+
+watch(() => props.cell.hint, cellWatcher)
 
 const classes = computed(() => {
   return {
     animated: animated.value,
-    empty: props.cell.letter === '',
-    wrong: props.cell.hint === Common.HINT.WRONG,
-    correct: props.cell.hint === Common.HINT.CORRECT,
-    elsewhere: props.cell.hint === Common.HINT.ELSEWHERE,
+    empty: letter.value === '',
+    wrong: hint.value === Common.HINT.WRONG,
+    correct: hint.value === Common.HINT.CORRECT,
+    elsewhere: hint.value === Common.HINT.ELSEWHERE,
+  }
+})
+
+const styles = computed(() => {
+  return {
+    // animationDelay: `${props.index * letterAnimationLength}ms`,
   }
 })
 </script>
 
 <template>
-  <div class="cell" :class="classes" @animationend="animated = false">
-    {{ cell.letter }}
+  <div
+    class="cell"
+    :class="classes"
+    @animationend="animated = false"
+    :style="styles"
+  >
+    {{ letter }}
   </div>
 </template>
 

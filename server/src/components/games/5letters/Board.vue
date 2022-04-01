@@ -16,8 +16,9 @@ import Cell from './Cell.vue'
 import bus from '@app/js/vue-event-bus'
 import { useFacade } from '@app/components/base-ui/facade'
 import { letterAnimationLength } from '@app/js/games/5letters/constants'
+import cloneDeep from 'lodash.clonedeep'
 
-const { $runAction, game, replaying } = useFacade()
+const { $runAction, game, replaying, $endAnimation } = useFacade()
 
 const boardEl = ref(null)
 
@@ -51,8 +52,6 @@ for (let j = 0; j < props.guesses.length; j++) {
       grid[j][i].hint = guess.hints[i]
     }
 }
-
-console.log(grid)
 
 const getInsertionRow = () => {
   return props.guesses.length
@@ -109,15 +108,16 @@ const keyboardEnter = () => {
       word += letter.letter
     }
     $runAction('guess', { word })
-    $endAnimation(letterAnimationLength * 5)
+    $endAnimation(letterAnimationLength * 5 + 300)
+    bus.emit('updateGuesses')
   }
 }
 
-onMounted(() => {
-  bus.on('keyboard:press', keyboardPress)
-  bus.on('keyboard:backspace', keyboardBackspace)
-  bus.on('keyboard:enter', keyboardEnter)
-})
+// onMounted(() => {
+bus.on('keyboard:press', keyboardPress)
+bus.on('keyboard:backspace', keyboardBackspace)
+bus.on('keyboard:enter', keyboardEnter)
+// })
 
 onUnmounted(() => {
   bus.off('keyboard:press', keyboardPress)
@@ -131,31 +131,32 @@ const wait = (ms) => {
   })
 }
 
-let lastGuessWord = null
+// let lastGuessIndex = null
 
-watch(
-  () => props.guesses,
-  async (guesses, oldVal) => {
-    let lastGuess = guesses[guesses.length - 1]
-    if (!lastGuess) return
+bus.on('updateGuesses', () => {
+  let guessIndex = props.guesses.length - 1
+  let lastGuess = cloneDeep(props.guesses[guessIndex])
+  if (!lastGuess) return
 
-    if (lastGuess.word === lastGuessWord) return
-    lastGuessWord = lastGuess.word
+  // if (guessIndex === lastGuessIndex) return
+  // lastGuessIndex = guessIndex + 0
 
-    for (let i = 0; i < lastGuess.word.length; i++) {
-      grid[guesses.length - 1][i].letter = lastGuess.word[i]
-      grid[guesses.length - 1][i].hint = lastGuess.hints[i]
-      await wait(letterAnimationLength)
-    }
-  },
-  { deep: true }
-)
+  for (let i = 0; i < 5; i++) {
+    grid[guessIndex][i].letter = lastGuess.word[i]
+    grid[guessIndex][i].hint = lastGuess.hints[i]
+  }
+})
 </script>
 
 <template>
   <div class="board" ref="boardEl">
     <div v-for="row in grid" :key="grid.indexOf(row)" class="row">
-      <Cell v-for="i in row.length" :cell="row[i - 1]" :key="i - 1" />
+      <Cell
+        v-for="i in row.length"
+        :cell="row[i - 1]"
+        :key="i - 1"
+        :index="i - 1"
+      />
     </div>
   </div>
 </template>
