@@ -34,6 +34,9 @@ const {
 const toast = ref(null)
 
 const hint = computed(() => {
+  if (myAnswer.value && theirAnswer.value && !replaying.value) {
+    return "Guess your opponent's word!"
+  }
   return ''
 })
 
@@ -159,6 +162,11 @@ onMounted(() => {
 
 .mine {
   position: relative;
+}
+
+.yourword {
+  text-transform: uppercase;
+  font-weight: bold;
 }
 </style>
 

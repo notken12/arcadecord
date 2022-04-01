@@ -1,1 +1,1 @@
-export const letterAnimationLength = 400
+export const letterAnimationLength = 500

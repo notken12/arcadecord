@@ -19,20 +19,24 @@ const letter = ref('')
 letter.value = props.cell.letter
 const hint = ref(null)
 hint.value = props.cell.hint
+const hintLetter = ref('')
+hintLetter.value = props.cell.hintLetter
 
 const animated = ref(false)
 
 const updateRefs = () => {
   letter.value = props.cell.letter
   hint.value = props.cell.hint
-  if (letter.value) animated.value = true
+  hintLetter.value = props.cell.hintLetter
+  if (letter.value && !hintLetter.value) animated.value = true
 }
 
 const cellWatcher = async (newVal, oldVal) => {
   if (newVal === oldVal) return
-  if (props.cell.hint !== null && props.cell.hint !== undefined)
-    setTimeout(updateRefs, letterAnimationLength * props.index)
-  else updateRefs()
+  // if (props.cell.hint !== null && props.cell.hint !== undefined)
+  //   setTimeout(updateRefs, letterAnimationLength * props.index)
+  // else updateRefs()
+  updateRefs()
 }
 
 watch(() => props.cell.letter, cellWatcher)
@@ -46,24 +50,32 @@ const classes = computed(() => {
     wrong: hint.value === Common.HINT.WRONG,
     correct: hint.value === Common.HINT.CORRECT,
     elsewhere: hint.value === Common.HINT.ELSEWHERE,
+    revealed: hintLetter.value,
   }
 })
 
-const styles = computed(() => {
+const frontStyles = computed(() => {
   return {
-    // animationDelay: `${props.index * letterAnimationLength}ms`,
+    transitionDelay: hintLetter.value
+      ? `${props.index * letterAnimationLength}ms`
+      : '0ms',
+  }
+})
+
+const backStyles = computed(() => {
+  return {
+    transitionDelay: frontStyles.value.transitionDelay,
+    animationDelay: hintLetter.value
+      ? `${(props.index * letterAnimationLength) / 3}ms`
+      : '0ms',
   }
 })
 </script>
 
 <template>
-  <div
-    class="cell"
-    :class="classes"
-    @animationend="animated = false"
-    :style="styles"
-  >
-    {{ letter }}
+  <div class="cell" :class="classes" @animationend="animated = false">
+    <div class="front" :style="frontStyles">{{ letter }}</div>
+    <div class="back" :style="backStyles">{{ hintLetter }}</div>
   </div>
 </template>
 
@@ -80,30 +92,39 @@ const styles = computed(() => {
   box-sizing: border-box;
   text-transform: uppercase;
   user-select: none;
-  border: 2px #bbb solid;
   border-radius: 6px;
   transition: border-color 0.1s;
+  position: relative;
 }
 
-.wrong,
-.elsewhere,
-.correct {
+.back,
+.front {
+  border-radius: 6px;
+}
+
+.wrong .back,
+.elsewhere .back,
+.correct .back {
   border: none;
 }
 
-.wrong {
+.wrong .back {
   background: #333;
 }
 
-.elsewhere {
+.elsewhere .back {
   background: #dea335;
 }
 
-.correct {
+.correct .back {
   background: #4ed230;
 }
 
-.empty {
+.front {
+  border: 2px #bbb solid;
+}
+
+.empty .front {
   border: 2px #666 solid;
 }
 
@@ -127,5 +148,30 @@ const styles = computed(() => {
   100% {
     transform: scale(1);
   }
+}
+
+.front,
+.back {
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back,
+.revealed .front {
+  transform: rotateX(180deg);
+}
+
+.revealed .back {
+  transform: rotateX(0);
 }
 </style>

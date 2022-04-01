@@ -17,6 +17,7 @@ import bus from '@app/js/vue-event-bus'
 import { useFacade } from '@app/components/base-ui/facade'
 import { letterAnimationLength } from '@app/js/games/5letters/constants'
 import cloneDeep from 'lodash.clonedeep'
+import { utils } from '@app/js/client-framework'
 
 const { $runAction, game, replaying, $endAnimation } = useFacade()
 
@@ -48,7 +49,7 @@ for (let j = 0; j < props.guesses.length; j++) {
 
   if (guess)
     for (let i = 0; i < guess.word.length; i++) {
-      grid[j][i].letter = guess.word[i]
+      grid[j][i].hintLetter = guess.word[i]
       grid[j][i].hint = guess.hints[i]
     }
 }
@@ -125,15 +126,9 @@ onUnmounted(() => {
   bus.off('keyboard:enter', keyboardEnter)
 })
 
-const wait = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
 // let lastGuessIndex = null
 
-bus.on('updateGuesses', () => {
+bus.on('updateGuesses', async () => {
   let guessIndex = props.guesses.length - 1
   let lastGuess = cloneDeep(props.guesses[guessIndex])
   if (!lastGuess) return
@@ -142,7 +137,7 @@ bus.on('updateGuesses', () => {
   // lastGuessIndex = guessIndex + 0
 
   for (let i = 0; i < 5; i++) {
-    grid[guessIndex][i].letter = lastGuess.word[i]
+    grid[guessIndex][i].hintLetter = lastGuess.word[i]
     grid[guessIndex][i].hint = lastGuess.hints[i]
   }
 })
