@@ -95,8 +95,10 @@ function createStore() {
         }
       },
       END_TURN_REPLAY(state) {
-        state.game = store.state.game
-        state.replaying = false
+        if (state.replaying) {
+          state.game = store.state.game
+          state.replaying = false
+        }
       },
       RUN_ACTION(state, action) {
         if (state.replaying) {
