@@ -136,10 +136,11 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  flex-grow: 1;
+  // flex-grow: 1;
   flex-direction: row;
   max-width: 500px;
   width: 100%;
+  height: 100%;
 }
 
 .middle {
@@ -189,8 +190,6 @@ onMounted(() => {
   display: grid;
   gap: 6px;
   grid-template-rows: repeat(6, 1fr);
-  width: 380px;
-  height: 72px;
 }
 
 .row {

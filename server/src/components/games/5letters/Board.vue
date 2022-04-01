@@ -24,6 +24,29 @@ const { $runAction, game, replaying, $endAnimation } = useFacade()
 
 const boardEl = ref(null)
 
+useAspectRatio((parentWidth, parentHeight) => {
+  const gap = 6
+  const availWidth = parentWidth - gap * 4
+  const availHeight = parentHeight - gap * 5
+  const ratio = 5 / 6
+  const parentRatio = availWidth / availHeight
+  let resultRatio
+
+  if (parentRatio > ratio) {
+    // parent is wider than the aspect ratio
+    return {
+      width: availHeight * ratio + gap * 4,
+      height: availHeight + gap * 5,
+    }
+  } else {
+    // parent is taller than the aspect ratio
+    return {
+      width: availWidth + gap * 4,
+      height: availWidth / ratio + gap * 5,
+    }
+  }
+}, boardEl)
+
 const props = defineProps({
   guesses: {
     type: Array,
@@ -128,11 +151,11 @@ const keyboardEnter = () => {
   }
 }
 
-// onMounted(() => {
-bus.on('keyboard:press', keyboardPress)
-bus.on('keyboard:backspace', keyboardBackspace)
-bus.on('keyboard:enter', keyboardEnter)
-// })
+onMounted(() => {
+  bus.on('keyboard:press', keyboardPress)
+  bus.on('keyboard:backspace', keyboardBackspace)
+  bus.on('keyboard:enter', keyboardEnter)
+})
 
 onUnmounted(() => {
   bus.off('keyboard:press', keyboardPress)

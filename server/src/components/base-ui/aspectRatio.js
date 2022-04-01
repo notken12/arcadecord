@@ -18,39 +18,54 @@ export function useAspectRatio(ratio, element) {
 
   // a composable can update its managed state over time.
   function update(event) {
-    const parent = element.value.parentElement
+    // shrink the element so the parent can resize
+    element.value.style.width = `0px`
+    element.value.style.height = `0px`
 
-    var cs = getComputedStyle(parent)
+    requestAnimationFrame(() => {
+      const parent = element.value.parentElement
 
-    var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
-    var paddingY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
+      var cs = getComputedStyle(parent)
 
-    var borderX =
-      parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)
-    var borderY =
-      parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth)
+      var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
+      var paddingY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
 
-    // Element width and height minus padding and border
-    const parentWidth = parent.offsetWidth - paddingX - borderX
-    const parentHeight = parent.offsetHeight - paddingY - borderY
-    const parentRatio = parentWidth / parentHeight
+      var borderX =
+        parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)
+      var borderY =
+        parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth)
 
-    // return the largest possible width and height that fits the element's parent
-    // while maintaining the aspect ratio
+      // Element width and height minus padding and border
+      const parentWidth = parent.offsetWidth - paddingX - borderX
+      const parentHeight = parent.offsetHeight - paddingY - borderY
+      const parentRatio = parentWidth / parentHeight
 
-    if (parentRatio > ratio) {
-      // parent is wider than the aspect ratio
-      height.value = parentHeight
-      width.value = parentHeight * ratio
-    } else {
-      // parent is taller than the aspect ratio
-      width.value = parentWidth
-      height.value = parentWidth / ratio
-    }
+      // return the largest possible width and height that fits the element's parent
+      // while maintaining the aspect ratio
 
-    // update the element's style
-    element.value.style.width = `${width.value}px`
-    element.value.style.height = `${height.value}px`
+      if (typeof ratio === 'function') {
+        let { width: _width, height: _height } = ratio(
+          parentWidth,
+          parentHeight
+        )
+        height.value = _height
+        width.value = _width
+      } else {
+        if (parentRatio > ratio) {
+          // parent is wider than the aspect ratio
+          height.value = parentHeight
+          width.value = parentHeight * ratio
+        } else {
+          // parent is taller than the aspect ratio
+          width.value = parentWidth
+          height.value = parentWidth / ratio
+        }
+      }
+
+      // update the element's style
+      element.value.style.width = `${width.value}px`
+      element.value.style.height = `${height.value}px`
+    })
   }
 
   // a composable can also hook into its owner component's
