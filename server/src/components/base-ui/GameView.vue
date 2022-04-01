@@ -71,8 +71,8 @@ const openManual = () => {
 const closeManual = () => {
   manualOpen.value = false
 }
-const onSending = (sending) => {
-  if (!sending) {
+const onSending = (s) => {
+  if (!s) {
     setTimeout(() => {
       sending.value = false
     }, sendingAnimationLength)

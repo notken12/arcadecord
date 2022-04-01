@@ -105,7 +105,7 @@ onMounted(() => {
     <div class="middle" :style="middleStyles">
       <!-- Game UI just for 5letters -->
       <div class="theirs">
-        <div>
+        <div class="yourword-container">
           <div>Word:</div>
           <div class="yourword">{{ myAnswer }}</div>
         </div>
@@ -125,9 +125,9 @@ onMounted(() => {
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>
-        <Toast></Toast>
       </div>
     </div>
+    <Toast></Toast>
   </game-view>
 </template>
 
@@ -167,6 +167,12 @@ onMounted(() => {
 .yourword {
   text-transform: uppercase;
   font-weight: bold;
+}
+
+.yourword-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>
 

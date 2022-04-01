@@ -11,14 +11,22 @@
 
 <script setup>
 import bus from '@app/js/vue-event-bus'
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const msg = ref('')
 const hidden = ref(true)
 
-bus.on('toast', (message) => {
+const toast = (message) => {
   msg.value = message
   hidden.value = false
+}
+
+onMounted(() => {
+  bus.on('toast', toast)
+})
+
+onUnmounted(() => {
+  bus.off('toast', toast)
 })
 </script>
 
@@ -35,6 +43,9 @@ bus.on('toast', (message) => {
   top: 50%;
   transform: translate(-50%, -50%);
   opacity: 0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #444;
 }
 
 .shown {
@@ -45,10 +56,10 @@ bus.on('toast', (message) => {
   0% {
     opacity: 0;
   }
-  25% {
+  20% {
     opacity: 1;
   }
-  75% {
+  80% {
     opacity: 1;
   }
   100% {

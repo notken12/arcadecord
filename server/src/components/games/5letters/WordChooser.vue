@@ -15,8 +15,9 @@ import bus from '@app/js/vue-event-bus'
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
 import Cell from './Cell.vue'
 import { useFacade } from '@app/components/base-ui/facade'
+import Common from '/gamecommons/5letters'
 
-const { $runAction } = useFacade()
+const { $runAction, $endAnimation } = useFacade()
 
 const letters = reactive(['', '', '', '', ''])
 
@@ -53,8 +54,21 @@ const keyboardBackspace = () => {
 
 const keyboardEnter = () => {
   const index = getInsertionIndex()
-  if (index === -1) {
-    $runAction('chooseWord', { word: letters.join('') })
+  let word = letters.join('')
+  if (word.length < 5) {
+    bus.emit('toast', 'Too short!')
+    return
+  } else if (word.length > 5) {
+    bus.emit('toast', 'Too long!')
+    return
+  }
+
+  if (Common.inWordList(word)) {
+    $runAction('chooseWord', { word })
+    $endAnimation(300)
+  } else {
+    bus.emit('toast', 'Not in word list')
+    return
   }
 }
 

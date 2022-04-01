@@ -103,7 +103,7 @@ const keyboardEnter = () => {
   if (!game.value.data.answers[game.value.myIndex]) return
   const rowIndex = getInsertionRow()
   const index = getInsertionIndex()
-  if (index === -1 && rowIndex !== -1) {
+  if (rowIndex !== -1) {
     let row = grid[rowIndex]
     let word = ''
     for (let letter of row) {
