@@ -30,7 +30,6 @@ useAspectRatio((parentWidth, parentHeight) => {
   const availHeight = parentHeight - gap * 5
   const ratio = 5 / 6
   const parentRatio = availWidth / availHeight
-  let resultRatio
 
   if (parentRatio > ratio) {
     // parent is wider than the aspect ratio

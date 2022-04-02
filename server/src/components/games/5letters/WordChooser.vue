@@ -21,7 +21,29 @@ const { $runAction, $endAnimation } = useFacade()
 
 const letters = reactive(['', '', '', '', ''])
 
-const el = ref(null)
+const board = ref(null)
+
+useAspectRatio((parentWidth, parentHeight) => {
+  const gap = 6
+  const availWidth = parentWidth - gap * 4
+  const availHeight = parentHeight
+  const ratio = 5 / 1
+  const parentRatio = availWidth / availHeight
+
+  if (parentRatio > ratio) {
+    // parent is wider than the aspect ratio
+    return {
+      width: availHeight * ratio + gap * 4,
+      height: availHeight,
+    }
+  } else {
+    // parent is taller than the aspect ratio
+    return {
+      width: availWidth + gap * 4,
+      height: availWidth / ratio,
+    }
+  }
+}, board)
 
 const getInsertionIndex = () => {
   let index = -1
@@ -86,8 +108,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="board">
-    <div class="row" ref="el">
+  <div class="board" ref="board">
+    <div class="row" ref="board">
       <Cell
         v-for="i in letters.length"
         :cell="{ letter: letters[i - 1] }"

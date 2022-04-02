@@ -10,13 +10,12 @@
 -->
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import bus from '@app/js/vue-event-bus'
 import layout from './Keyboard.layout.json'
 import Key from './Key.vue'
 import { useFacade } from '@app/components/base-ui/facade'
 import GameFlow from '@app/js/GameFlow'
-import { computed } from '@vue/reactivity'
 
 const { replaying, runningAction, game } = useFacade()
 
@@ -85,7 +84,8 @@ const hints = computed(() => {
   let hints = {}
   for (let guess of props.guesses) {
     for (let i = 0; i < guess.word.length; i++) {
-      hints[guess.word[i]] = guess.hints[i]
+      if (guess.hints[i] > hints[guess.word[i]])
+        hints[guess.word[i]] = guess.hints[i]
     }
   }
   return hints
