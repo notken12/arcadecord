@@ -187,10 +187,6 @@ bus.on('updateGuesses', async () => {
     grid[guessIndex][i].hintLetter = lastGuess.word[i]
     grid[guessIndex][i].hint = lastGuess.hints[i]
   }
-
-  if (props.guesses.length === 6 && lastGuess.word !== theirAnswer.value) {
-    bus.emit('toast', theirAnswer.value.toUpperCase())
-  }
 })
 </script>
 
