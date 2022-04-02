@@ -571,9 +571,16 @@ app.get('/discord-oauth', (req, res) => {
 app.get('/auth', authController)
 
 app.get('/game/:gameId', async (req, res, next) => {
-  res.cookie('gameId', req.params.gameId, {
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  })
+  if (
+    req.params.gameId !== undefined &&
+    req.params.gameId !== null &&
+    req.params.gameId !== 'favicon.ico'
+  ) {
+    res.cookie('gameId', req.params.gameId, {
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+    })
+  }
+
   next()
 })
 
