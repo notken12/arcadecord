@@ -10,7 +10,7 @@
 -->
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
 import Cell from './Cell.vue'
 import bus from '@app/js/vue-event-bus'
@@ -154,6 +154,11 @@ onMounted(() => {
   bus.on('keyboard:press', keyboardPress)
   bus.on('keyboard:backspace', keyboardBackspace)
   bus.on('keyboard:enter', keyboardEnter)
+  let lastGuess = props.guesses[props.guesses.length - 1]
+
+  if (props.guesses.length === 6 && lastGuess.word !== theirAnswer.value) {
+    bus.emit('toast', theirAnswer.value.toUpperCase())
+  }
 })
 
 onUnmounted(() => {
@@ -163,6 +168,16 @@ onUnmounted(() => {
 })
 
 // let lastGuessIndex = null
+
+const theirAnswer = computed(() => {
+  let myIndex = game.value.myIndex
+  if (myIndex === -1) {
+    myIndex = 1
+  }
+  let theirIndex = (myIndex + 1) % 2
+
+  return game.value.data.answers[theirIndex]
+})
 
 bus.on('updateGuesses', async () => {
   let guessIndex = props.guesses.length - 1
@@ -175,6 +190,10 @@ bus.on('updateGuesses', async () => {
   for (let i = 0; i < 5; i++) {
     grid[guessIndex][i].hintLetter = lastGuess.word[i]
     grid[guessIndex][i].hint = lastGuess.hints[i]
+  }
+
+  if (props.guesses.length === 6 && lastGuess.word !== theirAnswer.value) {
+    bus.emit('toast', theirAnswer.value.toUpperCase())
   }
 })
 </script>

@@ -84,7 +84,10 @@ const hints = computed(() => {
   let hints = {}
   for (let guess of props.guesses) {
     for (let i = 0; i < guess.word.length; i++) {
-      if (guess.hints[i] > hints[guess.word[i]])
+      if (
+        guess.hints[i] > hints[guess.word[i]] ||
+        hints[guess.word[i]] === undefined
+      )
         hints[guess.word[i]] = guess.hints[i]
     }
   }
