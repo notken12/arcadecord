@@ -251,6 +251,70 @@ describe('Action: guess', async () => {
     expect(game.hasEnded).toEqual(true)
     expect(game.winner).toEqual(-1)
   })
+
+  test('check edge case: player 0 fails, player 1 gets it in 6 tries', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
+
+    // Initialize the game
+    game.init()
+
+    // Player 1 chooses a word
+    let action = new Action(
+      'chooseWord',
+      {
+        word: 'mango',
+      },
+      1
+    )
+    await game.handleAction(action)
+
+    // Player 0 chooses a word
+    let action2 = new Action(
+      'chooseWord',
+      {
+        word: 'apple',
+      },
+      0
+    )
+    await game.handleAction(action2)
+
+    let badGuess0 = new Action(
+      'guess',
+      {
+        word: 'crate',
+      },
+      0
+    )
+    let badGuess1 = new Action(
+      'guess',
+      {
+        word: 'crate',
+      },
+      1
+    )
+
+    for (let i = 0; i < 5; i++) {
+      expect(await game.handleAction(badGuess0)).toEqual({ success: true })
+      expect(await game.handleAction(badGuess1)).toEqual({ success: true })
+    }
+
+    expect(await game.handleAction(badGuess0)).toEqual({ success: true })
+
+    let winningGuess = new Action('guess', { word: 'apple' }, 1)
+    expect(await game.handleAction(winningGuess)).toEqual({ success: true })
+
+    // Check that the game ended
+    expect(game.data.guesses[0].length).toEqual(6)
+    expect(game.data.guesses[1].length).toEqual(6)
+    expect(game.hasEnded).toEqual(true)
+    expect(game.winner).toEqual(1)
+  })
+
   test('turn ends after player guesses', async () => {
     // Create a new game
     let game = new main.Game()

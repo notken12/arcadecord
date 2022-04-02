@@ -174,7 +174,7 @@ const backStyles = computed(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  transition: transform 0.5s;
+  transition: transform 0.4s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

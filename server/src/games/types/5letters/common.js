@@ -110,7 +110,29 @@ async function action_guess(game, action) {
   // Whoever gets the word in the least amount of guesses wins
   // If the player who goes first guesses it right, wait for the other player to guess before declaring the winner
   if (game.data.guesses[0].length === game.data.guesses[1].length) {
-    if (
+    // Both players guessed the same amount of times, so check if anyone wins
+    let player0Guesses = game.data.guesses[0]
+    let player0Right =
+      player0Guesses[player0Guesses.length - 1].word === game.data.answers[1]
+
+    let player1Guesses = game.data.guesses[1]
+    let player1Right =
+      player1Guesses[player1Guesses.length - 1].word === game.data.answers[0]
+
+    if (player0Right && player1Right) {
+      // Both players guessed the words on the same guess, so it's a tie
+      await GameFlow.end(game, {
+        winner: -1,
+      })
+    } else if (player0Right) {
+      await GameFlow.end(game, {
+        winner: 0,
+      })
+    } else if (player1Right) {
+      await GameFlow.end(game, {
+        winner: 1,
+      })
+    } else if (
       game.data.guesses[0].length >= MAX_GUESSES &&
       game.data.guesses[1].length >= MAX_GUESSES
     ) {
@@ -119,32 +141,8 @@ async function action_guess(game, action) {
         winner: -1,
       })
     } else {
-      // Both players guessed the same amount of times, so check if anyone wins
-      let player0Guesses = game.data.guesses[0]
-      let player0Right =
-        player0Guesses[player0Guesses.length - 1].word === game.data.answers[1]
-
-      let player1Guesses = game.data.guesses[1]
-      let player1Right =
-        player1Guesses[player1Guesses.length - 1].word === game.data.answers[0]
-
-      if (player0Right && player1Right) {
-        // Both players guessed the words on the same guess, so it's a tie
-        await GameFlow.end(game, {
-          winner: -1,
-        })
-      } else if (player0Right) {
-        await GameFlow.end(game, {
-          winner: 0,
-        })
-      } else if (player1Right) {
-        await GameFlow.end(game, {
-          winner: 1,
-        })
-      } else {
-        // Neither player guessed the word, so continue the game
-        await GameFlow.endTurn(game)
-      }
+      // Neither player guessed the word, so continue the game
+      await GameFlow.endTurn(game)
     }
   } else {
     // Nothing special, just end the turn
