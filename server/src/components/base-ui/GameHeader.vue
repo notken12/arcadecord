@@ -15,9 +15,9 @@
       <button class="btn-fab" @click="openManual">
         <i class="material-icons">question_mark</i>
       </button>
-      <transition name="fade" appear mode="out-in">
+      <Transition name="fade" appear mode="out-in">
         <div class="hint" v-if="isItMyTurn || game.hasEnded">{{ hint }}</div>
-      </transition>
+      </Transition>
       <button class="btn-fab" @click="openSettings">
         <i class="material-icons">settings</i>
       </button>
@@ -30,6 +30,8 @@
 import bus from '@app/js/vue-event-bus.js'
 import { useFacade } from './facade'
 import PlayersView from './PlayersView.vue'
+import { computed } from 'vue'
+import GameFlow from '@app/js/GameFlow'
 
 const { game, replaying } = useFacade()
 

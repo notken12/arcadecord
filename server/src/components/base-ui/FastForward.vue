@@ -47,9 +47,9 @@ const fastForward = () => {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  width: 72px;
-  height: 72px;
-  border-radius: 72px;
+  width: 64px;
+  height: 64px;
+  border-radius: 64px;
   cursor: pointer;
   z-index: 100;
 }
