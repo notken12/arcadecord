@@ -16,7 +16,7 @@
         <i class="material-icons">question_mark</i>
       </button>
       <transition name="fade" appear mode="out-in">
-        <div class="hint" v-if="isitmyturn">{{ hint }}</div>
+        <div class="hint" v-if="isItMyTurn || game.hasEnded">{{ hint }}</div>
       </transition>
       <button class="btn-fab" @click="openSettings">
         <i class="material-icons">settings</i>
@@ -26,26 +26,26 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import bus from '@app/js/vue-event-bus.js'
+import { useFacade } from './facade'
 import PlayersView from './PlayersView.vue'
 
-export default {
-  data() {
-    return {}
-  },
-  props: ['hint', 'isitmyturn'],
-  components: {
-    PlayersView,
-  },
-  methods: {
-    openManual() {
-      bus.emit('open-manual')
-    },
-    openSettings() {
-      bus.emit('open-settings')
-    }
-  },
+const { game, replaying } = useFacade()
+
+defineProps({
+  hint: String,
+})
+
+const isItMyTurn = computed(() => {
+  return GameFlow.isItMyTurn(game.value) || replaying.value
+})
+
+const openManual = () => {
+  bus.emit('open-manual')
+}
+const openSettings = () => {
+  bus.emit('open-settings')
 }
 </script>
 

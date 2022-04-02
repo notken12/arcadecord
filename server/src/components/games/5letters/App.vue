@@ -38,7 +38,7 @@ const hint = computed(() => {
     return "Guess your opponent's word!"
   }
   if (game.hasEnded) {
-    return "Opponent's word was: " + theirAnswer.value.toUpperCase()
+    return 'The word was: ' + theirAnswer.value.toUpperCase()
   }
   return ''
 })

@@ -23,12 +23,7 @@
     ></sending-view>
     <game-manual-view v-if="manualOpen"></game-manual-view>
     <Settings v-if="settingsOpen"></Settings>
-    <GameHeader
-      :game="game"
-      :me="me"
-      :hint="hint"
-      :isitmyturn="isItMyTurn"
-    ></GameHeader>
+    <GameHeader :game="game" :me="me" :hint="hint"></GameHeader>
     <Transition name="fade">
       <FastForward v-if="replayingForAWhile"></FastForward>
     </Transition>
