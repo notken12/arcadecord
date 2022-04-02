@@ -34,11 +34,11 @@ const {
 const toast = ref(null)
 
 const hint = computed(() => {
-  if (myAnswer.value && theirAnswer.value && !replaying.value) {
-    return "Guess your opponent's word!"
-  }
   if (game.hasEnded) {
     return 'The word was: ' + theirAnswer.value.toUpperCase()
+  }
+  if (myAnswer.value && theirAnswer.value && !replaying.value) {
+    return "Guess your opponent's word!"
   }
   return ''
 })

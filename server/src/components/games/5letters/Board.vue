@@ -155,10 +155,6 @@ onMounted(() => {
   bus.on('keyboard:backspace', keyboardBackspace)
   bus.on('keyboard:enter', keyboardEnter)
   let lastGuess = props.guesses[props.guesses.length - 1]
-
-  if (props.guesses.length === 6 && lastGuess.word !== theirAnswer.value) {
-    bus.emit('toast', theirAnswer.value.toUpperCase())
-  }
 })
 
 onUnmounted(() => {
