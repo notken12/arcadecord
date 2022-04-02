@@ -352,3 +352,7 @@ button:active {
 .fade-leave-to {
   opacity: 0;
 }
+
+* {
+  touch-action: manipulation;
+}
