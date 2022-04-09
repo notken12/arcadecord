@@ -21,7 +21,7 @@ const serialize = function (obj) {
 }
 
 async function getNewAccessToken(dbUser) {
-  console.log(`using refresh token: ${dbUser.discordAccessToken}`)
+  // console.log(`using refresh token: ${dbUser.discordAccessToken}`)
   let queryString = serialize({
     client_id: process.env.BOT_CLIENT_ID,
     client_secret: process.env.BOT_CLIENT_SECRET,
@@ -29,7 +29,7 @@ async function getNewAccessToken(dbUser) {
     refresh_token: dbUser.discordRefreshToken,
     scope: 'identify',
   })
-  console.log(queryString)
+  // console.log(queryString)
 
   let body = new URLSearchParams()
   body.append('client_id', process.env.BOT_CLIENT_ID)
@@ -39,7 +39,7 @@ async function getNewAccessToken(dbUser) {
   // body.append('scope', 'identify email connections')
   body.append('redirect_uri', process.env.GAME_SERVER_URL + '/auth')
 
-  console.log(body)
+  // console.log(body)
   var res = await fetch('https://discord.com/api/v8/oauth2/token', {
     method: 'POST',
     // headers: {
@@ -48,18 +48,22 @@ async function getNewAccessToken(dbUser) {
     body: body,
   })
   var json = await res.json()
-  console.log('refreshed response')
-  console.log(json)
+  // console.log('refreshed response')
+  // console.log(json)
   var access_token = json.access_token
   var refresh_token = json.refresh_token
+
+  if (access_token === undefined || access_token === null) {
+    return null
+  }
 
   await db.users.update(dbUser._id, {
     discordAccessToken: access_token,
     discordRefreshToken: refresh_token,
   })
-  console.log(
-    `new refresh token: ${json.refresh_token}, access_token: ${json.access_token}`
-  )
+  // console.log(
+  //   `new refresh token: ${json.refresh_token}, access_token: ${json.access_token}`
+  // )
 
   return access_token
 }
@@ -107,6 +111,10 @@ async function fetchUserFromAccessToken(access_token) {
       return null
     }
     access_token = await getNewAccessToken(dbUser)
+
+    if (!access_token) {
+      return null
+    }
     me = await fetchUserMe(access_token)
   }
 
