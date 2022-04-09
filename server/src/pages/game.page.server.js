@@ -115,7 +115,11 @@ export async function onBeforeRender(pageContext) {
 export async function render(pageContext) {
   // Pass it on to the server/index.js for redirection
   if (pageContext.redirectTo) {
-    return pageContext
+    return {
+      pageContext: {
+        redirectTo: pageContext.redirectTo,
+      },
+    }
   }
 
   // Otherwise go ahead and render page
