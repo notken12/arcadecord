@@ -289,6 +289,7 @@ io.on('connection', (socket) => {
               discordId,
               joined,
             },
+            contested: game.isConnectionContested(userId),
           })
 
           appInsightsClient.trackEvent({
@@ -339,9 +340,6 @@ io.on('connection', (socket) => {
         })
         return
       }
-
-      // Lock actions for this game to prevent multiple actions from being executed at the same time
-      //lock(gameId, async function (release) {
 
       // get game from db
       var dbGame = await db.games.getById(gameId)
@@ -400,14 +398,6 @@ io.on('connection', (socket) => {
           id: action.id,
         },
       })
-
-      // release lock
-      /*release(function (err) {
-        if (err) {
-          console.error(err);
-        }
-      })();*/
-      //});
     } catch (e) {
       console.error(e)
 
@@ -478,14 +468,6 @@ io.on('connection', (socket) => {
         name: 'Resend game invite',
         properties: { gameId: gameId, userId: userId },
       })
-
-      // release lock
-      /*release(function (err) {
-        if (err) {
-          console.error(err);
-        }
-      })();*/
-      //});
     } catch (e) {
       console.error(e)
 
@@ -539,6 +521,63 @@ io.on('connection', (socket) => {
 
       callback({
         status: 'error',
+      })
+    }
+  })
+
+  socket.on('disconnect', async () => {
+    try {
+      // get which game the socket is in
+      var gameId = socket.data.gameId
+      var userId = socket.data.userId
+
+      if (
+        gameId === undefined ||
+        userId === undefined ||
+        gameId === null ||
+        userId === null
+      ) {
+        console.log('Socket disconnection error: gameId or userId is undefined')
+
+        appInsightsClient.trackEvent({
+          name: 'Socket disconnection error',
+          properties: { error: 'Invalid game or user' },
+        })
+        return
+      }
+
+      // get game from db
+      var dbGame = await db.games.getById(gameId)
+
+      if (!dbGame) return
+
+      // get game type
+      var gameType = gameTypes[dbGame._doc.typeId]
+
+      // create instance of game
+      var game = new gameType.Game(dbGame._doc)
+
+      game.disconnectSocket(userId)
+
+      // save game to db
+      await db.games.update(gameId, game)
+
+      appInsightsClient.trackEvent({
+        name: 'Socket disconnected from game',
+        properties: {
+          gameId: gameId,
+          userId: userId,
+        },
+      })
+    } catch (e) {
+      console.error(e)
+
+      appInsightsClient.trackEvent({
+        name: 'Socket disconnect handling error',
+        properties: {
+          gameId: gameId,
+          userId: userId,
+        },
       })
     }
   })

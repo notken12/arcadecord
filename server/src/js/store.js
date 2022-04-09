@@ -21,6 +21,7 @@ function createStore() {
         me: null,
         error: null,
         user: null,
+        contested: false,
       }
     },
     mutations: {
@@ -32,6 +33,7 @@ function createStore() {
         state.me = connectionResponse.discordUser ?? null
         state.error = connectionResponse.error ?? null
         state.user = connectionResponse.user ?? null
+        state.contested = connectionResponse.contested ?? false
       },
       UPDATE_SETTINGS(state, settings) {
         if (!state.user.settings) {

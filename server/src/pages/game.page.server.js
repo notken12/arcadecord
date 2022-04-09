@@ -70,7 +70,11 @@ export async function onBeforeRender(pageContext) {
         pageProps.gameType = typeId
         pageContext.game = game.getDataForClient(userId)
         pageContext.discordUser = await fetchUser(userId)
+        // Are there multiple players trying to play this turn?
+        pageContext.contested = game.isConnectionContested(userId)
+
         if (!pageContext.discordUser) {
+          // Make user sign in if couldn't fetch discord user
           return {
             pageContext: {
               documentHtml: null,
@@ -145,6 +149,7 @@ export async function render(pageContext) {
       discordId,
       joined,
     },
+    contested: pageContext.contested,
   })
   store.commit('REPLAY_TURN')
 

@@ -27,6 +27,9 @@
     <Transition name="fade">
       <FastForward v-if="replayingForAWhile"></FastForward>
     </Transition>
+    <Transition name="fade">
+      <GameFull v-if="isGameFull"></GameFull>
+    </Transition>
     <slot></slot>
   </div>
 </template>
@@ -44,12 +47,13 @@ import FastForward from './FastForward.vue'
 
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useFacade } from './facade'
+import GameFull from './GameFull.vue'
 
 const props = defineProps({
   hint: String,
 })
 
-const { game, replaying } = useFacade()
+const { game, replaying, contested } = useFacade()
 
 const manualOpen = ref(false)
 const settingsOpen = ref(false)
@@ -81,6 +85,10 @@ const openSettings = () => {
 const closeSettings = () => {
   settingsOpen.value = false
 }
+
+const isGameFull = computed(() => {
+  return GameFlow.isGameFull(game.value) || contested.value
+})
 
 onMounted(() => {
   bus.on('open-manual', openManual)
