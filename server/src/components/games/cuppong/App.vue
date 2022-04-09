@@ -225,6 +225,59 @@ watch(() => replaying.value, updateCups)
 
 const fps = ref(0)
 
+function endSimulation(throwForce, knockedCup) {
+  simulationStartTime = null
+
+  velocity.x = 0
+  velocity.y = 0
+  velocity.z = 0
+
+  ballBody.position.set(0, 0.02, 0)
+  ballBody.velocity.set(0, 0, 0)
+  ballBody.angularVelocity.set(0, 0, 0)
+
+  if (replaying.value) {
+    let action = actionsToReplay.shift()
+    replayAction(game.value, action)
+
+    if (actionsToReplay.length === 0) {
+      $endReplay(800)
+      firstActionReplayed = false
+    } else {
+      setTimeout(() => {
+        replayNextThrow()
+      }, 500)
+    }
+    return
+  }
+
+  // if (!knockedCup) return // dev cheat
+
+  // Don't run the action if theres no throw force provided
+  // This is to allow the simulation to be ended without
+  // throwing the ball. Useful for skipping replays.
+  if (!throwForce) {
+    firstActionReplayed = false
+    return
+  }
+
+  $runAction('throw', {
+    force: throwForce,
+    knockedCup: knockedCup?.id || undefined,
+  })
+  $endAnimation(500)
+}
+
+function replayNextThrow() {
+  let action = actionsToReplay[0]
+  if (!action) return
+  let { x, y, z } = action.data.force
+  ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
+  simulationStartTime = performance.now() / 1000
+}
+
+let firstActionReplayed = false
+
 const initThree = () => {
   let frames = 0
 
@@ -454,50 +507,6 @@ const initThree = () => {
 
   const simulationDuration = 3 // seconds
 
-  function endSimulation(throwForce, knockedCup) {
-    simulationStartTime = null
-
-    velocity.x = 0
-    velocity.y = 0
-    velocity.z = 0
-
-    ballBody.position.set(0, 0.02, 0)
-    ballBody.velocity.set(0, 0, 0)
-    ballBody.angularVelocity.set(0, 0, 0)
-
-    if (replaying.value) {
-      let action = actionsToReplay.shift()
-      replayAction(game.value, action)
-
-      if (actionsToReplay.length === 0) {
-        $endReplay(800)
-        firstActionReplayed = false
-      } else {
-        setTimeout(() => {
-          replayNextThrow()
-        }, 500)
-      }
-      return
-    }
-
-    // if (!knockedCup) return // dev cheat
-
-    $runAction('throw', {
-      force: throwForce,
-      knockedCup: knockedCup?.id || undefined,
-    })
-    $endAnimation(500)
-  }
-
-  function replayNextThrow() {
-    let action = actionsToReplay[0]
-    let { x, y, z } = action.data.force
-    ballBody.applyForce(new CANNON.Vec3(x, y, z), ballBody.position)
-    simulationStartTime = performance.now() / 1000
-  }
-
-  let firstActionReplayed = false
-
   const timeStep = 1 / 60 // seconds
   let lastCallTime
   function animate() {
@@ -527,6 +536,7 @@ const initThree = () => {
 
       if (simulationStartTime === null) {
         if (actionsToReplay.length > 0 && !firstActionReplayed) {
+          // Replay action of first throw
           replayNextThrow()
           firstActionReplayed = true
         }
@@ -717,6 +727,16 @@ function pointerUp(e) {
 }
 
 let actionsToReplay = []
+
+watch(replaying, (val) => {
+  // If the replay is skipped, we need to reset the simulation
+  if (!val) {
+    simulationStartTime = null
+    actionsToReplay = []
+    endSimulation()
+    return
+  }
+})
 
 onMounted(() => {
   window.getBaseLog = function (x, y) {
