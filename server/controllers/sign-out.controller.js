@@ -15,5 +15,5 @@ export default (req, res) => {
     maxAge: tenYears,
   })
 
-  res.redirect('/sign-in')
+  res.redirect('/')
 }

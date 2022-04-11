@@ -271,7 +271,7 @@ io.on('connection', (socket) => {
           socket.join('game/' + gameId)
 
           game.setSocket(userId, socket.id)
-          
+
           // save game to db
           await db.games.update(gameId, game)
 
@@ -563,7 +563,10 @@ io.on('connection', (socket) => {
       await db.games.update(gameId, game)
 
       for (let userId in game.sockets) {
-        io.to(game.sockets[userId]).emit('contested', game.isConnectionContested(userId))
+        io.to(game.sockets[userId]).emit(
+          'contested',
+          game.isConnectionContested(userId)
+        )
       }
 
       appInsightsClient.trackEvent({
@@ -630,15 +633,8 @@ app.get('/game/:gameId', async (req, res, next) => {
 import createGameController from './controllers/create-game.controller.js'
 app.post('/create-game', createGameController)
 
-app.get('/discord-oauth2-sign-in', (req, res) => {
-  res.redirect(
-    'https://discord.com/api/oauth2/authorize?client_id=' +
-      process.env.BOT_CLIENT_ID +
-      '&redirect_uri=' +
-      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=identify%20email'
-  )
-})
+import signInController from './controllers/sign-in.controller.js'
+app.get('/sign-in', signInController)
 
 app.get('/invite', (req, res) => {
   res.redirect(
@@ -705,6 +701,7 @@ const apiRoutes = [
   '/invite-successful',
   '/discord-oauth2-sign-in',
   '/discord-oauth2-invite-bot',
+  '/sign-in',
 ]
 
 app.get('*', async (req, res, next) => {

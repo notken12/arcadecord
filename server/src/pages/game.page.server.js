@@ -27,8 +27,14 @@ export async function onBeforeRender(pageContext) {
   // FETCH GAME HERE
 
   const { userId } = pageContext
-  // if (userId === null || userId === undefined) {
-  // }
+  if (userId === null || userId === undefined) {
+    return {
+      pageContext: {
+        documentHtml: null,
+        redirectTo: '/sign-in',
+      },
+    }
+  }
 
   const user = await db.users.getById(userId)
   if (!user) {
