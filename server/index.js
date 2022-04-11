@@ -636,7 +636,7 @@ app.post('/create-game', createGameController)
 import signInController from './controllers/sign-in.controller.js'
 app.get('/sign-in', signInController)
 
-app.get('/invite', (req, res) => {
+app.get('/invite', (_req, res) => {
   res.redirect(
     'https://discord.com/api/oauth2/authorize?client_id=' +
       process.env.BOT_CLIENT_ID +
