@@ -71,6 +71,10 @@ const gameSchema = new Schema({
   inThread: Boolean,
   threadChannel: String,
   reservedSpot: String,
+  lastModifiedDate: {
+    type: Date,
+    default: Date.now(),
+  },
 })
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema)
@@ -189,7 +193,14 @@ const db = {
     },
     async update(id, data) {
       try {
-        return await Game.findByIdAndUpdate(id, data, { new: true })
+        return await Game.findByIdAndUpdate(
+          id,
+          {
+            ...data,
+            lastModifiedDate: mongoose.now(),
+          },
+          { new: true }
+        )
       } catch (e) {
         console.error(e)
         return null
