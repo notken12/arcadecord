@@ -12,7 +12,18 @@ import GameDisplay from 'components/index/GameDisplay.vue'
         <Header></Header>
         <Content id="features">
           <section>
-          
+            <h3>Contact us</h3>
+            <p>
+          The best place to interact with our team is through the official Arcadecord Discord server.</p>
+          <a href="/discord-invite-link">
+          <Button>
+            Join Discord
+          </Button>
+          </a>
+          <p>
+            Alternatively, contact us through our email adresss at&nbsp
+          <a href="mailto:contact@arcadecord.io">contact@arcadecord.io</a>.
+          </p>
           </section>
       </Content>
       <Footer></Footer>

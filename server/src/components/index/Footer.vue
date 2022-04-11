@@ -26,7 +26,7 @@ import Link from './Link.vue'
       <Link href="/support-us">Support us</Link>
       <Link href="/help-feedback">Help and feedback</Link>
       <Link href="/server">Support server</Link>
-      <Link href="/contact">Contact us</Link>
+      <Link href="/contact-us">Contact us</Link>
       <Link href="/terms-of-service">Terms of service</Link>
       <Link href="/privacy-policy">Privacy policy</Link>
     </div>

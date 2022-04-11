@@ -12,7 +12,7 @@ import GameDisplay from 'components/index/GameDisplay.vue'
         <Header></Header>
         <Content id="features">
           <section>
-            <h3>Support Us</h3>
+            <h3>Support us</h3>
             To support Arcadecord, you can donate on Ko-fi or vote for us on top.gg
             <a href="/ko-fi">
             <Button>Donate</Button>
