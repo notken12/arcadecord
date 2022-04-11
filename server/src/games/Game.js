@@ -31,15 +31,12 @@ config()
 const ajv = new Ajv()
 
 class Game {
-  n
   // options schema
   // {
   //     "id": "",
   //     "name": "",
   //     "description": "",
-  //     "image": "",
   //     "aliases": [],
-  //     "players": [],
   //     "maxPlayers": 0,
   //     "minPlayers": 0,
   // }
@@ -69,6 +66,9 @@ class Game {
     this.invitedUsers = [] // discord IDs of users that have been invited to join the game, reserved spots
     this.inThread = false // whether or not the game is played in a thread
     this.threadChannel = null // the thread channel the game is played in (valid only if inThread is true)
+    // the user id that has been reserved a spot in the game.
+    this.reservedSpot = null
+    // Used to choose who gets to go when multiple users are trying to connect into an open spot
 
     // async actionModel (action, game) {
     // action: information about action
@@ -459,16 +459,25 @@ class Game {
       ok: true,
     }
   }
+
   isConnectionContested(id) {
-    let unjoinedSockets = [] // user ids of unjoined players that have sockets connected
+    // If the user doesn't have the reserved spot, its contested
+    return this.reservedSpot !== id.toString() && this.reservedSpot !== null
+  }
+  /**
+   * Get unjoined sockets
+   * @returns {array<String>} array of user ids of sockets that are connected to the game but not joined
+   */
+  getUnjoinedSockets() {
+    let unjoinedSockets = []
     for (let pid in this.sockets) {
-      unjoinedSockets.push(pid)
+      if (this.sockets[pid]) unjoinedSockets.push(pid)
     }
     for (let player of this.players) {
       if (unjoinedSockets.includes(player.id))
         unjoinedSockets.splice(unjoinedSockets.indexOf(player.id), 1)
     }
-    return !unjoinedSockets.includes(id) && unjoinedSockets.length > 0
+    return unjoinedSockets
   }
   async canUserSocketConnect(id) {
     if (this.isPlayerInGame(id)) {
@@ -485,7 +494,6 @@ class Game {
       }
     }
 
-    // TODO: add more specific message
     let dbUser = await db.users.getById(id)
     if (!dbUser) {
       this.emit('error', 'User not found')
@@ -558,12 +566,43 @@ class Game {
     }
     return this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1)
   }
+
   setSocket(userId, socket) {
-    // TODO: disconnect user's old socket if they have one
+    // Keep track of a who has the "reserved" spot after socket connection
+
+    // If there are 0 unjoined sockets, then no one has reserved
+
+    // If there is 1 unjoined socket, they get the reserved spot
+
+    // If there is >1 unjoined socket, continue.
+    // The first one to join will have gotten the reserved spot
+
     this.sockets[userId] = socket
+
+    let unjoined = this.getUnjoinedSockets()
+    if (unjoined.length === 0) {
+      this.reservedSpot = null
+    } else if (unjoined.length === 1) {
+      this.reservedSpot = unjoined[0]
+    }
   }
   getSocket(userId) {
     return this.sockets[userId]
+  }
+  disconnectSocket(userId) {
+    // Manage reservation on socket disconnect
+    // If after disconnect there are 0 unjoined sockets, then no one has reserved
+    // If after disconnect there is 1 unjoined socket, they get the reserved spot
+    // If after disconnect there is >1 unjoined socket, continue.
+
+    this.sockets[userId] = null
+
+    let unjoined = this.getUnjoinedSockets()
+    if (unjoined.length === 0) {
+      this.reservedSpot = null
+    } else if (unjoined.length === 1) {
+      this.reservedSpot = unjoined[0]
+    }
   }
 
   setIo(io) {
@@ -622,6 +661,7 @@ class Game {
       typeId: this.typeId,
       previousData: this.previousData,
       actionSchemas: this.actionSchemas,
+      reservedSpot: this.reservedSpot,
     }
     for (let key in this.actionModels) {
       game.actionModels[key] = this.actionModels[key].name

@@ -70,6 +70,7 @@ const gameSchema = new Schema({
   invitedUsers: Array,
   inThread: Boolean,
   threadChannel: String,
+  reservedSpot: String,
 })
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema)

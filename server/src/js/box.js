@@ -7,7 +7,6 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { reactive, ref } from 'vue'
 import { createStore as createVuexStore } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
 
@@ -33,6 +32,7 @@ function createStore() {
         replaying: false,
         runningAction: false,
         user: null,
+        contested: false,
       }
     },
     mutations: {
@@ -40,13 +40,14 @@ function createStore() {
         store.commit('SETUP', connectionResponse)
         state.user = store.state.user
       },
-      UPDATE_SETTINGS(state, settings) {
+      UPDATE_SETTINGS(_state, settings) {
         store.commit('UPDATE_SETTINGS', settings)
       },
       REPLAY_TURN(state) {
         state.me = store.state.me
         state.error = store.state.error
         state.user = store.state.user
+        state.contested = store.state.contested
 
         if (
           (!GameFlow.isItMyTurn(store.state.game, true) &&
@@ -109,9 +110,14 @@ function createStore() {
         }
         runAction(state.game, action.type, action.data)
       },
-      UPDATE_GAME(state, game) {
+      UPDATE_GAME(_state, game) {
         store.commit('UPDATE_GAME', game)
       },
+      UPDATE_CONTESTED(state, contested) {
+        store.commit('UPDATE_CONTESTED', contested)
+
+        state.contested = contested
+      }
     },
   })
 

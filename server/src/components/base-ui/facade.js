@@ -23,10 +23,14 @@ export function useFacade() {
   const facade = useStore()
 
   const game = computed(() => facade.state.game)
+  // My discord user
   const me = computed(() => facade.state.me)
+  // Error with connecting to game
   const error = computed(() => facade.state.error)
   const replaying = computed(() => facade.state.replaying)
   const runningAction = computed(() => facade.state.runningAction)
+  // Is socket connection contested: multiple players are connected, 1 free spot
+  const contested = computed(() => facade.state.contested)
 
   const previousTurn = computed(() => {
     if (game.value) {
@@ -97,6 +101,7 @@ export function useFacade() {
     replaying,
     runningAction,
     previousTurn,
+    contested,
     $endReplay,
     $replayTurn,
     $endAnimation,
