@@ -31,15 +31,12 @@ config()
 const ajv = new Ajv()
 
 class Game {
-  n
   // options schema
   // {
   //     "id": "",
   //     "name": "",
   //     "description": "",
-  //     "image": "",
   //     "aliases": [],
-  //     "players": [],
   //     "maxPlayers": 0,
   //     "minPlayers": 0,
   // }

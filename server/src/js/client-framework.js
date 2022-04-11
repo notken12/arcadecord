@@ -281,7 +281,7 @@ async function connect(gameId, callback) {
       return
     }
 
-    let { discordUser, user, game } = response
+    let { discordUser, user, game, contested } = response
 
     game = await utils.setUpGame(game)
 
@@ -290,7 +290,10 @@ async function connect(gameId, callback) {
       game,
       user,
       discordUser,
+      contested
     })
+
+    log("[arcadecord.socket] connected")
   }
 
   socket.emit(
@@ -356,6 +359,8 @@ function listen() {
 
     log('[arcadecord.socket] turn received, now the turn is ' + game.turn)
   })
+
+
 }
 
 export {

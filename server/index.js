@@ -267,11 +267,11 @@ io.on('connection', (socket) => {
           socket.data.userId = userId
           socket.data.gameId = gameId
 
-          game.setSocket(userId, socket.id)
-
           // add socket to game room for broadcasting events
           socket.join('game/' + gameId)
 
+          game.setSocket(userId, socket.id)
+          
           // save game to db
           await db.games.update(gameId, game)
 
@@ -561,6 +561,10 @@ io.on('connection', (socket) => {
 
       // save game to db
       await db.games.update(gameId, game)
+
+      for (let userId in game.sockets) {
+        io.to(game.sockets[userId]).emit('contested', game.isConnectionContested(userId))
+      }
 
       appInsightsClient.trackEvent({
         name: 'Socket disconnected from game',

@@ -29,6 +29,7 @@ const {
   $endReplay,
   $endAnimation,
   previousTurn,
+  contested
 } = useFacade()
 
 const toast = ref(null)
@@ -95,6 +96,8 @@ onMounted(() => {
     }
     $endReplay(300)
   })
+  window.game = game.value
+  window.contested = contested.value 
 })
 </script>
 

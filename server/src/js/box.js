@@ -113,6 +113,11 @@ function createStore() {
       UPDATE_GAME(_state, game) {
         store.commit('UPDATE_GAME', game)
       },
+      UPDATE_CONTESTED(state, contested) {
+        store.commit('UPDATE_CONTESTED', contested)
+
+        state.contested = contested
+      }
     },
   })
 

@@ -41,6 +41,9 @@ function createStore() {
         }
         Object.assign(state.user.settings, settings)
       },
+      UPDATE_CONTESTED(state, contested) {
+        state.contested = contested
+      }
     },
   })
   return store
