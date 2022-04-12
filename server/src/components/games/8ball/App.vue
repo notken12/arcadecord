@@ -95,8 +95,22 @@ function setCollisionBehavior() {
     { friction: 0.5, restitution: 0.9 }
   )
 
+  var ball_ball = new CANNON.ContactMaterial(
+    Ball.CONTACT_MATERIAL,
+    Ball.CONTACT_MATERIAL,
+    {
+      friction: 1,
+      restitution: 0.9,
+      frictionEquationRelaxation: 1,
+      frictionEquationStiffness: 1e15,
+      contactEquationRelaxation: 1,
+      //contactEquationStiffness: 1e15,
+    }
+  )
+
   world.addContactMaterial(ball_floor)
   world.addContactMaterial(ball_wall)
+  world.addContactMaterial(ball_ball)
 }
 
 const canvas = ref(null)
@@ -122,8 +136,8 @@ let newBallStates = []
 
 const fps = ref(0)
 
-let shotAngle = 0
-let shotPower = 0
+let shotAngle = 0.12076394834603342
+let shotPower = 1
 let shotSpin = { x: 0, y: 0 }
 
 let maxShotPower = 1
@@ -131,6 +145,7 @@ let maxShotPower = 1
 const hitBall = () => {
   if (balls) {
     console.log('Shot power: ' + shotPower)
+    console.log(`Shot angle: ${shotAngle}`)
     if (shotPower < 0.05) {
       return
     }
@@ -326,12 +341,13 @@ const initThree = async () => {
               continue
             }
 
-            ball.body.position.set(0, -0.3, 0)
+            //ball.body.position.set(0, -0.3, 0)
+            ball.body.position.set(0, Ball.RADIUS, 0)
             ball.body.velocity.set(0, 0, 0)
             ball.body.angularVelocity.set(0, 0, 0)
-            ball.body.type = CANNON.Body.STATIC
-            ball.body.mass = 0
-            ball.body.sleep()
+            //ball.body.type = CANNON.Body.STATIC
+            //ball.body.mass = 0
+            //ball.body.sleep()
           } else if (
             ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING
           ) {
@@ -515,6 +531,7 @@ const initThree = async () => {
 let spinnerDraggable
 
 onMounted(async () => {
+  window.shotAngle = shotAngle
   gsap.registerPlugin(Draggable)
   scale = window.devicePixelRatio
 
@@ -621,6 +638,8 @@ onMounted(async () => {
       cannonDebuggerEnabled = !cannonDebuggerEnabled
     }
   })
+
+  hitBall()
 })
 
 onUnmounted(() => {
