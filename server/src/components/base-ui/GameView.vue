@@ -11,16 +11,9 @@
 
 <template>
   <div class="game-container">
-    <waiting-view
-      v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
-    ></waiting-view>
-    <result-view
-      v-if="game.hasEnded && !replaying && !runningAction"
-      :game="game"
-    ></result-view>
-    <sending-view
-      v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"
-    ></sending-view>
+    <waiting-view v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"></waiting-view>
+    <result-view v-if="game.hasEnded && !replaying && !runningAction" :game="game"></result-view>
+    <sending-view v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"></sending-view>
     <game-manual-view v-if="manualOpen"></game-manual-view>
     <Settings v-if="settingsOpen"></Settings>
     <GameHeader :hint="hint"></GameHeader>
@@ -28,7 +21,7 @@
       <FastForward v-if="replayingForAWhile"></FastForward>
     </Transition>
     <Transition name="fade">
-      <GameFull v-if="isGameFull"></GameFull>
+      <GameFull v-if="contested"></GameFull>
     </Transition>
     <slot></slot>
   </div>
@@ -85,10 +78,6 @@ const openSettings = () => {
 const closeSettings = () => {
   settingsOpen.value = false
 }
-
-const isGameFull = computed(() => {
-  return GameFlow.isGameFull(game.value) || contested.value
-})
 
 onMounted(() => {
   bus.on('open-manual', openManual)

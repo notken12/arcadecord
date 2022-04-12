@@ -461,8 +461,12 @@ class Game {
   }
 
   isConnectionContested(id) {
-    // If the user doesn't have the reserved spot, its contested
-    return this.reservedSpot !== id.toString() && this.reservedSpot !== null
+    // If the user isn't in the game and doesn't have the reserved spot, its contested
+    return (
+      !this.isPlayerInGame(id) &&
+      this.reservedSpot !== id.toString() &&
+      this.reservedSpot !== null
+    )
   }
   /**
    * Get unjoined sockets
