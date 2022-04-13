@@ -12,6 +12,7 @@
 <script setup>
 import PowerControl from './PowerControl.vue'
 import SpinControl from './SpinControl.vue'
+import AssignedPattern from './AssignedPattern.vue'
 
 import { useFacade } from 'components/base-ui/facade'
 import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
@@ -56,7 +57,7 @@ let gameActive
 
 const gameActiveRef = computed(() => {
   return (
-    (replaying.value || GameFlow.isItMyTurn(game.value)) && replayRunning.value
+    GameFlow.isItMyTurn(game.value) || replayRunning.value
   )
 })
 
@@ -206,7 +207,7 @@ let simulationRunning = false
 
 let showControls = computed(() => {
   console.log('replayrunning', replayRunning.value)
-  return !simulationRunningRef.value && replayRunning.value
+  return !simulationRunningRef.value && gameActiveRef.value
 })
 
 let showControlsVal = false
@@ -565,6 +566,7 @@ const initThree = async () => {
               continue
             }
 
+            ball.out = true
             ball.body.position.set(0, -0.3, 0)
             // ball.body.position.set(0, Ball.RADIUS, 0)
             ball.body.velocity.set(0, 0, 0)
@@ -776,6 +778,7 @@ onMounted(async () => {
 
         var correctionRatio = cHeight / newHeight
         if (correctionRatio < 1) {
+            ball.out = true
           newWidth *= correctionRatio
           newHeight *= correctionRatio
         }
@@ -871,6 +874,14 @@ onUnmounted(() => {
   like settings button-->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
+    <scores-view>
+      <template v-slot="scoreView">
+        <AssignedPattern
+          :pattern="game.data.players[scoreView.playerindex].assignedPattern"
+          :playerindex="scoreView.playerindex"
+        ></AssignedPattern>
+      </template>
+    </scores-view>
 
     <div class="middle">
       <!-- Game UI just for 8 ball -->
