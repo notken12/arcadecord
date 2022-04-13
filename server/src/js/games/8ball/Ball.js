@@ -127,7 +127,7 @@ export class Ball {
     return body
   }
 
-  update() {
+  tick() {
     // if (this.body.position.y > Ball.RADIUS) {
     //   this.body.position.y = Ball.RADIUS
     // }
@@ -145,6 +145,18 @@ export class Ball {
       this.body.quaternion.z,
       this.body.quaternion.w
     )
+  }
+
+  updateBody() {
+    this.body.position.set(this.position.x, this.position.y, this.position.z)
+    this.body.velocity.set(0, 0, 0)
+    this.body.angularVelocity.set(0, 0, 0)
+    if (this.out) {
+      this.body.position.set(0, -0.3, 0)
+      this.body.type = CANNON.Body.STATIC
+      this.body.mass = 0
+      this.body.sleep()
+    }
   }
 
   hit(strength, angle, spin /* Vector2 */) {
