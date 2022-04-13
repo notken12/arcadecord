@@ -111,10 +111,14 @@ class Game {
     Object.assign(this, cloneDeep(options || {})) // deep clone options so that options wont be changed when game is modified
 
     if (this._id !== undefined && this._id !== null) {
-      this.id = this._id
+      this.id = this._id.toString()
     }
     if (this.id !== undefined && this.id !== null) {
-      this._id = this.id
+      this._id = this.id.toString()
+    }
+
+    for (let player of this.players) {
+      player.id = player.id.toString()
     }
 
     this.turns.getDataForClient = function (userId) {
@@ -478,8 +482,10 @@ class Game {
       if (this.sockets[pid]) unjoinedSockets.push(pid)
     }
     for (let player of this.players) {
-      if (unjoinedSockets.includes(player.id))
-        unjoinedSockets.splice(unjoinedSockets.indexOf(player.id), 1)
+      let id = player.id
+      if (unjoinedSockets.includes(id)) {
+        unjoinedSockets.splice(unjoinedSockets.indexOf(id, 1))
+      }
     }
     return unjoinedSockets
   }
@@ -666,6 +672,7 @@ class Game {
       previousData: this.previousData,
       actionSchemas: this.actionSchemas,
       reservedSpot: this.reservedSpot,
+      sockets: this.sockets,
     }
     for (let key in this.actionModels) {
       game.actionModels[key] = this.actionModels[key].name
