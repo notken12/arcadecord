@@ -31,6 +31,7 @@ import gsap from 'gsap'
 import { Draggable } from 'gsap/dist/Draggable'
 
 import { getCollisionLocation } from '@app/js/games/8ball/utils'
+import GameFlow from '@app/js/GameFlow'
 
 const {
   game,
@@ -46,6 +47,20 @@ const {
 let hint = computed(() => {
   return ''
 })
+
+let gameActive
+
+const gameActiveRef = computed(() => {
+  return replaying.value || GameFlow.isItMyTurn(game.value)
+})
+
+watch(
+  gameActiveRef,
+  (v) => {
+    gameActive = v
+  },
+  { immediate: true }
+)
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
@@ -113,11 +128,13 @@ function setCollisionBehavior() {
   world.addContactMaterial(ball_ball)
 }
 
+let actionsToReplay = []
+
 const canvas = ref(null)
 const controlsCanvas = ref(null)
 const canvasWrapper = ref(null)
 const spinner = ref(null)
-const spinnerEnabled = ref(true)
+const spinnerEnabled = ref(!replaying.value)
 
 let orbitControlsEnabled = true
 let cannonDebuggerEnabled = false
@@ -137,10 +154,12 @@ let newBallStates = []
 const fps = ref(0)
 
 let shotAngle = 0.12076394834603342
-let shotPower = 1
+let shotPowerHolder = { x: 0 } // for gsap
+let shotPower = shotPowerHolder.x
 let shotSpin = { x: 0, y: 0 }
 
 let maxShotPower = 1
+let lastShotPower
 
 const hitBall = () => {
   if (balls) {
@@ -149,6 +168,8 @@ const hitBall = () => {
     if (shotPower < 0.05) {
       return
     }
+    lastShotPower = shotPower // remember the shot power so that
+    // when the simulation ends it can run the action with the correct shot power
     cueBall.hit(shotPower * maxShotPower, shotAngle, shotSpin)
 
     simulationRunningRef.value = true
@@ -180,6 +201,7 @@ watch(simulationRunningRef, (newValue) => {
 let scale
 
 const updateSpinner = () => {
+  if (!spinner.value) return
   let cbbox = canvas.value.getBoundingClientRect() // canvas bounding box
   let cueBallPos = createVector(
     cueBall.body.position.x,
@@ -207,6 +229,69 @@ function createVector(x, y, z, camera, width, height) {
   vector.y = (-(vector.y - 1) / 2) * height
 
   return vector
+}
+
+let firstActionReplayed = false
+
+const CUE_DRAWBACK_DURATION = 1 // seconds
+
+const replayNextAction = () => {
+  // 1. Get the action
+  let action = actionsToReplay[0]
+  if (!action) return
+  let { angle, force: power } = action.data
+  // 2. Show the pool stick being drawn back
+  console.log(`replay power: ${power}`)
+  console.log(action.data)
+  // shotPower = 0
+  gsap.to(shotPowerHolder, {
+    x: power,
+    duration: CUE_DRAWBACK_DURATION,
+  })
+  // 3. Show the pool stick hitting the ball
+  // 4. Apply force to ball
+}
+
+watch(replaying, (val) => {
+  // If the replay is skipped, we need to reset the simulation
+  if (!val) {
+    actionsToReplay = []
+    endSimulation(true)
+    spinnerEnabled.value = true
+    return
+  } else {
+    spinnerEnabled.value = false
+  }
+})
+
+const endSimulation = (skipReplay) => {
+  // Run action if not replaying
+  if (!skipReplay) {
+    if (!replaying.value) {
+      let newBallStates = []
+      for (let ball of balls) {
+        let state = {
+          out: ball.out,
+          position: ball.body.position,
+          quaternion: ball.body.quaternion,
+          color: ball.color,
+          name: ball.name,
+        }
+        newBallStates.push(state)
+      }
+      $runAction('shoot', {
+        angle: shotAngle,
+        force: lastShotPower,
+        newBallStates,
+      })
+    }
+    // Replay next action if replaying
+    else {
+    }
+  }
+
+  firstActionReplayed = false
+  simulationRunningRef.value = false
 }
 
 const initThree = async () => {
@@ -357,8 +442,13 @@ const initThree = async () => {
         }
 
         if (allAtRest) {
-          // RUN ACTION HERE
-          simulationRunningRef.value = false
+          endSimulation()
+        }
+      } else {
+        if (actionsToReplay.length > 0 && !firstActionReplayed) {
+          // Replay action of first shot
+          replayNextAction()
+          firstActionReplayed = true
         }
       }
     }
@@ -375,152 +465,151 @@ const initThree = async () => {
     ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
 
     // if (simulationRunning) return
-
-    let cueBallPos = createVector(
-      cueBall.body.position.x,
-      cueBall.body.position.y,
-      cueBall.body.position.z,
-      camera,
-      canvas.value.width,
-      canvas.value.height
-    )
-
-    let offsetVector = createVector(
-      cueBall.body.position.x + Ball.RADIUS,
-      cueBall.body.position.y,
-      cueBall.body.position.z + Ball.RADIUS,
-      camera,
-      canvas.value.width,
-      canvas.value.height
-    )
-    let ballDisplayRadius = Math.max(
-      offsetVector.x - cueBallPos.x,
-      offsetVector.y - cueBallPos.y
-    )
-
-    let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
-
-    let cos = Math.cos(angle + Math.PI / 2)
-    let sin = Math.sin(angle + Math.PI / 2)
-
-    let vec = { x: cos, z: sin }
-    if (mode == 'landscape') {
-      let tx = vec.x + 0
-      let tz = vec.z + 0
-      vec.x = tx * Math.cos(Math.PI / -2) - tz * Math.sin(Math.PI / -2)
-      vec.z = tx * Math.sin(Math.PI / -2) + tz * Math.cos(Math.PI / -2)
-    }
-
-    let collision = getCollisionLocation(balls, cueBall, vec)
-    if (!collision) return
-    let cpos = createVector(
-      collision.x,
-      Ball.RADIUS,
-      collision.y,
-      camera,
-      canvas.value.width,
-      canvas.value.height
-    )
-
-    ctx.beginPath()
-    ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false)
-    // ctx.fillStyle = 'green'
-    // ctx.fill()
-    ctx.lineWidth = 1 * scale
-    ctx.strokeStyle = '#ffffff'
-    ctx.stroke()
-
-    ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 1 * scale
-    ctx.beginPath()
-
-    ctx.moveTo(
-      cueBallPos.x + cos * ballDisplayRadius,
-      cueBallPos.y + sin * ballDisplayRadius
-    )
-
-    if (mode == 'portrait') {
-      ctx.lineTo(
-        cpos.x - cos * ballDisplayRadius,
-        cpos.y - sin * ballDisplayRadius
+    if (gameActive) {
+      let cueBallPos = createVector(
+        cueBall.body.position.x,
+        cueBall.body.position.y,
+        cueBall.body.position.z,
+        camera,
+        canvas.value.width,
+        canvas.value.height
       )
-    } else {
-      ctx.lineTo(
-        cpos.x - cos * ballDisplayRadius,
-        cpos.y - sin * ballDisplayRadius
+
+      let offsetVector = createVector(
+        cueBall.body.position.x + Ball.RADIUS,
+        cueBall.body.position.y,
+        cueBall.body.position.z + Ball.RADIUS,
+        camera,
+        canvas.value.width,
+        canvas.value.height
       )
-    }
+      let ballDisplayRadius = Math.max(
+        offsetVector.x - cueBallPos.x,
+        offsetVector.y - cueBallPos.y
+      )
 
-    ctx.stroke()
+      let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
 
-    if (collision.ballBounceAngle) {
-      let ballBounceAngle =
-        collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+      let cos = Math.cos(angle + Math.PI / 2)
+      let sin = Math.sin(angle + Math.PI / 2)
 
-      let bbcos = Math.cos(ballBounceAngle)
-      let bbsin = Math.sin(ballBounceAngle)
+      let vec = { x: cos, z: sin }
+      if (mode == 'landscape') {
+        let tx = vec.x + 0
+        let tz = vec.z + 0
+        vec.x = tx * Math.cos(Math.PI / -2) - tz * Math.sin(Math.PI / -2)
+        vec.z = tx * Math.sin(Math.PI / -2) + tz * Math.cos(Math.PI / -2)
+      }
+
+      let collision = getCollisionLocation(balls, cueBall, vec)
+      if (!collision) return
+      let cpos = createVector(
+        collision.x,
+        Ball.RADIUS,
+        collision.y,
+        camera,
+        canvas.value.width,
+        canvas.value.height
+      )
+
+      ctx.beginPath()
+      ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false)
+      ctx.lineWidth = 1 * scale
+      ctx.strokeStyle = '#ffffff'
+      ctx.stroke()
+
+      ctx.strokeStyle = '#fff'
+      ctx.lineWidth = 1 * scale
+      ctx.beginPath()
+
       ctx.moveTo(
-        cpos.x + bbcos * ballDisplayRadius * 2,
-        cpos.y + bbsin * ballDisplayRadius * 2
+        cueBallPos.x + cos * ballDisplayRadius,
+        cueBallPos.y + sin * ballDisplayRadius
       )
-      ctx.lineTo(
-        cpos.x +
-          bbcos *
-            ballDisplayRadius *
-            (2 + directionLineLength * collision.hitPower),
-        cpos.y +
-          bbsin *
-            ballDisplayRadius *
-            (2 + directionLineLength * collision.hitPower)
-      )
+
+      if (mode == 'portrait') {
+        ctx.lineTo(
+          cpos.x - cos * ballDisplayRadius,
+          cpos.y - sin * ballDisplayRadius
+        )
+      } else {
+        ctx.lineTo(
+          cpos.x - cos * ballDisplayRadius,
+          cpos.y - sin * ballDisplayRadius
+        )
+      }
 
       ctx.stroke()
 
-      let cueBounceAngle =
-        collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+      if (collision.ballBounceAngle) {
+        let ballBounceAngle =
+          collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
 
-      let cbcos = Math.cos(cueBounceAngle)
-      let cbsin = Math.sin(cueBounceAngle)
-      ctx.moveTo(
-        cpos.x + cbcos * ballDisplayRadius,
-        cpos.y + cbsin * ballDisplayRadius
-      )
-      ctx.lineTo(
-        cpos.x +
-          cbcos *
-            ballDisplayRadius *
-            (1 + directionLineLength * (1 - collision.hitPower)),
-        cpos.y +
-          cbsin *
-            ballDisplayRadius *
-            (1 + directionLineLength * (1 - collision.hitPower))
-      )
+        let bbcos = Math.cos(ballBounceAngle)
+        let bbsin = Math.sin(ballBounceAngle)
+        ctx.moveTo(
+          cpos.x + bbcos * ballDisplayRadius * 2,
+          cpos.y + bbsin * ballDisplayRadius * 2
+        )
+        ctx.lineTo(
+          cpos.x +
+            bbcos *
+              ballDisplayRadius *
+              (2 + directionLineLength * collision.hitPower),
+          cpos.y +
+            bbsin *
+              ballDisplayRadius *
+              (2 + directionLineLength * collision.hitPower)
+        )
 
-      ctx.stroke()
+        ctx.stroke()
+
+        let cueBounceAngle =
+          collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+
+        let cbcos = Math.cos(cueBounceAngle)
+        let cbsin = Math.sin(cueBounceAngle)
+        ctx.moveTo(
+          cpos.x + cbcos * ballDisplayRadius,
+          cpos.y + cbsin * ballDisplayRadius
+        )
+        ctx.lineTo(
+          cpos.x +
+            cbcos *
+              ballDisplayRadius *
+              (1 + directionLineLength * (1 - collision.hitPower)),
+          cpos.y +
+            cbsin *
+              ballDisplayRadius *
+              (1 + directionLineLength * (1 - collision.hitPower))
+        )
+
+        ctx.stroke()
+      }
+
+      ctx.save()
+
+      ctx.translate(cueBallPos.x, cueBallPos.y)
+      if (mode == 'landscape') {
+        ctx.rotate(Math.PI / 2)
+      }
+      ctx.rotate(-shotAngle - Math.PI)
+
+      if (cueStickImageLoaded) {
+        ctx.drawImage(
+          cueStickImage,
+          -(cueStickImage.width / 2) * scale,
+          ballDisplayRadius * 2 +
+            shotPower * Math.max(canvas.value.width, canvas.value.height) * 0.2,
+          scale * cueStickImage.width,
+          scale * cueStickImage.height
+        )
+      }
+
+      ctx.restore()
     }
-
-    ctx.save()
-
-    ctx.translate(cueBallPos.x, cueBallPos.y)
-    if (mode == 'landscape') {
-      ctx.rotate(Math.PI / 2)
-    }
-    ctx.rotate(-shotAngle - Math.PI)
-
-    if (cueStickImageLoaded) {
-      ctx.drawImage(
-        cueStickImage,
-        -(cueStickImage.width / 2) * scale,
-        ballDisplayRadius * 2 +
-          shotPower * Math.max(canvas.value.width, canvas.value.height) * 0.2,
-        scale * cueStickImage.width,
-        scale * cueStickImage.height
-      )
-    }
-
-    ctx.restore()
   }
-  animate()
+  requestAnimationFrame(animate)
 
   setInterval(() => {
     fps.value = frames
@@ -529,6 +618,22 @@ const initThree = async () => {
 }
 
 let spinnerDraggable
+
+watch(
+  spinnerEnabled,
+  (v) => {
+    if (v) {
+      spinnerDraggable = Draggable.create(spinner.value, {
+        type: 'rotation',
+        inertia: true,
+        onDrag: function () {
+          shotAngle = -this.rotation * (Math.PI / 180)
+        },
+      })[0]
+    }
+  },
+  { flush: 'post' }
+)
 
 onMounted(async () => {
   window.shotAngle = shotAngle
@@ -639,7 +744,13 @@ onMounted(async () => {
     }
   })
 
-  hitBall()
+  // hitBall()
+  $replayTurn(() => {
+    setTimeout(() => {
+      let turn = game.value.turns[game.value.turns.length - 1]
+      actionsToReplay = turn.actions
+    }, 700)
+  })
 })
 
 onUnmounted(() => {
@@ -651,7 +762,7 @@ onUnmounted(() => {
 
 <template>
   <!-- GameView component, contains all basic game UI
-    like settings button-->
+  like settings button-->
   <game-view :game="game" :me="me" :hint="hint">
     <!-- Game UI goes in here -->
 
@@ -666,7 +777,7 @@ onUnmounted(() => {
         <canvas
           id="controls-canvas"
           ref="controlsCanvas"
-          :class="{ hidden: simulationRunningRef || !spinnerEnabled }"
+          :class="{ hidden: simulationRunningRef }"
         ></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
         <div id="spinner" ref="spinner" v-if="spinnerEnabled"></div>

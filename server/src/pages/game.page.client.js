@@ -28,7 +28,6 @@ async function hydrate() {
   store.replaceState(pageContext.INITIAL_STATE)
   app.mount('#app')
 
-
   // Get game ID from URL address
 
   var gameId = Client.utils.getGameId(window.location)
@@ -56,12 +55,12 @@ async function hydrate() {
       )
     })
 
-  // When other players disconnect, receive contested state updates from the server
-  // Server will let client know they get the free spot when multiple players are trying to play the first turn
-  Client.socket.on('contested', (contested) => {
-    // Update store's contested
-    store.commit('UPDATE_CONTESTED', contested)
-  })
+    // When other players disconnect, receive contested state updates from the server
+    // Server will let client know they get the free spot when multiple players are trying to play the first turn
+    Client.socket.on('contested', (contested) => {
+      // Update store's contested
+      store.commit('UPDATE_CONTESTED', contested)
+    })
 
     window.app = app
   }
