@@ -62,6 +62,19 @@ class FiveLettersGame extends Game {
       },
       required: ['word'],
     })
+
+    this.getThumbnail = async function () {
+      const { default: Canvas } = await import('canvas')
+
+      const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
+
+      const ctx = canvas.getContext('2d')
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      return canvas;
+    }
   }
 
   onInit(game) {
