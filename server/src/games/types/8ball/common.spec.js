@@ -462,6 +462,9 @@ describe('8ball Action: shoot', () => {
 
     expect(game.data.cueFoul).toBe(true)
 
+    let cueBall = game.data.balls[0]
+    expect(cueBall.out).toBe(false)
+
     let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
     expect(stillTheirTurn).toBe(false)
   })

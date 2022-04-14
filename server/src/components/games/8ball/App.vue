@@ -35,6 +35,7 @@ import { getCollisionLocation } from '@app/js/games/8ball/utils'
 import GameFlow from '@app/js/GameFlow'
 
 import { replayAction } from '@app/js/client-framework'
+import { drawCueControls } from '@app/js/games/8ball/canvas'
 
 const {
   game,
@@ -56,9 +57,7 @@ let replayRunning = ref(false)
 let gameActive
 
 const gameActiveRef = computed(() => {
-  return (
-    GameFlow.isItMyTurn(game.value) || replayRunning.value
-  )
+  return GameFlow.isItMyTurn(game.value) || replayRunning.value
 })
 
 watch(
@@ -206,7 +205,6 @@ let simulationRunningRef = ref(false)
 let simulationRunning = false
 
 let showControls = computed(() => {
-  console.log('replayrunning', replayRunning.value)
   return !simulationRunningRef.value && gameActiveRef.value
 })
 
@@ -432,6 +430,13 @@ watch(() => game.value.turn, updateBalls)
 
 watch(() => replaying.value, updateBalls)
 
+let cueFoul
+watch(
+  () => game.value.data.cueFoul,
+  (v) => (cueFoul = v),
+  { immediate: true }
+)
+
 const initThree = async () => {
   setCollisionBehavior()
 
@@ -465,7 +470,7 @@ const initThree = async () => {
 
   camera.position.set(0, 2, 0)
 
-  const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
+  // const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
   // scene.add(light)
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
@@ -573,7 +578,6 @@ const initThree = async () => {
             ball.body.angularVelocity.set(0, 0, 0)
             ball.body.type = CANNON.Body.STATIC
             ball.body.mass = 0
-            ball.body.sleep()
           } else if (
             ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING
           ) {
@@ -608,7 +612,7 @@ const initThree = async () => {
     if (gameActive) {
       let cposResult = updateCollisionPos()
       if (!cposResult) return
-      let { angle, cos, sin, vec, collision } = cposResult
+      let { cos, sin, collision } = cposResult
 
       // Draw guiding line if simulation isn't running
       if (!simulationRunning) {
@@ -619,8 +623,6 @@ const initThree = async () => {
         ctx.strokeStyle = '#ffffff'
         ctx.stroke()
 
-        ctx.strokeStyle = '#fff'
-        ctx.lineWidth = 1 * scale
         ctx.beginPath()
 
         ctx.moveTo(
@@ -645,11 +647,16 @@ const initThree = async () => {
 
         if (collision.ballBounceAngle) {
           // Draw angles of ball bounces: cue and other ball
+
+          ctx.lineWidth = 1 * scale
+          ctx.strokeStyle = '#ffffff'
           let ballBounceAngle =
             collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
 
           let bbcos = Math.cos(ballBounceAngle)
           let bbsin = Math.sin(ballBounceAngle)
+          // DO NOT FORGET BEGINPATH OTHERWISE THE STROKE STYLES WILL BE MIXED TOGETHER
+          ctx.beginPath()
           ctx.moveTo(
             cpos.x + bbcos * ballDisplayRadius * 2,
             cpos.y + bbsin * ballDisplayRadius * 2
@@ -672,6 +679,9 @@ const initThree = async () => {
 
           let cbcos = Math.cos(cueBounceAngle)
           let cbsin = Math.sin(cueBounceAngle)
+
+          ctx.beginPath()
+
           ctx.moveTo(
             cpos.x + cbcos * ballDisplayRadius,
             cpos.y + cbsin * ballDisplayRadius
@@ -693,6 +703,8 @@ const initThree = async () => {
 
       ctx.save()
 
+      // BEGIN ROTATED BLOCK
+
       ctx.translate(cueBallPos.x, cueBallPos.y)
       if (mode == 'landscape') {
         ctx.rotate(Math.PI / 2)
@@ -710,6 +722,17 @@ const initThree = async () => {
         )
       }
 
+      // END ROTATED BLOCK
+
+      ctx.restore()
+      ctx.save()
+      // BEGIN TRANSLATED BLOCK
+      ctx.translate(cueBallPos.x, cueBallPos.y)
+      if (cueFoul) {
+        // Other player did cue foul, now you can drag the cue ball around
+        drawCueControls(ctx, ballDisplayRadius, scale)
+      }
+      // END TRANSLATED BLOCK
       ctx.restore()
     }
   }
@@ -778,7 +801,6 @@ onMounted(async () => {
 
         var correctionRatio = cHeight / newHeight
         if (correctionRatio < 1) {
-            ball.out = true
           newWidth *= correctionRatio
           newHeight *= correctionRatio
         }
@@ -885,7 +907,10 @@ onUnmounted(() => {
 
     <div class="middle">
       <!-- Game UI just for 8 ball -->
-      <div class="controls-wrapper" :class="{ shown: showControls && !replaying }">
+      <div
+        class="controls-wrapper"
+        :class="{ shown: showControls && !replaying }"
+      >
         <SpinControl @spinchange="changeShotSpin($event)" />
         <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
       </div>

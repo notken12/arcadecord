@@ -156,6 +156,10 @@ export class Ball {
       this.body.type = CANNON.Body.STATIC
       this.body.mass = 0
       this.body.sleep()
+    } else {
+      this.body.mass = Ball.MASS
+      this.body.type = CANNON.Body.DYNAMIC
+      this.body.wakeUp()
     }
   }
 
