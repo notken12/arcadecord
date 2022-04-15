@@ -21,6 +21,7 @@
 <script>
 import Common from '/gamecommons/seabattle'
 import GameFlow from '@app/js/GameFlow.js'
+import bus from '@app/js/vue-event-bus'
 
 export default {
   data() {
@@ -53,8 +54,9 @@ export default {
       if (
         this.cell.state === Common.BOARD_STATE_EMPTY &&
         GameFlow.isItMyTurn(this.game)
-      )
-        this.$root.targetedCell = this.cell
+      ){
+        bus.emit('changeCellect', this.cell)
+      }
     },
     altText: function () {
       switch (this.cell.state) {

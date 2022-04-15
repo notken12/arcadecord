@@ -59,6 +59,7 @@ import HitBoardView from './HitBoardView.vue'
 import cloneDeep from 'lodash.clonedeep'
 import { runAction, utils as clientUtils } from '@app/js/client-framework.js'
 import GameFlow from '@app/js/GameFlow.js'
+import bus from '@app/js/vue-event-bus'
 
 function getMyHitBoard(game) {
   var index = game.myIndex
@@ -141,6 +142,10 @@ export default {
   },
   mounted() {
     window.Common = Common
+
+    bus.on('changeCellect', (cell) => {
+      this.targetedCell = cell;
+    })
 
     this.$replayTurn(() => {
       this.$endReplay()

@@ -16,6 +16,14 @@ import Game from '../../Game.js'
 // Import GameFlow to control game flow
 import GameFlow from '../../GameFlow.js'
 
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename)
+
 class HitBoard {
   constructor(playerIndex, width, height) {
     this.playerIndex = playerIndex
@@ -149,9 +157,30 @@ class SeaBattleGame extends Game {
       },
       required: ['row', 'col'],
     })
-  }
 
-  getThumbnail() {}
+    this.getThumbnail = async function() {
+      const { default: Canvas } = await import('canvas')
+
+      const canvas = Canvas.createCanvas(
+        Game.thumbnailDimensions.width,
+        Game.thumbnailDimensions.height
+      )
+      const ctx = canvas.getContext('2d')
+
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let thumbnailSrc = path.resolve(
+          __dirname,
+          '../../../public/assets/seabattle/sea-battle-thumbnail.png'
+        )
+      let thumbnail = await Canvas.loadImage(thumbnailSrc);
+      ctx.drawImage(thumbnail, 0, 0, canvas.width, canvas.height);
+
+      return canvas
+    }
+
+  }
 
   onInit(game) {
     game.data = {
