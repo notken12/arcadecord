@@ -109,7 +109,7 @@ async function shoot(game, action) {
       out: b.out,
       position: b.position,
       quaternion: b.quaternion,
-      pocket: b.pocket
+      pocket: b.pocket,
     })
   }
 
@@ -145,7 +145,7 @@ async function shoot(game, action) {
         game.reason = 'y'
         return game
       } else {
-        // Sad, 8ball was shot into the wrong pocket. You lose 
+        // Sad, 8ball was shot into the wrong pocket. You lose
         await GameFlow.end(game, {
           winner: [1, 0][game.turn],
         })
