@@ -52,6 +52,8 @@ button.outlined, .button.outlined {
 
 button.outlined:hover, .button.outlined:hover {
   background: #0099ff44;
+
+  color: theme.$md-sys-on-primary-container!important;
 }
 
 button:disabled, .button:disabled {
@@ -63,6 +65,7 @@ button:disabled, .button:disabled {
 
 button:hover, .button:hover {
   box-shadow: theme.$md-elevation-level2;
+  color: theme.$md-sys-on-primary!important;
 }
 
 button:focus, .button:focus {
@@ -72,5 +75,4 @@ button:focus, .button:focus {
 button:active, .button:active {
   box-shadow: theme.$md-elevation-level1;
 }
-
 

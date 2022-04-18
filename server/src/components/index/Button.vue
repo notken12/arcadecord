@@ -23,3 +23,6 @@ const props = defineProps({
   </button>
 </template>
 
+<style lang="scss" scoped>
+@use 'scss/base/button'
+</style>

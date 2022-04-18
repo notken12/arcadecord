@@ -19,12 +19,14 @@ import LinkButton from './LinkButton.vue'
 <template>
   <div class="header">
     <Logo></Logo>
+    <div class="right">
     <div class="links">
       <Link href="/help-feedback">Help and feedback</Link>
       <Link href="/support-us">Support us</Link>
       <Link href="/sign-in">Sign in</Link>
     </div>
       <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+      </div>
   </div>
 </template>
 
@@ -43,7 +45,7 @@ import LinkButton from './LinkButton.vue'
   overflow: auto;
 }
 
-.links {
+.right {
   width: 100%;
   height: 100%;
   display: flex;
@@ -52,6 +54,11 @@ import LinkButton from './LinkButton.vue'
   justify-content: flex-end;
   gap: 32px;
 }
+
+.links {
+    display: flex;
+    gap: 32px;
+  }
 
 a {
   text-decoration: none;

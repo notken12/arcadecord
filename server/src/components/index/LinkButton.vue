@@ -20,7 +20,10 @@ const props = defineProps({
 <template>
   <a class="button" :href="href" :class="{ outlined }">
     <i class="material-icons" v-if="icon">{{ icon }}</i>
-    <slot></slot>
+    <span>
+    <slot></slot></span>
   </a>
 </template>
-
+<style lang="scss" scoped>
+@use 'scss/base/button'
+</style>
