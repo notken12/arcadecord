@@ -78,6 +78,7 @@ export const ballsOverlap = (b1, b2) => {
 async function shoot(game, action) {
   var continueTurn = false
   var pattern = game.data.players[game.turn].assignedPattern
+  game.data.players[game.turn].chosenPocket = action.data.chosenPocket
   if (pattern !== null && pattern !== undefined) {
     // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
@@ -108,6 +109,7 @@ async function shoot(game, action) {
       out: b.out,
       position: b.position,
       quaternion: b.quaternion,
+      pocket: b.pocket
     })
   }
 
@@ -117,35 +119,43 @@ async function shoot(game, action) {
   // if (game.data.cueFoul) game.data.cueFoul = false
 
   if (ball8.out) {
-    if (pattern !== undefined && pattern !== undefined) {
-      var myInBalls = getBalls(game.data.balls, pattern, true)
+    var myInBalls = getBalls(game.data.balls, pattern, true)
+    if (pattern !== null && pattern !== undefined) {
     } else {
+      // You shot the 8 ball in before you shot any other balls in because you dont have an assigned pattern
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       })
       return game
     }
     if (cueball.out) {
+      // You knocked the 8ball and cue ball out. You lose.
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       })
       game.data.players[game.turn].chosenPocket = undefined
       return game
     } else if (myInBalls.length == 0) {
-      if (ball8.pocket == game.data.players[game.turn].chosenPocket) {
+      if (ball8.pocket === action.data.chosenPocket) {
+        // Woohoo, 8ball correctly pocketed!
         await GameFlow.end(game, {
           winner: game.turn,
         })
         game.data.players[game.turn].chosenPocket = undefined
+        game.reason = 'y'
         return game
       } else {
+        // Sad, 8ball was shot into the wrong pocket. You lose 
         await GameFlow.end(game, {
           winner: [1, 0][game.turn],
         })
         game.data.players[game.turn].chosenPocket = undefined
+        game.reason = 'wrongpocket'
         return game
       }
     } else {
+      // You shot in the 8 ball before knockout all other balls out.
+      // You lose.
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       })

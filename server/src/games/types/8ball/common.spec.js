@@ -284,13 +284,13 @@ describe('8ball Action: shoot', () => {
 
     var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-    ;(newBallStates[1].out = true),
-      (newBallStates[3].out = true),
-      (newBallStates[4].out = true),
-      (newBallStates[8].out = true),
-      (newBallStates[10].out = true),
-      (newBallStates[11].out = true),
-      (newBallStates[13].out = true)
+    newBallStates[1].out = true
+      newBallStates[3].out = true
+      newBallStates[4].out = true
+      newBallStates[8].out = true
+      newBallStates[10].out = true
+      newBallStates[11].out = true
+      newBallStates[13].out = true
 
     var shot = new Action(
       'shoot',
@@ -308,7 +308,6 @@ describe('8ball Action: shoot', () => {
 
     newBallStates[5].out = true
     newBallStates[5].pocket = 1
-    game.data.players[1].chosenPocket = 1
 
     var secondShot = new Action(
       'shoot',
@@ -316,11 +315,13 @@ describe('8ball Action: shoot', () => {
         angle: Math.PI / 2,
         force: 10,
         newBallStates: newBallStates,
+        chosenPocket: 1
       },
       1
     )
 
     expect(await game.handleAction(secondShot)).toEqual({ success: true })
+    expect(game.reason).toEqual('y')
     expect(game.hasEnded).toBe(true)
     expect(game.winner).toBe(1)
   })
@@ -337,13 +338,13 @@ describe('8ball Action: shoot', () => {
 
     var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-    ;(newBallStates[1].out = true),
-      (newBallStates[3].out = true),
-      (newBallStates[4].out = true),
-      (newBallStates[8].out = true),
-      (newBallStates[10].out = true),
-      (newBallStates[11].out = true),
-      (newBallStates[13].out = true)
+    newBallStates[1].out = true
+      newBallStates[3].out = true
+      newBallStates[4].out = true
+      newBallStates[8].out = true
+      newBallStates[10].out = true
+      newBallStates[11].out = true
+      newBallStates[13].out = true
 
     var shot = new Action(
       'shoot',
@@ -361,7 +362,6 @@ describe('8ball Action: shoot', () => {
 
     newBallStates[5].out = true
     newBallStates[5].pocket = 1
-    game.data.players[1].chosenPocket = 2
 
     var secondShot = new Action(
       'shoot',
@@ -369,6 +369,7 @@ describe('8ball Action: shoot', () => {
         angle: Math.PI / 2,
         force: 10,
         newBallStates: newBallStates,
+        chosenPocket: 2
       },
       1
     )
