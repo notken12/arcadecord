@@ -15,7 +15,7 @@ import SpinControl from './SpinControl.vue'
 import AssignedPattern from './AssignedPattern.vue'
 
 import { useFacade } from 'components/base-ui/facade'
-import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
+import { computed, ref, onMounted, watch, onUnmounted, watchEffect } from 'vue'
 
 import * as THREE from 'three'
 
@@ -142,7 +142,7 @@ const canvasWrapper = ref(null)
 const spinner = ref(null)
 const spinnerEnabled = ref(!replaying.value)
 
-let orbitControlsEnabled = true
+let orbitControlsEnabled = false
 let cannonDebuggerEnabled = false
 let scene,
   camera,
@@ -211,9 +211,10 @@ let showControls = computed(() => {
 let showControlsVal = false
 watch(showControls, (v) => (showControlsVal = v), { immediate: true })
 
-watch(simulationRunningRef, (newValue) => {
-  simulationRunning = newValue
-  if (newValue === false) {
+let spinnerDraggable = null
+watchEffect(() => {
+  if (!spinnerDraggable) return
+  if (!simulationRunning.value && gameActiveRef.value) {
     setTimeout(updateSpinner, 0)
     spinnerDraggable.enable()
   } else {
@@ -743,8 +744,6 @@ const initThree = async () => {
     frames = 0
   }, 1000)
 }
-
-let spinnerDraggable
 
 watch(
   spinnerEnabled,

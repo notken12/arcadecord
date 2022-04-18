@@ -8,7 +8,8 @@
 // without the express permission of Ken Zhou.
 
 /* Fonts */
-@use './base/_theme.scss' as theme;
+@use 'scss/base/theme' as theme;
+@use 'scss/base/button';
 
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Work+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -122,83 +123,6 @@ h3 {
 a {
   text-decoration: none;
 }
-
-button {
-  color: theme.$md-sys-on-primary;
-  background-color: theme.$md-sys-primary;
-  padding: 0px 24px;
-  border: none;
-  cursor: pointer;
-  border-radius: 500px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  overflow: hidden;
-  height: 40px;
-  user-select: none;
-  outline: none;
-  box-sizing: border-box;
-  min-width: 64px;
-  font-size: theme.$md-sys-typescale-button-size;
-  line-height: theme.$md-sys-typescale-button-line-height;
-  font-family: theme.$md-sys-typescale-button-font;
-  box-shadow: theme.$md-elevation-level1;
-  font-weight: theme.$md-sys-typescale-button-weight;
-  max-height: 36px;
-  text-decoration: none;
-  gap: 8px;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  width: max-content;
-
-  .material-icons {
-    font-size: 18px;
-    margin-left: -8px;
-  }
-}
-
-button:disabled {
-  box-shadow: theme.$md-elevation-level0;
-  background-color: theme.$md-sys-on-surface;
-  opacity: 12%;
-  color: theme.$md-sys-on-surface;
-}
-
-button:hover {
-  box-shadow: theme.$md-elevation-level2;
-}
-
-button:focus {
-  box-shadow: theme.$md-elevation-level1;
-}
-
-button:active {
-  box-shadow: theme.$md-elevation-level1;
-}
-
-// .btn-primary {
-//     color: #fff;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     min-height: 32px;
-//     min-width: 60px;
-//     font-size: 14px;
-//     font-weight: 500;
-//     font-family: Roboto, sans-serif;
-//     line-height: 16px;
-//     margin: 4px 8px 4px 0;
-//     padding: 2px 16px;
-//     border: 0;
-//     border-radius: 3px;
-//     box-sizing: border-box;
-//     cursor: pointer;
-//     transition: background-color .15s ease, color .15s ease;
-//     font-weight: bold;
-//     background-color: #5577ff;
-//     /* Shadow 2dp */
-//     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.20);
-// }
 
 .btn-icon {
   padding: 8px;
