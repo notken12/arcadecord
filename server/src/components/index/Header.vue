@@ -13,6 +13,7 @@
 import Link from './Link.vue'
 import Button from './Button.vue'
 import Logo from './Logo.vue'
+import LinkButton from './LinkButton.vue'
 </script>
 
 <template>
@@ -23,9 +24,7 @@ import Logo from './Logo.vue'
       <Link href="/support-us">Support us</Link>
       <Link href="/sign-in">Sign in</Link>
     </div>
-    <a href="/invite">
-      <Button icon="add">Add to Discord</Button>
-    </a>
+      <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
   </div>
 </template>
 
