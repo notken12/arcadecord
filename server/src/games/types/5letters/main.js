@@ -141,6 +141,8 @@ class FiveLettersGame extends Game {
 
       var zeroCorrect = false
       var oneCorrect = false
+      var zeroPicked = true
+      var onePicked = true
 
       for (i = 0; i < zeroGuesses.length; i++) {
         if (zeroGuesses[i].word === this.data.answers[1]) {
@@ -153,16 +155,23 @@ class FiveLettersGame extends Game {
         }
       }
 
+      if (!this.data.answers[0]) zeroPicked = false
+      if (!this.data.answers[1]) onePicked = false
+
       if (zeroCorrect) {
         ctx.fillText(this.data.answers[1], 75, 35)
-      } else {
+      } else if (!zeroPicked) {
         ctx.fillText('_____', 75, 35)
+      } else {
+        ctx.fillText('?????', 75, 35)
       }
 
       if (oneCorrect) {
         ctx.fillText(this.data.answers[0], 225, 35)
-      } else {
+      } else if (!onePicked) {
         ctx.fillText('_____', 225, 35)
+      } else {
+        ctx.fillText('?????', 225, 35)
       }
 
       return canvas
