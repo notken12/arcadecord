@@ -11,6 +11,7 @@
 
 <script setup>
 import Button from './Button.vue'
+import LinkButton from 'components/index/LinkButton.vue'
 </script>
 
 <template>
@@ -36,9 +37,9 @@ import Button from './Button.vue'
       </h3>
       <div class="buttons">
         <Button icon="add">Add to Discord</Button>
-        <a href="#features">
-          <Button outlined>See features</Button>
-        </a>
+        
+          <LinkButton outlined href="#features">See features</LinkButton>
+        
       </div>
     </div>
   </div>

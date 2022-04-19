@@ -74,8 +74,8 @@ export default {
     },
     targetStyles() {
       return {
-        left: (this.target.x / this.board.width) * 100 + '%',
-        top: (this.target.y / this.board.height) * 100 + '%',
+        left: (this.target.col / this.board.width) * 100 + '%',
+        top: (this.target.row / this.board.height) * 100 + '%',
         width: (1 / this.board.width) * 100 + '%',
         height: (1 / this.board.height) * 100 + '%',
       }

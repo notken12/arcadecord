@@ -172,7 +172,7 @@ describe('8ball Action: shoot', () => {
 
     let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-    newBallStates[1].out = true;
+    newBallStates[1].out = true
     let missedShot = new Action(
       'shoot',
       {
@@ -185,7 +185,9 @@ describe('8ball Action: shoot', () => {
 
     // Run the actions
     expect(Common.getBalls(game.data.balls, 1, true).length).toBe(7)
-    expect(Common.getBalls(missedShot.data.newBallStates, 1, true).length).toBe(6)
+    expect(Common.getBalls(missedShot.data.newBallStates, 1, true).length).toBe(
+      6
+    )
     expect(Common.checkHitIn(game, missedShot, 1)).toBe(true)
 
     expect(await game.handleAction(missedShot)).toEqual({ success: true })
@@ -215,7 +217,7 @@ describe('8ball Action: shoot', () => {
     // Define the actions to be made
     let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-    newBallStates[1].out = true;
+    newBallStates[1].out = true
     let shot = new Action(
       'shoot',
       {
@@ -231,205 +233,240 @@ describe('8ball Action: shoot', () => {
 
     // Check the game state
 
-     expect(game.data.players[1].assignedPattern).toBe(1)
+    expect(game.data.players[1].assignedPattern).toBe(1)
+    expect(game.data.players[0].assignedPattern).toBe(0)
   })
 
-  test(
-    'Lose game if player shoots 8 ball in pocket prematurely',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+  test('Lose game if player shoots 8 ball in pocket prematurely', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-      // Initialize the game
-      await game.init()
+    // Initialize the game
+    await game.init()
 
-      game.data.players[1].assignedPattern = 1
+    game.data.players[1].assignedPattern = 1
 
-      let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+    let newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-      newBallStates[5].out = true;
+    newBallStates[5].out = true
 
-
-      var shot = new Action(
-        'shoot',
-        {
-          angle: Math.PI / 2, // radians, for UI
-          force: 10, // for UI
-          newBallStates: newBallStates,
-        },
-        1
-      )
-      //Tests
-      expect(await game.handleAction(shot)).toEqual({ success: true })
+    var shot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2, // radians, for UI
+        force: 10, // for UI
+        newBallStates: newBallStates,
+      },
+      1
+    )
+    //Tests
+    expect(await game.handleAction(shot)).toEqual({ success: true })
     //  expect(await Common.shoot(game, shot)).toEqual("aw")
 
-      expect(game.hasEnded).toBe(true)
-      expect(game.winner).toBe(0)
+    expect(game.hasEnded).toBe(true)
+    expect(game.winner).toBe(0)
+  })
 
-    }
-  )
+  test('Correctly pocketed 8 ball wins game', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-  test(
-    'Correctly pocketed 8 ball wins game',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+    // Initialize the game
+    await game.init()
 
-      // Initialize the game
-      await game.init()
+    var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-      var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+    newBallStates[1].out = true
+      newBallStates[3].out = true
+      newBallStates[4].out = true
+      newBallStates[8].out = true
+      newBallStates[10].out = true
+      newBallStates[11].out = true
+      newBallStates[13].out = true
 
-      newBallStates[1].out = true, newBallStates[3].out = true, newBallStates[4].out = true, newBallStates[8].out = true,newBallStates[10].out = true,newBallStates[11].out = true,newBallStates[13].out = true
-
-      var shot = new Action('shoot', {
+    var shot = new Action(
+      'shoot',
+      {
         angle: Math.PI / 2, // radians, for UI
         force: 10, // for UI
         newBallStates: newBallStates,
-      }, 1)
+      },
+      1
+    )
 
-      expect(await game.handleAction(shot)).toEqual({ success: true })
+    expect(await game.handleAction(shot)).toEqual({ success: true })
 
-      expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
+    expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
 
-      newBallStates[5].out = true;
-      newBallStates[5].pocket = 1;
-      game.data.players[1].chosenPocket = 1;
+    newBallStates[5].out = true
+    newBallStates[5].pocket = 1
 
-      var secondShot = new Action('shoot', {
-        angle: Math.PI /2,
+    var secondShot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2,
         force: 10,
-        newBallStates:newBallStates,
-      }, 1)
+        newBallStates: newBallStates,
+        chosenPocket: 1
+      },
+      1
+    )
 
-      expect(await game.handleAction(secondShot)).toEqual({success: true})
-      expect(game.hasEnded).toBe(true)
-      expect(game.winner).toBe(1)
-    }
-  )
-  test(
-    'Wrong pocketed 8 ball loses game',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+    expect(await game.handleAction(secondShot)).toEqual({ success: true })
+    expect(game.reason).toEqual('y')
+    expect(game.hasEnded).toBe(true)
+    expect(game.winner).toBe(1)
+  })
+  test('Wrong pocketed 8 ball loses game', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-      // Initialize the game
-      await game.init()
+    // Initialize the game
+    await game.init()
 
-      var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+    var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-      newBallStates[1].out = true, newBallStates[3].out = true, newBallStates[4].out = true, newBallStates[8].out = true,newBallStates[10].out = true,newBallStates[11].out = true,newBallStates[13].out = true
+    newBallStates[1].out = true
+      newBallStates[3].out = true
+      newBallStates[4].out = true
+      newBallStates[8].out = true
+      newBallStates[10].out = true
+      newBallStates[11].out = true
+      newBallStates[13].out = true
 
-      var shot = new Action('shoot', {
+    var shot = new Action(
+      'shoot',
+      {
         angle: Math.PI / 2, // radians, for UI
         force: 10, // for UI
         newBallStates: newBallStates,
-      }, 1)
+      },
+      1
+    )
 
-      expect(await game.handleAction(shot)).toEqual({ success: true })
+    expect(await game.handleAction(shot)).toEqual({ success: true })
 
-      expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
+    expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
 
-      newBallStates[5].out = true;
-      newBallStates[5].pocket = 1;
-      game.data.players[1].chosenPocket = 2;
+    newBallStates[5].out = true
+    newBallStates[5].pocket = 1
 
-      var secondShot = new Action('shoot', {
-        angle: Math.PI /2,
+    var secondShot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2,
         force: 10,
-        newBallStates:newBallStates,
-      }, 1)
+        newBallStates: newBallStates,
+        chosenPocket: 2
+      },
+      1
+    )
 
-      expect(await game.handleAction(secondShot)).toEqual({success: true})
-      expect(game.hasEnded).toBe(true)
-      expect(game.winner).toBe(0)
-    })
+    expect(await game.handleAction(secondShot)).toEqual({ success: true })
+    expect(game.hasEnded).toBe(true)
+    expect(game.winner).toBe(0)
+  })
 
-  test(
-    'Lose game if player shoots 8 ball and cue ball in the pocket at the same time',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+  test('Lose game if player shoots 8 ball and cue ball in the pocket at the same time', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-      // Initialize the game
-      await game.init()
+    // Initialize the game
+    await game.init()
 
-      var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+    var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-      newBallStates[1].out = true, newBallStates[3].out = true, newBallStates[4].out = true, newBallStates[8].out = true,newBallStates[10].out = true,newBallStates[11].out = true,newBallStates[13].out = true
+    ;(newBallStates[1].out = true),
+      (newBallStates[3].out = true),
+      (newBallStates[4].out = true),
+      (newBallStates[8].out = true),
+      (newBallStates[10].out = true),
+      (newBallStates[11].out = true),
+      (newBallStates[13].out = true)
 
-      var shot = new Action('shoot', {
+    var shot = new Action(
+      'shoot',
+      {
         angle: Math.PI / 2, // radians, for UI
         force: 10, // for UI
         newBallStates: newBallStates,
-      }, 1)
+      },
+      1
+    )
 
-      expect(await game.handleAction(shot)).toEqual({ success: true })
+    expect(await game.handleAction(shot)).toEqual({ success: true })
 
-      expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
+    expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0)
 
-      newBallStates[5].out = true;
-      newBallStates[0].out = true;
-      newBallStates[5].pocket = 1;
-      game.data.players[1].chosenPocket = 1;
+    newBallStates[5].out = true
+    newBallStates[0].out = true
+    newBallStates[5].pocket = 1
+    game.data.players[1].chosenPocket = 1
 
-      var secondShot = new Action('shoot', {
-        angle: Math.PI /2,
+    var secondShot = new Action(
+      'shoot',
+      {
+        angle: Math.PI / 2,
         force: 10,
-        newBallStates:newBallStates,
-      }, 1)
+        newBallStates: newBallStates,
+      },
+      1
+    )
 
-      expect(await game.handleAction(secondShot)).toEqual({success: true})
-      expect(game.hasEnded).toBe(true)
-      expect(game.winner).toBe(0)
-    }
-  )
+    expect(await game.handleAction(secondShot)).toEqual({ success: true })
+    expect(game.hasEnded).toBe(true)
+    expect(game.winner).toBe(0)
+  })
 
-  test(
-    'Give cueball in hand if cueball is pocketed',
-    async () => {
-      // Create a new game
-      let game = new main.Game()
-      // Activate testing mode
-      game.test()
-      // Add fake players
-      game.mockPlayers(2)
+  test('Give cueball in hand if cueball is pocketed', async () => {
+    // Create a new game
+    let game = new main.Game()
+    // Activate testing mode
+    game.test()
+    // Add fake players
+    game.mockPlayers(2)
 
-      // Initialize the game
-      await game.init()
+    // Initialize the game
+    await game.init()
 
-      var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
+    var newBallStates = JSON.parse(JSON.stringify(game.data.balls))
 
-      newBallStates[0].out = true;
+    newBallStates[0].out = true
 
-      var shot = new Action('shoot', {
+    var shot = new Action(
+      'shoot',
+      {
         angle: Math.PI / 2, // radians, for UI
         force: 10, // for UI
         newBallStates: newBallStates,
-      }, 1)
+      },
+      1
+    )
 
-      expect(await game.handleAction(shot)).toEqual({ success: true })
+    expect(await game.handleAction(shot)).toEqual({ success: true })
 
-      expect(game.data.cueFoul).toBe(true)
+    expect(game.data.cueFoul).toBe(true)
 
-      let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
-      expect(stillTheirTurn).toBe(false)
-    }
-  )
+    let cueBall = game.data.balls[0]
+    expect(cueBall.out).toBe(false)
+
+    let stillTheirTurn = GameFlow.isItUsersTurn(game, 1)
+    expect(stillTheirTurn).toBe(false)
+  })
 })

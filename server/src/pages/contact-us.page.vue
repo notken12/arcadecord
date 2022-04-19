@@ -4,6 +4,7 @@ import Banner from 'components/index/Banner.vue'
 import Content from 'components/index/Content.vue'
 import Footer from 'components/index/Footer.vue'
 import Button from 'components/index/Button.vue'
+import LinkButton from 'components/index/LinkButton.vue'
 import GameDisplay from 'components/index/GameDisplay.vue'
 </script>
 
@@ -15,11 +16,9 @@ import GameDisplay from 'components/index/GameDisplay.vue'
             <h3>Contact us</h3>
             <p>
           The best place to interact with our team is through the official Arcadecord Discord server.</p>
-          <a href="/discord-invite-link">
-          <Button>
+          <LinkButton href="/discord-invite">
             Join Discord
-          </Button>
-          </a>
+          </LinkButton>
           <p>
             Alternatively, contact us through our email adresss at&nbsp
           <a href="mailto:contact@arcadecord.io">contact@arcadecord.io</a>.

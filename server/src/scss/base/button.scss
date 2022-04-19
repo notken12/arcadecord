@@ -9,7 +9,7 @@
 
 @use 'scss/base/theme' as theme;
 
-button {
+button, .button {
   color: theme.$md-sys-on-primary;
   background-color: theme.$md-sys-primary;
   padding: 0px 24px;
@@ -43,21 +43,36 @@ button {
   }
 }
 
-button:disabled {
+button.outlined, .button.outlined {
+  background: transparent;
+  border: 1px #999 solid;
+  box-shadow: none !important;
+  color: theme.$md-sys-on-primary-container;
+}
+
+button.outlined:hover, .button.outlined:hover {
+  background: #0099ff44;
+
+  color: theme.$md-sys-on-primary-container!important;
+}
+
+button:disabled, .button:disabled {
   box-shadow: theme.$md-elevation-level0;
   background-color: theme.$md-sys-on-surface;
   opacity: 12%;
   color: theme.$md-sys-on-surface;
 }
 
-button:hover {
+button:hover, .button:hover {
   box-shadow: theme.$md-elevation-level2;
+  color: theme.$md-sys-on-primary!important;
 }
 
-button:focus {
+button:focus, .button:focus {
   box-shadow: theme.$md-elevation-level1;
 }
 
-button:active {
+button:active, .button:active {
   box-shadow: theme.$md-elevation-level1;
 }
+

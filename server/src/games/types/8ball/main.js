@@ -95,9 +95,15 @@ class EightBallGame extends Game {
               color: {
                 type: ['number', 'null'],
               },
+              pocket: {
+                type: ['number', 'null']
+              }
             },
           },
         },
+        chosenPocket: {
+          type: ['number']
+        }
       },
       required: ['angle', 'force', 'newBallStates'],
     })

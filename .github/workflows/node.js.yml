@@ -25,6 +25,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+        # check that everything is formatted in prettier
+      - run: npx prettier --check .
+        # install packages
       - run: npm ci
+        # test build
       - run: npm run build --if-present
+        # run tests
       - run: npm test

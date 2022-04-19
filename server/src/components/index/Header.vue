@@ -13,19 +13,20 @@
 import Link from './Link.vue'
 import Button from './Button.vue'
 import Logo from './Logo.vue'
+import LinkButton from './LinkButton.vue'
 </script>
 
 <template>
   <div class="header">
     <Logo></Logo>
+    <div class="right">
     <div class="links">
       <Link href="/help-feedback">Help and feedback</Link>
       <Link href="/support-us">Support us</Link>
       <Link href="/sign-in">Sign in</Link>
     </div>
-    <a href="/invite">
-      <Button icon="add">Add to Discord</Button>
-    </a>
+      <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+      </div>
   </div>
 </template>
 
@@ -44,7 +45,7 @@ import Logo from './Logo.vue'
   overflow: auto;
 }
 
-.links {
+.right {
   width: 100%;
   height: 100%;
   display: flex;
@@ -53,6 +54,11 @@ import Logo from './Logo.vue'
   justify-content: flex-end;
   gap: 32px;
 }
+
+.links {
+    display: flex;
+    gap: 32px;
+  }
 
 a {
   text-decoration: none;
