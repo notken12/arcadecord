@@ -147,27 +147,29 @@ class FiveLettersGame extends Game {
       for (i = 0; i < zeroGuesses.length; i++) {
         if (zeroGuesses[i].word === this.data.answers[1]) {
           zeroCorrect = true
+          break
         }
       }
       for (i = 0; i < oneGuesses.length; i++) {
         if (oneGuesses[i].word === this.data.answers[0]) {
           oneCorrect = true
+          break
         }
       }
 
       if (!this.data.answers[0]) zeroPicked = false
       if (!this.data.answers[1]) onePicked = false
 
-      if (zeroCorrect) {
-        ctx.fillText(this.data.answers[1], 75, 35)
+      if (oneCorrect) {
+        ctx.fillText(this.data.answers[0], 75, 35)
       } else if (!zeroPicked) {
         ctx.fillText('_____', 75, 35)
       } else {
         ctx.fillText('?????', 75, 35)
       }
 
-      if (oneCorrect) {
-        ctx.fillText(this.data.answers[0], 225, 35)
+      if (zeroCorrect) {
+        ctx.fillText(this.data.answers[1], 225, 35)
       } else if (!onePicked) {
         ctx.fillText('_____', 225, 35)
       } else {
