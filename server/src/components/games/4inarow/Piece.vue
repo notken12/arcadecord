@@ -14,25 +14,25 @@
 </template>
 
 <script>
-import gsap from 'gsap'
+import gsap from 'gsap';
 
 function updatePiecePos() {
-  let offsetLeft = this.piece.column * 100 + '%'
-  let offsetTop = (5 - this.piece.row) * 100 + '%'
+  let offsetLeft = this.piece.column * 100 + '%';
+  let offsetTop = (5 - this.piece.row) * 100 + '%';
 
   gsap.to(this.$refs.el, {
     y: offsetTop,
     x: offsetLeft,
     duration: 0,
     // onComplete: done
-  })
+  });
 }
 
 export default {
   data() {
     return {
       reversedRows: [5, 4, 3, 2, 1, 0],
-    }
+    };
   },
   props: {
     piece: {
@@ -42,8 +42,8 @@ export default {
   },
   computed: {
     classes() {
-      if (this.piece.color === 0) return 'yellow'
-      return ''
+      if (this.piece.color === 0) return 'yellow';
+      return '';
     },
   },
   watch: {
@@ -53,9 +53,9 @@ export default {
     // }
   },
   mounted() {
-    updatePiecePos.call(this)
+    updatePiecePos.call(this);
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

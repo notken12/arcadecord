@@ -10,14 +10,14 @@
 -->
 
 <script setup>
-import Cup from './Cup.vue'
+import Cup from './Cup.vue';
 
 const props = defineProps({
   side: {
     type: Object,
     required: true,
   },
-})
+});
 </script>
 
 <template>

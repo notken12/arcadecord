@@ -7,35 +7,35 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import fs from 'fs'
-import { resolve } from 'path'
-import commonjs from '@rollup/plugin-commonjs'
-import { babel } from '@rollup/plugin-babel'
-import { visualizer } from 'rollup-plugin-visualizer'
-import graph from 'rollup-plugin-graph'
-import brotli from 'rollup-plugin-brotli'
-import handlebars from 'vite-plugin-handlebars'
-import ssr from 'vite-plugin-ssr/plugin'
-import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs'
-import { nodeResolve } from '@rollup/plugin-node-resolve'
-import cjs from 'rollup-plugin-cjs-es'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import { resolve } from 'path';
+import commonjs from '@rollup/plugin-commonjs';
+import { babel } from '@rollup/plugin-babel';
+import { visualizer } from 'rollup-plugin-visualizer';
+import graph from 'rollup-plugin-graph';
+import brotli from 'rollup-plugin-brotli';
+import handlebars from 'vite-plugin-handlebars';
+import ssr from 'vite-plugin-ssr/plugin';
+import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import cjs from 'rollup-plugin-cjs-es';
 
-var __dirname = path.dirname(fileURLToPath(import.meta.url))
+var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function* getFiles(dir) {
-  const dirents = await fs.promises.readdir(dir, { withFileTypes: true })
+  const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
   for (const dirent of dirents) {
-    const res = resolve(dir, dirent.name)
+    const res = resolve(dir, dirent.name);
     if (dirent.isDirectory()) {
-      yield* getFiles(res)
+      yield* getFiles(res);
     } else {
       // get .html files only
       if (res.endsWith('.html')) {
-        yield res
+        yield res;
       }
     }
   }
@@ -43,27 +43,27 @@ async function* getFiles(dir) {
 
 var walk = function (dir) {
   // Get all .html files
-  var results = []
-  if (dir.endsWith('/games/types')) return results
-  var list = fs.readdirSync(dir)
+  var results = [];
+  if (dir.endsWith('/games/types')) return results;
+  var list = fs.readdirSync(dir);
   list.forEach(function (file) {
-    file = dir + '/' + file
-    var stat = fs.statSync(file)
+    file = dir + '/' + file;
+    var stat = fs.statSync(file);
     if (stat && stat.isDirectory()) {
       /* Recurse into a subdirectory */
-      results = results.concat(walk(file))
+      results = results.concat(walk(file));
     } else {
       /* Is a file */
       // Get html files and common.js
       if (file.endsWith('.html') /*  || file.match(/(^.*)common./) */) {
-        results.push(file)
+        results.push(file);
       }
     }
-  })
-  return results
-}
+  });
+  return results;
+};
 
-const entryPoints = walk(path.resolve(__dirname, 'server/src'))
+const entryPoints = walk(path.resolve(__dirname, 'server/src'));
 
 const nonSharedModules = [
   'enable3d',
@@ -72,17 +72,17 @@ const nonSharedModules = [
   'cannon-es',
   'troisjs',
   'cannon-es-debugger',
-]
+];
 
-const { dependencies } = JSON.parse(fs.readFileSync('./package.json'))
-const nodeDependencies = Object.keys(dependencies)
-const sharedModules = []
+const { dependencies } = JSON.parse(fs.readFileSync('./package.json'));
+const nodeDependencies = Object.keys(dependencies);
+const sharedModules = [];
 
 for (let key of nodeDependencies) {
   if (nonSharedModules.includes(key)) {
-    continue
+    continue;
   }
-  sharedModules.push(key)
+  sharedModules.push(key);
 }
 
 // https://vitejs.dev/config/
@@ -140,7 +140,7 @@ export default defineConfig({
         //     }
         //   }
         // },
-        manualChunks: undefined
+        manualChunks: undefined,
       },
       external: [
         /server\/src\/games\/types\/(.*)main.(.*)$/,
@@ -183,6 +183,5 @@ export default defineConfig({
     })*/
   ],
   // Vitest config
-  test: {
-  },
-})
+  test: {},
+});

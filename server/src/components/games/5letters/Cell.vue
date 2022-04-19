@@ -10,10 +10,10 @@
 -->
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import Common from '/gamecommons/5letters'
-import { letterAnimationLength } from '@app/js/games/5letters/constants'
-import { utils } from '@app/js/client-framework'
+import { ref, watch, computed } from 'vue';
+import Common from '/gamecommons/5letters';
+import { letterAnimationLength } from '@app/js/games/5letters/constants';
+import { utils } from '@app/js/client-framework';
 
 const props = defineProps({
   cell: {
@@ -24,35 +24,35 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-})
+});
 
-const letter = ref('')
-letter.value = props.cell.letter
-const hint = ref(null)
-hint.value = props.cell.hint
-const hintLetter = ref('')
-hintLetter.value = props.cell.hintLetter
+const letter = ref('');
+letter.value = props.cell.letter;
+const hint = ref(null);
+hint.value = props.cell.hint;
+const hintLetter = ref('');
+hintLetter.value = props.cell.hintLetter;
 
-const animated = ref(false)
+const animated = ref(false);
 
 const updateRefs = () => {
-  letter.value = props.cell.letter
-  hint.value = props.cell.hint
-  hintLetter.value = props.cell.hintLetter
-  if (letter.value && !hintLetter.value) animated.value = true
-}
+  letter.value = props.cell.letter;
+  hint.value = props.cell.hint;
+  hintLetter.value = props.cell.hintLetter;
+  if (letter.value && !hintLetter.value) animated.value = true;
+};
 
 const cellWatcher = async (newVal, oldVal) => {
-  if (newVal === oldVal) return
+  if (newVal === oldVal) return;
   // if (props.cell.hint !== null && props.cell.hint !== undefined)
   //   setTimeout(updateRefs, letterAnimationLength * props.index)
   // else updateRefs()
-  updateRefs()
-}
+  updateRefs();
+};
 
-watch(() => props.cell.letter, cellWatcher)
+watch(() => props.cell.letter, cellWatcher);
 
-watch(() => props.cell.hint, cellWatcher)
+watch(() => props.cell.hint, cellWatcher);
 
 const classes = computed(() => {
   return {
@@ -62,16 +62,16 @@ const classes = computed(() => {
     correct: hint.value === Common.HINT.CORRECT,
     elsewhere: hint.value === Common.HINT.ELSEWHERE,
     revealed: hintLetter.value,
-  }
-})
+  };
+});
 
 const frontStyles = computed(() => {
   return {
     transitionDelay: hintLetter.value
       ? `${props.index * letterAnimationLength}ms`
       : '0ms',
-  }
-})
+  };
+});
 
 const backStyles = computed(() => {
   return {
@@ -79,8 +79,8 @@ const backStyles = computed(() => {
     animationDelay: hintLetter.value
       ? `${(props.index * letterAnimationLength) / 3}ms`
       : '0ms',
-  }
-})
+  };
+});
 </script>
 
 <template>

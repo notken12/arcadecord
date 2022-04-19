@@ -21,25 +21,25 @@
 
 <script>
 // FOR every COLOR in the COMMON COLORS, display a CHANGER BUTTON with its prop COLOR ID set to that COLOR
-import ChangerButton from './ChangerButton.vue'
-import Common from '/gamecommons/filler'
-import GameFlow from '@app/js/GameFlow'
+import ChangerButton from './ChangerButton.vue';
+import Common from '/gamecommons/filler';
+import GameFlow from '@app/js/GameFlow';
 
 export default {
   data() {
     return {
       colors: Common.COLORS,
-    }
+    };
   },
   computed: {
     hidden() {
-      return !GameFlow.isItMyTurn(this.game)
+      return !GameFlow.isItMyTurn(this.game);
     },
   },
   components: {
     ChangerButton,
   },
-}
+};
 </script>
 
 <style lang="scss">

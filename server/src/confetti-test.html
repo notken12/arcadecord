@@ -24,12 +24,12 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
 
     <script>
-      var runButton = document.querySelector('#button')
+      var runButton = document.querySelector('#button');
 
       function showConfetti() {
-        var duration = 60 * 1000
-        var animationEnd = Date.now() + duration
-        var skew = 1
+        var duration = 60 * 1000;
+        var animationEnd = Date.now() + duration;
+        var skew = 1;
         // use bright colorful colors
         var colors = [
           '#ff1744',
@@ -48,30 +48,29 @@
           '#ffc400',
           '#ff9100',
           '#ff3d00',
-        ]
+        ];
 
         function randomInRange(min, max) {
-          return Math.random() * (max - min) + min
+          return Math.random() * (max - min) + min;
         }
 
-        var previousTimestamp
+        var previousTimestamp;
+        (function frame(time) {
+          var count = window.innerWidth / 35;
+          var averageInterval = 1000;
 
-        ;(function frame(time) {
-          var count = window.innerWidth / 35
-          var averageInterval = 1000
+          var chance = count / averageInterval;
 
-          var chance = count / averageInterval
-
-          let timeLeft = animationEnd - Date.now()
+          let timeLeft = animationEnd - Date.now();
 
           if (previousTimestamp === undefined && time !== undefined)
-            previousTimestamp = time + 0
+            previousTimestamp = time + 0;
 
-          let elapsed = time - previousTimestamp
+          let elapsed = time - previousTimestamp;
 
-          let rng = Math.random()
+          let rng = Math.random();
           if (rng <= chance * elapsed) {
-            var ticks = window.innerHeight * 1.5
+            var ticks = window.innerHeight * 1.5;
             //skew = Math.max(0.8, skew - 0.001);
 
             confetti({
@@ -87,15 +86,15 @@
               drift: randomInRange(-0.4, 0.4),
               shapes: ['square', 'square'],
               ticks: ticks,
-            })
+            });
           }
 
-          previousTimestamp = time + 0
+          previousTimestamp = time + 0;
 
           if (timeLeft > 0) {
-            requestAnimationFrame(frame)
+            requestAnimationFrame(frame);
           }
-        })()
+        })();
       }
     </script>
   </body>

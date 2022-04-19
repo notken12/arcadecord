@@ -8,11 +8,11 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js'
-const { Table, Ball, CueBall } = Common
+import Common from './common.js';
+const { Table, Ball, CueBall } = Common;
 
 // Import Game class
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 // Game options, required. Export as options
 // README.md
@@ -25,7 +25,7 @@ const options = {
   maxPlayers: 2,
   emoji: '<:a_8ball:956316582089490492>',
   data: {},
-}
+};
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
@@ -33,12 +33,12 @@ class EightBallGame extends Game {
   constructor(config) {
     // Creates a game with the options
     // Required
-    super(options, config) // Config is the options given by the user, and other things like the channel and guild
+    super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
-    this.setActionModel('shoot', Common.shoot)
+    this.setActionModel('shoot', Common.shoot);
     this.setActionSchema('shoot', {
       type: 'object',
       properties: {
@@ -95,21 +95,27 @@ class EightBallGame extends Game {
               color: {
                 type: ['number', 'null'],
               },
+              pocket: {
+                type: ['number', 'null'],
+              },
             },
           },
         },
+        chosenPocket: {
+          type: ['number'],
+        },
       },
       required: ['angle', 'force', 'newBallStates'],
-    })
+    });
   }
 
   onInit(game) {
-    var apex = Table.PLAY_AREA.LEN_Z / 4
+    var apex = Table.PLAY_AREA.LEN_Z / 4;
 
-    var xo = Ball.RADIUS * 1
-    var zo = 2 * Ball.RADIUS * Math.cos(Math.PI / 6) //how far the balls are spaced apart on z axis
+    var xo = Ball.RADIUS * 1;
+    var zo = 2 * Ball.RADIUS * Math.cos(Math.PI / 6); //how far the balls are spaced apart on z axis
 
-    var y = CueBall.DEFAULT_POSITION.y
+    var y = CueBall.DEFAULT_POSITION.y;
 
     game.data.balls = [
       new CueBall(),
@@ -138,7 +144,7 @@ class EightBallGame extends Game {
       new Ball(0 * xo, y, apex + 4 * zo, '13ball'),
       new Ball(-2 * xo, y, apex + 4 * zo, '4ball'),
       new Ball(-4 * xo, y, apex + 4 * zo, '5ball'),
-    ]
+    ];
 
     game.data.players = [
       {
@@ -149,13 +155,13 @@ class EightBallGame extends Game {
         assignedPattern: null,
         chosenPocket: null,
       },
-    ]
-    game.data.cueFoul = false
-    return game
+    ];
+    game.data.cueFoul = false;
+    return game;
   }
 }
 
 export default {
   options,
   Game: EightBallGame,
-}
+};

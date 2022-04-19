@@ -12,7 +12,7 @@
 <script setup>
 defineProps({
   game: String,
-})
+});
 </script>
 
 <template>

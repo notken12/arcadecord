@@ -1,5 +1,5 @@
 <!--
-  Button.vue - Arcadecord
+  LinkButton.vue - Arcadecord
 
   Copyright (C) 2022 Ken Zhou
 
@@ -13,16 +13,16 @@
 const props = defineProps({
   icon: String,
   outlined: Boolean,
+  href: String,
 });
 </script>
 
 <template>
-  <button :class="{ outlined }">
+  <a class="button" :href="href" :class="{ outlined }">
     <i class="material-icons" v-if="icon">{{ icon }}</i>
-    <slot></slot>
-  </button>
+    <span> <slot></slot></span>
+  </a>
 </template>
-
 <style lang="scss" scoped>
 @use 'scss/base/button';
 </style>

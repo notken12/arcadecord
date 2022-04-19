@@ -8,20 +8,20 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js' // <- ctrl+click to jump to this file
+import Common from './common.js'; // <- ctrl+click to jump to this file
 
 // Import Game class
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 // Snippet to make __dirname available
 // get __dirname
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url)
+const __filename = fileURLToPath(import.meta.url);
 
 // 👇️ "/home/john/Desktop/javascript"
-const __dirname = path.dirname(__filename)
+const __dirname = path.dirname(__filename);
 
 // Game options, REQUIRED. Export as options
 // see README.md
@@ -34,7 +34,7 @@ const options = {
   maxPlayers: 2,
   emoji: '<:cuppong:956316582055911511>',
   data: {},
-}
+};
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
@@ -42,15 +42,15 @@ class CupPongGame extends Game {
   constructor(config) {
     // Creates a game with the options
     // REQUIRED
-    super(options, config) // Config is the options given by the user, and other things like the channel and guild
+    super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
     // Use default Discord event handlers
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
     // Set the action model for the 'throw' action
     // See common.js
-    this.setActionModel('throw', Common.action_throw)
+    this.setActionModel('throw', Common.action_throw);
     // Set the action schema for the 'throw' action
     // action.data will be checked against this schema
     // See https://ajv.js.org/
@@ -78,7 +78,7 @@ class CupPongGame extends Game {
         },
       },
       required: ['force'],
-    })
+    });
   }
 
   // Use this function to create the game data
@@ -104,7 +104,7 @@ class CupPongGame extends Game {
           ballsBack: false,
         },
       ],
-    }
+    };
 
     //       rowPos 0
     // rowNum 3:    c
@@ -114,38 +114,38 @@ class CupPongGame extends Game {
     //       rowPos 0
 
     game.data.sides.forEach((side) => {
-      let positions = Common.getTriangleArrangement(4, 4)
+      let positions = Common.getTriangleArrangement(4, 4);
       for (let pos of positions) {
         let cup = new Common.Cup(
           `${side.color}:${pos.rowNum}-${pos.rowPos}`,
           side.color,
           pos.rowNum,
           pos.rowPos
-        )
-        side.cups.push(cup)
+        );
+        side.cups.push(cup);
       }
-    })
+    });
   }
 
   // Optionally define a getThumbnail function to return a thumbnail for the game
   async getThumbnail() {
-    const { default: Canvas } = await import('canvas')
+    const { default: Canvas } = await import('canvas');
 
     const canvas = Canvas.createCanvas(
       Game.thumbnailDimensions.width,
       Game.thumbnailDimensions.height
-    )
-    const ctx = canvas.getContext('2d')
+    );
+    const ctx = canvas.getContext('2d');
 
     let thumbnailSrc = path.resolve(
       __dirname,
       '../../../public/assets/cuppong/thumbnail.png'
-    )
-    let thumbnailImg = await Canvas.loadImage(thumbnailSrc)
+    );
+    let thumbnailImg = await Canvas.loadImage(thumbnailSrc);
 
-    ctx.drawImage(thumbnailImg, 0, 0, canvas.width, canvas.height)
+    ctx.drawImage(thumbnailImg, 0, 0, canvas.width, canvas.height);
 
-    return canvas
+    return canvas;
   }
 }
 
@@ -153,4 +153,4 @@ class CupPongGame extends Game {
 export default {
   options,
   Game: CupPongGame,
-}
+};

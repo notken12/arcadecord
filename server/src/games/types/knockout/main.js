@@ -7,9 +7,9 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import Common from './common.js'
+import Common from './common.js';
 
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 const options = {
   typeId: 'knockout',
@@ -20,16 +20,16 @@ const options = {
   maxPlayers: 2,
   emoji: '<:knockout:956316584476049469>',
   data: {},
-}
+};
 
 class KnockoutGame extends Game {
   constructor(config) {
-    super(options, config)
+    super(options, config);
 
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
-    this.setActionModel('setDummies', Common.setDummies)
+    this.setActionModel('setDummies', Common.setDummies);
     this.setActionSchema('setDummies', {
       type: 'object',
       properties: {
@@ -38,19 +38,19 @@ class KnockoutGame extends Game {
           maxItems: 8,
         },
       },
-    })
+    });
   }
 
   onInit(game) {
-    var spawn = Common.spawn()
-    game.data.ice = spawn.ice
-    game.data.dummies = spawn.dummies
+    var spawn = Common.spawn();
+    game.data.ice = spawn.ice;
+    game.data.dummies = spawn.dummies;
     game.data.firing = true;
-    return game
+    return game;
   }
 }
 
 export default {
   options,
   Game: KnockoutGame,
-}
+};

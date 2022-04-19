@@ -54,13 +54,13 @@
 </template>
 
 <script>
-import HitBoardCell from './HitBoardCell.vue'
-import PlacedShip from './PlacedShip.vue'
+import HitBoardCell from './HitBoardCell.vue';
+import PlacedShip from './PlacedShip.vue';
 
 export default {
   props: ['board', 'target'],
   data() {
-    return {}
+    return {};
   },
   computed: {
     styles() {
@@ -70,7 +70,7 @@ export default {
           '% ' +
           (1 / this.board.height) * 100 +
           '%',
-      }
+      };
     },
     targetStyles() {
       return {
@@ -78,12 +78,12 @@ export default {
         top: (this.target.row / this.board.height) * 100 + '%',
         width: (1 / this.board.width) * 100 + '%',
         height: (1 / this.board.height) * 100 + '%',
-      }
+      };
     },
   },
   components: {
     HitBoardCell,
     PlacedShip,
   },
-}
+};
 </script>

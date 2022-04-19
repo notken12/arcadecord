@@ -22,9 +22,9 @@ export default {
   data() {
     return {
       loading: true,
-    }
+    };
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

@@ -26,23 +26,23 @@
   </game-view>
 </template>
 <script>
-import Board from './Board.vue'
+import Board from './Board.vue';
 
-import GameFlow from '@app/js/GameFlow'
-import Common from '/gamecommons/chess'
+import GameFlow from '@app/js/GameFlow';
+import Common from '/gamecommons/chess';
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
   methods: {},
   computed: {},
   mounted() {
     this.$replayTurn(() => {
-      this.$endReplay(300)
-    })
+      this.$endReplay(300);
+    });
   },
   components: {
     Board,
   },
-}
+};
 </script>
 
 <style lang="scss">

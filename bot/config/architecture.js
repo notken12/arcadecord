@@ -24,4 +24,4 @@ export default {
   ],
   totalShards: 2,
   ipcApiPort: 2000,
-}
+};

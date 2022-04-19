@@ -10,16 +10,16 @@
 -->
 
 <script setup>
-import Board from './Board.vue'
-import Keyboard from './Keyboard.vue'
-import WordChooser from './WordChooser.vue'
-import Toast from './Toast.vue'
+import Board from './Board.vue';
+import Keyboard from './Keyboard.vue';
+import WordChooser from './WordChooser.vue';
+import Toast from './Toast.vue';
 
-import { useFacade } from '@app/components/base-ui/facade'
-import bus from '@app/js/vue-event-bus'
-import { ref, computed, onMounted } from 'vue'
-import { letterAnimationLength } from '@app/js/games/5letters/constants'
-import { replayAction, utils } from '@app/js/client-framework'
+import { useFacade } from '@app/components/base-ui/facade';
+import bus from '@app/js/vue-event-bus';
+import { ref, computed, onMounted } from 'vue';
+import { letterAnimationLength } from '@app/js/games/5letters/constants';
+import { replayAction, utils } from '@app/js/client-framework';
 
 const {
   game,
@@ -29,76 +29,76 @@ const {
   $endReplay,
   $endAnimation,
   previousTurn,
-  contested
-} = useFacade()
+  contested,
+} = useFacade();
 
-const toast = ref(null)
+const toast = ref(null);
 
 const hint = computed(() => {
   if (game.hasEnded) {
-    return 'The word was: ' + theirAnswer.value.toUpperCase()
+    return 'The word was: ' + theirAnswer.value.toUpperCase();
   }
   if (myAnswer.value && theirAnswer.value && !replaying.value) {
-    return "Guess your opponent's word!"
+    return "Guess your opponent's word!";
   }
-  return ''
-})
+  return '';
+});
 
 const myIndex = computed(() => {
   if (game.value.myIndex !== -1) {
-    return game.value.myIndex
+    return game.value.myIndex;
   }
-  return 1
-})
+  return 1;
+});
 
 const theirIndex = computed(() => {
-  return (myIndex.value + 1) % 2
-})
+  return (myIndex.value + 1) % 2;
+});
 
 const myGuesses = computed(() => {
-  return game.value.data.guesses[myIndex.value]
-})
+  return game.value.data.guesses[myIndex.value];
+});
 
 const myAnswer = computed(() => {
-  return game.value.data.answers[myIndex.value]
-})
+  return game.value.data.answers[myIndex.value];
+});
 
 const theirGuesses = computed(() => {
-  return game.value.data.guesses[theirIndex.value]
-})
+  return game.value.data.guesses[theirIndex.value];
+});
 
 const theirAnswer = computed(() => {
-  return game.value.data.answers[theirIndex.value]
-})
+  return game.value.data.answers[theirIndex.value];
+});
 
 const middleStyles = computed(() => {
-  let transform = 'translateX(-50%)'
+  let transform = 'translateX(-50%)';
   if (
     (replaying.value && myAnswer.value) ||
     (game.value.turn !== myIndex.value && myAnswer.value && !theirAnswer.value)
   ) {
-    transform = 'translateX(0)'
+    transform = 'translateX(0)';
   }
   return {
     transform,
-  }
-})
+  };
+});
 
 onMounted(() => {
   $replayTurn(async () => {
     for (let action of previousTurn.value.actions) {
-      replayAction(game.value, action)
+      replayAction(game.value, action);
 
       if (action.type === 'guess') {
-        bus.emit('updateGuesses')
-        await utils.wait(letterAnimationLength * 5)
+        bus.emit('updateGuesses');
+        await utils.wait(letterAnimationLength * 5);
       }
     }
-    $endReplay(300)
-  })
-  window.game = game.value
-  window.contested = contested.value 
-})
+    $endReplay(300);
+  });
+  window.game = game.value;
+  window.contested = contested.value;
+});
 </script>
 
 <template>

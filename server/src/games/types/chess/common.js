@@ -7,13 +7,13 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import GameFlow from '../../GameFlow.js'
-import cloneDeep from 'lodash.clonedeep'
+import GameFlow from '../../GameFlow.js';
+import cloneDeep from 'lodash.clonedeep';
 
 //f
-var files = 'abcdefgh'
-var otherFiles = 'hgfedcba'
-var ranks = '87654321'
+var files = 'abcdefgh';
+var otherFiles = 'hgfedcba';
+var ranks = '87654321';
 
 // var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 // var GameFlow;
@@ -70,109 +70,109 @@ const offsets = {
     [-2, 1],
     [-1, 2],
   ],
-}
+};
 
-let singleMovePieces = ['k', 'n']
+let singleMovePieces = ['k', 'n'];
 function newToOld(game) {
-  var nums = [7, 6, 5, 4, 3, 2, 1, 0]
-  var oldBoardVer = []
-  var i
-  var j
+  var nums = [7, 6, 5, 4, 3, 2, 1, 0];
+  var oldBoardVer = [];
+  var i;
+  var j;
   //Setup Board
   for (i = 0; i < 8; i++) {
-    oldBoardVer[i] = []
+    oldBoardVer[i] = [];
     for (j = 0; j < 8; j++) {
-      oldBoardVer[i][j] = ''
+      oldBoardVer[i][j] = '';
     }
   }
   ////////////////
 
   //Individually Adds Pieces to the Board
-  var i
+  var i;
   for (i = 0; i < game.data.board.length; i++) {
     if (game.data.board[i].color == 0) {
       //White
       oldBoardVer[nums[game.data.board[i].rank]][game.data.board[i].file] =
-        game.data.board[i].type.toUpperCase()
+        game.data.board[i].type.toUpperCase();
     } else {
       //Black
       oldBoardVer[nums[game.data.board[i].rank]][game.data.board[i].file] =
-        game.data.board[i].type
+        game.data.board[i].type;
     }
   }
-  return oldBoardVer
+  return oldBoardVer;
 }
 function generateFEN(board) {
-  var i
-  var j
-  var fen = ''
+  var i;
+  var j;
+  var fen = '';
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 8; j++) {
       if (board[i][j] == '') {
-        var l
-        var space = 1
-        var pieceYet = false
+        var l;
+        var space = 1;
+        var pieceYet = false;
         for (l = 0; l < 8; l++) {
           if (!pieceYet) {
             if (board[i][j + 1 + l] == '') {
-              space += 1
+              space += 1;
             } else {
-              pieceYet = true
+              pieceYet = true;
             }
           }
         }
-        j += space - 1
-        fen = fen + space
+        j += space - 1;
+        fen = fen + space;
       } else {
-        fen = fen + board[i][j]
+        fen = fen + board[i][j];
       }
     }
     if (i != 7) {
-      fen = fen + '/'
+      fen = fen + '/';
     }
   }
-  return fen
+  return fen;
 }
 function willMoveResultInCheck(game, move, color) {
   // Returns true if the move will result in check
-  let newGame = cloneDeep(game)
-  doMovePiece(newGame, move)
+  let newGame = cloneDeep(game);
+  doMovePiece(newGame, move);
   return isInCheck(
     newGame,
     newGame.data.board.find(
       (piece) => piece.type === 'k' && piece.color === color
     )
-  )
+  );
 }
 
 function addMove(game, moves, move, color) {
   if (!willMoveResultInCheck(game, move, color)) {
-    moves.push(move)
+    moves.push(move);
   }
 }
 
 function recurse(game, moves, piece, location, offset, singleMove) {
-  let board = game.data.board
+  let board = game.data.board;
 
-  let { rank, file } = location
-  let newFile = file + offset[0]
-  let newRank = rank + offset[1]
+  let { rank, file } = location;
+  let newFile = file + offset[0];
+  let newRank = rank + offset[1];
 
   if (newFile < 0 || newFile > 7 || newRank < 0 || newRank > 7) {
     // Out of bounds
-    return moves
+    return moves;
   }
 
   var pieceAtLocation = board.find(
     (piece) => piece.file === newFile && piece.rank === newRank
-  )
+  );
 
   if (pieceAtLocation) {
     // There's a piece here
     if (pieceAtLocation.color === piece.color) {
       // Same color piece
       // End recursion
-      return moves
+      return moves;
     } else {
       // Opponent piece
       // Can capture
@@ -187,8 +187,8 @@ function recurse(game, moves, piece, location, offset, singleMove) {
           pieceType: piece.type,
         },
         piece.color
-      )
-      return moves
+      );
+      return moves;
     }
   } else {
     // No piece here
@@ -204,7 +204,7 @@ function recurse(game, moves, piece, location, offset, singleMove) {
         pieceType: piece.type,
       },
       piece.color
-    )
+    );
 
     if (!singleMove) {
       return recurse(
@@ -213,26 +213,26 @@ function recurse(game, moves, piece, location, offset, singleMove) {
         piece,
         { rank: newRank, file: newFile },
         offset
-      )
+      );
     } else {
-      return moves
+      return moves;
     }
   }
 }
 
 function isOutOfBounds(file, rank) {
-  return rank < 0 || rank > 7 || file < 0 || file > 7
+  return rank < 0 || rank > 7 || file < 0 || file > 7;
 }
 
 function getMoves(
   game,
   piece /*{color: 0 white 1 black, file: 0-7, rank: 0-7, type: lowercase letter, id, moved: bool}*/
 ) {
-  let board = game.data.board
+  let board = game.data.board;
 
-  let moves = []
+  let moves = [];
 
-  let offset = offsets[piece.type]
+  let offset = offsets[piece.type];
   if (offset) {
     for (let i = 0; i < offset.length; i++) {
       recurse(
@@ -242,7 +242,7 @@ function getMoves(
         { rank: piece.rank, file: piece.file },
         offset[i],
         singleMovePieces.includes(piece.type)
-      )
+      );
     }
   } else {
     // One of the oddball pieces
@@ -250,21 +250,21 @@ function getMoves(
     switch (piece.type) {
       case 'p':
         // Pawn
-        let forward = piece.color === 0 ? 1 : -1
+        let forward = piece.color === 0 ? 1 : -1;
 
-        let newFile = piece.file
-        let newRank1 = piece.rank + forward
+        let newFile = piece.file;
+        let newRank1 = piece.rank + forward;
 
-        let newRank2 = piece.rank + 2 * forward
+        let newRank2 = piece.rank + 2 * forward;
 
         if (isOutOfBounds(newFile, newRank1)) {
           // Out of bounds
-          return moves
+          return moves;
         }
 
         let pieceAtRank1 = board.find(
           (piece) => piece.file === newFile && piece.rank === newRank1
-        )
+        );
 
         if (!pieceAtRank1) {
           // No piece here
@@ -278,7 +278,7 @@ function getMoves(
               pieceType: piece.type,
             },
             piece.color
-          )
+          );
         }
 
         if (piece.color === 0) {
@@ -302,7 +302,7 @@ function getMoves(
                   pieceType: piece.type,
                 },
                 piece.color
-              )
+              );
             }
           }
         } else {
@@ -326,21 +326,21 @@ function getMoves(
                   pieceType: piece.type,
                 },
                 piece.color
-              )
+              );
             }
           }
         }
 
         // Pawn can capture diagonally
-        let newFile1 = piece.file + 1
-        let newFile2 = piece.file - 1
+        let newFile1 = piece.file + 1;
+        let newFile2 = piece.file - 1;
 
         let previousMove =
-          game.data.previousMoves[game.data.previousMoves.length - 1]
-        let offset = 0
+          game.data.previousMoves[game.data.previousMoves.length - 1];
+        let offset = 0;
         if (previousMove) {
           if (previousMove.double) {
-            offset = piece.color === 0 ? -1 : 1
+            offset = piece.color === 0 ? -1 : 1;
           }
         }
 
@@ -369,7 +369,7 @@ function getMoves(
                 pieceType: piece.type,
               },
               piece.color
-            )
+            );
           }
         }
 
@@ -398,16 +398,16 @@ function getMoves(
                 pieceType: piece.type,
               },
               piece.color
-            )
+            );
           }
         }
-        break
+        break;
     }
   }
 
   // Additional branching for castling
   if (piece.type === 'k') {
-    let king = piece
+    let king = piece;
     // Castling is only valid if the king and rook haven't moved
     // There must not be any pieces between the king and the rook
     // The king may not be in check
@@ -416,7 +416,7 @@ function getMoves(
 
     if (king.moved) {
       // King has moved
-      return moves
+      return moves;
     }
 
     for (let i = 0; i < 2; i++) {
@@ -427,69 +427,69 @@ function getMoves(
           piece.color === king.color &&
           piece.rank === king.rank &&
           piece.file === (i === 0 ? 0 : 7)
-      )
+      );
 
       if (!rook) {
         // No rook
-        continue
+        continue;
       }
 
       if (rook.moved) {
         // Rook has moved
-        continue
+        continue;
       }
 
       // Check if there are pieces between the king and the rook
-      let piecesBetween = []
-      let file = king.file
-      let rank = king.rank
+      let piecesBetween = [];
+      let file = king.file;
+      let rank = king.rank;
 
-      file = i === 0 ? file - 1 : file + 1
+      file = i === 0 ? file - 1 : file + 1;
 
       while (file !== rook.file && piecesBetween.length < 1) {
         let pieceBetween = board.find(
           (piece) => piece.rank === rank && piece.file === file
-        )
-        if (pieceBetween) piecesBetween.push(pieceBetween)
-        file = i === 0 ? file - 1 : file + 1
+        );
+        if (pieceBetween) piecesBetween.push(pieceBetween);
+        file = i === 0 ? file - 1 : file + 1;
       }
 
       if (piecesBetween.length > 0) {
         // There are pieces between the king and the rook
-        continue
+        continue;
       }
 
       // Check if the king is in check
       if (isInCheck(game, king)) {
         // King is in check
-        continue
+        continue;
       }
 
       // Check if the king passes through a square that is under attack
-      let kingMoves
+      let kingMoves;
 
       if (i === 0) {
         kingMoves = [
           [king.file - 1, king.rank],
           [king.file - 2, king.rank],
-        ]
+        ];
       } else {
         kingMoves = [
           [king.file + 1, king.rank],
           [king.file + 2, king.rank],
-        ]
+        ];
       }
 
-      let attackedSquares = []
+      let attackedSquares = [];
       for (let move of kingMoves) {
         if (isUnderAttack(game, move, king.color)) {
-          attackedSquares.push(move)
+          attackedSquares.push(move);
         }
       }
 
       if (attackedSquares.length > 0) {
         // King passes through a square that is under attack
-        continue
+        continue;
       }
 
       // King and rook are clear to castle
@@ -503,11 +503,11 @@ function getMoves(
           pieceType: piece.type,
         },
         king.color
-      )
+      );
     }
   }
 
-  return moves
+  return moves;
 }
 
 function checkAttack(
@@ -518,26 +518,26 @@ function checkAttack(
   pieceType,
   singleMove
 ) {
-  let board = game.data.board
+  let board = game.data.board;
 
-  let [file, rank] = location
-  let [fileOffset, rankOffset] = offset
+  let [file, rank] = location;
+  let [fileOffset, rankOffset] = offset;
 
-  let newFile = file + fileOffset
-  let newRank = rank + rankOffset
+  let newFile = file + fileOffset;
+  let newRank = rank + rankOffset;
 
   if (isOutOfBounds(newFile, newRank)) {
-    return false
+    return false;
   }
 
   let piece = board.find(
     (piece) => piece.file === newFile && piece.rank === newRank
-  )
+  );
   if (piece) {
     if (piece.color === friendlyColor || piece.type !== pieceType) {
-      return false
+      return false;
     } else {
-      return true
+      return true;
     }
   }
 
@@ -548,14 +548,14 @@ function checkAttack(
       offset,
       friendlyColor,
       pieceType
-    )
+    );
 
-  return false
+  return false;
 }
 
 function isUnderAttack(game, square, friendlyColor) {
   for (let pieceType in offsets) {
-    let pieceOffsets = offsets[pieceType]
+    let pieceOffsets = offsets[pieceType];
     for (let offset of pieceOffsets) {
       if (
         checkAttack(
@@ -567,23 +567,23 @@ function isUnderAttack(game, square, friendlyColor) {
           singleMovePieces.includes(pieceType)
         )
       ) {
-        return true
+        return true;
       }
     }
   }
 
   // Check for pawn attacks
-  let forward = friendlyColor === 0 ? 1 : -1
+  let forward = friendlyColor === 0 ? 1 : -1;
   let pawn1 = game.data.board.find(
     (piece) =>
       piece.type === 'p' &&
       piece.color !== friendlyColor &&
       piece.file === square[0] - 1 &&
       piece.rank === square[1] + forward
-  )
+  );
 
   if (pawn1) {
-    return true
+    return true;
   }
 
   let pawn2 = game.data.board.find(
@@ -592,42 +592,42 @@ function isUnderAttack(game, square, friendlyColor) {
       piece.color !== friendlyColor &&
       piece.file === square[0] + 1 &&
       piece.rank === square[1] + forward
-  )
+  );
 
   if (pawn2) {
-    return true
+    return true;
   }
 
-  return false
+  return false;
 }
 
 function isInCheck(game, king) {
-  if (king) return isUnderAttack(game, [king.file, king.rank], king.color)
-  else return false
+  if (king) return isUnderAttack(game, [king.file, king.rank], king.color);
+  else return false;
 }
 
 class Piece {
-  id // arbitrary ID for the piece
-  color // 0 = white, 1 = black
-  type // k = king, q = queen, r = rook, b = bishop, n = knight, p = pawn
-  file // 0-7 (a-h)
-  rank // 0-7
-  moved // true if the piece has moved, only used for castling
+  id; // arbitrary ID for the piece
+  color; // 0 = white, 1 = black
+  type; // k = king, q = queen, r = rook, b = bishop, n = knight, p = pawn
+  file; // 0-7 (a-h)
+  rank; // 0-7
+  moved; // true if the piece has moved, only used for castling
   constructor(id, color, type, file, rank) {
-    this.id = id
-    this.color = color
-    this.type = type
-    this.file = file
-    this.rank = rank
-    this.moved = false
+    this.id = id;
+    this.color = color;
+    this.type = type;
+    this.file = file;
+    this.rank = rank;
+    this.moved = false;
   }
 }
 
 function validateMove(game, move) {
   let piece = game.data.board.find(
     (piece) => piece.file === move.from[0] && piece.rank === move.from[1]
-  )
-  let moves = getMoves(game, piece)
+  );
+  let moves = getMoves(game, piece);
   if (
     moves.find(
       (m) =>
@@ -639,119 +639,119 @@ function validateMove(game, move) {
   ) {
     if (move.promotion) {
       if (piece.type === 'p' && !['p', 'k'].includes(move.promotion)) {
-        return true
+        return true;
       }
     } else {
-      return true
+      return true;
     }
   }
-  return false
+  return false;
 }
 
 async function movePiece(
   game,
   action /*from:[file, rank], to:[file, rank], castleSide: 0 for queen-side, 1 for king-side, promotion: piece type, double: if pawn moves 2 squares | this is for en passant*/
 ) {
-  let move = action.data.move
+  let move = action.data.move;
 
   if (!validateMove(game, move)) {
-    return false
+    return false;
   }
 
-  doMovePiece(game, move)
-  game.data.previousMoves.push(action.data.move)
-  game.data.previousBoardPos.push(generateFEN(newToOld(game)))
-  let situation = getSituation(game, game.data.colors[(game.turn + 1) % 2])
+  doMovePiece(game, move);
+  game.data.previousMoves.push(action.data.move);
+  game.data.previousBoardPos.push(generateFEN(newToOld(game)));
+  let situation = getSituation(game, game.data.colors[(game.turn + 1) % 2]);
 
   // TODO: add 3 fold repetition
 
   if (situation === 'checkmate') {
     await GameFlow.end(game, {
       winner: game.turn,
-    })
-    return game
+    });
+    return game;
   } else if (situation === 'stalemate') {
     await GameFlow.end(game, {
       winner: -1, //Draw
-    })
-    return game
+    });
+    return game;
   } else if (situation === 'repitition') {
     await GameFlow.end(game, {
       winner: -1, //Draw
-    })
-    return game
+    });
+    return game;
   } else if (situation === '50move') {
     await GameFlow.end(game, {
       winner: -1, //Draw
-    })
-    return game
+    });
+    return game;
   } else if (situation === 'insufficientMaterial') {
     await GameFlow.end(game, {
       winner: -1, //Draw
-    })
-    return game
+    });
+    return game;
   } else {
-    await GameFlow.endTurn(game)
-    return game
+    await GameFlow.endTurn(game);
+    return game;
   }
 }
 
 async function resign(game, action) {
   await GameFlow.end(game, {
     winner: [1, 0][game.turn],
-  })
-  return game
+  });
+  return game;
 }
 
 async function offerDraw(game, action) {
-  game.data.drawoffered[0] = true
-  game.data.drawoffered[1] = game.turn
-  return game
+  game.data.drawoffered[0] = true;
+  game.data.drawoffered[1] = game.turn;
+  return game;
 }
 async function drawDecision(game, action) {
   if (game.data.drawoffered[0] !== game.turn) {
     if (action.data.decision === 'draw') {
       await GameFlow.end(game, {
         winner: -1, //Draw
-      })
+      });
     } else {
-      game.data.drawoffered[0] = false
-      game.data.drawoffered[1] = undefined
+      game.data.drawoffered[0] = false;
+      game.data.drawoffered[1] = undefined;
     }
-    return game
+    return game;
   }
 }
 
 async function cancelDraw(game, action) {
-  game.data.drawoffered[0] = false
-  game.data.drawoffered[1] = undefined
-  return game
+  game.data.drawoffered[0] = false;
+  game.data.drawoffered[1] = undefined;
+  return game;
 }
 
 function getSituation(game, color) {
   let king = game.data.board.find(
     (piece) => piece.type === 'k' && piece.color === color
-  )
+  );
 
-  let board = game.data.board
-  let pieces = board.filter((piece) => piece.color === color)
-  let legalMoves = []
+  let board = game.data.board;
+  let pieces = board.filter((piece) => piece.color === color);
+  let legalMoves = [];
   for (let piece of pieces) {
-    legalMoves = legalMoves.concat(getMoves(game, piece))
+    legalMoves = legalMoves.concat(getMoves(game, piece));
   }
 
   if (legalMoves.length === 0) {
     if (isInCheck(game, king)) {
-      return 'checkmate'
+      return 'checkmate';
     } else {
-      return 'stalemate'
+      return 'stalemate';
     }
   }
-  var i
+  var i;
   for (i = 0; i < game.data.previousBoardPos.length; i++) {
-    var keepSearching = true
-    var startFrom = i + 1
-    var occurences = 1
+    var keepSearching = true;
+    var startFrom = i + 1;
+    var occurences = 1;
     while (keepSearching) {
       if (
         game.data.previousBoardPos.includes(
@@ -763,22 +763,22 @@ function getSituation(game, color) {
           game.data.previousBoardPos.indexOf(
             game.data.previousBoardPos[i],
             startFrom
-          ) + 1
-        occurences += 1
+          ) + 1;
+        occurences += 1;
       } else {
-        keepSearching = false
+        keepSearching = false;
       }
       if (occurences >= 3) {
-        return 'repitition'
+        return 'repitition';
       }
     }
   }
 
   if (!checkSufficientMaterial(game)) {
-    return 'insufficientMaterial'
+    return 'insufficientMaterial';
   }
 
-  if (game.data.previousMoves.length < 100) return null
+  if (game.data.previousMoves.length < 100) return null;
   for (
     let i = game.data.previousMoves.length;
     i > game.data.previousMoves.length - 100;
@@ -788,35 +788,35 @@ function getSituation(game, color) {
       game.data.previousMoves[i].capture ||
       game.data.previousMoves[i].pieceType === 'p'
     ) {
-      return null
+      return null;
     }
   }
 
-  return '50move'
+  return '50move';
 }
 function checkSufficientMaterial(game) {
-  var i
+  var i;
   var amountOfMaterialWhite = {
     p: 0,
     b: 0,
     n: 0,
     r: 0,
     q: 0,
-  }
+  };
   var amountOfMaterialBlack = {
     p: 0,
     b: 0,
     n: 0,
     r: 0,
     q: 0,
-  }
+  };
   for (i = 0; i < game.data.board.length; i++) {
     if (game.data.board[i].color == 0) {
       //White
-      amountOfMaterialWhite[game.data.board[i].type] += 1
+      amountOfMaterialWhite[game.data.board[i].type] += 1;
     } else {
       //Black
-      amountOfMaterialBlack[game.data.board[i].type] += 1
+      amountOfMaterialBlack[game.data.board[i].type] += 1;
     }
   }
   if (
@@ -831,28 +831,29 @@ function checkSufficientMaterial(game) {
       (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1)
     )
   ) {
-    return false
+    return false;
   } else {
-    return true
+    return true;
   }
 }
 function doMovePiece(game, move) {
-  let board = game.data.board
+  let board = game.data.board;
 
   let piece = game.data.board.find(
     (piece) => piece.file === move.from[0] && piece.rank === move.from[1]
-  )
+  );
   let capturedPiece = game.data.board.find(
     (capturedPiece) =>
       capturedPiece.file === move.to[0] && capturedPiece.rank === move.to[1]
-  )
+  );
 
-  let castleSide = move.castle
+  let castleSide = move.castle;
 
-  let previousMove = game.data.previousMoves[game.data.previousMoves.length - 1]
+  let previousMove =
+    game.data.previousMoves[game.data.previousMoves.length - 1];
 
-  let kingsRook
-  let queensRook
+  let kingsRook;
+  let queensRook;
   if (
     castleSide !== undefined &&
     castleSide !== null &&
@@ -861,47 +862,47 @@ function doMovePiece(game, move) {
   ) {
     kingsRook = game.data.board.find(
       (p) => p.file === 7 && p.rank === piece.rank
-    )
+    );
     queensRook = game.data.board.find(
       (p) => p.file === 0 && p.rank == piece.rank
-    )
+    );
 
     if (castleSide === 0) {
-      if (!queensRook) return false
-      queensRook.file += 3
+      if (!queensRook) return false;
+      queensRook.file += 3;
     } else if (castleSide === 1) {
-      if (!kingsRook) return false
-      kingsRook.file -= 2
+      if (!kingsRook) return false;
+      kingsRook.file -= 2;
     }
   }
 
   if (capturedPiece) {
-    board.splice(board.indexOf(capturedPiece), 1)
+    board.splice(board.indexOf(capturedPiece), 1);
   }
 
   if (piece.type === 'p' && previousMove) {
     //En passant
     if (previousMove.double) {
-      let offset = piece.color === 0 ? -1 : 1
+      let offset = piece.color === 0 ? -1 : 1;
       let pessantedPiece = game.data.board.find(
         (pessantedPiece) =>
           pessantedPiece.file === move.to[0] &&
           pessantedPiece.rank === move.to[1] + offset &&
           pessantedPiece.type === 'p' &&
           pessantedPiece.color !== piece.color
-      )
-      if (pessantedPiece) board.splice(board.indexOf(pessantedPiece), 1)
+      );
+      if (pessantedPiece) board.splice(board.indexOf(pessantedPiece), 1);
     }
   }
   if (piece.type === 'p' && move.promotion) {
     if (move.promotion !== 'p' && move.promotion !== 'k')
-      piece.type = move.promotion
+      piece.type = move.promotion;
   }
-  ;(piece.file = move.to[0]), (piece.rank = move.to[1])
+  (piece.file = move.to[0]), (piece.rank = move.to[1]);
 
-  piece.moved = true
+  piece.moved = true;
 
-  return game
+  return game;
 }
 
 var exports = {
@@ -915,6 +916,6 @@ var exports = {
   cancelDraw,
   checkSufficientMaterial,
   Piece,
-}
+};
 
-export default exports
+export default exports;

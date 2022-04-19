@@ -13,16 +13,16 @@
   <div class="overThing" ref="el" :class="classes"></div>
 </template>
 <script>
-import bus from '@app/js/vue-event-bus'
-import gsap from 'gsap'
+import bus from '@app/js/vue-event-bus';
+import gsap from 'gsap';
 
 function movePiece() {
-  let offsetLeft = (this.selectedColumn || 0) * 100 + '%'
+  let offsetLeft = (this.selectedColumn || 0) * 100 + '%';
   gsap.to(this.$refs.el, {
     x: offsetLeft,
     y: '-150%',
     duration: 0.2,
-  })
+  });
 }
 export default {
   props: {
@@ -33,33 +33,33 @@ export default {
   },
   computed: {
     styles() {
-      let offsetLeft = (this.selectedColumn || 50) * 20 + '%'
+      let offsetLeft = (this.selectedColumn || 50) * 20 + '%';
       return {
         left: offsetLeft,
         'margin-top': '0px',
-      }
+      };
     },
     classes() {
       if (Math.abs(this.game.myIndex) === 0 && this.selectedColumn != null)
-        return 'selected yellow'
-      if (this.selectedColumn != null) return 'selected'
-      return ''
+        return 'selected yellow';
+      if (this.selectedColumn != null) return 'selected';
+      return '';
     },
   },
   mounted() {
-    let offsetLeft = (this.selectedColumn || 0) * 100 + '%'
+    let offsetLeft = (this.selectedColumn || 0) * 100 + '%';
     gsap.to(this.$refs.el, {
       x: offsetLeft,
       y: '-150%',
       duration: 0,
-    })
+    });
   },
   watch: {
     selectedColumn: {
       handler: movePiece,
     },
   },
-}
+};
 </script>
 <style lang="scss" scoped>
 @use 'scss/base/_theme' as theme;

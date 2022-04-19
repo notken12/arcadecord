@@ -8,4 +8,4 @@
 // without the express permission of Ken Zhou.
 
 // Route String
-export default '/game/:gameId'
+export default '/game/:gameId';

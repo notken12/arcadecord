@@ -10,50 +10,50 @@
 -->
 
 <script setup>
-import gsap from 'gsap'
-import { Draggable } from 'gsap/dist/Draggable.js'
+import gsap from 'gsap';
+import { Draggable } from 'gsap/dist/Draggable.js';
 
-import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue';
 
-const emit = defineEmits(['hit', 'powerchange'])
+const emit = defineEmits(['hit', 'powerchange']);
 
-const el = ref(null)
-const stick = ref(null)
+const el = ref(null);
+const stick = ref(null);
 
-let isPointerDown = false
-let stickHeight
+let isPointerDown = false;
+let stickHeight;
 
 function pointerDown(e) {
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
-  isPointerDown = true
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
+  isPointerDown = true;
 }
 
 function pointerMove(e) {
-  if (!isPointerDown) return
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
-  let offset = y - el.value.getBoundingClientRect().top
-  let stickHeight = stick.value.getBoundingClientRect().height
+  if (!isPointerDown) return;
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
+  let offset = y - el.value.getBoundingClientRect().top;
+  let stickHeight = stick.value.getBoundingClientRect().height;
   if (offset > stickHeight) {
-    offset = stickHeight
+    offset = stickHeight;
   }
   if (offset < 0) {
-    offset = 0
+    offset = 0;
   }
 
-  stick.value.style.transform = `translateY(${offset}px)`
+  stick.value.style.transform = `translateY(${offset}px)`;
 }
 
 function pointerUp(e) {
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
-  let offset = y - el.value.getBoundingClientRect().top
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
+  let offset = y - el.value.getBoundingClientRect().top;
 
-  stick.value.style.transform = `translateY(0px)`
+  stick.value.style.transform = `translateY(0px)`;
 }
 
 onMounted(() => {
-  gsap.registerPlugin(Draggable)
+  gsap.registerPlugin(Draggable);
 
-  let height = el.value.getBoundingClientRect().height
+  let height = el.value.getBoundingClientRect().height;
 
   Draggable.create(stick.value, {
     type: 'y',
@@ -65,33 +65,33 @@ onMounted(() => {
     liveSnap: {
       y: function (value) {
         if (value < 0) {
-          return 0
+          return 0;
         }
         if (value > height) {
-          return height
+          return height;
         }
-        return value
+        return value;
       },
     },
     onRelease: function () {
-      console.log('hit', this.y / height)
-      emit('hit', this.y / height)
-      this.y = 0
+      console.log('hit', this.y / height);
+      emit('hit', this.y / height);
+      this.y = 0;
       gsap.to(this.target, {
         duration: 0.1,
         y: 0,
-      })
-      this.update()
+      });
+      this.update();
     },
     onDrag: function () {
-      emit('powerchange', this.y / height)
+      emit('powerchange', this.y / height);
     },
-  })
-})
+  });
+});
 
 onMounted(() => {
-  stickHeight = stick.value.getBoundingClientRect().height
-})
+  stickHeight = stick.value.getBoundingClientRect().height;
+});
 </script>
 
 <template>

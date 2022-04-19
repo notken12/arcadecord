@@ -7,12 +7,12 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import Action from './Action.js'
+import Action from './Action.js';
 
 class Turn {
   constructor(playerIndex, actions) {
-    this.playerIndex = playerIndex
-    this.actions = actions || []
+    this.playerIndex = playerIndex;
+    this.actions = actions || [];
   }
 
   getDataForClient() {}
@@ -24,7 +24,7 @@ Turn.getDataForClient = function (turn, userId) {
     actions: turn.actions.map((action) =>
       Action.getDataForClient(action, userId)
     ),
-  }
-}
+  };
+};
 
-export default Turn
+export default Turn;

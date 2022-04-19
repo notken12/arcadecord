@@ -26,25 +26,25 @@
 </template>
 
 <script>
-import ScoreView from './ScoreView.vue'
+import ScoreView from './ScoreView.vue';
 
 export default {
   data() {
-    return {}
+    return {};
   },
   computed: {
     players() {
-      return this.game.players
+      return this.game.players;
     },
     myIndex() {
-      if (this.game.myIndex === -1) return this.game.players.length
-      return this.game.myIndex
+      if (this.game.myIndex === -1) return this.game.players.length;
+      return this.game.myIndex;
     },
   },
   components: {
     ScoreView,
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

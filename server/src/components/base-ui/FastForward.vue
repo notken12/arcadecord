@@ -10,13 +10,13 @@
 -->
 
 <script setup>
-import { useFacade } from './facade'
+import { useFacade } from './facade';
 
-const { $endReplay } = useFacade()
+const { $endReplay } = useFacade();
 
 const fastForward = () => {
-  $endReplay(0)
-}
+  $endReplay(0);
+};
 </script>
 
 <template>

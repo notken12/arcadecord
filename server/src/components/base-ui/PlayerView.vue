@@ -40,46 +40,47 @@
 </template>
 
 <script>
-import GameFlow from '@app/js/GameFlow.js'
+import GameFlow from '@app/js/GameFlow.js';
 
 export default {
   data() {
-    return {}
+    return {};
   },
   props: ['player', 'playerindex', 'alwaysshow'],
   computed: {
     avatarURL() {
       let url =
         this.showedPlayer.discordUser.displayAvatarURL ||
-        this.showedPlayer.discordUser.defaultAvatarURL
-      return `${url}?size=32`
+        this.showedPlayer.discordUser.defaultAvatarURL;
+      return `${url}?size=32`;
     },
     isMe() {
       if (!this.player.discordUser) {
-        return this.player.id === this.me.id
+        return this.player.id === this.me.id;
       }
-      return this.player.discordUser.id === this.me.id
+      return this.player.discordUser.id === this.me.id;
     },
     classes() {
       return {
         'player-me': this.isMe,
-      }
+      };
     },
     showedPlayer() {
       if (this.isMe) {
         return {
           discordUser: this.me,
-        }
+        };
       } else {
-        return this.player
+        return this.player;
       }
     },
     isPlayersTurn() {
-      if (!this.isMe) return GameFlow.isItUsersTurn(this.game, this.playerindex)
-      return GameFlow.isItMyTurn(this.game)
+      if (!this.isMe)
+        return GameFlow.isItUsersTurn(this.game, this.playerindex);
+      return GameFlow.isItMyTurn(this.game);
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

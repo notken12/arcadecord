@@ -18,19 +18,19 @@
 </template>
 
 <script>
-import 'scss/games/knockout.scss'
-import GameCanvas from './GameCanvas.vue'
+import 'scss/games/knockout.scss';
+import GameCanvas from './GameCanvas.vue';
 
-import Common from '/gamecommons/knockout'
+import Common from '/gamecommons/knockout';
 
 export default {
   data() {
-    return {}
+    return {};
   },
   components: {
     GameCanvas,
   },
   mounted() {},
   methods: {},
-}
+};
 </script>

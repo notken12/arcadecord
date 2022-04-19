@@ -18,22 +18,22 @@
 </template>
 
 <script>
-import WinScreen from './WinScreen.vue'
-import LoseScreen from './LoseScreen.vue'
-import DrawScreen from './DrawScreen.vue'
+import WinScreen from './WinScreen.vue';
+import LoseScreen from './LoseScreen.vue';
+import DrawScreen from './DrawScreen.vue';
 
 export default {
   data() {
-    return {}
+    return {};
   },
   computed: {
     result() {
       if (this.game.winner === this.game.myIndex) {
-        return 'win'
+        return 'win';
       } else if (this.game.winner === -1) {
-        return 'draw'
+        return 'draw';
       } else {
-        return 'lose'
+        return 'lose';
       }
     },
   },
@@ -44,5 +44,5 @@ export default {
     LoseScreen,
     DrawScreen,
   },
-}
+};
 </script>

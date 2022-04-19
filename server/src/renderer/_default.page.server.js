@@ -7,26 +7,26 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { renderToString } from '@vue/server-renderer'
-import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
-import { createApp } from './app'
+import { renderToString } from '@vue/server-renderer';
+import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr';
+import { createApp } from './app';
 
-export { render }
+export { render };
 // export {onBeforeRoute}
 
 // See https://vite-plugin-ssr.com/data-fetching
-export const passToClient = ['pageProps', 'urlPathname', 'errorInfo']
+export const passToClient = ['pageProps', 'urlPathname', 'errorInfo'];
 
 async function render(pageContext) {
-  const { app } = createApp(pageContext)
+  const { app } = createApp(pageContext);
 
-  const appHtml = await renderToString(app)
+  const appHtml = await renderToString(app);
 
   // See https://vite-plugin-ssr.com/head
-  const { documentProps } = pageContext
-  const title = (documentProps && documentProps.title) || 'Arcadecord'
+  const { documentProps } = pageContext;
+  const title = (documentProps && documentProps.title) || 'Arcadecord';
   const desc =
-    (documentProps && documentProps.description) || 'Message games for Discord'
+    (documentProps && documentProps.description) || 'Message games for Discord';
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -46,12 +46,12 @@ async function render(pageContext) {
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
       </body>
-    </html>`
+    </html>`;
 
   return {
     documentHtml,
     pageContext: {
       // We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
     },
-  }
+  };
 }

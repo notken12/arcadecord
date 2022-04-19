@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import GameFlow from '@app/js/GameFlow'
-import bus from '@app/js/vue-event-bus'
+import GameFlow from '@app/js/GameFlow';
+import bus from '@app/js/vue-event-bus';
 export default {
   props: {
     selectedColumn: {
@@ -27,11 +27,11 @@ export default {
   },
   methods: {
     placePiece() {
-      this.$runAction('place', { col: this.selectedColumn })
-      bus.emit('changeColumn', null)
+      this.$runAction('place', { col: this.selectedColumn });
+      bus.emit('changeColumn', null);
     },
   },
-}
+};
 </script>
 <style lang="scss">
 @use 'scss/base/_theme' as theme;

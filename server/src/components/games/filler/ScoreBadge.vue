@@ -20,53 +20,53 @@
 </template>
 
 <script>
-import Common from '/gamecommons/filler'
-import AnimatedNumber from 'components/base-ui/AnimatedNumber.vue'
+import Common from '/gamecommons/filler';
+import AnimatedNumber from 'components/base-ui/AnimatedNumber.vue';
 
 export default {
   props: ['scoreview'],
   data() {
     return {
       animated: false,
-    }
+    };
   },
   computed: {
     blobSizes() {
-      let sizes = []
+      let sizes = [];
       for (let i = 0; i < this.game.maxPlayers; i++) {
-        var blob = Common.Board.getPlayerBlob(this.game.data.board, i)
-        sizes.push(blob.length)
+        var blob = Common.Board.getPlayerBlob(this.game.data.board, i);
+        sizes.push(blob.length);
       }
-      return sizes
+      return sizes;
     },
     playerColors() {
-      let colors = []
+      let colors = [];
       for (let i = 0; i < this.game.maxPlayers; i++) {
-        var color = Common.Board.getPlayerColor(this.game.data.board, i)
-        colors.push(Common.COLORS[color])
+        var color = Common.Board.getPlayerColor(this.game.data.board, i);
+        colors.push(Common.COLORS[color]);
       }
-      return colors
+      return colors;
     },
     color() {
-      return this.playerColors[this.scoreview.playerindex]
+      return this.playerColors[this.scoreview.playerindex];
     },
     classes() {
-      let classes = [this.color]
+      let classes = [this.color];
       if (this.animated) {
-        classes.push('animated')
+        classes.push('animated');
       }
-      return classes
+      return classes;
     },
   },
   watch: {
     color() {
-      this.animated = true
+      this.animated = true;
     },
   },
   components: {
     AnimatedNumber,
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

@@ -10,12 +10,12 @@
 -->
 
 <script setup>
-import GameDisplay from './GameDisplay.vue'
-import Button from './Button.vue'
+import GameDisplay from './GameDisplay.vue';
+import Button from './Button.vue';
 
 defineProps({
   id: String,
-})
+});
 </script>
 
 <template>

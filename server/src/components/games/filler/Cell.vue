@@ -19,39 +19,39 @@
 </template>
 
 <script>
-import Common from '/gamecommons/filler'
-import gsap from 'gsap'
+import Common from '/gamecommons/filler';
+import gsap from 'gsap';
 
 export default {
   data() {
     return {
       animated: false,
-    }
+    };
   },
   props: ['board', 'cell', 'isblob'],
   computed: {
     classes() {
-      var COLORS = Common.COLORS
-      var color = COLORS[this.cell.color] // this.cell is the number color id of the selected cell
+      var COLORS = Common.COLORS;
+      var color = COLORS[this.cell.color]; // this.cell is the number color id of the selected cell
       // color is a string containing the name of the desired color
       // mogo was here
 
-      var classes = [color]
+      var classes = [color];
 
-      if (this.isblob && !this.replaying) classes.push('partofblob')
+      if (this.isblob && !this.replaying) classes.push('partofblob');
 
-      return classes // an array with one string; the string is the color's name.
+      return classes; // an array with one string; the string is the color's name.
       // the class will be set to the color name
     },
   },
   watch: {
     'cell.color': function (newVal, oldVal) {
       // Play css animation when the color of the cell changes
-      let tl = gsap.timeline()
+      let tl = gsap.timeline();
       tl.to(this.$refs.el, {
         scale: 1.4,
         duration: 0.25,
-      })
+      });
       tl.to(
         this.$refs.el,
         {
@@ -59,10 +59,10 @@ export default {
           duration: 0.25,
         },
         '<0.3'
-      )
+      );
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

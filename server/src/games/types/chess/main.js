@@ -8,25 +8,25 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js'
+import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 // Import GameFlow to control game flow
-import GameFlow from '../../GameFlow.js'
+import GameFlow from '../../GameFlow.js';
 
 //Import Canvas
 //import Canvas from '../../../../../canvas/canvas.js'
 
 // get __dirname
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url)
+const __filename = fileURLToPath(import.meta.url);
 
 // 👇️ "/home/john/Desktop/javascript"
-const __dirname = path.dirname(__filename)
+const __dirname = path.dirname(__filename);
 
 const options = {
   typeId: 'chess',
@@ -39,16 +39,16 @@ const options = {
   data: {
     // Populate on init
   },
-}
+};
 
 class Chess extends Game {
   constructor(config) {
-    super(options, config)
+    super(options, config);
 
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
-    this.setActionModel('movePiece', Common.movePiece)
+    this.setActionModel('movePiece', Common.movePiece);
     this.setActionSchema('movePiece', {
       type: 'object',
       properties: {
@@ -87,7 +87,7 @@ class Chess extends Game {
         },
       },
       required: ['move'],
-    })
+    });
 
     this.getThumbnail = async function () {
       /*
@@ -99,54 +99,54 @@ class Chess extends Game {
       return canvas.toBuffer();
       */
 
-      const { default: Canvas } = await import('canvas')
+      const { default: Canvas } = await import('canvas');
 
       const canvas = Canvas.createCanvas(
         Game.thumbnailDimensions.width,
         Game.thumbnailDimensions.height
-      )
-      const ctx = canvas.getContext('2d')
+      );
+      const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = 'white'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       let boardSrc = path.resolve(
         __dirname,
         '../../../public/assets/chess/board.svg'
-      )
-      let boardImg = await Canvas.loadImage(boardSrc)
-      ctx.shadowBlur = 5
-      ctx.shadowColor = '#000000ee'
+      );
+      let boardImg = await Canvas.loadImage(boardSrc);
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = '#000000ee';
 
-      ctx.drawImage(boardImg, 54, 8, 184, 184)
+      ctx.drawImage(boardImg, 54, 8, 184, 184);
 
       let whitePiecesSrc = path.resolve(
         __dirname,
         '../../../public/assets/chess/white_pieces.svg'
-      )
+      );
       let blackPiecesSrc = path.resolve(
         __dirname,
         '../../../public/assets/chess/black_pieces.svg'
-      )
+      );
 
-      ctx.shadowBlur = 3
-      ctx.shadowOffsetY = 2
+      ctx.shadowBlur = 3;
+      ctx.shadowOffsetY = 2;
 
-      let whitePieces = await Canvas.loadImage(whitePiecesSrc)
-      let blackPieces = await Canvas.loadImage(blackPiecesSrc)
-      var i
+      let whitePieces = await Canvas.loadImage(whitePiecesSrc);
+      let blackPieces = await Canvas.loadImage(blackPiecesSrc);
+      var i;
       for (i = 0; i < this.data.board.length; i++) {
-        let pieceNumber = 0
+        let pieceNumber = 0;
         if (this.data.board[i].type == 'r') {
-          pieceNumber = 1
+          pieceNumber = 1;
         } else if (this.data.board[i].type == 'n') {
-          pieceNumber = 2
+          pieceNumber = 2;
         } else if (this.data.board[i].type == 'b') {
-          pieceNumber = 3
+          pieceNumber = 3;
         } else if (this.data.board[i].type == 'q') {
-          pieceNumber = 4
+          pieceNumber = 4;
         } else if (this.data.board[i].type == 'k') {
-          pieceNumber = 5
+          pieceNumber = 5;
         }
         if (this.data.board[i].color === 0) {
           //White
@@ -160,7 +160,7 @@ class Chess extends Game {
             169 - this.data.board[i].rank * 23,
             23,
             23
-          )
+          );
         } else {
           //Black
           ctx.drawImage(
@@ -173,12 +173,12 @@ class Chess extends Game {
             169 - this.data.board[i].rank * 23,
             23,
             23
-          )
+          );
         }
       }
 
-      return canvas
-    }
+      return canvas;
+    };
 
     // this.setActionModel("resign", Common.resign)
     // this.setActionModel("offerDraw", Common.offerDraw)
@@ -187,19 +187,19 @@ class Chess extends Game {
   }
 
   onInit(game) {
-    game.data.drawoffered = [false, undefined] //[Draw offered or not: bool, Player who offered draw: 0 or 1]
-    game.data.previousMoves = []
-    game.data.previousBoardPos = []
-    game.data.board = []
-    game.data.colors = [1, 0]
+    game.data.drawoffered = [false, undefined]; //[Draw offered or not: bool, Player who offered draw: 0 or 1]
+    game.data.previousMoves = [];
+    game.data.previousBoardPos = [];
+    game.data.board = [];
+    game.data.colors = [1, 0];
 
-    const frontRow = 'pppppppp'
-    const backRow = 'rnbqkbnr'
+    const frontRow = 'pppppppp';
+    const backRow = 'rnbqkbnr';
 
     for (let color = 0; color < 2; color++) {
       for (let file = 0; file < 8; file++) {
-        let frontRowRank = color === 0 ? 1 : 6
-        let backRowRank = color === 0 ? 0 : 7
+        let frontRowRank = color === 0 ? 1 : 6;
+        let backRowRank = color === 0 ? 0 : 7;
         game.data.board.push(
           new Common.Piece(
             `${frontRow[file]}${color}:${file}-${frontRowRank}`,
@@ -208,7 +208,7 @@ class Chess extends Game {
             file,
             frontRowRank
           )
-        )
+        );
         game.data.board.push(
           new Common.Piece(
             `${backRow[file]}${color}:${file}-${backRowRank}`,
@@ -217,14 +217,14 @@ class Chess extends Game {
             file,
             backRowRank
           )
-        )
+        );
       }
     }
-    return game
+    return game;
   }
 }
 
 export default {
   options,
   Game: Chess,
-}
+};

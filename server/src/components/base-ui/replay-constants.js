@@ -7,4 +7,4 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-export const turnReplayDelay = 600
+export const turnReplayDelay = 600;
