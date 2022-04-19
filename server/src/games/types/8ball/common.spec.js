@@ -321,7 +321,6 @@ describe('8ball Action: shoot', () => {
     );
 
     expect(await game.handleAction(secondShot)).toEqual({ success: true });
-    expect(game.reason).toEqual('y');
     expect(game.hasEnded).toBe(true);
     expect(game.winner).toBe(1);
   });

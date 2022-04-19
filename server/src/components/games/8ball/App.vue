@@ -204,6 +204,10 @@ const changeShotSpin = (spin) => {
 let simulationRunningRef = ref(false);
 let simulationRunning = false;
 
+watchEffect(() => {
+  simulationRunning = simulationRunningRef.value;
+});
+
 let showControls = computed(() => {
   return !simulationRunningRef.value && gameActiveRef.value;
 });

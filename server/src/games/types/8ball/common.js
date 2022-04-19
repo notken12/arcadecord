@@ -142,7 +142,6 @@ async function shoot(game, action) {
           winner: game.turn,
         });
         game.data.players[game.turn].chosenPocket = undefined;
-        game.reason = 'y';
         return game;
       } else {
         // Sad, 8ball was shot into the wrong pocket. You lose
@@ -150,7 +149,6 @@ async function shoot(game, action) {
           winner: [1, 0][game.turn],
         });
         game.data.players[game.turn].chosenPocket = undefined;
-        game.reason = 'wrongpocket';
         return game;
       }
     } else {
