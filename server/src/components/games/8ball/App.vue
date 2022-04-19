@@ -226,15 +226,8 @@ let scale;
 
 const updateSpinner = () => {
   if (!spinner.value) return;
+  updateCueBallPos();
   let cbbox = canvas.value.getBoundingClientRect(); // canvas bounding box
-  let cueBallPos = createVector(
-    cueBall.body.position.x,
-    cueBall.body.position.y,
-    cueBall.body.position.z,
-    camera,
-    canvas.value.width,
-    canvas.value.height
-  );
 
   gsap.to(spinner.value, {
     duration: 0,
