@@ -10,35 +10,35 @@
 -->
 
 <script setup>
-import gsap from 'gsap'
-import { Draggable } from 'gsap/dist/Draggable.js'
-import { onMounted, ref, reactive, watch } from 'vue'
+import gsap from 'gsap';
+import { Draggable } from 'gsap/dist/Draggable.js';
+import { onMounted, ref, reactive, watch } from 'vue';
 
-const emit = defineEmits(['spinchange'])
-const focused = ref(false)
+const emit = defineEmits(['spinchange']);
+const focused = ref(false);
 
-const circle = ref(null)
-const dot = ref(null)
-const minidot = ref(null)
+const circle = ref(null);
+const dot = ref(null);
+const minidot = ref(null);
 
 const focus = () => {
-  focused.value = true
-}
+  focused.value = true;
+};
 
 const unfocus = () => {
-  focused.value = false
+  focused.value = false;
 
-  spin.x = point.x
-  spin.y = point.y
-  emit('spinchange', { x: point.x / 40, y: point.y / -40 })
+  spin.x = point.x;
+  spin.y = point.y;
+  emit('spinchange', { x: point.x / 40, y: point.y / -40 });
 
-  isPointerDown = false
-}
+  isPointerDown = false;
+};
 
-const spin = reactive({ x: 0, y: 0 })
+const spin = reactive({ x: 0, y: 0 });
 
-let isPointerDown = false
-let point
+let isPointerDown = false;
+let point;
 
 watch(
   spin,
@@ -47,80 +47,88 @@ watch(
       duration: 0,
       x: (spin.x * 14) / 40,
       y: (spin.y * 14) / 40,
-    })
+    });
   },
   { deep: true }
-)
+);
 
 function pointerDown(e) {
-  isPointerDown = true
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
+  isPointerDown = true;
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
   let offsetX =
-    x - circle.value.getBoundingClientRect().left - circle.value.clientWidth / 2
+    x -
+    circle.value.getBoundingClientRect().left -
+    circle.value.clientWidth / 2;
   let offsetY =
-    y - circle.value.getBoundingClientRect().top - circle.value.clientHeight / 2
+    y -
+    circle.value.getBoundingClientRect().top -
+    circle.value.clientHeight / 2;
 
-  let distFromCenter = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2))
+  let distFromCenter = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
 
   point = {
     x: offsetX,
     y: offsetY,
-  }
+  };
 
   if (distFromCenter > 40) {
     point = {
       x: Math.cos(Math.atan2(offsetY, offsetX)) * 40,
       y: Math.sin(Math.atan2(offsetY, offsetX)) * 40,
-    }
+    };
   }
   gsap.to(dot.value, {
     duration: 0,
     x: point.x,
     y: point.y,
-  })
+  });
 }
 
 function pointerMove(e) {
-  e.preventDefault()
-  if (!isPointerDown) return
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
+  e.preventDefault();
+  if (!isPointerDown) return;
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
   let offsetX =
-    x - circle.value.getBoundingClientRect().left - circle.value.clientWidth / 2
+    x -
+    circle.value.getBoundingClientRect().left -
+    circle.value.clientWidth / 2;
   let offsetY =
-    y - circle.value.getBoundingClientRect().top - circle.value.clientHeight / 2
+    y -
+    circle.value.getBoundingClientRect().top -
+    circle.value.clientHeight / 2;
 
-  let distFromCenter = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2))
+  let distFromCenter = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
 
   point = {
     x: offsetX,
     y: offsetY,
-  }
+  };
 
   if (distFromCenter > 40) {
     point = {
       x: Math.cos(Math.atan2(offsetY, offsetX)) * 40,
       y: Math.sin(Math.atan2(offsetY, offsetX)) * 40,
-    }
+    };
   }
   gsap.to(dot.value, {
     duration: 0,
     x: point.x,
     y: point.y,
-  })
+  });
 }
 
 function pointerUp(e) {
-  e.preventDefault()
-  isPointerDown = false
-  let { clientX: x, clientY: y } = e.touches?.[0] || e
+  e.preventDefault();
+  isPointerDown = false;
+  let { clientX: x, clientY: y } = e.touches?.[0] || e;
 
-  spin.x = point.x
-  spin.y = point.y
-  emit('spinchange', { x: point.x / 40, y: point.y / -40 })
+  spin.x = point.x;
+  spin.y = point.y;
+  emit('spinchange', { x: point.x / 40, y: point.y / -40 });
 }
 
 onMounted(() => {
-  gsap.registerPlugin(Draggable)
+  gsap.registerPlugin(Draggable);
 
   // Draggable.create(dot.value, {
   //   type: 'x,y',
@@ -144,7 +152,7 @@ onMounted(() => {
   //     emit('spinchange', spin)
   //   },
   // })
-})
+});
 </script>
 
 <template>

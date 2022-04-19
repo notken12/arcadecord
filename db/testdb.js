@@ -7,31 +7,31 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import mongoose from 'mongoose'
-import { MongoMemoryServer } from 'mongodb-memory-server'
-import db from './db2.js'
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import db from './db2.js';
 
 export async function createTestingDb() {
-  const mongod = await MongoMemoryServer.create()
+  const mongod = await MongoMemoryServer.create();
 
   return {
     async connect() {
-      const uri = mongod.getUri()
-      await db.connect(uri)
+      const uri = mongod.getUri();
+      await db.connect(uri);
     },
     async closeDatabase() {
-      await mongoose.connection.dropDatabase()
-      await mongoose.connection.close()
-      await mongod.stop()
+      await mongoose.connection.dropDatabase();
+      await mongoose.connection.close();
+      await mongod.stop();
     },
     async clearDatabase() {
-      const collections = mongoose.connection.collections
+      const collections = mongoose.connection.collections;
       for (const key in collections) {
-        const collection = collections[key]
-        await collection.deleteMany()
+        const collection = collections[key];
+        await collection.deleteMany();
       }
     },
-  }
+  };
 }
 
 // // connect to testing in memory database

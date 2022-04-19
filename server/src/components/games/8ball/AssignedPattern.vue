@@ -1,38 +1,38 @@
 <script setup>
-import { useFacade } from '@app/components/base-ui/facade'
-import { computed, watch, ref } from 'vue'
+import { useFacade } from '@app/components/base-ui/facade';
+import { computed, watch, ref } from 'vue';
 
-const { game } = useFacade()
+const { game } = useFacade();
 
 const props = defineProps({
   pattern: Number,
   playerindex: Number,
-})
+});
 
 const tooltip = computed(() => {
   if (props.pattern === null || props.pattern === undefined) {
-    return ''
+    return '';
   }
   if (props.pattern === 0) {
-    return 'Solids'
+    return 'Solids';
   }
-  return 'Stripes'
-})
+  return 'Stripes';
+});
 
-const showTooltip = ref(false)
+const showTooltip = ref(false);
 watch(
   () => props.pattern,
   () => {
     if (props.pattern === 0 || props.pattern === 1) {
-      showTooltip.value = true
+      showTooltip.value = true;
     }
   }
-)
+);
 
 const isOnRight = computed(() => {
-  let i = game.value.myIndex === -1 ? 1 : game.value.myIndex
-  return props.playerindex !== i
-})
+  let i = game.value.myIndex === -1 ? 1 : game.value.myIndex;
+  return props.playerindex !== i;
+});
 </script>
 
 <template>

@@ -12,7 +12,7 @@
 <script setup>
 defineProps({
   href: String,
-})
+});
 </script>
 
 <template>

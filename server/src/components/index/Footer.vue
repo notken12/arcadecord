@@ -10,8 +10,8 @@
 -->
 
 <script setup>
-import Logo from './Logo.vue'
-import Link from './Link.vue'
+import Logo from './Logo.vue';
+import Link from './Link.vue';
 </script>
 
 <template>

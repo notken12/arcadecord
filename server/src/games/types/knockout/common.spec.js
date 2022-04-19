@@ -7,14 +7,14 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { expect, test, describe } from 'vitest'
+import { expect, test, describe } from 'vitest';
 // Import the main module for this game type
-import main from './main.js'
+import main from './main.js';
 // Import the Action class to make actions
-import Action from '../../Action.js'
+import Action from '../../Action.js';
 // Import the GameFlow class to control game flow
-import GameFlow from '../../GameFlow.js'
-import { LogOutput } from 'concurrently'
+import GameFlow from '../../GameFlow.js';
+import { LogOutput } from 'concurrently';
 
 //ඞ
 
@@ -23,16 +23,16 @@ import { LogOutput } from 'concurrently'
 // ok  ok ok ok ok ok ok okok okok o
 
 test('set a direction for all dummies, complete a cycle and test if a dummy as fallen', async () => {
-  let game = new main.Game()
+  let game = new main.Game();
   // Activate testing mode
-  game.test()
+  game.test();
   // Add fake players
-  game.mockPlayers(2)
+  game.mockPlayers(2);
 
   // Initialize the game
-  await game.init()
+  await game.init();
 
-  let actions = []
+  let actions = [];
 
   actions.push(
     // player 1 sets
@@ -76,7 +76,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
       },
       1
     )
-  )
+  );
   actions.push(
     //player 0 sets
     new Action(
@@ -119,7 +119,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
       },
       0
     )
-  )
+  );
   actions.push(
     //player 0 sets
     new Action(
@@ -162,7 +162,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
       },
       0
     )
-  )
+  );
 
   actions.push(
     // player 1 sets
@@ -206,24 +206,24 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
       },
       1
     )
-  )
-  actions.forEach(async (action) => await game.handleAction(action))
-  expect(GameFlow.isItUsersTurn(game, 1)).toBe(true) // it should be player 1's turn
-  expect(game.data.firing).toBe(true)
-  expect(game.data.ice.size).toBe(90) // percent should have decreased
-  expect(game.data.dummies[0].fallen).toBe(true)
-})
+  );
+  actions.forEach(async (action) => await game.handleAction(action));
+  expect(GameFlow.isItUsersTurn(game, 1)).toBe(true); // it should be player 1's turn
+  expect(game.data.firing).toBe(true);
+  expect(game.data.ice.size).toBe(90); // percent should have decreased
+  expect(game.data.dummies[0].fallen).toBe(true);
+});
 test('player 0 wins', async () => {
-  let game = new main.Game()
+  let game = new main.Game();
   // Activate testing mode
-  game.test()
+  game.test();
   // Add fake players
-  game.mockPlayers(2)
+  game.mockPlayers(2);
 
   // Initialize the game
-  await game.init()
+  await game.init();
 
-  let actions = []
+  let actions = [];
 
   actions.push(
     // player 1 sets
@@ -267,7 +267,7 @@ test('player 0 wins', async () => {
       },
       1
     )
-  )
+  );
   actions.push(
     //player 0 sets
     new Action(
@@ -292,12 +292,12 @@ test('player 0 wins', async () => {
       },
       0
     )
-  )
+  );
 
-  actions.forEach(async (action) => await game.handleAction(action))
+  actions.forEach(async (action) => await game.handleAction(action));
   // it should be player 1's turn
-  expect(game.data.ice.size).toBe(95) // percent should have decreased
-  expect(game.hasEnded).toBe(true)
-  expect(game.data.firing).toBe(true)
-  expect(game.data.dummies[0].x).toBe(-5)
-})
+  expect(game.data.ice.size).toBe(95); // percent should have decreased
+  expect(game.hasEnded).toBe(true);
+  expect(game.data.firing).toBe(true);
+  expect(game.data.dummies[0].x).toBe(-5);
+});

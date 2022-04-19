@@ -10,12 +10,12 @@
 -->
 
 <script setup>
-import Banner from 'components/index/Banner.vue'
-import Content from 'components/index/Content.vue'
-import Footer from 'components/index/Footer.vue'
-import Button from 'components/index/Button.vue'
-import LinkButton from 'components/index/LinkButton.vue'
-import GameDisplay from 'components/index/GameDisplay.vue'
+import Banner from 'components/index/Banner.vue';
+import Content from 'components/index/Content.vue';
+import Footer from 'components/index/Footer.vue';
+import Button from 'components/index/Button.vue';
+import LinkButton from 'components/index/LinkButton.vue';
+import GameDisplay from 'components/index/GameDisplay.vue';
 </script>
 
 <template>
@@ -76,7 +76,7 @@ import GameDisplay from 'components/index/GameDisplay.vue'
       </section>
       <section class="row add">
         <h3>Add and play today for free!</h3>
-          <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+        <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
       </section>
     </Content>
     <Footer></Footer>

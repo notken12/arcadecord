@@ -26,18 +26,18 @@
   </game-view>
 </template>
 <script>
-import Board from './Board.vue'
-import bus from '@app/js/vue-event-bus'
+import Board from './Board.vue';
+import bus from '@app/js/vue-event-bus';
 
-import GameFlow from '@app/js/GameFlow'
-import Common from '/gamecommons/chess'
-import { replayAction } from '@app/js/client-framework'
+import GameFlow from '@app/js/GameFlow';
+import Common from '/gamecommons/chess';
+import { replayAction } from '@app/js/client-framework';
 //♙♘♗♖♕♔♟︎♞♝♜♛♚
 export default {
   data() {
     return {
       selectedPiece: null,
-    }
+    };
   },
   methods: {
     movePiece() {},
@@ -45,17 +45,17 @@ export default {
   computed: {
     hint() {
       if (this.selectedPiece) {
-        return 'Tap a square to move to'
+        return 'Tap a square to move to';
       } else {
-        return 'Tap a piece to select it'
+        return 'Tap a piece to select it';
       }
     },
     board: function () {
-      return this.game.data.board
+      return this.game.data.board;
     },
     myColor() {
-      let index = this.game.myIndex === -1 ? 1 : this.game.myIndex
-      return this.game.data.colors[index]
+      let index = this.game.myIndex === -1 ? 1 : this.game.myIndex;
+      return this.game.data.colors[index];
     },
   },
   mounted() {
@@ -63,21 +63,21 @@ export default {
       replayAction(
         this.game,
         this.game.turns[this.game.turns.length - 1].actions[0]
-      )
-      this.$endReplay(1000)
-    })
+      );
+      this.$endReplay(1000);
+    });
 
     bus.on('piece-selected', (piece) => {
-      this.selectedPiece = piece
-    })
+      this.selectedPiece = piece;
+    });
 
-    window.Common = Common
-    window.game = this.game
+    window.Common = Common;
+    window.game = this.game;
   },
   components: {
     Board,
   },
-}
+};
 </script>
 
 <style lang="scss">

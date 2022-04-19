@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import * as THREE from 'three'
-var textureLoader = new THREE.TextureLoader()
+import * as THREE from 'three';
+var textureLoader = new THREE.TextureLoader();
 
-export { textureLoader }
+export { textureLoader };

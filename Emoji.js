@@ -16,6 +16,6 @@ const Emoji = {
   X: '❌',
   JOYSTICK: '🕹️',
   CONTROLLER: '🎮',
-}
+};
 
-export default Emoji
+export default Emoji;

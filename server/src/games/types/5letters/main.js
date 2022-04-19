@@ -8,10 +8,10 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js'
+import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 // Game options, required. Export as options
 // README.md
@@ -24,7 +24,7 @@ const options = {
   maxPlayers: 2,
   emoji: '🔠',
   data: {},
-}
+};
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
@@ -32,12 +32,12 @@ class FiveLettersGame extends Game {
   constructor(config) {
     // Creates a game with the options
     // Required
-    super(options, config) // Config is the options given by the user, and other things like the channel and guild
+    super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
-    this.setActionModel('chooseWord', Common.action_chooseWord)
+    this.setActionModel('chooseWord', Common.action_chooseWord);
     this.setActionSchema('chooseWord', {
       type: 'object',
       properties: {
@@ -48,9 +48,9 @@ class FiveLettersGame extends Game {
         },
       },
       required: ['word'],
-    })
+    });
 
-    this.setActionModel('guess', Common.action_guess)
+    this.setActionModel('guess', Common.action_guess);
     this.setActionSchema('guess', {
       type: 'object',
       properties: {
@@ -61,20 +61,23 @@ class FiveLettersGame extends Game {
         },
       },
       required: ['word'],
-    })
+    });
 
     this.getThumbnail = async function () {
-      const { default: Canvas } = await import('canvas')
+      const { default: Canvas } = await import('canvas');
 
-      const canvas = Canvas.createCanvas(Game.thumbnailDimensions.width, Game.thumbnailDimensions.height);
+      const canvas = Canvas.createCanvas(
+        Game.thumbnailDimensions.width,
+        Game.thumbnailDimensions.height
+      );
 
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle = "white";
+      ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       return canvas;
-    }
+    };
   }
 
   onInit(game) {
@@ -82,13 +85,13 @@ class FiveLettersGame extends Game {
     game.data = {
       answers: [],
       guesses: [[], []],
-    }
+    };
 
-    return game
+    return game;
   }
 }
 
 export default {
   options,
   Game: FiveLettersGame,
-}
+};

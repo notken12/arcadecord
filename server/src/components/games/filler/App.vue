@@ -33,15 +33,15 @@
 
 <script>
 // Import Vue components
-import ScoreBadge from './ScoreBadge.vue'
-import Board from './Board.vue'
-import Changer from './Changer.vue'
+import ScoreBadge from './ScoreBadge.vue';
+import Board from './Board.vue';
+import Changer from './Changer.vue';
 // game-view, scores-view are automatically imported
 
 // Import scss styles
 
-import { replayAction } from '@app/js/client-framework.js'
-import Common from '/gamecommons/filler'
+import { replayAction } from '@app/js/client-framework.js';
+import Common from '/gamecommons/filler';
 
 // Export Vue component
 
@@ -53,17 +53,17 @@ import Common from '/gamecommons/filler'
 
 export default {
   data() {
-    return {}
+    return {};
   },
   methods: {
     getBlobSize(playerIndex) {
-      var blob = Common.Board.getPlayerBlob(this.game.data.board, playerIndex)
-      return blob.length
+      var blob = Common.Board.getPlayerBlob(this.game.data.board, playerIndex);
+      return blob.length;
     },
   },
   computed: {
     hint() {
-      return 'Tap a color to switch to that color'
+      return 'Tap a color to switch to that color';
     },
   },
   components: {
@@ -78,14 +78,14 @@ export default {
 
       // In other games you would want to loop through all actions and
       // replay them at a given interval for the animations to play out
-      replayAction(this.game, this.previousTurn.actions[0])
+      replayAction(this.game, this.previousTurn.actions[0]);
 
       // End the turn replay after 750 ms, which is how long the css animation takes
-      this.$endReplay(750) // ms
-    })
+      this.$endReplay(750); // ms
+    });
   },
   methods: {},
-}
+};
 </script>
 
 <style src="scss/games/filler.scss" lang="scss"></style>

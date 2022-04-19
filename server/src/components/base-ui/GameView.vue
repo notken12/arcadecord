@@ -11,9 +11,16 @@
 
 <template>
   <div class="game-container">
-    <waiting-view v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"></waiting-view>
-    <result-view v-if="game.hasEnded && !replaying && !runningAction" :game="game"></result-view>
-    <sending-view v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"></sending-view>
+    <waiting-view
+      v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
+    ></waiting-view>
+    <result-view
+      v-if="game.hasEnded && !replaying && !runningAction"
+      :game="game"
+    ></result-view>
+    <sending-view
+      v-if="sending && !isItMyTurn && !game.hasEnded && !runningAction"
+    ></sending-view>
     <game-manual-view v-if="manualOpen"></game-manual-view>
     <Settings v-if="settingsOpen"></Settings>
     <GameHeader :hint="hint"></GameHeader>
@@ -28,74 +35,74 @@
 </template>
 
 <script setup>
-import bus from '@app/js/vue-event-bus.js'
-import GameHeader from './GameHeader.vue'
-import WaitingView from './WaitingView.vue'
-import ResultView from './ResultView.vue'
-import GameManualView from './GameManualView.vue'
-import SendingView from './SendingView.vue'
-import GameFlow from '@app/js/GameFlow.js'
-import Settings from './Settings.vue'
-import FastForward from './FastForward.vue'
+import bus from '@app/js/vue-event-bus.js';
+import GameHeader from './GameHeader.vue';
+import WaitingView from './WaitingView.vue';
+import ResultView from './ResultView.vue';
+import GameManualView from './GameManualView.vue';
+import SendingView from './SendingView.vue';
+import GameFlow from '@app/js/GameFlow.js';
+import Settings from './Settings.vue';
+import FastForward from './FastForward.vue';
 
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useFacade } from './facade'
-import GameFull from './GameFull.vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useFacade } from './facade';
+import GameFull from './GameFull.vue';
 
 const props = defineProps({
   hint: String,
-})
+});
 
-const { game, replaying, contested } = useFacade()
+const { game, replaying, contested } = useFacade();
 
-const manualOpen = ref(false)
-const settingsOpen = ref(false)
-const sending = ref(false)
-const sendingAnimationLength = 500
+const manualOpen = ref(false);
+const settingsOpen = ref(false);
+const sending = ref(false);
+const sendingAnimationLength = 500;
 
 const isItMyTurn = computed(() => {
-  return GameFlow.isItMyTurn(game.value) || replaying.value
-})
+  return GameFlow.isItMyTurn(game.value) || replaying.value;
+});
 
 const openManual = () => {
-  manualOpen.value = true
-}
+  manualOpen.value = true;
+};
 const closeManual = () => {
-  manualOpen.value = false
-}
+  manualOpen.value = false;
+};
 const onSending = (s) => {
   if (!s) {
     setTimeout(() => {
-      sending.value = false
-    }, sendingAnimationLength)
+      sending.value = false;
+    }, sendingAnimationLength);
   } else {
-    sending.value = true
+    sending.value = true;
   }
-}
+};
 const openSettings = () => {
-  settingsOpen.value = true
-}
+  settingsOpen.value = true;
+};
 const closeSettings = () => {
-  settingsOpen.value = false
-}
+  settingsOpen.value = false;
+};
 
 onMounted(() => {
-  bus.on('open-manual', openManual)
-  bus.on('close-manual', closeManual)
-  bus.on('sending', onSending)
-  bus.on('open-settings', openSettings)
-  bus.on('close-settings', closeSettings)
-})
+  bus.on('open-manual', openManual);
+  bus.on('close-manual', closeManual);
+  bus.on('sending', onSending);
+  bus.on('open-settings', openSettings);
+  bus.on('close-settings', closeSettings);
+});
 
 onUnmounted(() => {
-  bus.off('open-manual', openManual)
-  bus.off('close-manual', closeManual)
-  bus.off('sending', onSending)
-  bus.off('open-settings', openSettings)
-  bus.off('close-settings', closeSettings)
-})
+  bus.off('open-manual', openManual);
+  bus.off('close-manual', closeManual);
+  bus.off('sending', onSending);
+  bus.off('open-settings', openSettings);
+  bus.off('close-settings', closeSettings);
+});
 
-const replayingForAWhile = ref(false)
+const replayingForAWhile = ref(false);
 
 watch(
   replaying,
@@ -103,15 +110,15 @@ watch(
     if (newVal) {
       setTimeout(() => {
         if (replaying.value) {
-          replayingForAWhile.value = true
+          replayingForAWhile.value = true;
         }
-      }, 2000)
+      }, 2000);
     } else {
-      replayingForAWhile.value = false
+      replayingForAWhile.value = false;
     }
   },
   { immediate: true }
-)
+);
 </script>
 
 <style lang="scss">

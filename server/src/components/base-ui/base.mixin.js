@@ -7,29 +7,29 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { reactive } from 'vue'
-import cloneDeep from 'lodash.clonedeep'
+import { reactive } from 'vue';
+import cloneDeep from 'lodash.clonedeep';
 
-import bus from '@app/js/vue-event-bus'
-import { turnReplayDelay } from './replay-constants'
-import { mapState } from 'vuex'
+import bus from '@app/js/vue-event-bus';
+import { turnReplayDelay } from './replay-constants';
+import { mapState } from 'vuex';
 
-let replaySubscribed = false
+let replaySubscribed = false;
 
 export default {
   data() {
     return {
       replayTurnFuncSet: false,
-    }
+    };
   },
   computed: {
     previousTurn() {
       if (this.game) {
         if (this.game.turns.length > 0) {
-          return this.game.turns[this.game.turns.length - 1]
+          return this.game.turns[this.game.turns.length - 1];
         }
       }
-      return null
+      return null;
     },
     ...mapState(['game', 'me', 'error', 'replaying', 'runningAction']),
   },
@@ -37,46 +37,46 @@ export default {
     $replayTurnFunc() {},
     $endReplay(delayMS) {
       if (delayMS == undefined) {
-        delayMS = 0
+        delayMS = 0;
       }
       setTimeout(() => {
-        this.$store.commit('END_TURN_REPLAY')
-        console.log('[arcadecord.facade] finished replaying turn')
-      }, delayMS)
+        this.$store.commit('END_TURN_REPLAY');
+        console.log('[arcadecord.facade] finished replaying turn');
+      }, delayMS);
     },
     $replayTurn(func) {
       if (typeof func === 'function') {
-        this.$replayTurnFunc = func
-        this.replayTurnFuncSet = true
+        this.$replayTurnFunc = func;
+        this.replayTurnFuncSet = true;
       }
       if (this.replaying && this.replayTurnFuncSet) {
-        console.log('[arcadecord.facade] replaying turn')
+        console.log('[arcadecord.facade] replaying turn');
         setTimeout(() => {
-          window.requestAnimationFrame(this.$replayTurnFunc)
-        }, turnReplayDelay)
+          window.requestAnimationFrame(this.$replayTurnFunc);
+        }, turnReplayDelay);
       }
     },
     $endAnimation(delayMS) {
-      this.$store.commit('START_ACTION_ANIMATION')
+      this.$store.commit('START_ACTION_ANIMATION');
       if (delayMS == undefined) {
-        delayMS = 0
+        delayMS = 0;
       }
       setTimeout(() => {
-        this.$store.commit('END_ACTION_ANIMATION')
-      }, delayMS)
+        this.$store.commit('END_ACTION_ANIMATION');
+      }, delayMS);
     },
     $runAction(actionType, actionData) {
       this.$store.commit('RUN_ACTION', {
         type: actionType,
         data: actionData,
-      })
+      });
     },
   },
   mounted() {
-    if (!replaySubscribed) bus.on('facade:replay-turn', this.$replayTurn)
-    replaySubscribed = true
+    if (!replaySubscribed) bus.on('facade:replay-turn', this.$replayTurn);
+    replaySubscribed = true;
   },
   unmounted() {
-    bus.off('facade:replay-turn', this.$replayTurn)
+    bus.off('facade:replay-turn', this.$replayTurn);
   },
-}
+};

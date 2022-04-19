@@ -8,9 +8,9 @@
 // without the express permission of Ken Zhou.
 
 function InputHandler(renderer, scene, game) {
-  this.renderer = renderer
-  this.scene = scene
-  this.game = game
+  this.renderer = renderer;
+  this.scene = scene;
+  this.game = game;
 
   renderer.domElement.addEventListener('mousedown', function (e) {
     if ('buttons' in e) {
@@ -18,19 +18,19 @@ function InputHandler(renderer, scene, game) {
         //left mouse down
       }
     }
-  })
+  });
 }
 
-InputHandler.STICK_ROTATION_SPEED = (Math.PI * 2) / 3 // 1 rot every 3 seconds
+InputHandler.STICK_ROTATION_SPEED = (Math.PI * 2) / 3; // 1 rot every 3 seconds
 
 InputHandler.prototype.tick = function (td) {
   // timeDelta, seconds since last frame
   if (key.isPressed('A')) {
-    this.game.rotateStick(InputHandler.STICK_ROTATION_SPEED * td)
+    this.game.rotateStick(InputHandler.STICK_ROTATION_SPEED * td);
   }
   if (key.isPressed('D')) {
-    this.game.rotateStick(InputHandler.STICK_ROTATION_SPEED * td * -1)
+    this.game.rotateStick(InputHandler.STICK_ROTATION_SPEED * td * -1);
   }
-}
+};
 
-export { InputHandler }
+export { InputHandler };

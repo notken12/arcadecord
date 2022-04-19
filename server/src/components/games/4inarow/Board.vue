@@ -63,42 +63,42 @@
 </template>
 
 <script setup>
-import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
-import { ref } from 'vue'
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
+import { ref } from 'vue';
 
-const el = ref(null)
-useAspectRatio(7 / 7.5, el)
+const el = ref(null);
+useAspectRatio(7 / 7.5, el);
 </script>
 
 <script>
-import gsap from 'gsap'
+import gsap from 'gsap';
 
-import Piece from './Piece.vue'
-import DropButton from './DropButton.vue'
-import ColumnOverlay from './ColumnOverlay.vue'
-import OverPiece from './OverPiece.vue'
+import Piece from './Piece.vue';
+import DropButton from './DropButton.vue';
+import ColumnOverlay from './ColumnOverlay.vue';
+import OverPiece from './OverPiece.vue';
 
-import GameFlow from '@app/js/GameFlow'
-import Common from '/gamecommons/chess'
-import bus from '@app/js/vue-event-bus'
+import GameFlow from '@app/js/GameFlow';
+import Common from '/gamecommons/chess';
+import bus from '@app/js/vue-event-bus';
 export default {
   data() {
     return {
       selectedColumn: null,
-    }
+    };
   },
   computed: {
     board() {
-      return this.game.data.board
+      return this.game.data.board;
     },
     buttonShowing() {
-      if (this.selectedColumn || this.selectedColumn === 0) return true
+      if (this.selectedColumn || this.selectedColumn === 0) return true;
     },
   },
   mounted() {
     bus.on('changeColumn', (column) => {
-      this.selectedColumn = column
-    })
+      this.selectedColumn = column;
+    });
   },
   components: {
     Piece,
@@ -108,8 +108,8 @@ export default {
   },
   methods: {
     animatePiece(el, done) {
-      let offsetLeft = el.dataset.column * 100 + '%'
-      let offsetTop = (5 - el.dataset.row) * 100 + '%'
+      let offsetLeft = el.dataset.column * 100 + '%';
+      let offsetTop = (5 - el.dataset.row) * 100 + '%';
 
       gsap.fromTo(
         el,
@@ -124,21 +124,21 @@ export default {
           onComplete: done,
           ease: 'power1.in',
         }
-      )
+      );
     },
     updatePiecePos(el) {
-      let offsetLeft = el.dataset.column * 100 + '%'
-      let offsetTop = (5 - el.dataset.row) * 100 + '%'
+      let offsetLeft = el.dataset.column * 100 + '%';
+      let offsetTop = (5 - el.dataset.row) * 100 + '%';
 
       gsap.to(el, {
         y: offsetTop,
         x: offsetLeft,
         duration: 0,
         // onComplete: done
-      })
+      });
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

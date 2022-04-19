@@ -10,27 +10,27 @@
 -->
 
 <script>
-import cloneDeep from 'lodash.clonedeep'
-import bus from '@app/js/vue-event-bus'
+import cloneDeep from 'lodash.clonedeep';
+import bus from '@app/js/vue-event-bus';
 
 export default {
   props: ['move'],
   data() {
     return {
       promotionPieces: ['q', 'r', 'b', 'n'],
-    }
+    };
   },
   methods: {
     makeMove(piece) {
-      let move = cloneDeep(this.move)
-      move.promotion = piece
-      this.$runAction('movePiece', { move })
-      this.$endAnimation(800)
-      bus.emit('deselect piece')
-      bus.emit('close-promotion-menu')
+      let move = cloneDeep(this.move);
+      move.promotion = piece;
+      this.$runAction('movePiece', { move });
+      this.$endAnimation(800);
+      bus.emit('deselect piece');
+      bus.emit('close-promotion-menu');
     },
     closeMenu() {
-      bus.emit('close-promotion-menu')
+      bus.emit('close-promotion-menu');
     },
     promotionPieceStyles(piece) {
       let texturePositions = {
@@ -40,24 +40,24 @@ export default {
         b: 3,
         q: 4,
         k: 5,
-      }
+      };
 
-      let backgroundPositionX = (texturePositions[piece] / 5) * 100 + '%'
+      let backgroundPositionX = (texturePositions[piece] / 5) * 100 + '%';
 
       return {
         'background-position-x': backgroundPositionX,
-      }
+      };
     },
   },
   computed: {
     promotionPieceClasses() {
       if (this.game.myIndex === 0) {
-        return ['black']
+        return ['black'];
       }
-      return []
+      return [];
     },
   },
-}
+};
 </script>
 
 <template>

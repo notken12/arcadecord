@@ -7,4 +7,4 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import('./8ball/index.js')
+import('./8ball/index.js');

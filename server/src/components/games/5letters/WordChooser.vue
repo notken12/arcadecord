@@ -10,101 +10,101 @@
 -->
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import bus from '@app/js/vue-event-bus'
-import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
-import Cell from './Cell.vue'
-import { useFacade } from '@app/components/base-ui/facade'
-import Common from '/gamecommons/5letters'
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import bus from '@app/js/vue-event-bus';
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
+import Cell from './Cell.vue';
+import { useFacade } from '@app/components/base-ui/facade';
+import Common from '/gamecommons/5letters';
 
-const { $runAction, $endAnimation } = useFacade()
+const { $runAction, $endAnimation } = useFacade();
 
-const letters = reactive(['', '', '', '', ''])
+const letters = reactive(['', '', '', '', '']);
 
-const board = ref(null)
+const board = ref(null);
 
 useAspectRatio((parentWidth, parentHeight) => {
-  const gap = 6
-  const availWidth = parentWidth - gap * 4
-  const availHeight = parentHeight
-  const ratio = 5 / 1
-  const parentRatio = availWidth / availHeight
+  const gap = 6;
+  const availWidth = parentWidth - gap * 4;
+  const availHeight = parentHeight;
+  const ratio = 5 / 1;
+  const parentRatio = availWidth / availHeight;
 
   if (parentRatio > ratio) {
     // parent is wider than the aspect ratio
     return {
       width: availHeight * ratio + gap * 4,
       height: availHeight,
-    }
+    };
   } else {
     // parent is taller than the aspect ratio
     return {
       width: availWidth + gap * 4,
       height: availWidth / ratio,
-    }
+    };
   }
-}, board)
+}, board);
 
 const getInsertionIndex = () => {
-  let index = -1
+  let index = -1;
   for (let i = 0; i < letters.length; i++) {
     if (letters[i] === '') {
-      index = i
-      break
+      index = i;
+      break;
     }
   }
-  return index
-}
+  return index;
+};
 
 const keyboardPress = (letter) => {
-  const index = getInsertionIndex()
+  const index = getInsertionIndex();
   if (index !== -1) {
-    letters[index] = letter
+    letters[index] = letter;
   }
-}
+};
 
 const keyboardBackspace = () => {
-  let index = getInsertionIndex() - 1
+  let index = getInsertionIndex() - 1;
   if (index === -2) {
-    index = letters.length - 1
+    index = letters.length - 1;
   }
   if (index === -1) {
-    return
+    return;
   }
-  letters[index] = ''
-}
+  letters[index] = '';
+};
 
 const keyboardEnter = () => {
-  const index = getInsertionIndex()
-  let word = letters.join('')
+  const index = getInsertionIndex();
+  let word = letters.join('');
   if (word.length < 5) {
-    bus.emit('toast', 'Too short!')
-    return
+    bus.emit('toast', 'Too short!');
+    return;
   } else if (word.length > 5) {
-    bus.emit('toast', 'Too long!')
-    return
+    bus.emit('toast', 'Too long!');
+    return;
   }
 
   if (Common.inWordList(word)) {
-    $runAction('chooseWord', { word })
-    $endAnimation(300)
+    $runAction('chooseWord', { word });
+    $endAnimation(300);
   } else {
-    bus.emit('toast', 'Not in word list')
-    return
+    bus.emit('toast', 'Not in word list');
+    return;
   }
-}
+};
 
 onMounted(() => {
-  bus.on('keyboard:press', keyboardPress)
-  bus.on('keyboard:backspace', keyboardBackspace)
-  bus.on('keyboard:enter', keyboardEnter)
-})
+  bus.on('keyboard:press', keyboardPress);
+  bus.on('keyboard:backspace', keyboardBackspace);
+  bus.on('keyboard:enter', keyboardEnter);
+});
 
 onUnmounted(() => {
-  bus.off('keyboard:press', keyboardPress)
-  bus.off('keyboard:backspace', keyboardBackspace)
-  bus.off('keyboard:enter', keyboardEnter)
-})
+  bus.off('keyboard:press', keyboardPress);
+  bus.off('keyboard:backspace', keyboardBackspace);
+  bus.off('keyboard:enter', keyboardEnter);
+});
 </script>
 
 <template>

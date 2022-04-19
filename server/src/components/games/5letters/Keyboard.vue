@@ -10,33 +10,33 @@
 -->
 
 <script setup>
-import { onMounted, onUnmounted, computed } from 'vue'
-import bus from '@app/js/vue-event-bus'
-import layout from './Keyboard.layout.json'
-import Key from './Key.vue'
-import { useFacade } from '@app/components/base-ui/facade'
-import GameFlow from '@app/js/GameFlow'
+import { onMounted, onUnmounted, computed } from 'vue';
+import bus from '@app/js/vue-event-bus';
+import layout from './Keyboard.layout.json';
+import Key from './Key.vue';
+import { useFacade } from '@app/components/base-ui/facade';
+import GameFlow from '@app/js/GameFlow';
 
-const { replaying, runningAction, game } = useFacade()
+const { replaying, runningAction, game } = useFacade();
 
 const props = defineProps({
   guesses: {
     type: Array,
     required: true,
   },
-})
+});
 
 const hitEnter = () => {
-  bus.emit('keyboard:enter')
-}
+  bus.emit('keyboard:enter');
+};
 const typeLetter = (l) => {
-  bus.emit('keyboard:press', l)
-}
+  bus.emit('keyboard:press', l);
+};
 const hitBackspace = () => {
-  bus.emit('keyboard:backspace')
-}
+  bus.emit('keyboard:backspace');
+};
 
-const alphabet = 'qwertyuiopasdfghjklzxcvbnm'
+const alphabet = 'qwertyuiopasdfghjklzxcvbnm';
 
 const eventListener = (e) => {
   if (
@@ -44,24 +44,24 @@ const eventListener = (e) => {
     runningAction.value ||
     !GameFlow.isItMyTurn(game.value)
   ) {
-    return
+    return;
   }
   if (e.key === 'Enter') {
-    hitEnter()
+    hitEnter();
   } else if (e.key === 'Backspace') {
-    hitBackspace()
+    hitBackspace();
   } else if (alphabet.includes(e.key)) {
-    typeLetter(e.key)
+    typeLetter(e.key);
   }
-}
+};
 
 onMounted(() => {
-  window.addEventListener('keydown', eventListener)
-})
+  window.addEventListener('keydown', eventListener);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', eventListener)
-})
+  window.removeEventListener('keydown', eventListener);
+});
 
 const pressKey = (key) => {
   if (
@@ -69,30 +69,30 @@ const pressKey = (key) => {
     runningAction.value ||
     !GameFlow.isItMyTurn(game.value)
   ) {
-    return
+    return;
   }
   if (key.key === 'enter') {
-    hitEnter()
+    hitEnter();
   } else if (key.key === 'backspace') {
-    hitBackspace()
+    hitBackspace();
   } else if (alphabet.includes(key.key)) {
-    typeLetter(key.key)
+    typeLetter(key.key);
   }
-}
+};
 
 const hints = computed(() => {
-  let hints = {}
+  let hints = {};
   for (let guess of props.guesses) {
     for (let i = 0; i < guess.word.length; i++) {
       if (
         guess.hints[i] > hints[guess.word[i]] ||
         hints[guess.word[i]] === undefined
       )
-        hints[guess.word[i]] = guess.hints[i]
+        hints[guess.word[i]] = guess.hints[i];
     }
   }
-  return hints
-})
+  return hints;
+});
 </script>
 
 <template>

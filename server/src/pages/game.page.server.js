@@ -7,43 +7,43 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import db from '../../../db/db2.js'
-import { fetchUser } from '../../utils/discord-api'
-import { gameTypes } from '@app/games/game-types.js'
-import { RenderErrorPage } from 'vite-plugin-ssr'
-import { createApp } from '@app/renderer/gameApp'
+import db from '../../../db/db2.js';
+import { fetchUser } from '../../utils/discord-api';
+import { gameTypes } from '@app/games/game-types.js';
+import { RenderErrorPage } from 'vite-plugin-ssr';
+import { createApp } from '@app/renderer/gameApp';
 // import { createApp } from '@app/renderer/app'
-import { renderToString } from '@vue/server-renderer'
-import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
-import * as Client from '@app/js/client-framework.js'
-import { GameConnectionError } from '../games/GameErrors.js'
+import { renderToString } from '@vue/server-renderer';
+import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr';
+import * as Client from '@app/js/client-framework.js';
+import { GameConnectionError } from '../games/GameErrors.js';
 
 export async function onBeforeRender(pageContext) {
   // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`
-  const { gameId } = pageContext.routeParams
-  const passedPageContext = {}
+  const { gameId } = pageContext.routeParams;
+  const passedPageContext = {};
 
-  const pageProps = {}
+  const pageProps = {};
   // FETCH GAME HERE
 
-  const { userId } = pageContext
+  const { userId } = pageContext;
   if (userId === null || userId === undefined) {
     return {
       pageContext: {
         documentHtml: null,
         redirectTo: '/sign-in',
       },
-    }
+    };
   }
 
-  const user = await db.users.getById(userId)
+  const user = await db.users.getById(userId);
   if (!user) {
     return {
       pageContext: {
         documentHtml: null,
         redirectTo: '/sign-in',
       },
-    }
+    };
   }
 
   if (user.banned) {
@@ -51,33 +51,33 @@ export async function onBeforeRender(pageContext) {
       pageContext: {
         errorInfo: 'You are not allowed to join this game.',
       },
-    })
+    });
   }
 
   if (gameId) {
-    var dbGame = await db.games.getById(gameId)
+    var dbGame = await db.games.getById(gameId);
 
     if (dbGame) {
       // get game type
-      var gameType = gameTypes[dbGame._doc.typeId]
+      var gameType = gameTypes[dbGame._doc.typeId];
 
       // create instance of game
-      var game = new gameType.Game(dbGame._doc)
+      var game = new gameType.Game(dbGame._doc);
 
-      let cperm = await game.canUserSocketConnect(userId)
+      let cperm = await game.canUserSocketConnect(userId);
 
       if (cperm.ok) {
         // send game info to user
-        const { typeId } = game
+        const { typeId } = game;
 
         // const { default: vueApp } = await import(`../pages/App.vue`);
         // let { default: indexPage } = await import('./Loading.page.vue')
 
-        pageProps.gameType = typeId
-        pageContext.game = game.getDataForClient(userId)
-        pageContext.discordUser = await fetchUser(userId)
+        pageProps.gameType = typeId;
+        pageContext.game = game.getDataForClient(userId);
+        pageContext.discordUser = await fetchUser(userId);
         // Are there multiple players trying to play this turn?
-        pageContext.contested = game.isConnectionContested(userId)
+        pageContext.contested = game.isConnectionContested(userId);
 
         if (!pageContext.discordUser) {
           // Make user sign in if couldn't fetch discord user
@@ -86,40 +86,40 @@ export async function onBeforeRender(pageContext) {
               documentHtml: null,
               redirectTo: '/sign-in',
             },
-          }
+          };
         }
-        pageContext.user = user._doc
+        pageContext.user = user._doc;
       } else {
         // For some reason user isn't allowed to join (isn't in same server, game full, etc)
         throw RenderErrorPage({
           pageContext: {
             errorInfo: cperm.error,
           },
-        })
+        });
       }
     } else {
       throw RenderErrorPage({
         pageContext: {
           errorInfo: 'Game not found',
         },
-      })
+      });
     }
   } else {
     throw RenderErrorPage({
       pageContext: {
         errorInfo: 'Game not found',
       },
-    })
+    });
   }
-  const { Page } = pageContext
-  pageContext.pageProps = pageProps
+  const { Page } = pageContext;
+  pageContext.pageProps = pageProps;
 
   return {
     pageContext: {
       Page,
       pageProps,
     },
-  }
+  };
 }
 
 export async function render(pageContext) {
@@ -129,22 +129,22 @@ export async function render(pageContext) {
       pageContext: {
         redirectTo: pageContext.redirectTo,
       },
-    }
+    };
   }
 
   // Otherwise go ahead and render page
-  const { app, store } = createApp(pageContext)
+  const { app, store } = createApp(pageContext);
 
   // See https://vite-plugin-ssr.com/head
-  const { documentProps } = pageContext
-  const title = (documentProps && documentProps.title) || 'Arcadecord'
+  const { documentProps } = pageContext;
+  const title = (documentProps && documentProps.title) || 'Arcadecord';
   const desc =
-    (documentProps && documentProps.description) || 'Message games for Discord'
+    (documentProps && documentProps.description) || 'Message games for Discord';
 
-  const INITIAL_STATE = store.state
+  const INITIAL_STATE = store.state;
 
   // Expose everything except for discord access and refresh token
-  let { settings, _id, discordId, joined } = pageContext.user
+  let { settings, _id, discordId, joined } = pageContext.user;
 
   store.commit('SETUP', {
     game: pageContext.game,
@@ -156,10 +156,10 @@ export async function render(pageContext) {
       joined,
     },
     contested: pageContext.contested,
-  })
-  store.commit('REPLAY_TURN')
+  });
+  store.commit('REPLAY_TURN');
 
-  const appHtml = await renderToString(app)
+  const appHtml = await renderToString(app);
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -179,7 +179,7 @@ export async function render(pageContext) {
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
       </body>
-    </html>`
+    </html>`;
 
   return {
     documentHtml,
@@ -188,11 +188,11 @@ export async function render(pageContext) {
       Page: pageContext.Page,
       pageProps: pageContext.pageProps,
     },
-  }
+  };
 }
 
 // By default `pageContext.*` are available only on the server. But our hydrate function
 // we defined earlier runs in the browser and needs `pageContext.pageProps`; we use
 // `passToClient` to tell `vite-plugin-ssr` to serialize and make `pageContext.pageProps`
 // available to the browser.
-export const passToClient = ['pageProps', 'INITIAL_STATE']
+export const passToClient = ['pageProps', 'INITIAL_STATE'];

@@ -7,64 +7,64 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import * as THREE from 'three'
-import * as CANNON from 'cannon-es'
-import Common from '/gamecommons/8ball'
-import { textureLoader } from './textureLoader.js'
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+import Common from '/gamecommons/8ball';
+import { textureLoader } from './textureLoader.js';
 
 export class Ball {
-  static RADIUS = Common.Ball.RADIUS // m
-  static MASS = Common.Ball.MASS // kg
-  static CONTACT_MATERIAL = new CANNON.Material('ballMaterial')
+  static RADIUS = Common.Ball.RADIUS; // m
+  static MASS = Common.Ball.MASS; // kg
+  static CONTACT_MATERIAL = new CANNON.Material('ballMaterial');
 
-  scene
-  world
-  color
-  position = { x: 0, y: 0, z: 0 }
-  quaternion = { x: 0, y: 0, z: 0, w: 1 }
-  out = false
-  name
-  texture
-  fallen
-  mesh
-  sphere
-  body
+  scene;
+  world;
+  color;
+  position = { x: 0, y: 0, z: 0 };
+  quaternion = { x: 0, y: 0, z: 0, w: 1 };
+  out = false;
+  name;
+  texture;
+  fallen;
+  mesh;
+  sphere;
+  body;
 
   constructor(scene, world, x, y, z, name, color, quaternion, out, texture) {
-    this.color = color ?? 0xaa0000
+    this.color = color ?? 0xaa0000;
 
-    this.scene = scene
-    this.world = world
-    this.position.x = x
-    this.position.y = y
-    this.position.z = z
+    this.scene = scene;
+    this.world = world;
+    this.position.x = x;
+    this.position.y = y;
+    this.position.z = z;
     this.quaternion = quaternion ?? {
       x: 0,
       y: 0,
       z: 0,
       w: 1,
-    }
-    this.out = out ?? false
-    this.name = name ?? 'Ball'
+    };
+    this.out = out ?? false;
+    this.name = name ?? 'Ball';
 
-    this.texture = texture
+    this.texture = texture;
 
-    this.mesh = this.createMesh()
-    this.scene.add(this.mesh)
+    this.mesh = this.createMesh();
+    this.scene.add(this.mesh);
 
-    this.sphere = new THREE.Sphere(this.mesh.position, Ball.RADIUS) //used for guiding line intersection detecting
+    this.sphere = new THREE.Sphere(this.mesh.position, Ball.RADIUS); //used for guiding line intersection detecting
 
-    this.fallen = false
+    this.fallen = false;
 
-    this.body = this.createBody()
-    this.world.addBody(this.body)
+    this.body = this.createBody();
+    this.world.addBody(this.body);
 
     // console.log(this.mesh.quaternion)
-    this.forward = new THREE.Vector3(1, 0, 0)
+    this.forward = new THREE.Vector3(1, 0, 0);
   }
 
   createMesh() {
-    var geometry = new THREE.SphereGeometry(Ball.RADIUS, 10, 10)
+    var geometry = new THREE.SphereGeometry(Ball.RADIUS, 10, 10);
     var material = new THREE.MeshPhongMaterial({
       specular: 0xffffff,
       shininess: 100,
@@ -72,31 +72,31 @@ export class Ball {
       //envMap: Ball.envMap,
       combine: THREE.AddOperation,
       flatShading: false,
-    })
+    });
 
     if (typeof this.texture == 'undefined') {
-      material.color = new THREE.Color(this.color ?? 0xff0000)
+      material.color = new THREE.Color(this.color ?? 0xff0000);
     } else {
       textureLoader.load(this.texture, function (tex) {
-        material.map = tex
-        material.needsUpdate = true
-      })
+        material.map = tex;
+        material.needsUpdate = true;
+      });
     }
 
-    var sphere = new THREE.Mesh(geometry, material)
+    var sphere = new THREE.Mesh(geometry, material);
 
-    sphere.position.set(this.position.x, this.position.y, this.position.z)
+    sphere.position.set(this.position.x, this.position.y, this.position.z);
     sphere.quaternion.set(
       this.quaternion.x,
       this.quaternion.y,
       this.quaternion.z,
       this.quaternion.w
-    )
+    );
 
-    sphere.castShadow = true
-    sphere.receiveShadow = false
+    sphere.castShadow = true;
+    sphere.receiveShadow = false;
 
-    return sphere
+    return sphere;
   }
 
   createBody() {
@@ -115,16 +115,16 @@ export class Ball {
         this.quaternion.z,
         this.quaternion.w
       ),
-    })
+    });
 
-    body.linearDamping = body.angularDamping = 0.5 // Hardcode
-    body.allowSleep = true
+    body.linearDamping = body.angularDamping = 0.5; // Hardcode
+    body.allowSleep = true;
 
     // Sleep parameters
-    body.sleepSpeedLimit = 0.5 // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
-    body.sleepTimeLimit = 0.1 // Body falls asleep after 1s of sleepiness
+    body.sleepSpeedLimit = 0.5; // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
+    body.sleepTimeLimit = 0.1; // Body falls asleep after 1s of sleepiness
 
-    return body
+    return body;
   }
 
   tick() {
@@ -138,54 +138,54 @@ export class Ball {
       this.body.position.x,
       this.body.position.y,
       this.body.position.z
-    )
+    );
     this.mesh.quaternion.set(
       this.body.quaternion.x,
       this.body.quaternion.y,
       this.body.quaternion.z,
       this.body.quaternion.w
-    )
+    );
   }
 
   updateBody() {
-    this.body.position.set(this.position.x, this.position.y, this.position.z)
-    this.body.velocity.set(0, 0, 0)
-    this.body.angularVelocity.set(0, 0, 0)
+    this.body.position.set(this.position.x, this.position.y, this.position.z);
+    this.body.velocity.set(0, 0, 0);
+    this.body.angularVelocity.set(0, 0, 0);
     if (this.out) {
-      this.body.position.set(0, -0.3, 0)
-      this.body.type = CANNON.Body.STATIC
-      this.body.mass = 0
-      this.body.sleep()
+      this.body.position.set(0, -0.3, 0);
+      this.body.type = CANNON.Body.STATIC;
+      this.body.mass = 0;
+      this.body.sleep();
     } else {
-      this.body.mass = Ball.MASS
-      this.body.type = CANNON.Body.DYNAMIC
-      this.body.wakeUp()
+      this.body.mass = Ball.MASS;
+      this.body.type = CANNON.Body.DYNAMIC;
+      this.body.wakeUp();
     }
   }
 
   hit(strength, angle, spin /* Vector2 */) {
-    let a = (angle - Math.PI / 2) % (2 * Math.PI)
-    this.forward.set(Math.cos(a), 0, -Math.sin(a))
+    let a = (angle - Math.PI / 2) % (2 * Math.PI);
+    this.forward.set(Math.cos(a), 0, -Math.sin(a));
     console.log(
       `hit with power ${strength} angle ${angle} spin ${JSON.stringify(spin)}`
-    )
-    let s = strength * 1
-    var force = new CANNON.Vec3()
-    force.copy(this.forward.normalize())
-    force.scale(s, force)
-    var point = new CANNON.Vec3()
+    );
+    let s = strength * 1;
+    var force = new CANNON.Vec3();
+    force.copy(this.forward.normalize());
+    force.scale(s, force);
+    var point = new CANNON.Vec3();
     // point.copy(this.body.position)
-    var vec = new CANNON.Vec3()
-    vec.copy(this.forward)
-    vec.normalize()
-    vec.scale(Ball.RADIUS, vec)
-    point.vsub(vec, point)
+    var vec = new CANNON.Vec3();
+    vec.copy(this.forward);
+    vec.normalize();
+    vec.scale(Ball.RADIUS, vec);
+    point.vsub(vec, point);
     // point = new CANNON.Vec3(0, 0, 0)
     // point.copy(this.body.position)
     // point.set(point.x, point.y, point.z)
-    this.body.applyImpulse(force, point)
+    this.body.applyImpulse(force, point);
     // this.body.applyForce(force, point)
-    console.log(vec, force, point)
+    console.log(vec, force, point);
 
     // let a = (angle - Math.PI / 2) % (2 * Math.PI)
 

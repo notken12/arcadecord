@@ -10,11 +10,11 @@
 -->
 
 <script setup>
-import Header from 'components/index/Header.vue'
-import Content from 'components/index/Content.vue'
-import Footer from 'components/index/Footer.vue'
-import Button from 'components/index/Button.vue'
-import LinkButton from 'components/index/LinkButton.vue'
+import Header from 'components/index/Header.vue';
+import Content from 'components/index/Content.vue';
+import Footer from 'components/index/Footer.vue';
+import Button from 'components/index/Button.vue';
+import LinkButton from 'components/index/LinkButton.vue';
 </script>
 
 <template>
@@ -28,9 +28,9 @@ import LinkButton from 'components/index/LinkButton.vue'
           feedback on Arcadecord, as well as stay up to date on news and
           upcoming features.
         </p>
-        
-          <LinkButton href="/discord-invite">Join Discord</LinkButton>
-        
+
+        <LinkButton href="/discord-invite">Join Discord</LinkButton>
+
         <p>
           <span>Alternatively, you can email us at&nbsp;</span>
           <a href="mailto:help@arcadecord.io">help@arcadecord.io</a

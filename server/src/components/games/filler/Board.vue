@@ -24,36 +24,36 @@
 </template>
 
 <script setup>
-import Cell from './Cell.vue'
-import Common from '/gamecommons/filler'
-import GameFlow from '@app/js/GameFlow.js'
-import { useFacade } from '@app/components/base-ui/facade'
-import { computed, ref } from 'vue'
-import { useAspectRatio } from '@app/components/base-ui/aspectRatio'
+import Cell from './Cell.vue';
+import Common from '/gamecommons/filler';
+import GameFlow from '@app/js/GameFlow.js';
+import { useFacade } from '@app/components/base-ui/facade';
+import { computed, ref } from 'vue';
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 
-const el = ref(null)
+const el = ref(null);
 
-const { game } = useFacade()
+const { game } = useFacade();
 
 const board = computed(() => {
-  return game.value.data.board
-})
+  return game.value.data.board;
+});
 
-useAspectRatio(game.value.data.board.width / game.value.data.board.height, el)
+useAspectRatio(game.value.data.board.width / game.value.data.board.height, el);
 
 const playerBlob = computed(() => {
-  return Common.Board.getPlayerBlob(board.value, game.value.myIndex)
-})
+  return Common.Board.getPlayerBlob(board.value, game.value.myIndex);
+});
 
 const isCellBlob = (cell) => {
-  if (!GameFlow.isItMyTurn(game.value)) return false
+  if (!GameFlow.isItMyTurn(game.value)) return false;
   for (let coord of playerBlob.value) {
     if (cell.row === coord.row && cell.col === coord.col) {
-      return true
+      return true;
     }
   }
-  return false
-}
+  return false;
+};
 </script>
 
 <style lang="scss">

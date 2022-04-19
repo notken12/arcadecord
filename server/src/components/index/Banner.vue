@@ -10,8 +10,8 @@
 -->
 
 <script setup>
-import Header from './Header.vue'
-import Hero from './Hero.vue'
+import Header from './Header.vue';
+import Hero from './Hero.vue';
 </script>
 
 <template>

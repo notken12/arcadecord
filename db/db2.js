@@ -7,10 +7,10 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import crypto from 'crypto'
+import crypto from 'crypto';
 
-import mongoose from 'mongoose'
-const Schema = mongoose.Schema
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
   name: String,
@@ -32,9 +32,9 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-})
+});
 
-const User = mongoose.models.User || mongoose.model('User', userSchema)
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 const gameSchema = new Schema({
   _id: String,
@@ -75,9 +75,9 @@ const gameSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
-})
+});
 
-const Game = mongoose.models.Game || mongoose.model('Game', gameSchema)
+const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 const slashCommandOptionsSchema = new Schema({
   _id: String,
@@ -85,110 +85,110 @@ const slashCommandOptionsSchema = new Schema({
   inThread: Boolean,
   gameConfig: Object,
   typeId: String,
-})
+});
 
 const SlashCommandOptions =
   mongoose.models.SlashCommandOptions ||
-  mongoose.model('SlashCommandOptions', slashCommandOptionsSchema)
+  mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
 
 const db = {
   async connect(uri) {
-    await mongoose.connect(uri ?? process.env.MONGODB_URI)
+    await mongoose.connect(uri ?? process.env.MONGODB_URI);
   },
   users: {
     getHash: function (token) {
       if (!token) {
-        return null
+        return null;
       }
-      return crypto.createHash('sha256').update(token).digest('hex')
+      return crypto.createHash('sha256').update(token).digest('hex');
     },
     async create(data) {
       try {
-        var newUser = new User(data)
-        return await newUser.save()
+        var newUser = new User(data);
+        return await newUser.save();
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async getById(id) {
       try {
-        return await User.findById(id)
+        return await User.findById(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async getByDiscordId(id) {
       try {
-        return await User.findOne({ discordId: id })
+        return await User.findOne({ discordId: id });
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async getByAccessToken(token) {
       try {
         if (!token) {
-          return null
+          return null;
         }
-        return await User.findOne({ discordAccessToken: token })
+        return await User.findOne({ discordAccessToken: token });
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async update(id, data) {
       try {
-        return await User.findByIdAndUpdate(id, data, { new: true })
+        return await User.findByIdAndUpdate(id, data, { new: true });
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async delete(id) {
       try {
-        return await User.findByIdAndRemove(id)
+        return await User.findByIdAndRemove(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async generateAccessToken(id) {
-      var user = await this.getById(id)
+      var user = await this.getById(id);
 
       if (!user) {
-        return null
+        return null;
       }
 
       // generate token
-      var token = crypto.randomBytes(32).toString('hex')
+      var token = crypto.randomBytes(32).toString('hex');
       // hash token
-      var hash = this.getHash(token)
+      var hash = this.getHash(token);
       // update user with new token
 
-      user.accessTokenHash = hash
-      await user.save()
-      return token
+      user.accessTokenHash = hash;
+      await user.save();
+      return token;
     },
   },
   games: {
     async create(data) {
       try {
-        var newGame = new Game(data)
-        newGame._id = data.id
-        return await newGame.save()
+        var newGame = new Game(data);
+        newGame._id = data.id;
+        return await newGame.save();
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async getById(id) {
       try {
-        return await Game.findById(id)
+        return await Game.findById(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async update(id, data) {
@@ -200,58 +200,58 @@ const db = {
             lastModifiedDate: mongoose.now(),
           },
           { new: true }
-        )
+        );
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async delete(id) {
       try {
-        return await Game.findByIdAndRemove(id)
+        return await Game.findByIdAndRemove(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
   },
   slashCommandOptions: {
     async create(data) {
       try {
-        var newSlashCommandOptions = new SlashCommandOptions(data)
-        return await newSlashCommandOptions.save()
+        var newSlashCommandOptions = new SlashCommandOptions(data);
+        return await newSlashCommandOptions.save();
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async getById(id) {
       try {
-        return await SlashCommandOptions.findById(id)
+        return await SlashCommandOptions.findById(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async update(id, data) {
       try {
         return await SlashCommandOptions.findByIdAndUpdate(id, data, {
           new: true,
-        })
+        });
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
     async delete(id) {
       try {
-        return await SlashCommandOptions.findByIdAndRemove(id)
+        return await SlashCommandOptions.findByIdAndRemove(id);
       } catch (e) {
-        console.error(e)
-        return null
+        console.error(e);
+        return null;
       }
     },
   },
-}
+};
 
-export default db
+export default db;

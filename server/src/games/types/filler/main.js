@@ -8,13 +8,13 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js'
+import Common from './common.js';
 
 // Import Game class
-import Game from '../../Game.js'
+import Game from '../../Game.js';
 
 // Import Canvas to draw thumbnail
-import Canvas from 'canvas'
+import Canvas from 'canvas';
 
 // Game options, required. Export as options
 // README.md
@@ -27,7 +27,7 @@ const options = {
   maxPlayers: 2,
   emoji: '<:filler:956316583016403045>',
   data: {},
-}
+};
 
 // Game constructor, extends base Game class
 // Don't forget to super(options);
@@ -35,7 +35,7 @@ class FillerGame extends Game {
   constructor(config) {
     // Creates a game with the options
     // Required
-    super(options, config) // Config is the options given by the user, and other things like the channel and guild
+    super(options, config); // Config is the options given by the user, and other things like the channel and guild
 
     // Generate new board if board doesn't exist
     // if (!this.board) {
@@ -44,10 +44,10 @@ class FillerGame extends Game {
     //     };
     // }
 
-    this.on('init', Game.eventHandlersDiscord.init)
-    this.on('turn', Game.eventHandlersDiscord.turn)
+    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('turn', Game.eventHandlersDiscord.turn);
 
-    this.setActionModel('switchColors', Common.action_switchColors)
+    this.setActionModel('switchColors', Common.action_switchColors);
     this.setActionSchema('switchColors', {
       type: 'object',
       properties: {
@@ -57,7 +57,7 @@ class FillerGame extends Game {
           minimum: 0,
         },
       },
-    })
+    });
   }
 
   onInit(game) {
@@ -65,9 +65,9 @@ class FillerGame extends Game {
     if (!this.board) {
       this.data = {
         board: new Common.Board(8, 7),
-      }
+      };
     }
-    return game
+    return game;
   }
 
   async getThumbnail() {
@@ -78,52 +78,52 @@ class FillerGame extends Game {
       '#00e676',
       '#2979ff',
       '#d500f9',
-    ]
+    ];
 
     const canvas = Canvas.createCanvas(
       Game.thumbnailDimensions.width,
       Game.thumbnailDimensions.height
-    )
-    const ctx = canvas.getContext('2d')
+    );
+    const ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = 'white'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    let board = this.data.board
+    let board = this.data.board;
 
-    const sl = (canvas.height - 32) / board.height
+    const sl = (canvas.height - 32) / board.height;
     const topLeft = {
       x: canvas.width / 2 - (sl * board.width) / 2,
       y: canvas.height / 2 - (sl * board.height) / 2,
-    }
+    };
 
-    ctx.shadowBlur = 6
-    ctx.shadowColor = '#000000ee'
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillStyle = 'transparent'
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = '#000000ee';
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = 'transparent';
 
-    ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl)
+    ctx.fillRect(topLeft.x, topLeft.y, board.width * sl, board.height * sl);
 
-    ctx.shadowBlur = 0
+    ctx.shadowBlur = 0;
 
     for (let row = 0; row < board.height; row++) {
       for (let col = 0; col < board.width; col++) {
-        let x = topLeft.x + sl * col
-        let y = topLeft.y + sl * row
+        let x = topLeft.x + sl * col;
+        let y = topLeft.y + sl * row;
 
-        let cell = board.cells[row][col]
+        let cell = board.cells[row][col];
 
-        ctx.fillStyle = colors[cell.color]
-        ctx.fillRect(x, y, sl, sl)
+        ctx.fillStyle = colors[cell.color];
+        ctx.fillRect(x, y, sl, sl);
       }
     }
 
-    return canvas
+    return canvas;
   }
 }
 
 export default {
   options,
   Game: FillerGame,
-}
+};

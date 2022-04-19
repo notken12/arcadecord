@@ -7,13 +7,13 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-const tenYears = 1000 * 60 * 60 * 24 * 365 * 10
+const tenYears = 1000 * 60 * 60 * 24 * 365 * 10;
 
 export default (req, res) => {
   res.clearCookie('accessToken', {
     httpOnly: true,
     maxAge: tenYears,
-  })
+  });
 
-  res.redirect('/')
-}
+  res.redirect('/');
+};

@@ -16,8 +16,8 @@ export default {
       if (
         await oldThread.members.fetch(oldThread.client.user.id).catch(() => {})
       ) {
-        newThread.setArchived(false)
+        newThread.setArchived(false);
       }
     }
   },
-}
+};

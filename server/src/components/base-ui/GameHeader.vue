@@ -27,28 +27,28 @@
 </template>
 
 <script setup>
-import bus from '@app/js/vue-event-bus.js'
-import { useFacade } from './facade'
-import PlayersView from './PlayersView.vue'
-import { computed } from 'vue'
-import GameFlow from '@app/js/GameFlow'
+import bus from '@app/js/vue-event-bus.js';
+import { useFacade } from './facade';
+import PlayersView from './PlayersView.vue';
+import { computed } from 'vue';
+import GameFlow from '@app/js/GameFlow';
 
-const { game, replaying } = useFacade()
+const { game, replaying } = useFacade();
 
 defineProps({
   hint: String,
-})
+});
 
 const isItMyTurn = computed(() => {
-  return GameFlow.isItMyTurn(game.value) || replaying.value
-})
+  return GameFlow.isItMyTurn(game.value) || replaying.value;
+});
 
 const openManual = () => {
-  bus.emit('open-manual')
-}
+  bus.emit('open-manual');
+};
 const openSettings = () => {
-  bus.emit('open-settings')
-}
+  bus.emit('open-settings');
+};
 </script>
 
 <style lang="scss" scoped>

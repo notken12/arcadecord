@@ -5,5 +5,5 @@ export default (req, res) => {
       '&redirect_uri=' +
       encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
       '&response_type=code&scope=identify%20email'
-  )
-}
+  );
+};

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import confetti from 'canvas-confetti'
+import confetti from 'canvas-confetti';
 
 var colors = [
   '#ff1744',
@@ -41,36 +41,36 @@ var colors = [
   '#ffc400',
   '#ff9100',
   '#ff3d00',
-]
-colors = ['#3d5afe', '#651fff', '#2979ff', '#00b0ff', '#00e5ff']
+];
+colors = ['#3d5afe', '#651fff', '#2979ff', '#00b0ff', '#00e5ff'];
 
 function showConfetti1() {
-  var duration = 10 * 1000
-  var animationEnd = Date.now() + duration
-  var skew = 1
+  var duration = 10 * 1000;
+  var animationEnd = Date.now() + duration;
+  var skew = 1;
   // use bright colorful colors
 
   function randomInRange(min, max) {
-    return Math.random() * (max - min) + min
+    return Math.random() * (max - min) + min;
   }
 
-  var previousTimestamp
-  ;(function frame(time) {
-    var count = window.innerWidth / 35
-    var averageInterval = 1000
+  var previousTimestamp;
+  (function frame(time) {
+    var count = window.innerWidth / 35;
+    var averageInterval = 1000;
 
-    var chance = count / averageInterval
+    var chance = count / averageInterval;
 
-    let timeLeft = animationEnd - Date.now()
+    let timeLeft = animationEnd - Date.now();
 
     if (previousTimestamp === undefined && time !== undefined)
-      previousTimestamp = time + 0
+      previousTimestamp = time + 0;
 
-    let elapsed = time - previousTimestamp
+    let elapsed = time - previousTimestamp;
 
-    let rng = Math.random()
+    let rng = Math.random();
     if (rng <= chance * elapsed) {
-      var ticks = window.innerHeight * 1.5
+      var ticks = window.innerHeight * 1.5;
       //skew = Math.max(0.8, skew - 0.001);
 
       confetti({
@@ -86,29 +86,29 @@ function showConfetti1() {
         drift: randomInRange(-0.4, 0.4),
         shapes: ['square', 'square'],
         ticks: ticks,
-      })
+      });
     }
 
-    previousTimestamp = time + 0
+    previousTimestamp = time + 0;
 
     if (timeLeft > 0) {
-      requestAnimationFrame(frame)
+      requestAnimationFrame(frame);
     }
-  })()
+  })();
 }
 
 function showConfetti2() {
-  var count = 100
+  var count = 100;
   var defaults = {
     origin: { y: 0.5 },
-  }
+  };
 
   function fire(particleRatio, opts) {
     confetti(
       Object.assign({}, defaults, opts, {
         particleCount: Math.floor(count * particleRatio),
       })
-    )
+    );
   }
 
   fire(0.25, {
@@ -116,19 +116,19 @@ function showConfetti2() {
     startVelocity: 55,
     colors: colors,
     shapes: ['square'],
-  })
+  });
   fire(0.2, {
     spread: 60,
     colors: colors,
     shapes: ['square'],
-  })
+  });
   fire(0.35, {
     spread: 100,
     decay: 0.91,
     scalar: 0.8,
     colors: colors,
     shapes: ['square'],
-  })
+  });
   fire(0.1, {
     spread: 120,
     startVelocity: 25,
@@ -136,40 +136,40 @@ function showConfetti2() {
     scalar: 1.2,
     colors: colors,
     shapes: ['square'],
-  })
+  });
   fire(0.1, {
     spread: 120,
     startVelocity: 45,
     colors: colors,
     shapes: ['square'],
-  })
+  });
 }
 
 export default {
   data() {
-    return {}
+    return {};
   },
   methods: {
     showConfetti2() {
       if (this.confettiEnabled) {
-        showConfetti2()
+        showConfetti2();
       }
     },
   },
   computed: {
     confettiEnabled() {
-      return this.$store.state.user.settings.enableConfetti
+      return this.$store.state.user.settings.enableConfetti;
     },
     buttonStyles() {
       return {
         cursor: this.confettiEnabled ? 'pointer' : 'default',
-      }
+      };
     },
   },
   mounted() {
     if (this.confettiEnabled) {
-      showConfetti1()
+      showConfetti1();
     }
   },
-}
+};
 </script>

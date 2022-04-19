@@ -10,32 +10,32 @@
 -->
 
 <script setup>
-import PowerControl from './PowerControl.vue'
-import SpinControl from './SpinControl.vue'
-import AssignedPattern from './AssignedPattern.vue'
+import PowerControl from './PowerControl.vue';
+import SpinControl from './SpinControl.vue';
+import AssignedPattern from './AssignedPattern.vue';
 
-import { useFacade } from 'components/base-ui/facade'
-import { computed, ref, onMounted, watch, onUnmounted, watchEffect } from 'vue'
+import { useFacade } from 'components/base-ui/facade';
+import { computed, ref, onMounted, watch, onUnmounted, watchEffect } from 'vue';
 
-import * as THREE from 'three'
+import * as THREE from 'three';
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import * as CANNON from 'cannon-es'
+import * as CANNON from 'cannon-es';
 
-import { Ball } from '@app/js/games/8ball/Ball'
-import { Table } from '@app/js/games/8ball/Table'
+import { Ball } from '@app/js/games/8ball/Ball';
+import { Table } from '@app/js/games/8ball/Table';
 
-import CannonDebugger from 'cannon-es-debugger'
+import CannonDebugger from 'cannon-es-debugger';
 
-import gsap from 'gsap'
-import { Draggable } from 'gsap/dist/Draggable'
+import gsap from 'gsap';
+import { Draggable } from 'gsap/dist/Draggable';
 
-import { getCollisionLocation } from '@app/js/games/8ball/utils'
-import GameFlow from '@app/js/GameFlow'
+import { getCollisionLocation } from '@app/js/games/8ball/utils';
+import GameFlow from '@app/js/GameFlow';
 
-import { replayAction } from '@app/js/client-framework'
-import { drawCueControls } from '@app/js/games/8ball/canvas'
+import { replayAction } from '@app/js/client-framework';
+import { drawCueControls } from '@app/js/games/8ball/canvas';
 
 const {
   game,
@@ -46,34 +46,34 @@ const {
   $endReplay,
   $runAction,
   $endAnimation,
-} = useFacade()
+} = useFacade();
 
 let hint = computed(() => {
-  return ''
-})
+  return '';
+});
 
-let replayRunning = ref(false)
+let replayRunning = ref(false);
 
-let gameActive
+let gameActive;
 
 const gameActiveRef = computed(() => {
-  return GameFlow.isItMyTurn(game.value) || replayRunning.value
-})
+  return GameFlow.isItMyTurn(game.value) || replayRunning.value;
+});
 
 watch(
   gameActiveRef,
   (v) => {
-    gameActive = v
+    gameActive = v;
   },
   { immediate: true }
-)
+);
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
-})
-world.solver.iterations = 10
-world.solver.tolerance = 0 // Force solver to use all iterations
-world.allowSleep = true
+});
+world.solver.iterations = 10;
+world.solver.tolerance = 0; // Force solver to use all iterations
+world.allowSleep = true;
 
 function setCollisionBehavior() {
   // world.defaultContactMaterial.friction = 0.1
@@ -101,20 +101,20 @@ function setCollisionBehavior() {
   // world.addContactMaterial(ball_wall)
   // world.addContactMaterial(ball_ball)
 
-  world.defaultContactMaterial.friction = 0.1
-  world.defaultContactMaterial.restitution = 0.85
+  world.defaultContactMaterial.friction = 0.1;
+  world.defaultContactMaterial.restitution = 0.85;
 
   var ball_floor = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.FLOOR_CONTACT_MATERIAL,
     { friction: 0.7, restitution: 0.1 }
-  )
+  );
 
   var ball_wall = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
     Table.WALL_CONTACT_MATERIAL,
     { friction: 0.5, restitution: 0.9 }
-  )
+  );
 
   var ball_ball = new CANNON.ContactMaterial(
     Ball.CONTACT_MATERIAL,
@@ -127,23 +127,23 @@ function setCollisionBehavior() {
       contactEquationRelaxation: 1,
       //contactEquationStiffness: 1e15,
     }
-  )
+  );
 
-  world.addContactMaterial(ball_floor)
-  world.addContactMaterial(ball_wall)
-  world.addContactMaterial(ball_ball)
+  world.addContactMaterial(ball_floor);
+  world.addContactMaterial(ball_wall);
+  world.addContactMaterial(ball_ball);
 }
 
-let actionsToReplay = []
+let actionsToReplay = [];
 
-const canvas = ref(null)
-const controlsCanvas = ref(null)
-const canvasWrapper = ref(null)
-const spinner = ref(null)
-const spinnerEnabled = ref(!replaying.value)
+const canvas = ref(null);
+const controlsCanvas = ref(null);
+const canvasWrapper = ref(null);
+const spinner = ref(null);
+const spinnerEnabled = ref(!replaying.value);
 
-let orbitControlsEnabled = false
-let cannonDebuggerEnabled = false
+let orbitControlsEnabled = false;
+let cannonDebuggerEnabled = false;
 let scene,
   camera,
   orbitControls,
@@ -153,80 +153,80 @@ let scene,
   balls,
   cueBall,
   mode,
-  ctx
+  ctx;
 
-const fps = ref(0)
+const fps = ref(0);
 
-let shotAngle = 0.12076394834603342
+let shotAngle = 0.12076394834603342;
 let shotPowerSetter = {
   set val(v) {
-    shotPower = v
-    this._v = v
+    shotPower = v;
+    this._v = v;
   },
   get val() {
-    return this._v
+    return this._v;
   },
   _v: 0,
-} // for gsap
-let shotPower = 0
-let shotSpin = { x: 0, y: 0 }
+}; // for gsap
+let shotPower = 0;
+let shotSpin = { x: 0, y: 0 };
 
-let maxShotPower = 1
-let lastShotPower
+let maxShotPower = 1;
+let lastShotPower;
 
 const hitBall = (p, a, s) => {
   if (balls) {
-    let power = p ?? shotPower
-    let angle = a ?? shotAngle
-    let spin = s ?? shotSpin
-    console.log('Shot power: ' + power)
-    console.log(`Shot angle: ${angle}`)
+    let power = p ?? shotPower;
+    let angle = a ?? shotAngle;
+    let spin = s ?? shotSpin;
+    console.log('Shot power: ' + power);
+    console.log(`Shot angle: ${angle}`);
     if (power < 0.05) {
-      return
+      return;
     }
-    lastShotPower = power + 0 // remember the shot power so that
+    lastShotPower = power + 0; // remember the shot power so that
     // when the simulation ends it can run the action with the correct shot power
-    cueBall.hit(power * maxShotPower, angle, spin)
+    cueBall.hit(power * maxShotPower, angle, spin);
 
-    simulationRunningRef.value = true
-    shotPower = 0
+    simulationRunningRef.value = true;
+    shotPower = 0;
   }
-}
+};
 
 const changeShotPower = (power) => {
-  shotPower = power
-}
+  shotPower = power;
+};
 
 const changeShotSpin = (spin) => {
-  shotSpin = spin
-}
+  shotSpin = spin;
+};
 
-let simulationRunningRef = ref(false)
-let simulationRunning = false
+let simulationRunningRef = ref(false);
+let simulationRunning = false;
 
 let showControls = computed(() => {
-  return !simulationRunningRef.value && gameActiveRef.value
-})
+  return !simulationRunningRef.value && gameActiveRef.value;
+});
 
-let showControlsVal = false
-watch(showControls, (v) => (showControlsVal = v), { immediate: true })
+let showControlsVal = false;
+watch(showControls, (v) => (showControlsVal = v), { immediate: true });
 
-let spinnerDraggable = null
+let spinnerDraggable = null;
 watchEffect(() => {
-  if (!spinnerDraggable) return
+  if (!spinnerDraggable) return;
   if (!simulationRunning.value && gameActiveRef.value) {
-    setTimeout(updateSpinner, 0)
-    spinnerDraggable.enable()
+    setTimeout(updateSpinner, 0);
+    spinnerDraggable.enable();
   } else {
-    spinnerDraggable.disable()
+    spinnerDraggable.disable();
   }
-})
+});
 
-let scale
+let scale;
 
 const updateSpinner = () => {
-  if (!spinner.value) return
-  let cbbox = canvas.value.getBoundingClientRect() // canvas bounding box
+  if (!spinner.value) return;
+  let cbbox = canvas.value.getBoundingClientRect(); // canvas bounding box
   let cueBallPos = createVector(
     cueBall.body.position.x,
     cueBall.body.position.y,
@@ -234,7 +234,7 @@ const updateSpinner = () => {
     camera,
     canvas.value.width,
     canvas.value.height
-  )
+  );
 
   gsap.to(spinner.value, {
     duration: 0,
@@ -242,37 +242,37 @@ const updateSpinner = () => {
       cueBallPos.x / scale + cbbox.left - spinner.value.offsetWidth / 2 + 'px',
     top:
       cueBallPos.y / scale + cbbox.top - spinner.value.offsetHeight / 2 + 'px',
-  })
-}
+  });
+};
 
 function createVector(x, y, z, camera, width, height) {
-  var p = new THREE.Vector3(x, y, z)
-  var vector = p.project(camera)
+  var p = new THREE.Vector3(x, y, z);
+  var vector = p.project(camera);
 
-  vector.x = ((vector.x + 1) / 2) * width
-  vector.y = (-(vector.y - 1) / 2) * height
+  vector.x = ((vector.x + 1) / 2) * width;
+  vector.y = (-(vector.y - 1) / 2) * height;
 
-  return vector
+  return vector;
 }
 
-let firstActionReplayed = false
+let firstActionReplayed = false;
 
-const CUE_DRAWBACK_DURATION = 0.7 // seconds
-const CUE_THRUST_DURATION = 0.2 // seconds
+const CUE_DRAWBACK_DURATION = 0.7; // seconds
+const CUE_THRUST_DURATION = 0.2; // seconds
 
 const replayNextShot = () => {
-  console.log('replaying hit')
+  console.log('replaying hit');
   // 1. Get the action
-  let action = actionsToReplay[0]
-  if (!action) return
-  let { angle, force: power, spin } = action.data
+  let action = actionsToReplay[0];
+  if (!action) return;
+  let { angle, force: power, spin } = action.data;
   // 2. Rotate the stick to the action's angle
-  shotAngle = angle
+  shotAngle = angle;
   // 3. Show the pool stick being drawn back
-  console.log(`replay power: ${power}`)
-  console.log(action.data)
+  console.log(`replay power: ${power}`);
+  console.log(action.data);
 
-  const tl = gsap.timeline()
+  const tl = gsap.timeline();
   tl.fromTo(
     shotPowerSetter,
     {
@@ -283,7 +283,7 @@ const replayNextShot = () => {
       duration: CUE_DRAWBACK_DURATION,
       ease: 'power2.out',
     }
-  )
+  );
   tl.to(
     shotPowerSetter,
     {
@@ -292,31 +292,31 @@ const replayNextShot = () => {
       ease: 'power2.in',
       onComplete() {
         // 4. Apply force to ball
-        hitBall(power, angle, spin)
+        hitBall(power, angle, spin);
       },
     },
     '>'
-  )
-}
+  );
+};
 
 watch(replaying, (val) => {
   // If the replay is skipped, we need to reset the simulation
   if (!val) {
-    actionsToReplay = []
-    endSimulation(true)
-    spinnerEnabled.value = true
-    return
+    actionsToReplay = [];
+    endSimulation(true);
+    spinnerEnabled.value = true;
+    return;
   } else {
-    spinnerEnabled.value = false
+    spinnerEnabled.value = false;
   }
-})
+});
 
 const endSimulation = (skipReplay) => {
-  updateCueBallPos()
+  updateCueBallPos();
   // Run action if not replaying
   if (!skipReplay) {
     if (!replaying.value) {
-      let newBallStates = []
+      let newBallStates = [];
       for (let ball of balls) {
         let state = {
           out: ball.out,
@@ -324,51 +324,51 @@ const endSimulation = (skipReplay) => {
           quaternion: ball.body.quaternion,
           color: ball.color,
           name: ball.name,
-        }
-        newBallStates.push(state)
+        };
+        newBallStates.push(state);
       }
       $runAction('shoot', {
         angle: shotAngle,
         force: lastShotPower,
         newBallStates,
-      })
+      });
     }
     // Replay next action if replaying
     else {
-      let action = actionsToReplay.shift()
-      replayAction(game.value, action)
+      let action = actionsToReplay.shift();
+      replayAction(game.value, action);
       if (actionsToReplay.length === 0) {
-        $endReplay(0)
-        firstActionReplayed = false
+        $endReplay(0);
+        firstActionReplayed = false;
       } else {
         setTimeout(() => {
-          replayNextShot()
-        }, 0)
+          replayNextShot();
+        }, 0);
       }
     }
   }
 
-  simulationRunningRef.value = false
-}
+  simulationRunningRef.value = false;
+};
 
-let cpos
+let cpos;
 
 const updateCollisionPos = () => {
-  let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+  let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
 
-  let cos = Math.cos(angle + Math.PI / 2)
-  let sin = Math.sin(angle + Math.PI / 2)
+  let cos = Math.cos(angle + Math.PI / 2);
+  let sin = Math.sin(angle + Math.PI / 2);
 
-  let vec = { x: cos, z: sin }
+  let vec = { x: cos, z: sin };
   if (mode == 'landscape') {
-    let tx = vec.x + 0
-    let tz = vec.z + 0
-    vec.x = tx * Math.cos(Math.PI / -2) - tz * Math.sin(Math.PI / -2)
-    vec.z = tx * Math.sin(Math.PI / -2) + tz * Math.cos(Math.PI / -2)
+    let tx = vec.x + 0;
+    let tz = vec.z + 0;
+    vec.x = tx * Math.cos(Math.PI / -2) - tz * Math.sin(Math.PI / -2);
+    vec.z = tx * Math.sin(Math.PI / -2) + tz * Math.cos(Math.PI / -2);
   }
 
-  let collision = getCollisionLocation(balls, cueBall, vec)
-  if (!collision) return
+  let collision = getCollisionLocation(balls, cueBall, vec);
+  if (!collision) return;
   cpos = createVector(
     collision.x,
     Ball.RADIUS,
@@ -376,17 +376,17 @@ const updateCollisionPos = () => {
     camera,
     canvas.value.width,
     canvas.value.height
-  )
+  );
   return {
     angle,
     cos,
     sin,
     vec,
     collision,
-  }
-}
+  };
+};
 
-let cueBallPos, offsetVector, ballDisplayRadius
+let cueBallPos, offsetVector, ballDisplayRadius;
 
 const updateCueBallPos = () => {
   cueBallPos = createVector(
@@ -396,7 +396,7 @@ const updateCueBallPos = () => {
     camera,
     canvas.value.width,
     canvas.value.height
-  )
+  );
 
   offsetVector = createVector(
     cueBall.body.position.x + Ball.RADIUS,
@@ -405,51 +405,51 @@ const updateCueBallPos = () => {
     camera,
     canvas.value.width,
     canvas.value.height
-  )
+  );
   ballDisplayRadius = Math.max(
     offsetVector.x - cueBallPos.x,
     offsetVector.y - cueBallPos.y
-  )
-}
+  );
+};
 
 const updateBalls = () => {
   for (let i = 0; i < game.value.data.balls.length; i++) {
-    let ball = balls[i]
-    let nball = game.value.data.balls[i]
+    let ball = balls[i];
+    let nball = game.value.data.balls[i];
     Object.assign(ball, {
       out: nball.out,
       position: nball.position,
       quaternion: nball.quaternion,
-    })
-    ball.updateBody()
+    });
+    ball.updateBody();
   }
-}
+};
 
-watch(() => game.value.data.balls, updateBalls, { deep: true })
+watch(() => game.value.data.balls, updateBalls, { deep: true });
 
-watch(() => game.value.turn, updateBalls)
+watch(() => game.value.turn, updateBalls);
 
-watch(() => replaying.value, updateBalls)
+watch(() => replaying.value, updateBalls);
 
-let cueFoul
+let cueFoul;
 watch(
   () => game.value.data.cueFoul,
   (v) => (cueFoul = v),
   { immediate: true }
-)
+);
 
 const initThree = async () => {
-  setCollisionBehavior()
+  setCollisionBehavior();
 
-  scene = new THREE.Scene()
-  scene.background = new THREE.Color(0xeeeeee)
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xeeeeee);
   const aspect =
-    canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight
-  const frustumSize = 1
+    canvasWrapper.value.offsetWidth / canvasWrapper.value.offsetHeight;
+  const frustumSize = 1;
 
   const cannonDebugger = new CannonDebugger(scene, world, {
     // options...
-  })
+  });
 
   camera = new THREE.OrthographicCamera(
     (frustumSize * aspect) / -2,
@@ -458,38 +458,38 @@ const initThree = async () => {
     frustumSize / -2,
     0.1,
     5
-  )
+  );
 
-  renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true })
-  renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap
-  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true });
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(
     canvasWrapper.value.offsetWidth,
     canvasWrapper.value.offsetHeight
-  )
+  );
 
-  camera.position.set(0, 2, 0)
+  camera.position.set(0, 2, 0);
 
   // const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
   // scene.add(light)
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
-  scene.add(ambientLight)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
 
-  const pointLight = new THREE.PointLight(0xffffff, 1.2)
-  pointLight.position.set(0, 2, 0)
-  pointLight.castShadow = true
-  pointLight.shadow.mapSize.width = 2048 // default
-  pointLight.shadow.mapSize.height = 2048 // default
-  pointLight.shadow.camera.near = 0.1 // default
-  pointLight.shadow.camera.far = 4 // default
-  pointLight.shadow.radius = 1
-  scene.add(pointLight)
+  const pointLight = new THREE.PointLight(0xffffff, 1.2);
+  pointLight.position.set(0, 2, 0);
+  pointLight.castShadow = true;
+  pointLight.shadow.mapSize.width = 2048; // default
+  pointLight.shadow.mapSize.height = 2048; // default
+  pointLight.shadow.camera.near = 0.1; // default
+  pointLight.shadow.camera.far = 4; // default
+  pointLight.shadow.radius = 1;
+  scene.add(pointLight);
 
-  table = new Table(scene, world)
+  table = new Table(scene, world);
 
-  balls = []
+  balls = [];
 
   for (let b of game.value.data.balls) {
     let ball = new Ball(
@@ -503,165 +503,170 @@ const initThree = async () => {
       b.quaternion,
       b.out,
       `/assets/8ball/${b.name}.jpg`
-    )
-    balls.push(ball)
+    );
+    balls.push(ball);
   }
 
-  cueBall = balls.find((b) => b.name === 'cueball')
+  cueBall = balls.find((b) => b.name === 'cueball');
 
   if (orbitControlsEnabled) {
-    orbitControls = new OrbitControls(camera, renderer.domElement)
-    orbitControls.enableDamping = true
-    orbitControls.dampingFactor = 0.1
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.enableDamping = true;
+    orbitControls.dampingFactor = 0.1;
   }
 
-  window.scene = scene
-  window.camera = camera
-  window.world = world
-  window.game = game.value
-  window.balls = balls
+  window.scene = scene;
+  window.camera = camera;
+  window.world = world;
+  window.game = game.value;
+  window.balls = balls;
 
-  let frames = 0
+  let frames = 0;
 
-  ctx = controlsCanvas.value.getContext('2d')
+  ctx = controlsCanvas.value.getContext('2d');
 
-  let cueStickImage = new Image()
-  cueStickImage.src = '/assets/8ball/cuestick.svg'
-  let cueStickImageLoaded = false
+  let cueStickImage = new Image();
+  cueStickImage.src = '/assets/8ball/cuestick.svg';
+  let cueStickImageLoaded = false;
 
   cueStickImage.onload = () => {
-    cueStickImageLoaded = true
-  }
+    cueStickImageLoaded = true;
+  };
 
-  const timeStep = 1 / 60 // seconds
-  let lastCallTime
+  const timeStep = 1 / 60; // seconds
+  let lastCallTime;
 
-  let directionLineLength = 8
+  let directionLineLength = 8;
 
   function animate() {
-    if (!controlsCanvas.value) return
-    requestAnimationFrame(animate)
+    if (!controlsCanvas.value) return;
+    requestAnimationFrame(animate);
 
-    const time = performance.now() / 1000 // seconds
+    const time = performance.now() / 1000; // seconds
     if (!lastCallTime) {
       // first call
-      world.step(timeStep)
-      lastCallTime = time
-      updateCueBallPos()
+      world.step(timeStep);
+      lastCallTime = time;
+      updateCueBallPos();
     } else {
-      let dt = time - lastCallTime
+      let dt = time - lastCallTime;
       if (dt >= timeStep) {
-        world.step(timeStep)
-        lastCallTime = time - (dt - timeStep)
+        world.step(timeStep);
+        lastCallTime = time - (dt - timeStep);
       }
     }
 
-    frames++
+    frames++;
 
     if (table.surfaceBody) {
       for (let i = 0; i < balls.length; i++) {
-        balls[i].tick()
+        balls[i].tick();
       }
 
       if (simulationRunning) {
-        let allAtRest = true
+        let allAtRest = true;
 
         for (let ball of balls) {
           if (ball.body.position.y < -0.3) {
             if (ball.body.type === CANNON.Body.STATIC) {
-              continue
+              continue;
             }
 
-            ball.out = true
-            ball.body.position.set(0, -0.3, 0)
+            ball.out = true;
+            ball.body.position.set(0, -0.3, 0);
             // ball.body.position.set(0, Ball.RADIUS, 0)
-            ball.body.velocity.set(0, 0, 0)
-            ball.body.angularVelocity.set(0, 0, 0)
-            ball.body.type = CANNON.Body.STATIC
-            ball.body.mass = 0
+            ball.body.velocity.set(0, 0, 0);
+            ball.body.angularVelocity.set(0, 0, 0);
+            ball.body.type = CANNON.Body.STATIC;
+            ball.body.mass = 0;
           } else if (
             ball.body.sleepState !== CANNON.BODY_SLEEP_STATES.SLEEPING
           ) {
-            allAtRest = false
-            break
+            allAtRest = false;
+            break;
           }
         }
 
         if (allAtRest) {
-          endSimulation()
+          endSimulation();
         }
       } else {
         if (actionsToReplay.length > 0 && !firstActionReplayed) {
           // Replay action of first shot
-          replayNextShot()
-          firstActionReplayed = true
+          replayNextShot();
+          firstActionReplayed = true;
         }
       }
     }
 
     if (orbitControls) {
-      orbitControls.update()
+      orbitControls.update();
     }
 
-    if (cannonDebuggerEnabled) cannonDebugger.update() // Update the CannonDebugger meshes
+    if (cannonDebuggerEnabled) cannonDebugger.update(); // Update the CannonDebugger meshes
 
     // Render THREE.js
-    renderer.render(scene, camera)
+    renderer.render(scene, camera);
 
-    ctx.clearRect(0, 0, controlsCanvas.value.width, controlsCanvas.value.height)
+    ctx.clearRect(
+      0,
+      0,
+      controlsCanvas.value.width,
+      controlsCanvas.value.height
+    );
 
     if (gameActive) {
-      let cposResult = updateCollisionPos()
-      if (!cposResult) return
-      let { cos, sin, collision } = cposResult
+      let cposResult = updateCollisionPos();
+      if (!cposResult) return;
+      let { cos, sin, collision } = cposResult;
 
       // Draw guiding line if simulation isn't running
       if (!simulationRunning) {
         // Draw cue ball collision pos
-        ctx.beginPath()
-        ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false)
-        ctx.lineWidth = 1 * scale
-        ctx.strokeStyle = '#ffffff'
-        ctx.stroke()
+        ctx.beginPath();
+        ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false);
+        ctx.lineWidth = 1 * scale;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
 
-        ctx.beginPath()
+        ctx.beginPath();
 
         ctx.moveTo(
           cueBallPos.x + cos * ballDisplayRadius,
           cueBallPos.y + sin * ballDisplayRadius
-        )
+        );
 
         // Draw line to cue ball collision pos
         if (mode == 'portrait') {
           ctx.lineTo(
             cpos.x - cos * ballDisplayRadius,
             cpos.y - sin * ballDisplayRadius
-          )
+          );
         } else {
           ctx.lineTo(
             cpos.x - cos * ballDisplayRadius,
             cpos.y - sin * ballDisplayRadius
-          )
+          );
         }
 
-        ctx.stroke()
+        ctx.stroke();
 
         if (collision.ballBounceAngle) {
           // Draw angles of ball bounces: cue and other ball
 
-          ctx.lineWidth = 1 * scale
-          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = 1 * scale;
+          ctx.strokeStyle = '#ffffff';
           let ballBounceAngle =
-            collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+            collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
 
-          let bbcos = Math.cos(ballBounceAngle)
-          let bbsin = Math.sin(ballBounceAngle)
+          let bbcos = Math.cos(ballBounceAngle);
+          let bbsin = Math.sin(ballBounceAngle);
           // DO NOT FORGET BEGINPATH OTHERWISE THE STROKE STYLES WILL BE MIXED TOGETHER
-          ctx.beginPath()
+          ctx.beginPath();
           ctx.moveTo(
             cpos.x + bbcos * ballDisplayRadius * 2,
             cpos.y + bbsin * ballDisplayRadius * 2
-          )
+          );
           ctx.lineTo(
             cpos.x +
               bbcos *
@@ -671,22 +676,22 @@ const initThree = async () => {
               bbsin *
                 ballDisplayRadius *
                 (2 + directionLineLength * collision.hitPower)
-          )
+          );
 
-          ctx.stroke()
+          ctx.stroke();
 
           let cueBounceAngle =
-            collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0)
+            collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
 
-          let cbcos = Math.cos(cueBounceAngle)
-          let cbsin = Math.sin(cueBounceAngle)
+          let cbcos = Math.cos(cueBounceAngle);
+          let cbsin = Math.sin(cueBounceAngle);
 
-          ctx.beginPath()
+          ctx.beginPath();
 
           ctx.moveTo(
             cpos.x + cbcos * ballDisplayRadius,
             cpos.y + cbsin * ballDisplayRadius
-          )
+          );
           ctx.lineTo(
             cpos.x +
               cbcos *
@@ -696,21 +701,21 @@ const initThree = async () => {
               cbsin *
                 ballDisplayRadius *
                 (1 + directionLineLength * (1 - collision.hitPower))
-          )
+          );
 
-          ctx.stroke()
+          ctx.stroke();
         }
       }
 
-      ctx.save()
+      ctx.save();
 
       // BEGIN ROTATED BLOCK
 
-      ctx.translate(cueBallPos.x, cueBallPos.y)
+      ctx.translate(cueBallPos.x, cueBallPos.y);
       if (mode == 'landscape') {
-        ctx.rotate(Math.PI / 2)
+        ctx.rotate(Math.PI / 2);
       }
-      ctx.rotate(-shotAngle - Math.PI)
+      ctx.rotate(-shotAngle - Math.PI);
 
       if (cueStickImageLoaded) {
         ctx.drawImage(
@@ -720,30 +725,30 @@ const initThree = async () => {
             shotPower * Math.max(canvas.value.width, canvas.value.height) * 0.2,
           scale * cueStickImage.width,
           scale * cueStickImage.height
-        )
+        );
       }
 
       // END ROTATED BLOCK
 
-      ctx.restore()
-      ctx.save()
+      ctx.restore();
+      ctx.save();
       // BEGIN TRANSLATED BLOCK
-      ctx.translate(cueBallPos.x, cueBallPos.y)
+      ctx.translate(cueBallPos.x, cueBallPos.y);
       if (cueFoul) {
         // Other player did cue foul, now you can drag the cue ball around
-        drawCueControls(ctx, ballDisplayRadius, scale)
+        drawCueControls(ctx, ballDisplayRadius, scale);
       }
       // END TRANSLATED BLOCK
-      ctx.restore()
+      ctx.restore();
     }
   }
-  requestAnimationFrame(animate)
+  requestAnimationFrame(animate);
 
   setInterval(() => {
-    fps.value = frames
-    frames = 0
-  }, 1000)
-}
+    fps.value = frames;
+    frames = 0;
+  }, 1000);
+};
 
 watch(
   spinnerEnabled,
@@ -753,91 +758,91 @@ watch(
         type: 'rotation',
         inertia: true,
         onDrag: function () {
-          shotAngle = -this.rotation * (Math.PI / 180)
+          shotAngle = -this.rotation * (Math.PI / 180);
         },
-      })[0]
+      })[0];
     }
   },
   { flush: 'post' }
-)
+);
 
 onMounted(async () => {
-  window.shotPower = shotPower
-  window.shotPowerSetter = shotPowerSetter
-  window.shotAngle = shotAngle
-  gsap.registerPlugin(Draggable)
-  scale = window.devicePixelRatio
+  window.shotPower = shotPower;
+  window.shotPowerSetter = shotPowerSetter;
+  window.shotAngle = shotAngle;
+  gsap.registerPlugin(Draggable);
+  scale = window.devicePixelRatio;
 
-  await initThree()
+  await initThree();
 
   spinnerDraggable = Draggable.create(spinner.value, {
     type: 'rotation',
     inertia: true,
     onDrag: function () {
-      shotAngle = -this.rotation * (Math.PI / 180)
+      shotAngle = -this.rotation * (Math.PI / 180);
     },
-  })[0]
+  })[0];
 
   function resize() {
     if (canvasWrapper.value) {
-      scale = window.devicePixelRatio
+      scale = window.devicePixelRatio;
 
-      var container = canvasWrapper.value
-      const cWidth = container.offsetWidth
-      const cHeight = container.offsetHeight
+      var container = canvasWrapper.value;
+      const cWidth = container.offsetWidth;
+      const cHeight = container.offsetHeight;
 
-      var newWidth
-      var newHeight
+      var newWidth;
+      var newHeight;
 
-      mode = 'portrait'
+      mode = 'portrait';
 
-      let maxWidth = 900
+      let maxWidth = 900;
 
       if (cWidth > cHeight) {
         // landscape
-        newWidth = Math.min(cWidth, maxWidth)
-        newHeight = (newWidth * 59) / 103
+        newWidth = Math.min(cWidth, maxWidth);
+        newHeight = (newWidth * 59) / 103;
 
-        var correctionRatio = cHeight / newHeight
+        var correctionRatio = cHeight / newHeight;
         if (correctionRatio < 1) {
-          newWidth *= correctionRatio
-          newHeight *= correctionRatio
+          newWidth *= correctionRatio;
+          newHeight *= correctionRatio;
         }
-        mode = 'landscape'
+        mode = 'landscape';
       } else {
         // portrait
-        newHeight = cHeight
-        newWidth = (cHeight * 59) / 103
+        newHeight = cHeight;
+        newWidth = (cHeight * 59) / 103;
 
-        var correctionRatio = cWidth / newWidth
+        var correctionRatio = cWidth / newWidth;
         if (correctionRatio < 1) {
-          newWidth *= correctionRatio
-          newHeight *= correctionRatio
+          newWidth *= correctionRatio;
+          newHeight *= correctionRatio;
         }
       }
 
-      renderer.setSize(newWidth, newHeight)
-      renderer.setPixelRatio(scale)
-      controlsCanvas.value.width = newWidth * scale
-      controlsCanvas.value.height = newHeight * scale
-      controlsCanvas.value.style.width = newWidth + 'px'
-      controlsCanvas.value.style.height = newHeight + 'px'
+      renderer.setSize(newWidth, newHeight);
+      renderer.setPixelRatio(scale);
+      controlsCanvas.value.width = newWidth * scale;
+      controlsCanvas.value.height = newHeight * scale;
+      controlsCanvas.value.style.width = newWidth + 'px';
+      controlsCanvas.value.style.height = newHeight + 'px';
 
-      var frustumSize = 1.55
+      var frustumSize = 1.55;
 
       if (mode == 'portrait') {
-        frustumSize = 2.7
+        frustumSize = 2.7;
       }
 
-      const aspect = newWidth / newHeight
+      const aspect = newWidth / newHeight;
 
-      camera.left = (frustumSize * aspect) / -2
-      camera.right = (frustumSize * aspect) / 2
-      camera.top = frustumSize / 2
-      camera.bottom = frustumSize / -2
+      camera.left = (frustumSize * aspect) / -2;
+      camera.right = (frustumSize * aspect) / 2;
+      camera.top = frustumSize / 2;
+      camera.bottom = frustumSize / -2;
 
-      camera.position.set(0, 2, 0)
-      camera.lookAt(new THREE.Vector3(0, 0, 0))
+      camera.position.set(0, 2, 0);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       // let vec = new THREE.Vector3(
       //   camera.rotation.x,
@@ -846,48 +851,48 @@ onMounted(async () => {
       // )
 
       if (mode == 'landscape') {
-        camera.rotation.x = -Math.PI / 2
-        camera.rotation.z = Math.PI / 2
+        camera.rotation.x = -Math.PI / 2;
+        camera.rotation.z = Math.PI / 2;
       } else {
-        camera.rotation.z = 0
+        camera.rotation.z = 0;
       }
 
-      console.log(`resize: ${newWidth} x ${newHeight} ${mode} scale: ${scale}`)
+      console.log(`resize: ${newWidth} x ${newHeight} ${mode} scale: ${scale}`);
 
-      setTimeout(updateSpinner, 0)
+      setTimeout(updateSpinner, 0);
 
-      camera.updateProjectionMatrix()
+      camera.updateProjectionMatrix();
     }
   }
 
-  window.addEventListener('resize', resize)
-  resize()
+  window.addEventListener('resize', resize);
+  resize();
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'a') {
-      spinnerEnabled.value = !spinnerEnabled.value
+      spinnerEnabled.value = !spinnerEnabled.value;
     }
     if (e.key === 's') {
-      cannonDebuggerEnabled = !cannonDebuggerEnabled
+      cannonDebuggerEnabled = !cannonDebuggerEnabled;
     }
-  })
+  });
 
   // hitBall()
   $replayTurn(() => {
-    let turn = game.value.turns[game.value.turns.length - 1]
-    shotAngle = turn.actions[0].data.angle
-    replayRunning.value = true
+    let turn = game.value.turns[game.value.turns.length - 1];
+    shotAngle = turn.actions[0].data.angle;
+    replayRunning.value = true;
     setTimeout(() => {
-      actionsToReplay = turn.actions
-    }, 700)
-  })
-})
+      actionsToReplay = turn.actions;
+    }, 700);
+  });
+});
 
 onUnmounted(() => {
-  scene = null
-  renderer = null
-  camera = null
-})
+  scene = null;
+  renderer = null;
+  camera = null;
+});
 </script>
 
 <template>

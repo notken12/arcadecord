@@ -13,7 +13,7 @@
   <div class="over" v-on:click="changeColumnSelect"></div>
 </template>
 <script>
-import bus from '@app/js/vue-event-bus'
+import bus from '@app/js/vue-event-bus';
 export default {
   props: {
     selectedColumn: {
@@ -27,19 +27,19 @@ export default {
   },
   computed: {
     styles() {
-      let offsetLeft = this.column * 13.75 + '%'
+      let offsetLeft = this.column * 13.75 + '%';
       return {
         left: offsetLeft,
-      }
+      };
     },
   },
   methods: {
     changeColumnSelect() {
-      if (!this.replaying) bus.emit('changeColumn', this.column)
+      if (!this.replaying) bus.emit('changeColumn', this.column);
     },
   },
   mounted() {},
-}
+};
 </script>
 <style lang="scss">
 @use 'scss/base/_theme' as theme;

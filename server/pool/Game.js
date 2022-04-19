@@ -7,24 +7,24 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import * as THREE from 'three'
+import * as THREE from 'three';
 
-import { Table } from './Table'
-import { Ball } from './Ball'
-import { CueBall } from './CueBall'
-import { CueStick } from './CueStick'
+import { Table } from './Table';
+import { Ball } from './Ball';
+import { CueBall } from './CueBall';
+import { CueStick } from './CueStick';
 
 function Game(scene) {
-  this.scene = scene
+  this.scene = scene;
 
   //create table
-  this.table = new Table(scene)
+  this.table = new Table(scene);
 
-  this.cueStick = new CueStick(scene)
+  this.cueStick = new CueStick(scene);
 
-  var apex = Table.LEN_Z / 4
+  var apex = Table.LEN_Z / 4;
 
-  var zo = 2 * Ball.RADIUS * Math.cos(Math.PI / 6) //how far the balls are spaced apart on z axis
+  var zo = 2 * Ball.RADIUS * Math.cos(Math.PI / 6); //how far the balls are spaced apart on z axis
 
   this.balls = [
     new CueBall(scene),
@@ -53,25 +53,25 @@ function Game(scene) {
     new Ball(scene, 0 * Ball.RADIUS, Ball.RADIUS, apex + 4 * zo, '13ball'),
     new Ball(scene, -2 * Ball.RADIUS, Ball.RADIUS, apex + 4 * zo, '4ball'),
     new Ball(scene, -4 * Ball.RADIUS, Ball.RADIUS, apex + 4 * zo, '5ball'),
-  ]
+  ];
 }
 
 Game.prototype.setStickRotation = function (rot) {
   // radians
-  this.cueStick.setRotation(rot)
-}
+  this.cueStick.setRotation(rot);
+};
 
 Game.prototype.rotateStick = function (rot) {
   // radians
-  this.cueStick.rotate(rot)
-}
+  this.cueStick.rotate(rot);
+};
 
 Game.prototype.tick = function (dt) {
-  this.cueStick.tick(dt)
+  this.cueStick.tick(dt);
   this.balls.forEach((ball) => {
-    ball.tick(dt)
-  })
-  this.table.tick(dt)
-}
+    ball.tick(dt);
+  });
+  this.table.tick(dt);
+};
 
-export { Game }
+export { Game };

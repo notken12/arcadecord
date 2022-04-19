@@ -10,8 +10,8 @@
 -->
 
 <script setup>
-import Button from './Button.vue'
-import LinkButton from 'components/index/LinkButton.vue'
+import Button from './Button.vue';
+import LinkButton from 'components/index/LinkButton.vue';
 </script>
 
 <template>
@@ -37,9 +37,8 @@ import LinkButton from 'components/index/LinkButton.vue'
       </h3>
       <div class="buttons">
         <Button icon="add">Add to Discord</Button>
-        
-          <LinkButton outlined href="#features">See features</LinkButton>
-        
+
+        <LinkButton outlined href="#features">See features</LinkButton>
       </div>
     </div>
   </div>

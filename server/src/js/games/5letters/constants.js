@@ -7,4 +7,4 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-export const letterAnimationLength = 400
+export const letterAnimationLength = 400;

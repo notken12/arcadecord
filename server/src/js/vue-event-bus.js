@@ -7,9 +7,9 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import mitt from 'mitt'
+import mitt from 'mitt';
 
-const bus = mitt()
-bus.manualMd = undefined
+const bus = mitt();
+bus.manualMd = undefined;
 
-export default bus
+export default bus;

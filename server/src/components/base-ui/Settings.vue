@@ -10,55 +10,55 @@
 -->
 
 <script setup>
-import Switch from './Switch.vue'
+import Switch from './Switch.vue';
 
-import bus from '@app/js/vue-event-bus.js'
-import { ref, watch } from 'vue'
-import { useStore } from 'vuex'
-import { updateSettings, resendInvite } from '@app/js/client-framework'
+import bus from '@app/js/vue-event-bus.js';
+import { ref, watch } from 'vue';
+import { useStore } from 'vuex';
+import { updateSettings, resendInvite } from '@app/js/client-framework';
 
 const closeManual = () => {
-  bus.emit('close-settings')
-}
+  bus.emit('close-settings');
+};
 
-const store = useStore()
+const store = useStore();
 
-const settings = store.state.user.settings
+const settings = store.state.user.settings;
 
-const enableConfetti = ref(settings.enableConfetti ?? true)
+const enableConfetti = ref(settings.enableConfetti ?? true);
 
 function debounce(callback, wait) {
-  let timerId
+  let timerId;
   return (...args) => {
-    clearTimeout(timerId)
+    clearTimeout(timerId);
     timerId = setTimeout(() => {
-      callback(...args)
-    }, wait)
-  }
+      callback(...args);
+    }, wait);
+  };
 }
 
 watch(
   [enableConfetti],
   debounce(() => {
-    if (!window) return
-    console.log('updating settings...')
+    if (!window) return;
+    console.log('updating settings...');
     updateSettings({
       enableConfetti: enableConfetti.value,
     }).then(() => {
       store.commit('UPDATE_SETTINGS', {
         enableConfetti: enableConfetti.value,
-      })
-    })
+      });
+    });
   }, 300)
-)
+);
 
-const resending = ref(false)
+const resending = ref(false);
 function resend() {
-  console.log('resending invite...')
-  resending.value = true
+  console.log('resending invite...');
+  resending.value = true;
   resendInvite().then(() => {
-    resending.value = false
-  })
+    resending.value = false;
+  });
 }
 </script>
 

@@ -23,5 +23,5 @@ export default (pageContext) => {
   //   }
   // }
 
-  return false
-}
+  return false;
+};

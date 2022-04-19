@@ -10,24 +10,24 @@
 -->
 
 <script setup>
-import bus from '@app/js/vue-event-bus'
-import { onMounted, onUnmounted, ref } from 'vue'
+import bus from '@app/js/vue-event-bus';
+import { onMounted, onUnmounted, ref } from 'vue';
 
-const msg = ref('')
-const hidden = ref(true)
+const msg = ref('');
+const hidden = ref(true);
 
 const toast = (message) => {
-  msg.value = message
-  hidden.value = false
-}
+  msg.value = message;
+  hidden.value = false;
+};
 
 onMounted(() => {
-  bus.on('toast', toast)
-})
+  bus.on('toast', toast);
+});
 
 onUnmounted(() => {
-  bus.off('toast', toast)
-})
+  bus.off('toast', toast);
+});
 </script>
 
 <template>

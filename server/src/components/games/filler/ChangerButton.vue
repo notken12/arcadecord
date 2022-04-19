@@ -19,53 +19,53 @@
 </template>
 <script>
 // Import client-framework.js, which you need to connect to the server
-import * as Client from '@app/js/client-framework.js'
+import * as Client from '@app/js/client-framework.js';
 
-import bus from '@app/js/vue-event-bus.js'
-import Common from '/gamecommons/filler'
+import bus from '@app/js/vue-event-bus.js';
+import Common from '/gamecommons/filler';
 
-import { runAction } from '@app/js/client-framework.js'
-import GameFlow from '@app/js/GameFlow'
+import { runAction } from '@app/js/client-framework.js';
+import GameFlow from '@app/js/GameFlow';
 
 // Create a button that will set the player's blob to the target color
 export default {
   props: ['colorid'],
   data() {
-    return {}
+    return {};
   },
   methods: {
     changeBlob() {
-      this.$runAction('switchColors', { targetColor: this.colorid }) // data contains the targetColor, which is the action data
-      this.$endAnimation(1000)
+      this.$runAction('switchColors', { targetColor: this.colorid }); // data contains the targetColor, which is the action data
+      this.$endAnimation(1000);
     },
   },
   computed: {
     classes() {
-      var COLORS = Common.COLORS
-      var color = COLORS[this.colorid] // gets the color of 'this' button's target (stored as a prop called colorid) from common.
+      var COLORS = Common.COLORS;
+      var color = COLORS[this.colorid]; // gets the color of 'this' button's target (stored as a prop called colorid) from common.
       // color is a string containing the name of the desired color
 
-      let classes = [color]
+      let classes = [color];
       if (this.isDisabled) {
-        classes.push('disabled')
+        classes.push('disabled');
       }
 
-      return classes // an array with one string; the string is the color's name.
+      return classes; // an array with one string; the string is the color's name.
       // the class will be set to the color name
     },
     isDisabled() {
-      let myIndex = this.game.myIndex === -1 ? 1 : this.game.myIndex
-      var myColor = Common.Board.getPlayerColor(this.game.data.board, myIndex)
-      let opponentIndex = myIndex ^ 1
+      let myIndex = this.game.myIndex === -1 ? 1 : this.game.myIndex;
+      var myColor = Common.Board.getPlayerColor(this.game.data.board, myIndex);
+      let opponentIndex = myIndex ^ 1;
 
       var opponentColor = Common.Board.getPlayerColor(
         this.game.data.board,
         opponentIndex
-      )
-      return myColor === this.colorid || opponentColor === this.colorid
+      );
+      return myColor === this.colorid || opponentColor === this.colorid;
     },
   },
-}
+};
 </script>
 
 <style lang="scss">

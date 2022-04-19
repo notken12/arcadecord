@@ -14,9 +14,9 @@
 </template>
 
 <script>
-import gsap from 'gsap'
-import { Draggable } from 'gsap/dist/Draggable.js'
-import bus from '@app/js/vue-event-bus'
+import gsap from 'gsap';
+import { Draggable } from 'gsap/dist/Draggable.js';
+import bus from '@app/js/vue-event-bus';
 
 export default {
   props: {
@@ -47,15 +47,15 @@ export default {
         q: '♛',
         k: '♚',
       },
-    }
+    };
   },
   computed: {
     myColor() {
-      let index = this.game.myIndex === -1 ? 1 : this.game.myIndex
-      return this.game.data.colors[index]
+      let index = this.game.myIndex === -1 ? 1 : this.game.myIndex;
+      return this.game.data.colors[index];
     },
     styles() {
-      let cursor = this.piece.color === this.myColor ? 'grab' : 'default'
+      let cursor = this.piece.color === this.myColor ? 'grab' : 'default';
       let texturePositions = {
         p: 0,
         r: 1,
@@ -63,110 +63,110 @@ export default {
         b: 3,
         q: 4,
         k: 5,
-      }
+      };
       let backgroundPositionX =
-        (texturePositions[this.piece.type] / 5) * 100 + '%'
+        (texturePositions[this.piece.type] / 5) * 100 + '%';
       return {
         cursor,
         'background-position-x': backgroundPositionX,
-      }
+      };
     },
     classes() {
-      let classes = []
+      let classes = [];
       if (this.piece.color === 1) {
-        classes.push('black')
+        classes.push('black');
       }
       if (this.incheck) {
-        classes.push('incheck')
+        classes.push('incheck');
       }
-      return classes
+      return classes;
     },
   },
   methods: {
     animate() {
-      let top = ((7 - this.piece.rank) / 1) * 100
-      let left = (this.piece.file / 1) * 100
+      let top = ((7 - this.piece.rank) / 1) * 100;
+      let left = (this.piece.file / 1) * 100;
       gsap.to(this.$refs.pieceEl, {
         x: left + '%',
         y: top + '%',
         ease: 'power3.inOut',
         duration: 0.25,
         rotation: this.myColor === 1 ? 180 : 0,
-      })
+      });
     },
   },
   watch: {
     piece: {
       handler(newValue, oldValue) {
-        this.animate()
+        this.animate();
       },
       deep: true,
     },
   },
   mounted() {
-    let vm = this
+    let vm = this;
 
-    Draggable.zIndex = 1001
-    gsap.registerPlugin(Draggable)
+    Draggable.zIndex = 1001;
+    gsap.registerPlugin(Draggable);
 
-    let top = ((7 - this.piece.rank) / 1) * 100
-    let left = (this.piece.file / 1) * 100
+    let top = ((7 - this.piece.rank) / 1) * 100;
+    let left = (this.piece.file / 1) * 100;
     gsap.set(this.$refs.pieceEl, {
       x: left + '%',
       y: top + '%',
       ease: 'power3.inOut',
       rotation: this.myColor === 1 ? 180 : 0,
-    })
+    });
     if (this.piece.color === this.myColor) {
       Draggable.create(this.$refs.pieceEl, {
         type: 'x,y',
         // bounds: this.$parent.$refs.grid,
         snap: {
           points: (point) => {
-            let grid = this.$parent.$refs.grid
-            let increment = grid.offsetWidth / 8
+            let grid = this.$parent.$refs.grid;
+            let increment = grid.offsetWidth / 8;
             return {
               x: Math.round(point.x / increment) * increment,
               y: Math.round(point.y / increment) * increment,
-            }
+            };
           },
         },
         snap: 'AFTER',
         onRelease: function (e) {
-          let grid = vm.$parent.$refs.grid
-          let increment = grid.offsetWidth / 8
-          let point = { x: this.endX, y: this.endY }
-          let file = Math.round(point.x / increment)
-          let rank = 7 - Math.round(point.y / increment)
+          let grid = vm.$parent.$refs.grid;
+          let increment = grid.offsetWidth / 8;
+          let point = { x: this.endX, y: this.endY };
+          let file = Math.round(point.x / increment);
+          let rank = 7 - Math.round(point.y / increment);
           if (file === vm.piece.file && rank === vm.piece.rank) {
-            vm.animate()
-            vm.$refs.pieceEl.style.zIndex = 0
-            return
+            vm.animate();
+            vm.$refs.pieceEl.style.zIndex = 0;
+            return;
           }
-          let moves = vm.moves
+          let moves = vm.moves;
           let move = moves.find(
             (m) =>
               m.to[0] === file &&
               m.to[1] === rank &&
               m.from[0] === vm.piece.file &&
               m.from[1] === vm.piece.rank
-          )
+          );
           if (!move) {
-            vm.animate()
-            vm.$refs.pieceEl.style.zIndex = 0
-            return
+            vm.animate();
+            vm.$refs.pieceEl.style.zIndex = 0;
+            return;
           }
-          bus.emit('make-move', move)
-          vm.$refs.pieceEl.style.zIndex = 0
+          bus.emit('make-move', move);
+          vm.$refs.pieceEl.style.zIndex = 0;
         },
         onPress: function (e) {
-          bus.emit('piece-pointer-down', vm.piece)
+          bus.emit('piece-pointer-down', vm.piece);
         },
         zIndexBoost: true,
-      })
+      });
     }
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

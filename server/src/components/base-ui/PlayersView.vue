@@ -22,21 +22,21 @@
 </template>
 
 <script>
-import PlayerView from './PlayerView.vue'
+import PlayerView from './PlayerView.vue';
 
 export default {
   data() {
-    return {}
+    return {};
   },
   computed: {
     players() {
-      return this.game.players
+      return this.game.players;
     },
   },
   components: {
     PlayerView,
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

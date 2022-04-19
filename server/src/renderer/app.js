@@ -7,14 +7,14 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { createSSRApp, h } from 'vue'
+import { createSSRApp, h } from 'vue';
 
-export { createApp }
+export { createApp };
 
 function createApp(pageContext) {
   const app = createSSRApp({
     render: () => h(pageContext.Page),
-  })
-  app.provide('pageContext', pageContext)
-  return { app }
+  });
+  app.provide('pageContext', pageContext);
+  return { app };
 }

@@ -2319,7 +2319,7 @@ export const ANSWER_WORDS = [
   'zebra',
   'zesty',
   'zonal',
-]
+];
 export const GUESS_WORDS = [
   'aahed',
   'aalii',
@@ -15295,4 +15295,4 @@ export const GUESS_WORDS = [
   'zygon',
   'zymes',
   'zymic',
-]
+];

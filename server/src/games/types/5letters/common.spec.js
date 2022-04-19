@@ -7,17 +7,17 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { expect, test, describe } from 'vitest'
+import { expect, test, describe } from 'vitest';
 
 // Import the main module for this game type
-import main from './main.js'
+import main from './main.js';
 // Import the Action class to make actions
-import Action from '../../Action.js'
+import Action from '../../Action.js';
 // Import the GameFlow class to control game flow
-import GameFlow from '../../GameFlow.js'
+import GameFlow from '../../GameFlow.js';
 
-import Ajv from 'ajv'
-const ajv = new Ajv()
+import Ajv from 'ajv';
+const ajv = new Ajv();
 
 const stateSchema = {
   type: 'object',
@@ -56,36 +56,36 @@ const stateSchema = {
     },
   },
   required: ['answers', 'guesses'],
-}
+};
 
-const validateGameState = ajv.compile(stateSchema)
+const validateGameState = ajv.compile(stateSchema);
 
 test('initial game state', async () => {
   // Create a new game
-  let game = new main.Game()
+  let game = new main.Game();
   // Activate testing mode
-  game.test()
+  game.test();
   // Add fake players
-  game.mockPlayers(2)
+  game.mockPlayers(2);
 
   // Initialize the game
-  game.init()
+  game.init();
 
-  const valid = validateGameState(game.data)
-  expect(valid).toBe(true)
-})
+  const valid = validateGameState(game.data);
+  expect(valid).toBe(true);
+});
 
 describe('Action: choose word', async () => {
   test('choosing word ends turn for player 1 but not for player 0', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Choose a word
     let action = new Action(
@@ -94,13 +94,13 @@ describe('Action: choose word', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Check that the word was chosen
-    expect(game.data.answers[1]).toEqual('mango')
+    expect(game.data.answers[1]).toEqual('mango');
     // Check that the turn ended
-    expect(GameFlow.isItUsersTurn(game, 1)).toEqual(false)
+    expect(GameFlow.isItUsersTurn(game, 1)).toEqual(false);
 
     let action2 = new Action(
       'chooseWord',
@@ -108,21 +108,21 @@ describe('Action: choose word', async () => {
         word: 'apple',
       },
       0
-    )
+    );
 
-    await game.handleAction(action2)
+    await game.handleAction(action2);
 
     // Check that the word was chosen
-    expect(game.data.answers[0]).toEqual('apple')
+    expect(game.data.answers[0]).toEqual('apple');
     // Check that it's still player 0's turn
-    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true)
-  })
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(true);
+  });
 
   test('Words that arent in the word list arent allowed', async () => {
-    let game = new main.Game()
-    game.test()
-    game.mockPlayers(2)
-    game.init()
+    let game = new main.Game();
+    game.test();
+    game.mockPlayers(2);
+    game.init();
 
     let action = new Action(
       'chooseWord',
@@ -130,24 +130,24 @@ describe('Action: choose word', async () => {
         word: 'fjeow',
       },
       1
-    )
+    );
 
-    let result = await game.handleAction(action)
-    expect(result.success).toEqual(false)
-  })
-})
+    let result = await game.handleAction(action);
+    expect(result.success).toEqual(false);
+  });
+});
 
 describe('Action: guess', async () => {
   test('player wins when guessing correctly', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -156,8 +156,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Player 0 chooses a word
     let action2 = new Action(
@@ -166,8 +166,8 @@ describe('Action: guess', async () => {
         word: 'apple',
       },
       0
-    )
-    await game.handleAction(action2)
+    );
+    await game.handleAction(action2);
 
     // Player 0 guesses the word
     let action3 = new Action(
@@ -176,8 +176,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       0
-    )
-    await game.handleAction(action3)
+    );
+    await game.handleAction(action3);
 
     // Player 1 makes a wrong guess
     let action4 = new Action(
@@ -186,24 +186,24 @@ describe('Action: guess', async () => {
         word: 'crate',
       },
       1
-    )
-    await game.handleAction(action4)
+    );
+    await game.handleAction(action4);
 
     // Check that the player won
-    expect(game.hasEnded).toEqual(true)
+    expect(game.hasEnded).toEqual(true);
 
-    expect(game.winner).toEqual(0)
-  })
+    expect(game.winner).toEqual(0);
+  });
   test('a draw happens if both players cant guess the others word', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -212,8 +212,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Player 0 chooses a word
     let action2 = new Action(
@@ -222,8 +222,8 @@ describe('Action: guess', async () => {
         word: 'apple',
       },
       0
-    )
-    await game.handleAction(action2)
+    );
+    await game.handleAction(action2);
 
     let badGuess0 = new Action(
       'guess',
@@ -231,37 +231,37 @@ describe('Action: guess', async () => {
         word: 'crate',
       },
       0
-    )
+    );
     let badGuess1 = new Action(
       'guess',
       {
         word: 'crate',
       },
       1
-    )
+    );
 
     for (let i = 0; i < 6; i++) {
-      await game.handleAction(badGuess0)
-      await game.handleAction(badGuess1)
+      await game.handleAction(badGuess0);
+      await game.handleAction(badGuess1);
     }
 
     // Check that the game ended
-    expect(game.data.guesses[0].length).toEqual(6)
-    expect(game.data.guesses[1].length).toEqual(6)
-    expect(game.hasEnded).toEqual(true)
-    expect(game.winner).toEqual(-1)
-  })
+    expect(game.data.guesses[0].length).toEqual(6);
+    expect(game.data.guesses[1].length).toEqual(6);
+    expect(game.hasEnded).toEqual(true);
+    expect(game.winner).toEqual(-1);
+  });
 
   test('check edge case: player 0 fails, player 1 gets it in 6 tries', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -270,8 +270,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Player 0 chooses a word
     let action2 = new Action(
@@ -280,8 +280,8 @@ describe('Action: guess', async () => {
         word: 'apple',
       },
       0
-    )
-    await game.handleAction(action2)
+    );
+    await game.handleAction(action2);
 
     let badGuess0 = new Action(
       'guess',
@@ -289,42 +289,42 @@ describe('Action: guess', async () => {
         word: 'crate',
       },
       0
-    )
+    );
     let badGuess1 = new Action(
       'guess',
       {
         word: 'crate',
       },
       1
-    )
+    );
 
     for (let i = 0; i < 5; i++) {
-      expect(await game.handleAction(badGuess0)).toEqual({ success: true })
-      expect(await game.handleAction(badGuess1)).toEqual({ success: true })
+      expect(await game.handleAction(badGuess0)).toEqual({ success: true });
+      expect(await game.handleAction(badGuess1)).toEqual({ success: true });
     }
 
-    expect(await game.handleAction(badGuess0)).toEqual({ success: true })
+    expect(await game.handleAction(badGuess0)).toEqual({ success: true });
 
-    let winningGuess = new Action('guess', { word: 'apple' }, 1)
-    expect(await game.handleAction(winningGuess)).toEqual({ success: true })
+    let winningGuess = new Action('guess', { word: 'apple' }, 1);
+    expect(await game.handleAction(winningGuess)).toEqual({ success: true });
 
     // Check that the game ended
-    expect(game.data.guesses[0].length).toEqual(6)
-    expect(game.data.guesses[1].length).toEqual(6)
-    expect(game.hasEnded).toEqual(true)
-    expect(game.winner).toEqual(1)
-  })
+    expect(game.data.guesses[0].length).toEqual(6);
+    expect(game.data.guesses[1].length).toEqual(6);
+    expect(game.hasEnded).toEqual(true);
+    expect(game.winner).toEqual(1);
+  });
 
   test('turn ends after player guesses', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -333,8 +333,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Player 0 chooses a word
     let action2 = new Action(
@@ -343,8 +343,8 @@ describe('Action: guess', async () => {
         word: 'apple',
       },
       0
-    )
-    await game.handleAction(action2)
+    );
+    await game.handleAction(action2);
 
     // Player 0 guesses the word
     let action3 = new Action(
@@ -353,23 +353,23 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       0
-    )
-    await game.handleAction(action3)
+    );
+    await game.handleAction(action3);
 
     // Check that the turn ended
-    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false)
-  })
+    expect(GameFlow.isItUsersTurn(game, 0)).toEqual(false);
+  });
 
   test('Guesses with invalid words arent allowed', async () => {
     // Create a new game
-    let game = new main.Game()
+    let game = new main.Game();
     // Activate testing mode
-    game.test()
+    game.test();
     // Add fake players
-    game.mockPlayers(2)
+    game.mockPlayers(2);
 
     // Initialize the game
-    game.init()
+    game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -378,8 +378,8 @@ describe('Action: guess', async () => {
         word: 'mango',
       },
       1
-    )
-    await game.handleAction(action)
+    );
+    await game.handleAction(action);
 
     // Player 0 chooses a word
     let action2 = new Action(
@@ -388,8 +388,8 @@ describe('Action: guess', async () => {
         word: 'apple',
       },
       0
-    )
-    await game.handleAction(action2)
+    );
+    await game.handleAction(action2);
 
     // Player 0 guesses the word
     let action3 = new Action(
@@ -398,8 +398,8 @@ describe('Action: guess', async () => {
         word: 'bgoew',
       },
       0
-    )
-    let actionResult = await game.handleAction(action3)
-    expect(actionResult.success).toEqual(false)
-  })
-})
+    );
+    let actionResult = await game.handleAction(action3);
+    expect(actionResult.success).toEqual(false);
+  });
+});

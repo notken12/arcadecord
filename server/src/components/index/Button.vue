@@ -13,7 +13,7 @@
 const props = defineProps({
   icon: String,
   outlined: Boolean,
-})
+});
 </script>
 
 <template>
@@ -24,5 +24,5 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-@use 'scss/base/button'
+@use 'scss/base/button';
 </style>
