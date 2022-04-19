@@ -54,7 +54,7 @@ export default {
       if (
         this.cell.state === Common.BOARD_STATE_EMPTY &&
         GameFlow.isItMyTurn(this.game)
-      ){
+      ) {
         bus.emit('changeCellect', this.cell)
       }
     },

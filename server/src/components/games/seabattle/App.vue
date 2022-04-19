@@ -144,7 +144,7 @@ export default {
     window.Common = Common
 
     bus.on('changeCellect', (cell) => {
-      this.targetedCell = cell;
+      this.targetedCell = cell
     })
 
     this.$replayTurn(() => {

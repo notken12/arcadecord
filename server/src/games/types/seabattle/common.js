@@ -117,6 +117,7 @@ async function shoot(game, action) {
 
   if (sunk) {
     ship.sunk = true
+    board.revealedShips.push(ship)
   }
 
   // check if all ships are sunk
