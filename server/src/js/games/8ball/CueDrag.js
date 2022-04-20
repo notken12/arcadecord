@@ -42,13 +42,14 @@ export function transformToValidPosition(x, z, balls) {
 }
 
 function outOfBounds(x, z) {
+  let result = { x, z };
   if (Math.abs(x) >= Table.PLAY_AREA.LEN_X / 2 - Ball.RADIUS) {
-    return { x: Math.sign(x) * (Table.PLAY_AREA.LEN_X / 2 - Ball.RADIUS), z };
+    result.x = Math.sign(x) * (Table.PLAY_AREA.LEN_X / 2 - Ball.RADIUS);
   }
   if (Math.abs(z) >= Table.PLAY_AREA.LEN_Z / 2 - Ball.RADIUS) {
-    return { x, z: Math.sign(z) * (Table.PLAY_AREA.LEN_Z / 2 - Ball.RADIUS) };
+    result.z = Math.sign(z) * (Table.PLAY_AREA.LEN_Z / 2 - Ball.RADIUS);
   }
-  return { x, z };
+  return result;
 }
 
 function overlaps(x, z, balls) {
