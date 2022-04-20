@@ -31,11 +31,21 @@ import CannonDebugger from 'cannon-es-debugger';
 import gsap from 'gsap';
 import { Draggable } from 'gsap/dist/Draggable';
 
-import { getCollisionLocation } from '@app/js/games/8ball/utils';
+import {
+  getCollisionLocation,
+  mousePos,
+  mousePosOnCanvas,
+  getDistance,
+} from '@app/js/games/8ball/utils';
 import GameFlow from '@app/js/GameFlow';
 
 import { replayAction } from '@app/js/client-framework';
 import { drawCueControls } from '@app/js/games/8ball/canvas';
+
+import {
+  getMouseWorldPos,
+  transformToValidPosition,
+} from '@app/js/games/8ball/CueDrag';
 
 const {
   game,
@@ -52,12 +62,17 @@ let hint = computed(() => {
   return '';
 });
 
+let replayingVal;
+watchEffect(() => {
+  replayingVal = replaying.value;
+});
+
 let replayRunning = ref(false);
 
 let gameActive;
 
 const gameActiveRef = computed(() => {
-  return GameFlow.isItMyTurn(game.value) || replayRunning.value;
+  return GameFlow.isItMyTurn(game.value) || replaying.value;
 });
 
 watch(
@@ -153,7 +168,8 @@ let scene,
   balls,
   cueBall,
   mode,
-  ctx;
+  ctx,
+  raycaster;
 
 const fps = ref(0);
 
@@ -216,15 +232,17 @@ let showControlsVal = false;
 watch(showControls, (v) => (showControlsVal = v), { immediate: true });
 
 let spinnerDraggable = null;
-watchEffect(() => {
+const spinnerEnableEffect = () => {
   if (!spinnerDraggable) return;
-  if (!simulationRunning.value && gameActiveRef.value) {
-    setTimeout(updateSpinner, 0);
+  if (!simulationRunning.value && gameActiveRef.value && !replaying.value) {
     spinnerDraggable.enable();
+    setTimeout(updateSpinner, 0);
   } else {
     spinnerDraggable.disable();
   }
-});
+};
+
+watchEffect(spinnerEnableEffect);
 
 let scale;
 
@@ -259,6 +277,7 @@ const CUE_THRUST_DURATION = 0.2; // seconds
 
 const replayNextShot = () => {
   console.log('replaying hit');
+  updateCueBallPos();
   // 1. Get the action
   let action = actionsToReplay[0];
   if (!action) return;
@@ -319,7 +338,6 @@ const endSimulation = (skipReplay) => {
           out: ball.out,
           position: ball.body.position,
           quaternion: ball.body.quaternion,
-          color: ball.color,
           name: ball.name,
         };
         newBallStates.push(state);
@@ -344,6 +362,8 @@ const endSimulation = (skipReplay) => {
       }
     }
   }
+  updateSpinner();
+  updateCueBallPos();
 
   simulationRunningRef.value = false;
 };
@@ -468,6 +488,8 @@ const initThree = async () => {
 
   camera.position.set(0, 2, 0);
 
+  raycaster = new THREE.Raycaster();
+
   // const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1)
   // scene.add(light)
 
@@ -552,7 +574,6 @@ const initThree = async () => {
         lastCallTime = time - (dt - timeStep);
       }
     }
-
     frames++;
 
     if (table.surfaceBody) {
@@ -613,121 +634,6 @@ const initThree = async () => {
     );
 
     if (gameActive) {
-      let cposResult = updateCollisionPos();
-      if (!cposResult) return;
-      let { cos, sin, collision } = cposResult;
-
-      // Draw guiding line if simulation isn't running
-      if (!simulationRunning) {
-        // Draw cue ball collision pos
-        ctx.beginPath();
-        ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false);
-        ctx.lineWidth = 1 * scale;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-          cueBallPos.x + cos * ballDisplayRadius,
-          cueBallPos.y + sin * ballDisplayRadius
-        );
-
-        // Draw line to cue ball collision pos
-        if (mode == 'portrait') {
-          ctx.lineTo(
-            cpos.x - cos * ballDisplayRadius,
-            cpos.y - sin * ballDisplayRadius
-          );
-        } else {
-          ctx.lineTo(
-            cpos.x - cos * ballDisplayRadius,
-            cpos.y - sin * ballDisplayRadius
-          );
-        }
-
-        ctx.stroke();
-
-        if (collision.ballBounceAngle) {
-          // Draw angles of ball bounces: cue and other ball
-
-          ctx.lineWidth = 1 * scale;
-          ctx.strokeStyle = '#ffffff';
-          let ballBounceAngle =
-            collision.ballBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
-
-          let bbcos = Math.cos(ballBounceAngle);
-          let bbsin = Math.sin(ballBounceAngle);
-          // DO NOT FORGET BEGINPATH OTHERWISE THE STROKE STYLES WILL BE MIXED TOGETHER
-          ctx.beginPath();
-          ctx.moveTo(
-            cpos.x + bbcos * ballDisplayRadius * 2,
-            cpos.y + bbsin * ballDisplayRadius * 2
-          );
-          ctx.lineTo(
-            cpos.x +
-              bbcos *
-                ballDisplayRadius *
-                (2 + directionLineLength * collision.hitPower),
-            cpos.y +
-              bbsin *
-                ballDisplayRadius *
-                (2 + directionLineLength * collision.hitPower)
-          );
-
-          ctx.stroke();
-
-          let cueBounceAngle =
-            collision.cueBounceAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
-
-          let cbcos = Math.cos(cueBounceAngle);
-          let cbsin = Math.sin(cueBounceAngle);
-
-          ctx.beginPath();
-
-          ctx.moveTo(
-            cpos.x + cbcos * ballDisplayRadius,
-            cpos.y + cbsin * ballDisplayRadius
-          );
-          ctx.lineTo(
-            cpos.x +
-              cbcos *
-                ballDisplayRadius *
-                (1 + directionLineLength * (1 - collision.hitPower)),
-            cpos.y +
-              cbsin *
-                ballDisplayRadius *
-                (1 + directionLineLength * (1 - collision.hitPower))
-          );
-
-          ctx.stroke();
-        }
-      }
-
-      ctx.save();
-
-      // BEGIN ROTATED BLOCK
-
-      ctx.translate(cueBallPos.x, cueBallPos.y);
-      if (mode == 'landscape') {
-        ctx.rotate(Math.PI / 2);
-      }
-      ctx.rotate(-shotAngle - Math.PI);
-
-      if (cueStickImageLoaded) {
-        ctx.drawImage(
-          cueStickImage,
-          -(cueStickImage.width / 2) * scale,
-          ballDisplayRadius * 2 +
-            shotPower * Math.max(canvas.value.width, canvas.value.height) * 0.2,
-          scale * cueStickImage.width,
-          scale * cueStickImage.height
-        );
-      }
-
-      // END ROTATED BLOCK
-
-      ctx.restore();
       ctx.save();
       // BEGIN TRANSLATED BLOCK
       ctx.translate(cueBallPos.x, cueBallPos.y);
@@ -737,7 +643,131 @@ const initThree = async () => {
       }
       // END TRANSLATED BLOCK
       ctx.restore();
+
+      let cposResult = updateCollisionPos();
+      if (!cposResult) return;
+      let { cos, sin, collision } = cposResult;
+
+      // Draw guiding line if simulation isn't running
+      if (!simulationRunning) {
+        // Only draw if not dragging cue ball
+        if (!dragStartPoint) {
+          // Draw cue ball collision pos
+          ctx.beginPath();
+          ctx.arc(cpos.x, cpos.y, ballDisplayRadius, 0, 2 * Math.PI, false);
+          ctx.lineWidth = 1 * scale;
+          ctx.strokeStyle = '#ffffff';
+          ctx.stroke();
+
+          ctx.beginPath();
+
+          ctx.moveTo(
+            cueBallPos.x + cos * ballDisplayRadius,
+            cueBallPos.y + sin * ballDisplayRadius
+          );
+          // Draw line to cue ball collision pos
+          if (mode == 'portrait') {
+            ctx.lineTo(
+              cpos.x - cos * ballDisplayRadius,
+              cpos.y - sin * ballDisplayRadius
+            );
+          } else {
+            ctx.lineTo(
+              cpos.x - cos * ballDisplayRadius,
+              cpos.y - sin * ballDisplayRadius
+            );
+          }
+
+          ctx.stroke();
+
+          if (collision.ballBounceAngle) {
+            // Draw angles of ball bounces: cue and other ball
+
+            ctx.lineWidth = 1 * scale;
+            ctx.strokeStyle = '#ffffff';
+            let ballBounceAngle =
+              collision.ballBounceAngle +
+              (mode == 'landscape' ? Math.PI / 2 : 0);
+
+            let bbcos = Math.cos(ballBounceAngle);
+            let bbsin = Math.sin(ballBounceAngle);
+            // DO NOT FORGET BEGINPATH OTHERWISE THE STROKE STYLES WILL BE MIXED TOGETHER
+            ctx.beginPath();
+            ctx.moveTo(
+              cpos.x + bbcos * ballDisplayRadius * 2,
+              cpos.y + bbsin * ballDisplayRadius * 2
+            );
+            ctx.lineTo(
+              cpos.x +
+                bbcos *
+                  ballDisplayRadius *
+                  (2 + directionLineLength * collision.hitPower),
+              cpos.y +
+                bbsin *
+                  ballDisplayRadius *
+                  (2 + directionLineLength * collision.hitPower)
+            );
+
+            ctx.stroke();
+
+            let cueBounceAngle =
+              collision.cueBounceAngle +
+              (mode == 'landscape' ? Math.PI / 2 : 0);
+
+            let cbcos = Math.cos(cueBounceAngle);
+            let cbsin = Math.sin(cueBounceAngle);
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+              cpos.x + cbcos * ballDisplayRadius,
+              cpos.y + cbsin * ballDisplayRadius
+            );
+            ctx.lineTo(
+              cpos.x +
+                cbcos *
+                  ballDisplayRadius *
+                  (1 + directionLineLength * (1 - collision.hitPower)),
+              cpos.y +
+                cbsin *
+                  ballDisplayRadius *
+                  (1 + directionLineLength * (1 - collision.hitPower))
+            );
+
+            ctx.stroke();
+          }
+        }
+      }
+
+      if (!dragStartPoint) {
+        ctx.save();
+
+        // BEGIN ROTATED BLOCK
+
+        // Drag cue stick
+        ctx.translate(cueBallPos.x, cueBallPos.y);
+        if (mode == 'landscape') {
+          ctx.rotate(Math.PI / 2);
+        }
+        ctx.rotate(-shotAngle - Math.PI);
+
+        if (cueStickImageLoaded) {
+          ctx.drawImage(
+            cueStickImage,
+            -(cueStickImage.width / 2) * scale,
+            ballDisplayRadius * 2 +
+              shotPower *
+                Math.max(canvas.value.width, canvas.value.height) *
+                0.2,
+            scale * cueStickImage.width,
+            scale * cueStickImage.height
+          );
+        }
+
+        // END ROTATED BLOCK
+      }
     }
+    ctx.restore();
   }
   requestAnimationFrame(animate);
 
@@ -747,21 +777,67 @@ const initThree = async () => {
   }, 1000);
 };
 
-watch(
-  spinnerEnabled,
-  (v) => {
-    if (v) {
-      spinnerDraggable = Draggable.create(spinner.value, {
-        type: 'rotation',
-        inertia: true,
-        onDrag: function () {
-          shotAngle = -this.rotation * (Math.PI / 180);
-        },
-      })[0];
-    }
-  },
-  { flush: 'post' }
-);
+const spinnerEnabledWatcher = (v) => {
+  if (v) {
+    spinnerDraggable = Draggable.create(spinner.value, {
+      type: 'rotation',
+      inertia: true,
+      onDrag(e) {
+        pointerMove(e, this);
+      },
+      onPress(e) {
+        pointerDown(e);
+      },
+      onDragEnd(e) {
+        pointerUp(e);
+      },
+    })[0];
+  }
+};
+
+watch(spinnerEnabled, spinnerEnabledWatcher, { flush: 'post' });
+
+const cueDragThreshold = 16; // px
+let dragStartPoint;
+
+const pointerDown = (e) => {
+  // Only drag cue ball if theres a cue foul
+  if (!cueFoul) return;
+  const { x, y } = mousePosOnCanvas(e, renderer.domElement, false, scale);
+  let d = getDistance(x, y, cueBallPos.x, cueBallPos.y);
+  // Start dragging cue ball if your finger is close to it
+  if (d < cueDragThreshold * scale) {
+    dragStartPoint = { x, y };
+  }
+};
+
+const pointerMove = (e, draggable) => {
+  if (!dragStartPoint) {
+    shotAngle = -draggable.rotation * (Math.PI / 180);
+    return;
+  }
+  const { x, y } = mousePos(e);
+  let mpos = getMouseWorldPos(
+    x,
+    y,
+    table.surfacePlane,
+    camera,
+    renderer,
+    raycaster,
+    scale
+  );
+  if (!mpos) return;
+  let pos = transformToValidPosition(mpos.x, mpos.z, game.value.data.balls);
+  if (!pos) return;
+  cueBall.body.position.x = pos.x;
+  cueBall.body.position.y = Ball.RADIUS;
+  cueBall.body.position.z = pos.z;
+  updateCueBallPos();
+};
+
+const pointerUp = (e) => {
+  dragStartPoint = null;
+};
 
 onMounted(async () => {
   window.shotPower = shotPower;
@@ -772,13 +848,8 @@ onMounted(async () => {
 
   await initThree();
 
-  spinnerDraggable = Draggable.create(spinner.value, {
-    type: 'rotation',
-    inertia: true,
-    onDrag: function () {
-      shotAngle = -this.rotation * (Math.PI / 180);
-    },
-  })[0];
+  spinnerEnabledWatcher();
+  spinnerEnableEffect();
 
   function resize() {
     if (canvasWrapper.value) {
@@ -879,8 +950,10 @@ onMounted(async () => {
     let turn = game.value.turns[game.value.turns.length - 1];
     shotAngle = turn.actions[0].data.angle;
     replayRunning.value = true;
+    console.log('replaying turn');
     setTimeout(() => {
-      actionsToReplay = turn.actions;
+      console.log('actions to replay set');
+      actionsToReplay = [...turn.actions];
     }, 700);
   });
 });

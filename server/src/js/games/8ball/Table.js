@@ -24,6 +24,7 @@ export class Table {
   surfaceBody;
   cushionBodies;
   holeBodies;
+  surfacePlane;
 
   constructor(scene, world) {
     const { PLAY_AREA } = Table;
@@ -67,6 +68,20 @@ export class Table {
     });
     this.surfaceBody.position.set(0, -0.0254, 0);
     this.world.addBody(this.surfaceBody);
+
+    const geometry = new THREE.PlaneGeometry(
+      Table.PLAY_AREA.LEN_X * 2,
+      Table.PLAY_AREA.LEN_Z * 2
+    );
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffff0000,
+      side: THREE.DoubleSide,
+    });
+    this.surfacePlane = new THREE.Mesh(geometry, material);
+    this.surfacePlane.setRotationFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+    this.surfacePlane.position.y = -10;
+
+    scene.add(this.surfacePlane);
 
     let cw = 0.0227; // cushion thickness (half extent)
     let ch = 0.2; // cushion height (half extent)

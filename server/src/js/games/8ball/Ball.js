@@ -185,7 +185,7 @@ export class Ball {
     // point.set(point.x, point.y, point.z)
     this.body.applyImpulse(force, point);
     // this.body.applyForce(force, point)
-    console.log(vec, force, point);
+    // console.log(vec, force, point);
 
     // let a = (angle - Math.PI / 2) % (2 * Math.PI)
 

@@ -264,3 +264,29 @@ export function getCollisionLocation(balls, ball, vec) {
     };
   }
 }
+
+export function getDistance(x1, y1, x2, y2) {
+  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+}
+
+export const mousePos = (e) => {
+  const { clientX: x, clientY: y } = e.touches?.[0] || e;
+  return { x, y };
+};
+
+/** Mouse pos relative to a canvas **/
+export const mousePosOnCanvas = (e, canvas, centered, scale) => {
+  const { x, y } = mousePos(e);
+  const cbbox = canvas.getBoundingClientRect();
+  const cx = cbbox.x;
+  const cy = cbbox.y;
+  const cw = cbbox.width;
+  const ch = cbbox.height;
+  let mx = (x - cx) * scale;
+  let my = (y - cy) * scale;
+  if (centered) {
+    mx = (mx / cw / scale) * 2 - 1;
+    my = (my / ch / scale) * -2 + 1;
+  }
+  return { x: mx, y: my };
+};

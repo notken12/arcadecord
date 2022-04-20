@@ -70,9 +70,11 @@ export class CueBall extends Ball {
 }
 
 export const ballsOverlap = (b1, b2) => {
+  if (b1.out || b2.out) return false; // cant be overlapping if they're out
+  if (b1.name === b2.name) return false;
   let dx = b1.position.x - b2.position.x;
   let dz = b1.position.z - b2.position.z;
-  return Math.sqrt(dx ** 2 + dz ** 2) < Ball.RADIUS;
+  return Math.sqrt(dx ** 2 + dz ** 2) < Ball.RADIUS * 2;
 };
 
 async function shoot(game, action) {
@@ -116,7 +118,7 @@ async function shoot(game, action) {
   let ball8 = game.data.balls.find((ball) => ball.name === '8ball');
   let cueball = game.data.balls.find((ball) => ball.name === 'cueball');
 
-  // if (game.data.cueFoul) game.data.cueFoul = false
+  if (game.data.cueFoul) game.data.cueFoul = false;
 
   if (ball8.out) {
     var myInBalls = getBalls(game.data.balls, pattern, true);
