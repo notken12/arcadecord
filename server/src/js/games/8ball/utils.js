@@ -202,7 +202,7 @@ export function getCollisionLocation(balls, ball, vec) {
   let locations = [];
 
   for (let b of balls) {
-    if (b.name == ball.name || ball.out) {
+    if (b.name === ball.name || b.out) {
       continue;
     }
 
