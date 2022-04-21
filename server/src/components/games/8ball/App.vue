@@ -13,6 +13,7 @@
 import PowerControl from './PowerControl.vue';
 import SpinControl from './SpinControl.vue';
 import AssignedPattern from './AssignedPattern.vue';
+import PocketChooser from './PocketChooser.vue';
 
 import { useFacade } from 'components/base-ui/facade';
 import { computed, ref, onMounted, watch, onUnmounted, watchEffect } from 'vue';
@@ -75,6 +76,10 @@ let gameActive;
 
 const gameActiveRef = computed(() => {
   return GameFlow.isItMyTurn(game.value) || replaying.value;
+});
+
+const isItMyTurn = computed(() => {
+  return GameFlow.isItMyTurn(game.value);
 });
 
 watch(
@@ -157,7 +162,11 @@ const canvas = ref(null);
 const controlsCanvas = ref(null);
 const canvasWrapper = ref(null);
 const spinner = ref(null);
-const spinnerEnabled = ref(!replaying.value);
+const spinnerEnabled = computed(() => {
+  return (
+    !replaying.value && !(canHit8Ball.value && chosenPocket.value === null)
+  );
+});
 
 let orbitControlsEnabled = false;
 let cannonDebuggerEnabled = false;
@@ -188,6 +197,7 @@ let shotPowerSetter = {
 }; // for gsap
 let shotPower = 0;
 let shotSpin = { x: 0, y: 0 };
+let chosenPocket = ref(null);
 
 let maxShotPower = 1;
 let lastShotPower;
@@ -350,10 +360,7 @@ watch(replaying, (val) => {
   if (!val) {
     actionsToReplay = [];
     endSimulation(true);
-    spinnerEnabled.value = true;
     return;
-  } else {
-    spinnerEnabled.value = false;
   }
 });
 
@@ -408,6 +415,12 @@ let assignedPatternVal;
 watchEffect(() => {
   assignedPatternVal = game.value.data.players[game.value.turn].assignedPattern;
 });
+
+let canHit8BallVal;
+const canHit8Ball = computed(() => {
+  return game.value.data.players[game.value.turn].canHit8Ball;
+});
+watch(canHit8Ball, (v) => (canHit8BallVal = v), { immediate: true });
 
 const updateCollisionPos = () => {
   let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
@@ -911,6 +924,9 @@ const pointerUp = (e) => {
   dragStartPoint = null;
 };
 
+const canvasWidth = ref();
+const canvasHeight = ref();
+
 onMounted(async () => {
   window.shotPower = shotPower;
   window.shotPowerSetter = shotPowerSetter;
@@ -978,6 +994,9 @@ onMounted(async () => {
           newHeight *= correctionRatio;
         }
       }
+
+      canvasWidth.value = newWidth;
+      canvasHeight.value = newHeight;
 
       renderer.setSize(newWidth, newHeight);
       renderer.setPixelRatio(scale);
@@ -1073,7 +1092,12 @@ onUnmounted(() => {
       <!-- Game UI just for 8 ball -->
       <div
         class="controls-wrapper"
-        :class="{ shown: showControls && !replaying }"
+        :class="{
+          shown:
+            showControls &&
+            !replaying &&
+            !(canHit8Ball && chosenPocket === null),
+        }"
       >
         <SpinControl @spinchange="changeShotSpin($event)" />
         <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
@@ -1087,6 +1111,15 @@ onUnmounted(() => {
         ></canvas>
         <p style="position: absolute; top: 16px">{{ fps }} fps</p>
         <div id="spinner" ref="spinner"></div>
+        <Transition name="fade">
+          <PocketChooser
+            v-if="canHit8Ball && isItMyTurn && !replaying"
+            :width="canvasWidth"
+            :height="canvasHeight"
+            :renderer="renderer"
+            :camera="camera"
+          ></PocketChooser>
+        </Transition>
       </div>
     </div>
   </game-view>

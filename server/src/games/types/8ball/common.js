@@ -168,8 +168,17 @@ async function shoot(game, action) {
     }
   } else {
     // If you hit all of your balls in, you canHit8Ball
-    if (myInBalls.length === 0 && pattern !== null && pattern !== undefined) {
-      game.data.players[game.turn].canHit8Ball = true;
+    for (let i = 0; i < game.players.length; i++) {
+      let pattern = game.data.players[i].assignedPattern;
+      if (pattern === null || pattern === undefined) return;
+      let playerInBalls = getBalls(game.data.balls, pattern, true);
+      if (
+        playerInBalls.length === 0 &&
+        pattern !== null &&
+        pattern !== undefined
+      ) {
+        game.data.players[i].canHit8Ball = true;
+      }
     }
   }
 
