@@ -14,7 +14,7 @@
 // tests if global scope is bound to window
 import GameFlow from '../../GameFlow.js';
 
-let ballColors = [
+export const ballColors = [
   ['1ball', '2ball', '3ball', '4ball', '5ball', '6ball', '7ball'],
   ['9ball', '10ball', '11ball', '12ball', '13ball', '14ball', '15ball'],
 ];
@@ -209,21 +209,6 @@ async function shoot(game, action) {
 }
 
 function getBalls(balls, pattern, onlyIn) {
-  // ken: I changed color into pattern. Looks like your code is filtering by pattern and not color.
-  /*
-  function ballFilter(ball) {
-    if (ballColors[color].includes(ball.name)) {
-      if (onlyIn) {
-        if (!ball.out) return true
-        return false
-      }
-      return true
-    }
-  }
-  let fetchedBalls = balls.filter(ballFilter)
-
-  return fetchedBalls
-  */
   var yesBalls = [];
   for (let i = 0; i < balls.length; i++) {
     var pushBall = true;

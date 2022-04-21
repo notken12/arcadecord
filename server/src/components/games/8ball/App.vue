@@ -31,6 +31,8 @@ import CannonDebugger from 'cannon-es-debugger';
 import gsap from 'gsap';
 import { Draggable } from 'gsap/dist/Draggable';
 
+import Common from '/gamecommons/8ball';
+
 import {
   getCollisionLocation,
   mousePos,
@@ -402,6 +404,11 @@ const endSimulation = (skipReplay) => {
 
 let cpos;
 
+let assignedPatternVal;
+watchEffect(() => {
+  assignedPatternVal = game.value.data.players[game.value.turn].assignedPattern;
+});
+
 const updateCollisionPos = () => {
   let angle = -shotAngle + (mode == 'landscape' ? Math.PI / 2 : 0);
 
@@ -426,12 +433,34 @@ const updateCollisionPos = () => {
     canvas.value.width,
     canvas.value.height
   );
+
+  let wrongBall = false;
+  if (collision.ball) {
+    // Don't hit 8 ball unless you've hit all of your balls in
+    if (collision.ball.name === '8ball') {
+      if (assignedPatternVal !== null && assignedPatternVal !== undefined) {
+        if (Common.getBalls(balls, assignedPatternVal, true).length !== 0) {
+          wrongBall = true;
+        }
+      }
+    } else if (
+      assignedPatternVal !== null &&
+      assignedPatternVal !== undefined
+    ) {
+      // Don't hit a ball that isn't your assigned pattern
+      let pattern = Common.ballColors[0].includes(collision.ball.name) ? 0 : 1;
+      if (pattern !== assignedPatternVal) {
+        wrongBall = true;
+      }
+    }
+  }
   return {
     angle,
     cos,
     sin,
     vec,
     collision,
+    wrongBall,
   };
 };
 
@@ -669,7 +698,7 @@ const initThree = async () => {
       ctx.save();
       // BEGIN TRANSLATED BLOCK
       ctx.translate(cueBallPos.x, cueBallPos.y);
-      if (cueFoul) {
+      if (cueFoul && !replayingVal) {
         // Other player did cue foul, now you can drag the cue ball around
         drawCueControls(ctx, ballDisplayRadius, scale);
       }
@@ -678,7 +707,7 @@ const initThree = async () => {
 
       let cposResult = updateCollisionPos();
       if (!cposResult) return;
-      let { cos, sin, collision } = cposResult;
+      let { cos, sin, collision, wrongBall } = cposResult;
 
       // Draw guiding line if simulation isn't running
       if (!simulationRunning) {
@@ -690,6 +719,17 @@ const initThree = async () => {
           ctx.lineWidth = 1 * scale;
           ctx.strokeStyle = '#ffffff';
           ctx.stroke();
+
+          // Draw X in cue ball collision pos if hitting the wrong ball
+          if (wrongBall) {
+            let o = ballDisplayRadius / Math.SQRT2; // right triangle side length from center of circle
+            ctx.moveTo(cpos.x - o, cpos.y - o);
+            ctx.lineTo(cpos.x + o, cpos.y + o);
+            ctx.stroke();
+            ctx.moveTo(cpos.x - o, cpos.y + o);
+            ctx.lineTo(cpos.x + o, cpos.y - o);
+            ctx.stroke();
+          }
 
           ctx.beginPath();
 
@@ -712,7 +752,7 @@ const initThree = async () => {
 
           ctx.stroke();
 
-          if (collision.ballBounceAngle) {
+          if (collision.ballBounceAngle && !wrongBall) {
             // Draw angles of ball bounces: cue and other ball
 
             ctx.lineWidth = 1 * scale;

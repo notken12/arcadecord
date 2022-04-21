@@ -198,6 +198,7 @@ export function getCollisionLocationBallLine(line, ball, vec) {
   return p;
 }
 
+/** Get collision location of ball aimed at direction vec against other balls and walls. **/
 export function getCollisionLocation(balls, ball, vec) {
   let locations = [];
 
