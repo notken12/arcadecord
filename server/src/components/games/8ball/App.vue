@@ -923,6 +923,24 @@ onMounted(async () => {
   spinnerEnabledWatcher();
   spinnerEnableEffect();
 
+  window.test8BallHit = function () {
+    let newBallStates = [];
+    for (let ball of balls) {
+      newBallStates.push({
+        name: ball.name,
+        position: ball.position,
+        quaternion: ball.quaternion,
+        out: ball.name !== '8ball',
+        color: ball.color,
+      });
+    }
+    $runAction('shoot', {
+      newBallStates,
+      angle: shotAngle,
+      force: 1,
+    });
+  };
+
   function resize() {
     if (canvasWrapper.value) {
       scale = window.devicePixelRatio;

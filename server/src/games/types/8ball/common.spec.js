@@ -89,6 +89,9 @@ const stateSchema = {
           chosenPocket: {
             type: ['number', 'null'], // chosen pocket for when they shoot the 8 ball
           },
+          canHit8Ball: {
+            type: 'boolean',
+          },
         },
       },
       maxItems: 2,
@@ -303,6 +306,7 @@ describe('8ball Action: shoot', () => {
     );
 
     expect(await game.handleAction(shot)).toEqual({ success: true });
+    expect(await game.data.players[1].canHit8Ball).toBe(true);
 
     expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0);
 

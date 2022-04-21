@@ -189,10 +189,12 @@ class EightBallGame extends Game {
       {
         assignedPattern: null,
         chosenPocket: null,
+        canHit8Ball: false,
       },
       {
         assignedPattern: null,
         chosenPocket: null,
+        canHit8Ball: false,
       },
     ];
     game.data.cueFoul = false;

@@ -120,8 +120,8 @@ async function shoot(game, action) {
 
   if (game.data.cueFoul) game.data.cueFoul = false;
 
+  const myInBalls = getBalls(game.data.balls, pattern, true);
   if (ball8.out) {
-    var myInBalls = getBalls(game.data.balls, pattern, true);
     if (pattern !== null && pattern !== undefined) {
     } else {
       // You shot the 8 ball in before you shot any other balls in because you dont have an assigned pattern
@@ -136,14 +136,16 @@ async function shoot(game, action) {
         winner: [1, 0][game.turn],
       });
       game.data.players[game.turn].chosenPocket = undefined;
+      game.data.players[game.turn].canHit8Ball = false;
       return game;
-    } else if (myInBalls.length == 0) {
+    } else if (myInBalls.length === 0) {
       if (ball8.pocket === action.data.chosenPocket) {
         // Woohoo, 8ball correctly pocketed!
         await GameFlow.end(game, {
           winner: game.turn,
         });
         game.data.players[game.turn].chosenPocket = undefined;
+        game.data.players[game.turn].canHit8Ball = false;
         return game;
       } else {
         // Sad, 8ball was shot into the wrong pocket. You lose
@@ -151,6 +153,7 @@ async function shoot(game, action) {
           winner: [1, 0][game.turn],
         });
         game.data.players[game.turn].chosenPocket = undefined;
+        game.data.players[game.turn].canHit8Ball = false;
         return game;
       }
     } else {
@@ -160,7 +163,13 @@ async function shoot(game, action) {
         winner: [1, 0][game.turn],
       });
       game.data.players[game.turn].chosenPocket = undefined;
+      game.data.players[game.turn].canHit8Ball = false;
       return game;
+    }
+  } else {
+    // If you hit all of your balls in, you canHit8Ball
+    if (myInBalls.length === 0 && pattern !== null && pattern !== undefined) {
+      game.data.players[game.turn].canHit8Ball = true;
     }
   }
 
@@ -212,7 +221,7 @@ function getBalls(balls, pattern, onlyIn) {
   var yesBalls = [];
   for (let i = 0; i < balls.length; i++) {
     var pushBall = true;
-    if (!ballColors[pattern].includes(balls[i].name)) {
+    if (!ballColors[pattern]?.includes(balls[i].name)) {
       pushBall = false;
     } else if (onlyIn && balls[i].out) {
       pushBall = false;
