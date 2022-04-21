@@ -48,6 +48,45 @@ class EightBallGame extends Game {
         force: {
           type: 'number',
         },
+        cueBallStart: {
+          type: 'object',
+          properties: {
+            position: {
+              type: 'object',
+              properties: {
+                x: {
+                  type: 'number',
+                },
+                y: {
+                  type: 'number',
+                },
+                z: {
+                  type: 'number',
+                },
+              },
+              required: ['x', 'y', 'z'],
+            },
+            quaternion: {
+              type: 'object',
+              properties: {
+                x: {
+                  type: 'number',
+                },
+                y: {
+                  type: 'number',
+                },
+                z: {
+                  type: 'number',
+                },
+                w: {
+                  type: 'number',
+                },
+              },
+              required: ['x', 'y', 'z', 'w'],
+            },
+          },
+          required: ['position', 'quaternion'],
+        },
         newBallStates: {
           type: 'array',
           items: {

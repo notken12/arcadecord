@@ -189,6 +189,7 @@ let shotSpin = { x: 0, y: 0 };
 
 let maxShotPower = 1;
 let lastShotPower;
+let cueBallStartPos;
 
 const hitBall = (p, a, s) => {
   if (balls) {
@@ -202,6 +203,21 @@ const hitBall = (p, a, s) => {
     }
     lastShotPower = power + 0; // remember the shot power so that
     // when the simulation ends it can run the action with the correct shot power
+    if (cueFoul) {
+      cueBallStartPos = {
+        position: {
+          x: cueBall.body.position.x,
+          y: cueBall.body.position.y,
+          z: cueBall.body.position.z,
+        },
+        quaternion: {
+          x: cueBall.body.quaternion.x,
+          y: cueBall.body.quaternion.y,
+          z: cueBall.body.quaternion.z,
+          w: cueBall.body.quaternion.w,
+        },
+      };
+    }
     cueBall.hit(power * maxShotPower, angle, spin);
 
     simulationRunningRef.value = true;
@@ -277,14 +293,26 @@ const CUE_THRUST_DURATION = 0.2; // seconds
 
 const replayNextShot = () => {
   console.log('replaying hit');
-  updateCueBallPos();
   // 1. Get the action
   let action = actionsToReplay[0];
   if (!action) return;
-  let { angle, force: power, spin } = action.data;
-  // 2. Rotate the stick to the action's angle
+  let { angle, force: power, spin, cueBallStart } = action.data;
+  // 2. Move the cue ball to the place that the player put it
+  if (cueBallStart) {
+    const { position, quaternion } = cueBallStart;
+    cueBall.body.position.set(position.x, position.y, position.z);
+    cueBall.body.quaternion.set(
+      quaternion.x,
+      quaternion.y,
+      quaternion.z,
+      quaternion.w
+    );
+  }
+  // Update cue ball pos for displaying controls
+  updateCueBallPos();
+  // 3. Rotate the stick to the action's angle
   shotAngle = angle;
-  // 3. Show the pool stick being drawn back
+  // 4. Show the pool stick being drawn back
   console.log(`replay power: ${power}`);
   console.log(action.data);
 
@@ -307,7 +335,7 @@ const replayNextShot = () => {
       duration: CUE_THRUST_DURATION,
       ease: 'power2.in',
       onComplete() {
-        // 4. Apply force to ball
+        // 5. Apply force to ball
         hitBall(power, angle, spin);
       },
     },
@@ -342,11 +370,15 @@ const endSimulation = (skipReplay) => {
         };
         newBallStates.push(state);
       }
-      $runAction('shoot', {
+      let action = {
         angle: shotAngle,
         force: lastShotPower,
         newBallStates,
-      });
+      };
+      if (cueFoul) {
+        action.cueBallStart = cueBallStartPos;
+      }
+      $runAction('shoot', action);
     }
     // Replay next action if replaying
     else {
@@ -778,21 +810,21 @@ const initThree = async () => {
 };
 
 const spinnerEnabledWatcher = (v) => {
-  if (v) {
-    spinnerDraggable = Draggable.create(spinner.value, {
-      type: 'rotation',
-      inertia: true,
-      onDrag(e) {
-        pointerMove(e, this);
-      },
-      onPress(e) {
-        pointerDown(e);
-      },
-      onDragEnd(e) {
-        pointerUp(e);
-      },
-    })[0];
-  }
+  // if (v) {
+  spinnerDraggable = Draggable.create(spinner.value, {
+    type: 'rotation',
+    inertia: true,
+    onDrag(e) {
+      pointerMove(e, this);
+    },
+    onPress(e) {
+      pointerDown(e);
+    },
+    onDragEnd(e) {
+      pointerUp(e);
+    },
+  })[0];
+  // }
 };
 
 watch(spinnerEnabled, spinnerEnabledWatcher, { flush: 'post' });
@@ -951,10 +983,10 @@ onMounted(async () => {
     shotAngle = turn.actions[0].data.angle;
     replayRunning.value = true;
     console.log('replaying turn');
-    setTimeout(() => {
-      console.log('actions to replay set');
-      actionsToReplay = [...turn.actions];
-    }, 700);
+    // setTimeout(() => {
+    console.log('actions to replay set');
+    actionsToReplay = [...turn.actions];
+    // }, 0);
   });
 });
 
