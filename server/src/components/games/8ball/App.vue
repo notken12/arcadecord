@@ -39,6 +39,7 @@ import {
   mousePos,
   mousePosOnCanvas,
   getDistance,
+  createVector,
 } from '@app/js/games/8ball/utils';
 import GameFlow from '@app/js/GameFlow';
 
@@ -182,6 +183,8 @@ let scene,
   ctx,
   raycaster;
 
+let cameraRef = ref();
+
 const fps = ref(0);
 
 let shotAngle = 0.12076394834603342;
@@ -273,6 +276,8 @@ const spinnerEnableEffect = () => {
 watchEffect(spinnerEnableEffect);
 
 let scale;
+let scaleRef = ref();
+watch(scaleRef, (v) => (scale = v), { immediate: true });
 
 const updateSpinner = () => {
   if (!spinner.value) return;
@@ -287,16 +292,6 @@ const updateSpinner = () => {
       cueBallPos.y / scale + cbbox.top - spinner.value.offsetHeight / 2 + 'px',
   });
 };
-
-function createVector(x, y, z, camera, width, height) {
-  var p = new THREE.Vector3(x, y, z);
-  var vector = p.project(camera);
-
-  vector.x = ((vector.x + 1) / 2) * width;
-  vector.y = (-(vector.y - 1) / 2) * height;
-
-  return vector;
-}
 
 let firstActionReplayed = false;
 
@@ -550,6 +545,7 @@ const initThree = async () => {
     0.1,
     5
   );
+  cameraRef.value = camera;
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true });
   renderer.shadowMap.enabled = true;
@@ -932,7 +928,7 @@ onMounted(async () => {
   window.shotPowerSetter = shotPowerSetter;
   window.shotAngle = shotAngle;
   gsap.registerPlugin(Draggable);
-  scale = window.devicePixelRatio;
+  scaleRef.value = window.devicePixelRatio;
 
   await initThree();
 
@@ -959,7 +955,7 @@ onMounted(async () => {
 
   function resize() {
     if (canvasWrapper.value) {
-      scale = window.devicePixelRatio;
+      scaleRef.value = window.devicePixelRatio;
 
       var container = canvasWrapper.value;
       const cWidth = container.offsetWidth;
@@ -1117,7 +1113,8 @@ onUnmounted(() => {
             :width="canvasWidth"
             :height="canvasHeight"
             :renderer="renderer"
-            :camera="camera"
+            :camera="cameraRef"
+            :scale="scaleRef"
           ></PocketChooser>
         </Transition>
       </div>

@@ -69,6 +69,28 @@ export class CueBall extends Ball {
   };
 }
 
+const lenx = Table.PLAY_AREA.LEN_X / 2;
+const lenz = Table.PLAY_AREA.LEN_Z / 2;
+
+const lenxm = lenx + Ball.RADIUS * 2.5;
+const lenxc = lenx + Ball.RADIUS * 0.75;
+const lenzc = lenz + Ball.RADIUS * 0.75;
+
+const POCKETS = [
+  // Top left
+  { x: -lenxc, z: lenzc },
+  // Top right
+  { x: lenxc, z: lenzc },
+  // Middle left
+  { x: -lenxm, z: 0 },
+  // Middle right
+  { x: lenxm, z: 0 },
+  // Bottom left
+  { x: -lenxc, z: -lenzc },
+  // Bottom right
+  { x: lenxc, z: -lenzc },
+];
+
 export const ballsOverlap = (b1, b2) => {
   if (b1.out || b2.out) return false; // cant be overlapping if they're out
   if (b1.name === b2.name) return false;
@@ -261,4 +283,5 @@ export default {
   shoot,
   getBalls,
   checkHitIn,
+  POCKETS,
 };

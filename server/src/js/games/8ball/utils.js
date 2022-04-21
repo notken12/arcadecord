@@ -10,6 +10,7 @@
 import { CueBall } from './CueBall';
 import { Ball } from './Ball';
 import { Table, WALL_LINES } from './Table';
+import * as THREE from 'three';
 
 export function getBalls(scene, world) {
   var apex = Table.PLAY_AREA.LEN_Z / 4;
@@ -291,3 +292,14 @@ export const mousePosOnCanvas = (e, canvas, centered, scale) => {
   }
   return { x: mx, y: my };
 };
+
+/**Get where a THREE.js coordinate would be drawn on screen**/
+export function createVector(x, y, z, camera, width, height) {
+  var p = new THREE.Vector3(x, y, z);
+  var vector = p.project(camera);
+
+  vector.x = ((vector.x + 1) / 2) * width;
+  vector.y = (-(vector.y - 1) / 2) * height;
+
+  return vector;
+}

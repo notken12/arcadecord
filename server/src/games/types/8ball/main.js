@@ -48,6 +48,9 @@ class EightBallGame extends Game {
         force: {
           type: 'number',
         },
+        chosenPocket: {
+          type: 'number', // index of pocket in Common.POCKET, used for hitting in 8ball
+        },
         cueBallStart: {
           type: 'object',
           properties: {
@@ -139,9 +142,6 @@ class EightBallGame extends Game {
               },
             },
           },
-        },
-        chosenPocket: {
-          type: ['number'],
         },
       },
       required: ['angle', 'force', 'newBallStates'],
