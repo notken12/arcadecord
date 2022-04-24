@@ -86,9 +86,6 @@ const stateSchema = {
           assignedPattern: {
             type: ['number', 'null'], // 0 for solid, 1 for striped, leave empty for unassigned yet
           },
-          chosenPocket: {
-            type: ['number', 'null'], // chosen pocket for when they shoot the 8 ball
-          },
           canHit8Ball: {
             type: 'boolean',
           },

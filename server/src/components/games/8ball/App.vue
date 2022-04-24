@@ -206,6 +206,10 @@ let maxShotPower = 1;
 let lastShotPower;
 let cueBallStartPos;
 
+const choosePocket = (p) => {
+  chosenPocket.value = p;
+};
+
 const hitBall = (p, a, s) => {
   if (balls) {
     let power = p ?? shotPower;
@@ -382,7 +386,11 @@ const endSimulation = (skipReplay) => {
       if (cueFoul) {
         action.cueBallStart = cueBallStartPos;
       }
+      if (chosenPocket.value !== null && chosenPocket.value !== undefined) {
+        action.chosenPocket = chosenPocket.value;
+      }
       $runAction('shoot', action);
+      chosenPocket.value = null;
     }
     // Replay next action if replaying
     else {
@@ -1109,12 +1117,13 @@ onUnmounted(() => {
         <div id="spinner" ref="spinner"></div>
         <Transition name="fade">
           <PocketChooser
-            v-if="canHit8Ball && isItMyTurn && !replaying"
+            v-if="canHit8Ball && isItMyTurn && !replaying && !chosenPocket"
             :width="canvasWidth"
             :height="canvasHeight"
             :renderer="renderer"
             :camera="cameraRef"
             :scale="scaleRef"
+            @choosePocket="choosePocket($event)"
           ></PocketChooser>
         </Transition>
       </div>

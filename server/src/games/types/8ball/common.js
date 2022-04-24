@@ -102,7 +102,6 @@ export const ballsOverlap = (b1, b2) => {
 async function shoot(game, action) {
   var continueTurn = false;
   var pattern = game.data.players[game.turn].assignedPattern;
-  game.data.players[game.turn].chosenPocket = action.data.chosenPocket;
   if (pattern !== null && pattern !== undefined) {
     // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
@@ -157,7 +156,6 @@ async function shoot(game, action) {
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       });
-      game.data.players[game.turn].chosenPocket = undefined;
       game.data.players[game.turn].canHit8Ball = false;
       return game;
     } else if (myInBalls.length === 0) {
@@ -166,7 +164,6 @@ async function shoot(game, action) {
         await GameFlow.end(game, {
           winner: game.turn,
         });
-        game.data.players[game.turn].chosenPocket = undefined;
         game.data.players[game.turn].canHit8Ball = false;
         return game;
       } else {
@@ -174,7 +171,6 @@ async function shoot(game, action) {
         await GameFlow.end(game, {
           winner: [1, 0][game.turn],
         });
-        game.data.players[game.turn].chosenPocket = undefined;
         game.data.players[game.turn].canHit8Ball = false;
         return game;
       }
@@ -184,7 +180,6 @@ async function shoot(game, action) {
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       });
-      game.data.players[game.turn].chosenPocket = undefined;
       game.data.players[game.turn].canHit8Ball = false;
       return game;
     }
@@ -235,10 +230,6 @@ async function shoot(game, action) {
     game.data.cueFoul = true;
     await GameFlow.endTurn(game);
     return game;
-  }
-
-  if (game.data.players[game.turn].chosenPocket) {
-    game.data.players[game.turn].chosenPocket = undefined;
   }
 
   if (!continueTurn) {

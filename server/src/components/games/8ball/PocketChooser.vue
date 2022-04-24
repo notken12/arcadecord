@@ -15,6 +15,8 @@ const props = defineProps({
   scale: Number,
 });
 
+const emit = defineEmits(['choosePocket']);
+
 const pockets = ref([]);
 
 function updatePockets() {
@@ -49,6 +51,10 @@ const styles = computed(() => {
   };
 });
 
+const choosePocket = (i) => {
+  emit('choosePocket', i);
+};
+
 onMounted(() => {
   window.addEventListener('resize', updatePockets);
   updatePockets();
@@ -65,8 +71,10 @@ onUnmounted(() => {
     <h1>Choose a pocket</h1>
     <div
       class="pocket"
-      v-for="pocket in pockets"
-      :style="getPocketStyles(pocket)"
+      v-for="i in pockets.length"
+      :style="getPocketStyles(pockets[i - 1])"
+      @click="choosePocket(i - 1)"
+      :key="i - 1"
     ></div>
     <!-- </div> -->
   </div>
@@ -101,6 +109,7 @@ h1 {
     rgba(17, 27, 207, 0) 85%
   );
   animation: pulse 1.5s infinite;
+  cursor: pointer;
 }
 
 /* @keyframes pulse { */
@@ -126,8 +135,4 @@ h1 {
     opacity: 1;
   }
 }
-
-/* .container > div { */
-/**/
-/* } */
 </style>
