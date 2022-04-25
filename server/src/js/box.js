@@ -37,6 +37,7 @@ function createStore() {
     },
     mutations: {
       SETUP(state, connectionResponse) {
+        store.commit('SETUP_STATE', state);
         store.commit('SETUP', connectionResponse);
         state.user = store.state.user;
       },

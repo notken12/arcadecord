@@ -17,20 +17,27 @@
   </game-view>
 </template>
 
-<script>
+<script setup>
+import { computed, onMounted } from 'vue';
 import 'scss/games/knockout.scss';
 import GameCanvas from './GameCanvas.vue';
 
 import Common from '/gamecommons/knockout';
 
-export default {
-  data() {
-    return {};
-  },
-  components: {
-    GameCanvas,
-  },
-  mounted() {},
-  methods: {},
-};
+import { useFacade } from 'components/base-ui/facade';
+
+const { $replayTurn, $endReplay, previousTurn } = useFacade();
+
+const hint = computed(() => {
+  return '';
+});
+
+onMounted(() => {
+  $replayTurn(() => {
+    for (let action of previousTurn.value.actions) {
+      // TODO: implement replay
+    }
+    $endReplay(0);
+  });
+});
 </script>

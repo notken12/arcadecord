@@ -14,6 +14,7 @@ import { createApp } from '@app/renderer/gameApp.js';
 import * as Client from '@app/js/client-framework.js';
 
 // Use vue
+import { reactive, watchEffect } from 'vue';
 
 hydrate();
 
@@ -21,11 +22,14 @@ async function hydrate() {
   // We do Server Routing, but we can also do Client Routing by using `useClientRouter()`
   // instead of `getPage()`, see https://vite-plugin-ssr.com/useClientRouter
   const pageContext = await getPage();
+  pageContext.INITIAL_STATE = reactive(pageContext.INITIAL_STATE);
+
   const { app, store } = createApp(pageContext);
   pageContext.INITIAL_STATE.game = await Client.utils.setUpGame(
     pageContext.INITIAL_STATE.game
   );
   store.replaceState(pageContext.INITIAL_STATE);
+  store.commit('SETUP');
   app.mount('#app');
 
   // Get game ID from URL address

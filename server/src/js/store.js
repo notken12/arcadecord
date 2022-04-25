@@ -29,11 +29,17 @@ function createStore() {
         utils.updateGame(state.game, game);
       },
       SETUP(state, connectionResponse) {
+        if (!connectionResponse) return;
         state.game = connectionResponse.game ?? null;
         state.me = connectionResponse.discordUser ?? null;
         state.error = connectionResponse.error ?? null;
         state.user = connectionResponse.user ?? null;
         state.contested = connectionResponse.contested ?? false;
+      },
+      SETUP_STATE(state, newState) {
+        for (let prop in newState) {
+          state[prop] = newState[prop];
+        }
       },
       UPDATE_SETTINGS(state, settings) {
         if (!state.user.settings) {
