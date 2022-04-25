@@ -930,8 +930,10 @@ const pointerMove = (e, draggable) => {
   updateCueBallPos();
 };
 
-const pointerUp = (e) => {
+const pointerUp = (_e) => {
   dragStartPoint = null;
+  updateSpinner()
+  updateCueBallPos();
 };
 
 const canvasWidth = ref();
