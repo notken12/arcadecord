@@ -25,10 +25,10 @@ export class Ball {
   out = false;
   name;
   texture;
-  fallen;
   mesh;
   sphere;
   body;
+  pocket; // pocket the ball fell into. Only used to decide whether player wins or loses when hitting 8 ball
 
   constructor(scene, world, x, y, z, name, color, quaternion, out, texture) {
     this.color = color ?? 0xaa0000;
@@ -53,8 +53,6 @@ export class Ball {
     this.scene.add(this.mesh);
 
     this.sphere = new THREE.Sphere(this.mesh.position, Ball.RADIUS); //used for guiding line intersection detecting
-
-    this.fallen = false;
 
     this.body = this.createBody();
     this.world.addBody(this.body);

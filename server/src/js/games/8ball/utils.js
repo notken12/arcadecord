@@ -11,6 +11,7 @@ import { CueBall } from './CueBall';
 import { Ball } from './Ball';
 import { Table, WALL_LINES } from './Table';
 import * as THREE from 'three';
+import Common from '/gamecommons/8ball';
 
 export function getBalls(scene, world) {
   var apex = Table.PLAY_AREA.LEN_Z / 4;
@@ -302,4 +303,20 @@ export function createVector(x, y, z, camera, width, height) {
   vector.y = (-(vector.y - 1) / 2) * height;
 
   return vector;
+}
+
+/** Get the index of the closest pocket in Common.POCKETS to a Vec3 position **/
+export function getClosestPocket(pos) {
+  let minD = Infinity;
+  let closest;
+  for (let i = 0; i < Common.POCKETS.length; i++) {
+    const pocket = Common.POCKETS[i];
+    const d = getDistance(pos.x, pos.z, pocket.x, pocket.z);
+
+    if (d < minD) {
+      minD = d;
+      closest = i;
+    }
+  }
+  return closest;
 }

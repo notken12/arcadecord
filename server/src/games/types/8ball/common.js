@@ -103,7 +103,6 @@ async function shoot(game, action) {
   var continueTurn = false;
   var pattern = game.data.players[game.turn].assignedPattern;
   if (pattern !== null && pattern !== undefined) {
-    // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
     if (checkHitIn(game, action, pattern)) {
       continueTurn = true;
@@ -184,17 +183,25 @@ async function shoot(game, action) {
       return game;
     }
   } else {
-    // If you hit all of your balls in, you canHit8Ball
-    for (let i = 0; i < game.players.length; i++) {
-      let pattern = game.data.players[i].assignedPattern;
-      if (pattern === null || pattern === undefined) return;
-      let playerInBalls = getBalls(game.data.balls, pattern, true);
-      if (
-        playerInBalls.length === 0 &&
-        pattern !== null &&
-        pattern !== undefined
-      ) {
-        game.data.players[i].canHit8Ball = true;
+    if (getBalls(game.data.balls, undefined, true).length <= 2) {
+      // Less than 2 balls left: cue ball and 8 ball
+      // Both players canHit8Ball
+      for (let p of game.data.players) {
+        p.canHit8Ball = true;
+      }
+    } else {
+      // If you hit all of your balls in, you canHit8Ball
+      for (let i = 0; i < game.players.length; i++) {
+        let pattern = game.data.players[i].assignedPattern;
+        if (pattern === null || pattern === undefined) continue;
+        let playerInBalls = getBalls(game.data.balls, pattern, true);
+        if (
+          playerInBalls.length === 0 &&
+          pattern !== null &&
+          pattern !== undefined
+        ) {
+          game.data.players[i].canHit8Ball = true;
+        }
       }
     }
   }
@@ -243,7 +250,10 @@ function getBalls(balls, pattern, onlyIn) {
   var yesBalls = [];
   for (let i = 0; i < balls.length; i++) {
     var pushBall = true;
-    if (!ballColors[pattern]?.includes(balls[i].name)) {
+    if (
+      pattern !== undefined &&
+      !ballColors[pattern]?.includes(balls[i].name)
+    ) {
       pushBall = false;
     } else if (onlyIn && balls[i].out) {
       pushBall = false;
@@ -255,9 +265,11 @@ function getBalls(balls, pattern, onlyIn) {
   }
   return yesBalls;
 }
-function checkHitIn(game, action, color) {
-  let oldBalls = getBalls(game.data.balls, color, true);
-  let newBalls = getBalls(action.data.newBallStates, color, true);
+
+/** Check if a ball with a certain pattern was pocketed on this action */
+function checkHitIn(game, action, pattern) {
+  let oldBalls = getBalls(game.data.balls, pattern, true);
+  let newBalls = getBalls(action.data.newBallStates, pattern, true);
 
   if (newBalls.length == oldBalls.length) {
     return false;

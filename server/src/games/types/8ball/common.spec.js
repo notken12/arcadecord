@@ -117,8 +117,6 @@ test('Initial 8ball game state', () => {
 
   expect(game.players[0].assignedPattern).toBe(undefined);
   expect(game.players[1].assignedPattern).toBe(undefined);
-  expect(game.players[0].chosenPocket).toBe(undefined);
-  expect(game.players[1].chosenPocket).toBe(undefined);
 });
 
 describe('8ball Action: shoot', () => {
@@ -417,7 +415,6 @@ describe('8ball Action: shoot', () => {
     newBallStates[5].out = true;
     newBallStates[0].out = true;
     newBallStates[5].pocket = 1;
-    game.data.players[1].chosenPocket = 1;
 
     var secondShot = new Action(
       'shoot',
@@ -425,6 +422,7 @@ describe('8ball Action: shoot', () => {
         angle: Math.PI / 2,
         force: 10,
         newBallStates: newBallStates,
+        chosenPocket: 1
       },
       1
     );

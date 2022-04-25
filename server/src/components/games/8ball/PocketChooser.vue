@@ -44,6 +44,8 @@ const getPocketStyles = (p) => {
   };
 };
 
+const chosenPocket = ref(null);
+
 const styles = computed(() => {
   return {
     width: `${props.width}px`,
@@ -53,6 +55,7 @@ const styles = computed(() => {
 
 const choosePocket = (i) => {
   emit('choosePocket', i);
+  chosenPocket.value = i;
 };
 
 onMounted(() => {
@@ -66,14 +69,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="container" :style="styles">
+  <div
+    class="container"
+    :style="styles"
+    :class="{ noclick: chosenPocket !== null }"
+  >
     <!-- <div> -->
-    <h1>Choose a pocket</h1>
+    <h1 v-if="chosenPocket === null">Choose a pocket</h1>
     <div
       class="pocket"
       v-for="i in pockets.length"
       :style="getPocketStyles(pockets[i - 1])"
       @click="choosePocket(i - 1)"
+      :class="{ shown: chosenPocket === null || chosenPocket === i - 1 }"
       :key="i - 1"
     ></div>
     <!-- </div> -->
@@ -110,6 +118,15 @@ h1 {
   );
   animation: pulse 1.5s infinite;
   cursor: pointer;
+  display: none;
+}
+
+.shown {
+  display: flex;
+}
+
+.noclick {
+  pointer-events: none;
 }
 
 /* @keyframes pulse { */
