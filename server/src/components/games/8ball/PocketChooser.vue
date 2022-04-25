@@ -13,6 +13,7 @@ const props = defineProps({
     required: true,
   },
   scale: Number,
+  chosen: Number
 });
 
 const emit = defineEmits(['choosePocket']);
@@ -44,8 +45,6 @@ const getPocketStyles = (p) => {
   };
 };
 
-const chosenPocket = ref(null);
-
 const styles = computed(() => {
   return {
     width: `${props.width}px`,
@@ -55,7 +54,7 @@ const styles = computed(() => {
 
 const choosePocket = (i) => {
   emit('choosePocket', i);
-  chosenPocket.value = i;
+  props.chosen = i;
 };
 
 onMounted(() => {
@@ -72,16 +71,16 @@ onUnmounted(() => {
   <div
     class="container"
     :style="styles"
-    :class="{ noclick: chosenPocket !== null }"
+    :class="{ noclick: chosen !== null }"
   >
     <!-- <div> -->
-    <h1 v-if="chosenPocket === null">Choose a pocket</h1>
+    <h1 v-if="chosen === null">Choose a pocket</h1>
     <div
       class="pocket"
       v-for="i in pockets.length"
       :style="getPocketStyles(pockets[i - 1])"
       @click="choosePocket(i - 1)"
-      :class="{ shown: chosenPocket === null || chosenPocket === i - 1 }"
+      :class="{ shown: chosen === null || chosen === i - 1 }"
       :key="i - 1"
     ></div>
     <!-- </div> -->

@@ -320,6 +320,11 @@ const replayNextShot = () => {
       quaternion.w
     );
   }
+  if (action.data.chosenPocket !== null && action.data.chosenPocket !== undefined) {
+    chosenPocket.value = action.data.chosenPocket;
+  } else {
+    chosenPocket.value = null;
+  }
   // Update cue ball pos for displaying controls
   updateCueBallPos();
   // 3. Rotate the stick to the action's angle
@@ -1126,12 +1131,13 @@ onUnmounted(() => {
         <div id="spinner" ref="spinner"></div>
         <Transition name="fade">
           <PocketChooser
-            v-if="canHit8Ball && isItMyTurn && !replaying"
+            v-if="canHit8Ball && isItMyTurn && !replaying || chosenPocket !== null"
             :width="canvasWidth"
             :height="canvasHeight"
             :renderer="renderer"
             :camera="cameraRef"
             :scale="scaleRef"
+            :chosen="chosenPocket"
             @choosePocket="choosePocket($event)"
           ></PocketChooser>
         </Transition>
