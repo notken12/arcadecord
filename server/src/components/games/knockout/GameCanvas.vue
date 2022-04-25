@@ -52,6 +52,8 @@ onMounted(() => {
     padding,
     actionsToReplay = [];
 
+  let scale = window.devicePixelRatio;
+
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
@@ -118,8 +120,8 @@ onMounted(() => {
   });
 
   function draw() {
-    width = window.innerWidth;
-    height = window.innerHeight;
+    width = window.innerWidth * scale;
+    height = window.innerHeight * scale;
 
     canvas.value.width = width;
     canvas.value.height = height;

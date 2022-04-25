@@ -22,6 +22,7 @@ function createStore() {
         error: null,
         user: null,
         contested: false,
+        realGame: null,
       };
     },
     mutations: {
@@ -35,6 +36,7 @@ function createStore() {
         state.error = connectionResponse.error ?? null;
         state.user = connectionResponse.user ?? null;
         state.contested = connectionResponse.contested ?? false;
+        state.realGame = connectionResponse.game ?? false;
       },
       SETUP_STATE(state, newState) {
         for (let prop in newState) {

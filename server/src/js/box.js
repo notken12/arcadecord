@@ -33,6 +33,7 @@ function createStore() {
         runningAction: false,
         user: null,
         contested: false,
+        realGame: null,
       };
     },
     mutations: {
@@ -45,10 +46,13 @@ function createStore() {
         store.commit('UPDATE_SETTINGS', settings);
       },
       REPLAY_TURN(state) {
+        // store.commit('SETUP_STATE', state);
+
         state.me = store.state.me;
         state.error = store.state.error;
         state.user = store.state.user;
         state.contested = store.state.contested;
+        state.realGame = store.state.realGame;
 
         if (
           (!GameFlow.isItMyTurn(store.state.game, true) &&
@@ -56,7 +60,7 @@ function createStore() {
           store.state.game.turns.length == 0
         ) {
           // If it isn't my turn or I'm the first player, use data as is
-          state.game = store.state.game;
+          state.game = store.state.realGame;
           state.replaying = false;
         } else {
           if (
@@ -65,14 +69,14 @@ function createStore() {
             !store.state.game.hasEnded
           ) {
             // If I already played an action, use data as is
-            state.game = store.state.game;
+            state.game = store.state.realGame;
             state.replaying = false;
             return;
           }
           // If it is my turn, use the previous data to replay the last player's turn
           // Create a facade game state from the previous turn, go back in time to the last turn
           // Create clone of the game state
-          state.game = cloneDeep(store.state.game);
+          state.game = cloneDeep(store.state.realGame);
           // Change data to the previous turn's initial data
           state.game.data = cloneDeep(store.state.game.previousData);
           // Set turn back to the last turn
@@ -98,7 +102,7 @@ function createStore() {
       },
       END_TURN_REPLAY(state) {
         if (state.replaying) {
-          state.game = store.state.game;
+          state.game = store.state.realGame;
           state.replaying = false;
         }
       },

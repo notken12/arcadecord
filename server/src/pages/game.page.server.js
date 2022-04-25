@@ -156,6 +156,7 @@ export async function render(pageContext) {
       joined,
     },
     contested: pageContext.contested,
+    realGame: pageContext.game,
   });
   store.commit('REPLAY_TURN');
 
