@@ -10,6 +10,8 @@
 import { CueBall } from './CueBall';
 import { Ball } from './Ball';
 import { Table, WALL_LINES } from './Table';
+import * as THREE from 'three';
+import Common from '/gamecommons/8ball';
 
 export function getBalls(scene, world) {
   var apex = Table.PLAY_AREA.LEN_Z / 4;
@@ -198,11 +200,12 @@ export function getCollisionLocationBallLine(line, ball, vec) {
   return p;
 }
 
+/** Get collision location of ball aimed at direction vec against other balls and walls. **/
 export function getCollisionLocation(balls, ball, vec) {
   let locations = [];
 
   for (let b of balls) {
-    if (b.name == ball.name || ball.out) {
+    if (b.name === ball.name || b.out) {
       continue;
     }
 
@@ -263,4 +266,57 @@ export function getCollisionLocation(balls, ball, vec) {
       hitPower,
     };
   }
+}
+
+export function getDistance(x1, y1, x2, y2) {
+  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+}
+
+export const mousePos = (e) => {
+  const { clientX: x, clientY: y } = e.touches?.[0] || e;
+  return { x, y };
+};
+
+/** Mouse pos relative to a canvas **/
+export const mousePosOnCanvas = (e, canvas, centered, scale) => {
+  const { x, y } = mousePos(e);
+  const cbbox = canvas.getBoundingClientRect();
+  const cx = cbbox.x;
+  const cy = cbbox.y;
+  const cw = cbbox.width;
+  const ch = cbbox.height;
+  let mx = (x - cx) * scale;
+  let my = (y - cy) * scale;
+  if (centered) {
+    mx = (mx / cw / scale) * 2 - 1;
+    my = (my / ch / scale) * -2 + 1;
+  }
+  return { x: mx, y: my };
+};
+
+/**Get where a THREE.js coordinate would be drawn on screen**/
+export function createVector(x, y, z, camera, width, height) {
+  var p = new THREE.Vector3(x, y, z);
+  var vector = p.project(camera);
+
+  vector.x = ((vector.x + 1) / 2) * width;
+  vector.y = (-(vector.y - 1) / 2) * height;
+
+  return vector;
+}
+
+/** Get the index of the closest pocket in Common.POCKETS to a Vec3 position **/
+export function getClosestPocket(pos) {
+  let minD = Infinity;
+  let closest;
+  for (let i = 0; i < Common.POCKETS.length; i++) {
+    const pocket = Common.POCKETS[i];
+    const d = getDistance(pos.x, pos.z, pocket.x, pocket.z);
+
+    if (d < minD) {
+      minD = d;
+      closest = i;
+    }
+  }
+  return closest;
 }

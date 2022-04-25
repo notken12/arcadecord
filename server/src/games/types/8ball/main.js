@@ -48,6 +48,48 @@ class EightBallGame extends Game {
         force: {
           type: 'number',
         },
+        chosenPocket: {
+          type: 'number', // index of pocket in Common.POCKET, used for hitting in 8ball
+        },
+        cueBallStart: {
+          type: 'object',
+          properties: {
+            position: {
+              type: 'object',
+              properties: {
+                x: {
+                  type: 'number',
+                },
+                y: {
+                  type: 'number',
+                },
+                z: {
+                  type: 'number',
+                },
+              },
+              required: ['x', 'y', 'z'],
+            },
+            quaternion: {
+              type: 'object',
+              properties: {
+                x: {
+                  type: 'number',
+                },
+                y: {
+                  type: 'number',
+                },
+                z: {
+                  type: 'number',
+                },
+                w: {
+                  type: 'number',
+                },
+              },
+              required: ['x', 'y', 'z', 'w'],
+            },
+          },
+          required: ['position', 'quaternion'],
+        },
         newBallStates: {
           type: 'array',
           items: {
@@ -101,9 +143,6 @@ class EightBallGame extends Game {
             },
           },
         },
-        chosenPocket: {
-          type: ['number'],
-        },
       },
       required: ['angle', 'force', 'newBallStates'],
     });
@@ -150,10 +189,12 @@ class EightBallGame extends Game {
       {
         assignedPattern: null,
         chosenPocket: null,
+        canHit8Ball: false,
       },
       {
         assignedPattern: null,
         chosenPocket: null,
+        canHit8Ball: false,
       },
     ];
     game.data.cueFoul = false;

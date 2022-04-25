@@ -14,7 +14,7 @@
 // tests if global scope is bound to window
 import GameFlow from '../../GameFlow.js';
 
-let ballColors = [
+export const ballColors = [
   ['1ball', '2ball', '3ball', '4ball', '5ball', '6ball', '7ball'],
   ['9ball', '10ball', '11ball', '12ball', '13ball', '14ball', '15ball'],
 ];
@@ -69,18 +69,40 @@ export class CueBall extends Ball {
   };
 }
 
+const lenx = Table.PLAY_AREA.LEN_X / 2;
+const lenz = Table.PLAY_AREA.LEN_Z / 2;
+
+const lenxm = lenx + Ball.RADIUS * 2.5;
+const lenxc = lenx + Ball.RADIUS * 0.75;
+const lenzc = lenz + Ball.RADIUS * 0.75;
+
+const POCKETS = [
+  // Top left
+  { x: -lenxc, z: lenzc },
+  // Top right
+  { x: lenxc, z: lenzc },
+  // Middle left
+  { x: -lenxm, z: 0 },
+  // Middle right
+  { x: lenxm, z: 0 },
+  // Bottom left
+  { x: -lenxc, z: -lenzc },
+  // Bottom right
+  { x: lenxc, z: -lenzc },
+];
+
 export const ballsOverlap = (b1, b2) => {
+  if (b1.out || b2.out) return false; // cant be overlapping if they're out
+  if (b1.name === b2.name) return false;
   let dx = b1.position.x - b2.position.x;
   let dz = b1.position.z - b2.position.z;
-  return Math.sqrt(dx ** 2 + dz ** 2) < Ball.RADIUS;
+  return Math.sqrt(dx ** 2 + dz ** 2) < Ball.RADIUS * 2;
 };
 
 async function shoot(game, action) {
   var continueTurn = false;
   var pattern = game.data.players[game.turn].assignedPattern;
-  game.data.players[game.turn].chosenPocket = action.data.chosenPocket;
   if (pattern !== null && pattern !== undefined) {
-    // if (pattern !== null || pattern !== undefined) { // ken: this line was causing the cannot read includes of undefined error because you used a || operator
     // check if the assigned pattern hasn't been assigned yet
     if (checkHitIn(game, action, pattern)) {
       continueTurn = true;
@@ -116,10 +138,10 @@ async function shoot(game, action) {
   let ball8 = game.data.balls.find((ball) => ball.name === '8ball');
   let cueball = game.data.balls.find((ball) => ball.name === 'cueball');
 
-  // if (game.data.cueFoul) game.data.cueFoul = false
+  if (game.data.cueFoul) game.data.cueFoul = false;
 
+  const myInBalls = getBalls(game.data.balls, pattern, true);
   if (ball8.out) {
-    var myInBalls = getBalls(game.data.balls, pattern, true);
     if (pattern !== null && pattern !== undefined) {
     } else {
       // You shot the 8 ball in before you shot any other balls in because you dont have an assigned pattern
@@ -133,24 +155,22 @@ async function shoot(game, action) {
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       });
-      game.data.players[game.turn].chosenPocket = undefined;
+      game.data.players[game.turn].canHit8Ball = false;
       return game;
-    } else if (myInBalls.length == 0) {
+    } else if (myInBalls.length === 0) {
       if (ball8.pocket === action.data.chosenPocket) {
         // Woohoo, 8ball correctly pocketed!
         await GameFlow.end(game, {
           winner: game.turn,
         });
-        game.data.players[game.turn].chosenPocket = undefined;
-        game.reason = 'y';
+        game.data.players[game.turn].canHit8Ball = false;
         return game;
       } else {
         // Sad, 8ball was shot into the wrong pocket. You lose
         await GameFlow.end(game, {
           winner: [1, 0][game.turn],
         });
-        game.data.players[game.turn].chosenPocket = undefined;
-        game.reason = 'wrongpocket';
+        game.data.players[game.turn].canHit8Ball = false;
         return game;
       }
     } else {
@@ -159,8 +179,30 @@ async function shoot(game, action) {
       await GameFlow.end(game, {
         winner: [1, 0][game.turn],
       });
-      game.data.players[game.turn].chosenPocket = undefined;
+      game.data.players[game.turn].canHit8Ball = false;
       return game;
+    }
+  } else {
+    if (getBalls(game.data.balls, undefined, true).length <= 2) {
+      // Less than 2 balls left: cue ball and 8 ball
+      // Both players canHit8Ball
+      for (let p of game.data.players) {
+        p.canHit8Ball = true;
+      }
+    } else {
+      // If you hit all of your balls in, you canHit8Ball
+      for (let i = 0; i < game.players.length; i++) {
+        let pattern = game.data.players[i].assignedPattern;
+        if (pattern === null || pattern === undefined) continue;
+        let playerInBalls = getBalls(game.data.balls, pattern, true);
+        if (
+          playerInBalls.length === 0 &&
+          pattern !== null &&
+          pattern !== undefined
+        ) {
+          game.data.players[i].canHit8Ball = true;
+        }
+      }
     }
   }
 
@@ -197,10 +239,6 @@ async function shoot(game, action) {
     return game;
   }
 
-  if (game.data.players[game.turn].chosenPocket) {
-    game.data.players[game.turn].chosenPocket = undefined;
-  }
-
   if (!continueTurn) {
     await GameFlow.endTurn(game);
   }
@@ -209,25 +247,13 @@ async function shoot(game, action) {
 }
 
 function getBalls(balls, pattern, onlyIn) {
-  // ken: I changed color into pattern. Looks like your code is filtering by pattern and not color.
-  /*
-  function ballFilter(ball) {
-    if (ballColors[color].includes(ball.name)) {
-      if (onlyIn) {
-        if (!ball.out) return true
-        return false
-      }
-      return true
-    }
-  }
-  let fetchedBalls = balls.filter(ballFilter)
-
-  return fetchedBalls
-  */
   var yesBalls = [];
   for (let i = 0; i < balls.length; i++) {
     var pushBall = true;
-    if (!ballColors[pattern].includes(balls[i].name)) {
+    if (
+      pattern !== undefined &&
+      !ballColors[pattern]?.includes(balls[i].name)
+    ) {
       pushBall = false;
     } else if (onlyIn && balls[i].out) {
       pushBall = false;
@@ -239,9 +265,11 @@ function getBalls(balls, pattern, onlyIn) {
   }
   return yesBalls;
 }
-function checkHitIn(game, action, color) {
-  let oldBalls = getBalls(game.data.balls, color, true);
-  let newBalls = getBalls(action.data.newBallStates, color, true);
+
+/** Check if a ball with a certain pattern was pocketed on this action */
+function checkHitIn(game, action, pattern) {
+  let oldBalls = getBalls(game.data.balls, pattern, true);
+  let newBalls = getBalls(action.data.newBallStates, pattern, true);
 
   if (newBalls.length == oldBalls.length) {
     return false;
@@ -258,4 +286,5 @@ export default {
   shoot,
   getBalls,
   checkHitIn,
+  POCKETS,
 };

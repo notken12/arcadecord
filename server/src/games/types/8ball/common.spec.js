@@ -86,8 +86,8 @@ const stateSchema = {
           assignedPattern: {
             type: ['number', 'null'], // 0 for solid, 1 for striped, leave empty for unassigned yet
           },
-          chosenPocket: {
-            type: ['number', 'null'], // chosen pocket for when they shoot the 8 ball
+          canHit8Ball: {
+            type: 'boolean',
           },
         },
       },
@@ -117,8 +117,6 @@ test('Initial 8ball game state', () => {
 
   expect(game.players[0].assignedPattern).toBe(undefined);
   expect(game.players[1].assignedPattern).toBe(undefined);
-  expect(game.players[0].chosenPocket).toBe(undefined);
-  expect(game.players[1].chosenPocket).toBe(undefined);
 });
 
 describe('8ball Action: shoot', () => {
@@ -303,6 +301,7 @@ describe('8ball Action: shoot', () => {
     );
 
     expect(await game.handleAction(shot)).toEqual({ success: true });
+    expect(await game.data.players[1].canHit8Ball).toBe(true);
 
     expect(Common.getBalls(game.data.balls, 1, true).length).toBe(0);
 
@@ -321,7 +320,6 @@ describe('8ball Action: shoot', () => {
     );
 
     expect(await game.handleAction(secondShot)).toEqual({ success: true });
-    expect(game.reason).toEqual('y');
     expect(game.hasEnded).toBe(true);
     expect(game.winner).toBe(1);
   });
@@ -417,7 +415,6 @@ describe('8ball Action: shoot', () => {
     newBallStates[5].out = true;
     newBallStates[0].out = true;
     newBallStates[5].pocket = 1;
-    game.data.players[1].chosenPocket = 1;
 
     var secondShot = new Action(
       'shoot',
@@ -425,6 +422,7 @@ describe('8ball Action: shoot', () => {
         angle: Math.PI / 2,
         force: 10,
         newBallStates: newBallStates,
+        chosenPocket: 1
       },
       1
     );
