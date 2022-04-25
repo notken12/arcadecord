@@ -40,7 +40,7 @@ import {
   mousePosOnCanvas,
   getDistance,
   createVector,
-  getClosestPocket
+  getClosestPocket,
 } from '@app/js/games/8ball/utils';
 import GameFlow from '@app/js/GameFlow';
 
@@ -320,7 +320,10 @@ const replayNextShot = () => {
       quaternion.w
     );
   }
-  if (action.data.chosenPocket !== null && action.data.chosenPocket !== undefined) {
+  if (
+    action.data.chosenPocket !== null &&
+    action.data.chosenPocket !== undefined
+  ) {
     chosenPocket.value = action.data.chosenPocket;
   } else {
     chosenPocket.value = null;
@@ -381,7 +384,7 @@ const endSimulation = (skipReplay) => {
           position: ball.body.position,
           quaternion: ball.body.quaternion,
           name: ball.name,
-          pocket: ball.pocket
+          pocket: ball.pocket,
         };
         newBallStates.push(state);
       }
@@ -678,7 +681,7 @@ const initThree = async () => {
             ball.out = true;
             ball.pocket = getClosestPocket(ball.body.position);
 
-  console.log(ball)
+            console.log(ball);
 
             ball.body.position.set(0, -0.3, 0);
             // ball.body.position.set(0, Ball.RADIUS, 0)
@@ -937,7 +940,7 @@ const pointerMove = (e, draggable) => {
 
 const pointerUp = (_e) => {
   dragStartPoint = null;
-  updateSpinner()
+  updateSpinner();
   updateCueBallPos();
 };
 
@@ -965,7 +968,7 @@ onMounted(async () => {
         quaternion: ball.quaternion,
         out: ball.name !== '8ball',
         color: ball.color,
-        pocket: ball.pocket
+        pocket: ball.pocket,
       });
     }
     $runAction('shoot', {
@@ -1131,7 +1134,9 @@ onUnmounted(() => {
         <div id="spinner" ref="spinner"></div>
         <Transition name="fade">
           <PocketChooser
-            v-if="canHit8Ball && isItMyTurn && !replaying || chosenPocket !== null"
+            v-if="
+              (canHit8Ball && isItMyTurn && !replaying) || chosenPocket !== null
+            "
             :width="canvasWidth"
             :height="canvasHeight"
             :renderer="renderer"

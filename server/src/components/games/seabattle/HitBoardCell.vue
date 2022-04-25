@@ -19,34 +19,34 @@
 </template>
 
 <script>
-import Common from '/gamecommons/seabattle'
-import GameFlow from '@app/js/GameFlow.js'
-import bus from '@app/js/vue-event-bus'
+import Common from '/gamecommons/seabattle';
+import GameFlow from '@app/js/GameFlow.js';
+import bus from '@app/js/vue-event-bus';
 
 export default {
   data() {
     return {
       animation: 'none',
-    }
+    };
   },
   props: ['cell', 'board'],
   computed: {
     cellStyles() {
-      var board = this.board
-      board.ships = board.revealedShips
+      var board = this.board;
+      board.ships = board.revealedShips;
 
-      var show = true
+      var show = true;
       if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
-        show = false
+        show = false;
       }
 
       return {
         'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
         animation: this.animation || 'none',
-      }
+      };
     },
     imgURL() {
-      return '/assets/seabattle/cell-states/' + this.cell.state + '.png'
+      return '/assets/seabattle/cell-states/' + this.cell.state + '.png';
     },
   },
   methods: {
@@ -55,19 +55,19 @@ export default {
         this.cell.state === Common.BOARD_STATE_EMPTY &&
         GameFlow.isItMyTurn(this.game)
       ) {
-        bus.emit('changeCellect', this.cell)
+        bus.emit('changeCellect', this.cell);
       }
     },
     altText: function () {
       switch (this.cell.state) {
         case Common.CELL_STATE_HIT:
-          return 'Hit'
+          return 'Hit';
         case Common.CELL_STATE_MISS:
-          return 'Miss'
+          return 'Miss';
         case Common.CELL_STATE_EMPTY:
-          return 'Unknown'
+          return 'Unknown';
         default:
-          return 'Unknown'
+          return 'Unknown';
       }
     },
   },
@@ -76,17 +76,17 @@ export default {
       handler: function (newVal, oldVal) {
         switch (newVal) {
           case Common.CELL_STATE_HIT:
-            this.animation = 'hit 0.5s'
-            break
+            this.animation = 'hit 0.5s';
+            break;
           case Common.CELL_STATE_MISS:
-            this.animation = 'miss 1s'
-            break
+            this.animation = 'miss 1s';
+            break;
           default:
-            this.animation = 'none'
-            break
+            this.animation = 'none';
+            break;
         }
       },
     },
   },
-}
+};
 </script>

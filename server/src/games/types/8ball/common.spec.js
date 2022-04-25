@@ -422,7 +422,7 @@ describe('8ball Action: shoot', () => {
         angle: Math.PI / 2,
         force: 10,
         newBallStates: newBallStates,
-        chosenPocket: 1
+        chosenPocket: 1,
       },
       1
     );

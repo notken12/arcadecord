@@ -13,7 +13,7 @@ const props = defineProps({
     required: true,
   },
   scale: Number,
-  chosen: Number
+  chosen: Number,
 });
 
 const emit = defineEmits(['choosePocket']);
@@ -68,11 +68,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    class="container"
-    :style="styles"
-    :class="{ noclick: chosen !== null }"
-  >
+  <div class="container" :style="styles" :class="{ noclick: chosen !== null }">
     <!-- <div> -->
     <h1 v-if="chosen === null">Choose a pocket</h1>
     <div
