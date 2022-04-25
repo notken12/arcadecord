@@ -39,6 +39,7 @@ export function toRelative(lx, ly, mobile, width, height, padding) {
 }
 
 export function fromRelative(lx, ly, mobile, width, height, padding) {
+  let scale = window.devicePixelRatio;
   // relative to ice
   var x, y;
   if (mobile) {

@@ -54,6 +54,21 @@ onMounted(() => {
 
   let scale = window.devicePixelRatio;
 
+  let blackPenguin = new Image();
+  blackPenguin.src = '/assets/knockout/blackpenguin.svg';
+  let blackPenguinLoaded;
+  blackPenguin.onload = () => (blackPenguinLoaded = true);
+
+  let bluePenguin = new Image();
+  bluePenguin.src = '/assets/knockout/bluepenguin.svg';
+  let bluePenguinLoaded;
+  bluePenguin.onload = () => (bluePenguinLoaded = true);
+
+  let ice = new Image();
+  ice.src = '/assets/knockout/ice.svg';
+  let iceLoaded;
+  ice.onload = () => (iceLoaded = true);
+
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
@@ -68,40 +83,44 @@ onMounted(() => {
     }
   }
 
-  canvas.value.addEventListener('mousemove', (e) => {
-    (mouse.x = e.offsetX), (mouse.y = e.offsetY);
+  const pointerMove = (e) => {
+    let { offsetX, offsetY } = e.touches?.[0] || e;
+    mouse.x = offsetX * scale;
+    mouse.y = offsetY * scale;
     if (window.selected != undefined) {
       var dum = dummies[window.selected];
       var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
-      dum.moveDir = { x: rel.x - dum.x, y: rel.y - dum.y };
-    }
-  });
-  canvas.value.addEventListener('touchmove', (e) => {
-    (mouse.x = e.touches[0].clientX), (mouse.y = e.touches[0].clientY);
-    if (window.selected != undefined) {
-      var dum = dummies[window.selected];
-      var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
-      dum.moveDir = { x: rel.x - dum.x, y: rel.y - dum.y };
-    }
-  });
-  canvas.value.addEventListener('mousedown', (e) => {
-    (mouse.x = e.offsetX), (mouse.y = e.offsetY), (mouse.clicked = true);
-    select();
-  });
-  canvas.value.addEventListener('touchstart', (e) => {
-    (mouse.x = e.touches[0].clientX),
-      (mouse.y = e.touches[0].clientY),
-      (mouse.clicked = true);
-    select();
-  });
+      let dx = rel.x - dum.x;
+      let dy = rel.y - dum.y;
+      const d = Math.sqrt(dx ** 2 + dy ** 2);
 
-  canvas.value.addEventListener('mouseup', (e) => {
+      if (Math.abs(d) > dummyRadius / 5 / scale) dum.moveDir = { x: dx, y: dy };
+      console.log(d, dummyRadius, dum.x, dum.y);
+    }
+  };
+
+  canvas.value.addEventListener('mousemove', pointerMove);
+  canvas.value.addEventListener('touchmove', pointerMove);
+
+  const pointerDown = (e) => {
+    let { offsetX, offsetY } = e.touches?.[0] || e;
+    mouse.x = offsetX * scale;
+    mouse.y = offsetY * scale;
+    mouse.clicked = true;
+    select();
+  };
+
+  canvas.value.addEventListener('mousedown', pointerDown);
+  canvas.value.addEventListener('touchstart', pointerDown);
+
+  const pointerUp = (_e) => {
     console.log('eehi');
-    (mouse.clicked = false), (window.selected = undefined);
-  });
-  canvas.value.addEventListener('touchend', (e) => {
-    (mouse.clicked = false), (window.selected = undefined);
-  });
+    mouse.clicked = false;
+    window.selected = undefined;
+  };
+
+  canvas.value.addEventListener('mouseup', pointerUp);
+  canvas.value.addEventListener('touchend', pointerUp);
 
   fireOrSend.value.addEventListener('click', (e) => {
     if (dummies.filter((i) => i.moveDir).length == dummies.length) {
@@ -125,6 +144,8 @@ onMounted(() => {
 
     canvas.value.width = width;
     canvas.value.height = height;
+    canvas.value.style.width = width / scale + 'px';
+    canvas.value.style.height = height / scale + 'px';
     ctx.clearRect(0, 0, width, height);
 
     // drawing the ice is important because the dummies' position will be relative to it
@@ -140,23 +161,27 @@ onMounted(() => {
       // width is screen width - padding
       // height is half of screen height
       padding = height / 64;
-      ctx.fillRect(
-        width / 2 - height / 4 + padding,
-        height / 4 + padding,
-        height / 2 - padding * 2,
-        height / 2 - padding * 2
-      );
+      if (iceLoaded) {
+        ctx.drawImage(
+          ice,
+          width / 2 - height / 4 + padding,
+          height / 4 + padding,
+          height / 2 - padding * 2,
+          height / 2 - padding * 2
+        );
+      }
       mobile = true;
-      dummyRadius = (height / 2 - padding * 2) / 20;
+      dummyRadius = (((height / 2 - padding * 2) / 20) * 100) / 85;
     } else {
       padding = width / 64;
-      ctx.fillRect(
+      ctx.drawImage(
+        ice,
         width / 4 + padding,
         height / 2 - width / 4 + padding,
         width / 2 - padding * 2,
         width / 2 - padding * 2
       );
-      dummyRadius = (width / 2 - padding * 2) / 20;
+      dummyRadius = (((width / 2 - padding * 2) / 20) * 100) / 85;
     }
     ctx.closePath();
 
@@ -166,12 +191,32 @@ onMounted(() => {
         ctx.beginPath();
         ctx.fillStyle = dum.playerIndex ? 'blue' : 'white';
 
+        ctx.save();
         // Draw penguin body
         var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
-        ctx.moveTo(c.x, c.y);
-        ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
+        ctx.translate(c.x, c.y);
+        ctx.rotate(dum.faceDir);
+        // ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
+        if (dum.playerIndex === 0 && blackPenguinLoaded) {
+          ctx.drawImage(
+            blackPenguin,
+            -dummyRadius,
+            -dummyRadius,
+            dummyRadius * 2,
+            dummyRadius * 2
+          );
+        } else if (dum.playerIndex === 1 && bluePenguinLoaded) {
+          ctx.drawImage(
+            bluePenguin,
+            -dummyRadius,
+            -dummyRadius,
+            dummyRadius * 2,
+            dummyRadius * 2
+          );
+        }
         ctx.fill();
         ctx.closePath();
+        ctx.restore();
 
         // Label the penguin with its ID
         ctx.beginPath();
@@ -222,7 +267,15 @@ onMounted(() => {
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
         // Draw the move direction
-        drawMoveDirection(ctx, dum, mobile, width, height, padding);
+        drawMoveDirection(
+          ctx,
+          dum,
+          mobile,
+          width,
+          height,
+          padding,
+          dummyRadius
+        );
       }
     });
 

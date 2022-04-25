@@ -21,7 +21,6 @@ class Dummy {
     this.faceDir = faceDir; //angle in degrees
     this.playerIndex = playerIndex;
     this.fallen = fallen || false;
-    this.sussy = 'ඞ';
   }
 }
 
