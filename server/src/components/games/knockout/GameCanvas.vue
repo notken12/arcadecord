@@ -95,7 +95,6 @@ onMounted(() => {
       const d = Math.sqrt(dx ** 2 + dy ** 2);
 
       if (Math.abs(d) > dummyRadius / 5 / scale) dum.moveDir = { x: dx, y: dy };
-      console.log(d, dummyRadius, dum.x, dum.y);
     }
   };
 
