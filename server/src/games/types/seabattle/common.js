@@ -138,7 +138,7 @@ async function shoot(game, action) {
 }
 
 class ShipPlacementBoard {
-  revealedShips = []
+  revealedShips = [];
 
   constructor(width, height) {
     var that = this;
