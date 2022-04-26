@@ -69,6 +69,7 @@ const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
 const maxLaunchPower = 30;
+const bgColor = '#1b89e3';
 let arrowTips = [];
 
 onMounted(() => {
@@ -181,12 +182,15 @@ onMounted(() => {
     canvas.value.height = height;
     canvas.value.style.width = width / scale + 'px';
     canvas.value.style.height = height / scale + 'px';
-    ctx.clearRect(0, 0, width, height);
+
+    // ctx.clearRect(0, 0, width, height);
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
 
     // drawing the ice is important because the dummies' position will be relative to it
     // so we'll use the ratios of the device to know that position
     // also the ice is square 😳
-    ctx.fillStyle = 'lightBlue';
 
     ctx.beginPath();
 
@@ -232,6 +236,11 @@ onMounted(() => {
         ctx.translate(c.x, c.y);
         ctx.rotate(dum.faceDir);
         // ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = dummyRadius * 0.3;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
         if (dum.playerIndex === 0 && blackPenguinLoaded) {
           ctx.drawImage(
             blackPenguin,
@@ -249,6 +258,7 @@ onMounted(() => {
             dummyRadius * 2
           );
         }
+
         ctx.fill();
         ctx.closePath();
         ctx.restore();
