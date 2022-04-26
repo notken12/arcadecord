@@ -14,6 +14,8 @@ import { useFacade } from 'components/base-ui/facade';
 
 import { onMounted, ref, computed, watchEffect } from 'vue';
 
+import cloneDeep from 'lodash.clonedeep';
+
 import {
   fromRelative,
   toRelative,
@@ -73,6 +75,7 @@ const bgColor = '#1b89e3';
 let arrowTips = [];
 
 onMounted(() => {
+  window.dummies = dummies;
   ctx = canvas.value.getContext('2d');
 
   let scale = window.devicePixelRatio;
@@ -184,7 +187,12 @@ onMounted(() => {
       animating = true;
     } else {
       //console.log([...dummies]);
-      $runAction('setDummies', { dummies });
+      let states = [];
+      for (let i = 0; i < dummies.length; i++) {
+        let dummy = dummies[i];
+        states[i] = cloneDeep(dummy);
+      }
+      $runAction('setDummies', { dummies: states });
     }
   });
 
@@ -325,6 +333,8 @@ onMounted(() => {
 
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
+        // Don't display if it isn't your penguin and physics arent running
+        if (!animating && dum.playerIndex !== player) return;
         // Draw the move direction
         // and return the arrow tip location
         let tip = drawMoveDirection(

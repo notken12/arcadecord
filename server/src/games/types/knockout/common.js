@@ -34,12 +34,12 @@ class Ice {
 async function setDummies(game, action) {
   action.data.dummies.forEach((setTo, index) => {
     if (setTo) {
-      var i = index + !action.userId * 4;
+      var dummyPlayerIndex = index < 4 ? 1 : 0;
       game.data.dummies[index] = new Dummy(
         setTo.x,
         setTo.y,
         setTo.faceDir,
-        i,
+        dummyPlayerIndex,
         setTo.moveDir,
         setTo.fallen
       );
@@ -93,7 +93,7 @@ function spawn() {
     let newd = new Dummy(
       randRange(10, 90),
       randRange(10, 90),
-      randRange(0, 2*Math.PI),
+      randRange(0, 2 * Math.PI),
       i < 4 ? 1 : 0
     );
     for (let j = 0; j < dummies.length; j++) {
