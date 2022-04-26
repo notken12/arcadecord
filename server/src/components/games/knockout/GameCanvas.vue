@@ -67,6 +67,10 @@ watchEffect(() => (player = playerRef.value));
 
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
+
+const maxLaunchPower = 30;
+let arrowTips = [];
+
 onMounted(() => {
   ctx = canvas.value.getContext('2d');
 
@@ -112,8 +116,20 @@ onMounted(() => {
       let dy = rel.y - dum.y;
       const d = Math.sqrt(dx ** 2 + dy ** 2);
 
-      if (Math.abs(d) > dummyRadius / 10) dum.moveDir = { x: dx, y: dy };
-      else dum.moveDir = null;
+      if (Math.abs(d) < dummyRadius / 10) {
+        dum.moveDir = null;
+        return;
+      }
+
+      if (d > maxLaunchPower) {
+        let angle = Math.atan2(dy, dx);
+        let cos = Math.cos(angle);
+        let sin = Math.sin(angle);
+        dx = maxLaunchPower * cos;
+        dy = maxLaunchPower * sin;
+      }
+
+      dum.moveDir = { x: dx, y: dy };
     }
   };
 

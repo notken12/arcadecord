@@ -46,7 +46,7 @@ export function drawMoveDirection(
   ctx.beginPath();
 
   ctx.moveTo(c.x + cos * dummyRadius * 0.85, c.y + sin * dummyRadius * 0.85);
-  ctx.lineTo(mov.x, mov.y);
+  ctx.lineTo(mov.x + cos * arrowWidth * 2, mov.y + sin * arrowWidth * 2);
   ctx.stroke();
 
   ctx.closePath();
@@ -55,8 +55,8 @@ export function drawMoveDirection(
   ctx.beginPath();
 
   // Arrow tip
-  let tipx = mov.x + cos * headlen * 0.8;
-  let tipy = mov.y + sin * headlen * 0.8;
+  let tipx = mov.x + cos * headlen * 1.5;
+  let tipy = mov.y + sin * headlen * 1.5;
 
   ctx.moveTo(tipx, tipy);
 
