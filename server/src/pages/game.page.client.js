@@ -28,6 +28,7 @@ async function hydrate() {
   pageContext.INITIAL_STATE.game = await Client.utils.setUpGame(
     pageContext.INITIAL_STATE.game
   );
+  console.log(pageContext.INITIAL_STATE.game)
   store.replaceState(pageContext.INITIAL_STATE);
   store.commit('SETUP');
   app.mount('#app');

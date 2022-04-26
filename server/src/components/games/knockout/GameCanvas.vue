@@ -12,7 +12,7 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade';
 
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watchEffect, computed } from 'vue';
 
 import {
   fromRelative,
@@ -32,26 +32,44 @@ const {
   $endAnimation,
 } = useFacade();
 
+let dummyRadius,
+  width,
+  height,
+  ctx,
+  drag,
+  mouse = { x: 0, y: 0, clicked: false },
+  mobile,
+  selected,
+  animating,
+  padding,
+  actionsToReplay = [];
+
 const canvas = ref();
 const fireOrSend = ref(null);
-onMounted(() => {
-  var ctx = canvas.value.getContext('2d'),
-    width,
-    height,
-    dummyRadius, // (fake radius for rendering)
-    dummies = game.value.data.dummies,
-    player = game.value.myIndex == -1 ? 1 : game.value.myIndex,
-    firing = game.value.data.firing,
-    drag = 0.97,
-    mouse = { x: 0, y: 0, clicked: false },
-    mobile,
-    selected,
-    iceSize = game.value.data.ice.size,
-    animating,
-    collision = (x1, y1, x2, y2) => (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2,
-    padding,
-    actionsToReplay = [];
 
+const dummiesRef = computed(() => game.value.data.dummies);
+let dummies;
+watchEffect(() => (dummies = dummiesRef.value));
+
+const playerRef = computed(() =>
+  game.value.myIndex == -1 ? 1 : game.value.myIndex
+);
+let player;
+watchEffect(() => (player = playerRef.value));
+
+const firingRef = computed(() => game.value.data.firing);
+let firing;
+watchEffect(() => (firing = firingRef.value));
+
+const iceSizeRef = computed(() => game.value.data.ice.size);
+let iceSize;
+watchEffect(() => (iceSize = iceSizeRef.value));
+
+const collision = (x1, y1, x2, y2) =>
+  (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
+
+onMounted(() => {
+  ctx = canvas.value.getContext('2d');
   let scale = window.devicePixelRatio;
 
   let blackPenguin = new Image();
@@ -70,13 +88,14 @@ onMounted(() => {
   ice.onload = () => (iceLoaded = true);
 
   function select() {
+    console.log('selecting');
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
       var rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
-      if (
-        (rel.x - mouse.x) ** 2 + (rel.y - mouse.y) ** 2 <= 20 ** 2 &&
-        player != ((i / 4) | 0)
-      ) {
+      let dx = rel.x - mouse.x;
+      let dy = rel.y - mouse.y;
+      let d = Math.sqrt(dx ** 2 + dy ** 2);
+      if (d <= dummyRadius * 0.85 && player != ((i / 4) | 0)) {
         window.selected = i;
         console.log('selected', i);
       }
@@ -84,9 +103,9 @@ onMounted(() => {
   }
 
   const pointerMove = (e) => {
-    let { offsetX, offsetY } = e.touches?.[0] || e;
-    mouse.x = offsetX * scale;
-    mouse.y = offsetY * scale;
+    let { clientX, clientY } = e.touches?.[0] || e;
+    mouse.x = clientX * scale;
+    mouse.y = clientY * scale;
     if (window.selected != undefined) {
       var dum = dummies[window.selected];
       var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
@@ -94,7 +113,8 @@ onMounted(() => {
       let dy = rel.y - dum.y;
       const d = Math.sqrt(dx ** 2 + dy ** 2);
 
-      if (Math.abs(d) > dummyRadius / 5 / scale) dum.moveDir = { x: dx, y: dy };
+      if (Math.abs(d) > dummyRadius / 10) dum.moveDir = { x: dx, y: dy };
+      else dum.moveDir = null;
     }
   };
 
@@ -102,10 +122,12 @@ onMounted(() => {
   canvas.value.addEventListener('touchmove', pointerMove);
 
   const pointerDown = (e) => {
-    let { offsetX, offsetY } = e.touches?.[0] || e;
-    mouse.x = offsetX * scale;
-    mouse.y = offsetY * scale;
+    let { clientX, clientY } = e.touches?.[0] || e;
+    console.log(e.touches);
+    mouse.x = clientX * scale;
+    mouse.y = clientY * scale;
     mouse.clicked = true;
+    console.log(mouse);
     select();
   };
 
@@ -173,13 +195,15 @@ onMounted(() => {
       dummyRadius = (((height / 2 - padding * 2) / 20) * 100) / 85;
     } else {
       padding = width / 64;
-      ctx.drawImage(
-        ice,
-        width / 4 + padding,
-        height / 2 - width / 4 + padding,
-        width / 2 - padding * 2,
-        width / 2 - padding * 2
-      );
+      if (iceLoaded) {
+        ctx.drawImage(
+          ice,
+          width / 4 + padding,
+          height / 2 - width / 4 + padding,
+          width / 2 - padding * 2,
+          width / 2 - padding * 2
+        );
+      }
       dummyRadius = (((width / 2 - padding * 2) / 20) * 100) / 85;
     }
     ctx.closePath();
