@@ -80,23 +80,24 @@ function checkWinner(game) {
   return winner;
 }
 
+const collision = (x1, y1, x2, y2) =>
+  (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
+
 function spawn() {
-  var ice = new Ice(),
+  let ice = new Ice(),
     dummies = [],
-    collision = (x1, y1, x2, y2) => (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2,
     overlap,
-    newd,
     i = 0;
   while (i < 8) {
     overlap = false;
-    newd = new Dummy(
+    let newd = new Dummy(
       randRange(10, 90),
       randRange(10, 90),
-      randRange(0, 360),
+      randRange(0, 2*Math.PI),
       i < 4 ? 1 : 0
     );
-    for (var j = 0; j < dummies.length; j++) {
-      var other = dummies[j];
+    for (let j = 0; j < dummies.length; j++) {
+      let other = dummies[j];
       overlap = collision(other.x, other.y, newd.x, newd.y);
       if (overlap) break;
     }

@@ -12,7 +12,7 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade';
 
-import { onMounted, ref, watchEffect, computed } from 'vue';
+import { onMounted, ref, computed, watchEffect } from 'vue';
 
 import {
   fromRelative,
@@ -36,7 +36,7 @@ let dummyRadius,
   width,
   height,
   ctx,
-  drag,
+  drag = 0.97,
   mouse = { x: 0, y: 0, clicked: false },
   mobile,
   selected,
@@ -51,25 +51,25 @@ const dummiesRef = computed(() => game.value.data.dummies);
 let dummies;
 watchEffect(() => (dummies = dummiesRef.value));
 
-const playerRef = computed(() =>
-  game.value.myIndex == -1 ? 1 : game.value.myIndex
-);
-let player;
-watchEffect(() => (player = playerRef.value));
+const iceSizeRef = computed(() => game.value.data.ice.size);
+let iceSize;
+watchEffect(() => (iceSize = iceSizeRef.value));
 
 const firingRef = computed(() => game.value.data.firing);
 let firing;
 watchEffect(() => (firing = firingRef.value));
 
-const iceSizeRef = computed(() => game.value.data.ice.size);
-let iceSize;
-watchEffect(() => (iceSize = iceSizeRef.value));
+const playerRef = computed(() =>
+  game.value.myIndex === -1 ? 1 : game.value.myIndex
+);
+let player;
+watchEffect(() => (player = playerRef.value));
 
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
-
 onMounted(() => {
   ctx = canvas.value.getContext('2d');
+
   let scale = window.devicePixelRatio;
 
   let blackPenguin = new Image();
@@ -88,7 +88,6 @@ onMounted(() => {
   ice.onload = () => (iceLoaded = true);
 
   function select() {
-    console.log('selecting');
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
       var rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
@@ -135,7 +134,6 @@ onMounted(() => {
   canvas.value.addEventListener('touchstart', pointerDown);
 
   const pointerUp = (_e) => {
-    console.log('eehi');
     mouse.clicked = false;
     window.selected = undefined;
   };
@@ -195,15 +193,13 @@ onMounted(() => {
       dummyRadius = (((height / 2 - padding * 2) / 20) * 100) / 85;
     } else {
       padding = width / 64;
-      if (iceLoaded) {
-        ctx.drawImage(
-          ice,
-          width / 4 + padding,
-          height / 2 - width / 4 + padding,
-          width / 2 - padding * 2,
-          width / 2 - padding * 2
-        );
-      }
+      ctx.drawImage(
+        ice,
+        width / 4 + padding,
+        height / 2 - width / 4 + padding,
+        width / 2 - padding * 2,
+        width / 2 - padding * 2
+      );
       dummyRadius = (((width / 2 - padding * 2) / 20) * 100) / 85;
     }
     ctx.closePath();

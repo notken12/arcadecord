@@ -22,13 +22,15 @@ async function hydrate() {
   // We do Server Routing, but we can also do Client Routing by using `useClientRouter()`
   // instead of `getPage()`, see https://vite-plugin-ssr.com/useClientRouter
   const pageContext = await getPage();
-  pageContext.INITIAL_STATE = reactive(pageContext.INITIAL_STATE);
+  // pageContext.INITIAL_STATE = reactive(pageContext.INITIAL_STATE);
 
+  console.log(pageContext.INITIAL_STATE.game);
   const { app, store } = createApp(pageContext);
+  console.log(pageContext.INITIAL_STATE.game);
   pageContext.INITIAL_STATE.game = await Client.utils.setUpGame(
     pageContext.INITIAL_STATE.game
   );
-  console.log(pageContext.INITIAL_STATE.game)
+  console.log(pageContext.INITIAL_STATE.game);
   store.replaceState(pageContext.INITIAL_STATE);
   store.commit('SETUP');
   app.mount('#app');
