@@ -19,7 +19,7 @@ import {
   toRelative,
   collisionResolution,
 } from '@app/js/games/knockout/utils';
-import { drawMoveDirection } from '@app/js/games/knockout/canvas';
+import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
 
 const {
   game,
@@ -95,13 +95,27 @@ onMounted(() => {
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
-      var rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+      const rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
       let dx = rel.x - mouse.x;
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
       if (d <= dummyRadius * 0.85 && player != ((i / 4) | 0)) {
         window.selected = i;
         console.log('selected', i);
+        return;
+      }
+    }
+    for (let i = 0; i < arrowTips.length; i++) {
+      let tip = arrowTips[i];
+      if (!tip) continue;
+      const rel = fromRelative(tip.x, tip.y, mobile, width, height, padding);
+      let dx = rel.x - mouse.x;
+      let dy = rel.y - mouse.y;
+      let d = Math.sqrt(dx ** 2 + dy ** 2);
+      if (d < getHeadLen(dummyRadius) * 1.5) {
+        window.selected = i;
+        console.log('selected', i);
+        return;
       }
     }
   }
@@ -312,7 +326,8 @@ onMounted(() => {
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
         // Draw the move direction
-        drawMoveDirection(
+        // and return the arrow tip location
+        let tip = drawMoveDirection(
           ctx,
           dum,
           mobile,
@@ -321,6 +336,7 @@ onMounted(() => {
           padding,
           dummyRadius
         );
+        arrowTips[i] = tip;
       }
     });
 

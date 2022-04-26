@@ -1,5 +1,13 @@
-import { fromRelative } from '@app/js/games/knockout/utils';
+import { fromRelative, toRelative } from '@app/js/games/knockout/utils';
 
+export function getHeadLen(dummyRadius) {
+  return 0.7 * dummyRadius; // length of arrow head in pixels
+}
+
+/**
+ * Draw the move direction of a dummy onto a canvas.
+ * @returns {x: number, y: number} relative position of arrow tip
+ */
 export function drawMoveDirection(
   ctx,
   dum,
@@ -12,7 +20,7 @@ export function drawMoveDirection(
   let scale = window.devicePixelRatio;
   const arrowColor = dum.playerIndex === 0 ? '#222222' : '#3c5a80';
   const arrowWidth = 0.3 * dummyRadius;
-  const headlen = 0.7 * dummyRadius; // length of arrow head in pixels
+  const headlen = getHeadLen(dummyRadius);
   // const arrowWidth = 10;
   // Dummy location on canvas
   var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
@@ -87,4 +95,8 @@ export function drawMoveDirection(
   // ctx.stroke();
 
   ctx.restore();
+
+  let relativeTip = toRelative(tipx, tipy, mobile, width, height, padding);
+
+  return { x: relativeTip.x, y: relativeTip.y };
 }
