@@ -8,45 +8,45 @@
 // without the express permission of Ken Zhou.
 
 // Import common module for this game type
-import Common from './common.js';
+import Common from './common.js'
 
 // Import Game class
-import Game from '../../Game.js';
+import Game from '../../Game.js'
 
 // Import GameFlow to control game flow
-import GameFlow from '../../GameFlow.js';
+import GameFlow from '../../GameFlow.js'
 
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url)
 
 // 👇️ "/home/john/Desktop/javascript"
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename)
 
 class HitBoard {
   constructor(playerIndex, width, height) {
-    this.playerIndex = playerIndex;
-    this.width = width;
-    this.height = height;
+    this.playerIndex = playerIndex
+    this.width = width
+    this.height = height
 
-    var i = playerIndex;
+    var i = playerIndex
 
-    var h = Common.SHIP_DIRECTION_HORIZONTAL;
-    var v = Common.SHIP_DIRECTION_VERTICAL;
+    var h = Common.SHIP_DIRECTION_HORIZONTAL
+    var v = Common.SHIP_DIRECTION_VERTICAL
 
-    this.revealedShips = [];
+    this.revealedShips = []
 
-    this.cells = [];
+    this.cells = []
     for (var row = 0; row < height; row++) {
-      this.cells[row] = [];
+      this.cells[row] = []
       for (var col = 0; col < height; col++) {
         this.cells[row][col] = {
           state: Common.BOARD_STATE_EMPTY,
           col,
           row,
           id: col + '-' + row,
-        };
+        }
       }
     }
   }
@@ -76,17 +76,17 @@ const options = {
     ],
   },
   emoji: '<:seabattle:956316581842014249>',
-};
+}
 
 class SeaBattleGame extends Game {
   constructor(config) {
-    super(options, config);
+    super(options, config)
 
-    this.on('init', Game.eventHandlersDiscord.init);
+    this.on('init', Game.eventHandlersDiscord.init)
 
-    this.on('turn', Game.eventHandlersDiscord.turn);
+    this.on('turn', Game.eventHandlersDiscord.turn)
 
-    this.setActionModel('placeShips', Common.action_placeShips);
+    this.setActionModel('placeShips', Common.action_placeShips)
     this.setActionSchema('placeShips', {
       type: 'object',
       properties: {
@@ -138,9 +138,9 @@ class SeaBattleGame extends Game {
         },
       },
       required: ['shipPlacementBoard'],
-    });
+    })
 
-    this.setActionModel('shoot', Common.shoot);
+    this.setActionModel('shoot', Common.shoot)
     this.setActionSchema('shoot', {
       type: 'object',
       properties: {
@@ -156,29 +156,29 @@ class SeaBattleGame extends Game {
         },
       },
       required: ['row', 'col'],
-    });
+    })
 
     this.getThumbnail = async function () {
-      const { default: Canvas } = await import('canvas');
+      const { default: Canvas } = await import('canvas')
 
       const canvas = Canvas.createCanvas(
         Game.thumbnailDimensions.width,
         Game.thumbnailDimensions.height
-      );
-      const ctx = canvas.getContext('2d');
+      )
+      const ctx = canvas.getContext('2d')
 
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       let thumbnailSrc = path.resolve(
         __dirname,
-        '../../../public/assets/seabattle/sea-battle-thumbnail.png'
-      );
-      let thumbnail = await Canvas.loadImage(thumbnailSrc);
-      ctx.drawImage(thumbnail, 0, 0, canvas.width, canvas.height);
+        '../../../public/assets/seabattle/SeaBattleThumbnail.png'
+      )
+      let thumbnail = await Canvas.loadImage(thumbnailSrc)
+      ctx.drawImage(thumbnail, 0, 0, canvas.width, canvas.height)
 
-      return canvas;
-    };
+      return canvas
+    }
   }
 
   onInit(game) {
@@ -194,12 +194,12 @@ class SeaBattleGame extends Game {
         new Common.ShipPlacementBoard(10, 10),
         new Common.ShipPlacementBoard(10, 10),
       ],
-    };
-    return game;
+    }
+    return game
   }
 }
 
 export default {
   options: options,
   Game: SeaBattleGame,
-};
+}
