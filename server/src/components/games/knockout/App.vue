@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import 'scss/games/knockout.scss';
 import GameCanvas from './GameCanvas.vue';
 
@@ -26,18 +26,9 @@ import GameCanvas from './GameCanvas.vue';
 
 import { useFacade } from 'components/base-ui/facade';
 
-const { $replayTurn, $endReplay, previousTurn } = useFacade();
+const { $replayTurn, $endReplay, previousTurn, game } = useFacade();
 
 const hint = computed(() => {
   return '';
-});
-
-onMounted(() => {
-  $replayTurn(() => {
-    for (let action of previousTurn.value.actions) {
-      // TODO: implement replay
-    }
-    $endReplay(0);
-  });
 });
 </script>
