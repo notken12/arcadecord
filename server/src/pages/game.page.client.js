@@ -24,15 +24,16 @@ async function hydrate() {
   const pageContext = await getPage();
   // pageContext.INITIAL_STATE = reactive(pageContext.INITIAL_STATE);
 
-  console.log(pageContext.INITIAL_STATE.game);
   const { app, store } = createApp(pageContext);
-  console.log(pageContext.INITIAL_STATE.game);
   pageContext.INITIAL_STATE.game = await Client.utils.setUpGame(
     pageContext.INITIAL_STATE.game
   );
-  console.log(pageContext.INITIAL_STATE.game);
+  pageContext.INITIAL_STATE.realGame = await Client.utils.setUpGame(
+    pageContext.INITIAL_STATE.realGame
+  );
   store.replaceState(pageContext.INITIAL_STATE);
   store.commit('SETUP');
+  // store.commit('REPLAY_TURN');
   app.mount('#app');
 
   // Get game ID from URL address
@@ -49,6 +50,7 @@ async function hydrate() {
     // Nice UI components for the basic UI
     // No need to setup UI for the client, we are using SSR
     store.commit('SETUP', response);
+    // store.commit('REPLAY_TURN');
 
     // Listen for events from the server
     Client.socket.on('turn', (game, turn) => {

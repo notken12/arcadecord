@@ -70,7 +70,7 @@ watchEffect(() => (player = playerRef.value));
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
-const maxLaunchPower = 30;
+const maxLaunchPower = 50;
 const bgColor = '#1b89e3';
 let arrowTips = [];
 
@@ -355,7 +355,12 @@ onMounted(() => {
       dummies.filter((i) => i.velocity.x < 0.05 && i.velocity.y < 0.05)
         .length == 8
     ) {
-      $runAction('setDummies', dummies);
+      let states = [];
+      for (let i = 0; i < dummies.length; i++) {
+        let dummy = dummies[i];
+        states[i] = cloneDeep(dummy);
+      }
+      $runAction('setDummies', { dummies: states });
       animating = false;
     }
 

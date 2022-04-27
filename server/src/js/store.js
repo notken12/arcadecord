@@ -36,7 +36,7 @@ function createStore() {
         state.error = connectionResponse.error ?? null;
         state.user = connectionResponse.user ?? null;
         state.contested = connectionResponse.contested ?? false;
-        state.realGame = connectionResponse.game ?? false;
+        state.realGame = connectionResponse.game ?? null;
       },
       SETUP_STATE(state, newState) {
         for (let prop in newState) {

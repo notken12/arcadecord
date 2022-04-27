@@ -1,16 +1,16 @@
 export function collisionResolution(c1x, c1y, v1x, v1y, c2x, c2y, v2x, v2y) {
-  var tangent = {
+  const tangent = {
     x: -(c2x - c1x),
     y: c2y - c1y,
   };
-  tLength = (tangent.y ** 2 + tangent.x ** 2) ** 0.5;
+  const tLength = (tangent.y ** 2 + tangent.x ** 2) ** 0.5;
   tangent.x /= tLength;
   tangent.y /= tLength;
-  relVel = {
+  const relVel = {
     x: v2x - v1x,
     y: v2y - v1y,
   };
-  length = relVel.x * tangent.x + relVel.y * tangent.y;
+  const length = relVel.x * tangent.x + relVel.y * tangent.y;
   return {
     x: relVel.x - tangent.x * length,
     y: relVel.y - tangent.y * length,

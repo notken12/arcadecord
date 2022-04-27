@@ -41,6 +41,11 @@ function createStore() {
         store.commit('SETUP_STATE', state);
         store.commit('SETUP', connectionResponse);
         state.user = store.state.user;
+
+        state.error = store.state.error;
+        state.user = store.state.user;
+        state.contested = store.state.contested;
+        state.realGame = store.state.realGame;
       },
       UPDATE_SETTINGS(_state, settings) {
         store.commit('UPDATE_SETTINGS', settings);
@@ -78,7 +83,7 @@ function createStore() {
           // Create clone of the game state
           state.game = cloneDeep(store.state.realGame);
           // Change data to the previous turn's initial data
-          state.game.data = cloneDeep(store.state.game.previousData);
+          state.game.data = cloneDeep(store.state.realGame.previousData);
           // Set turn back to the last turn
           state.game.turn = cloneDeep(
             state.game.turns[state.game.turns.length - 1].playerIndex
