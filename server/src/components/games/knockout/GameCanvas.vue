@@ -12,7 +12,7 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade';
 
-import { onMounted, ref, computed, watchEffect, watch } from 'vue';
+import { onMounted, ref, computed, watchEffect, watch, onUnmounted } from 'vue';
 
 import cloneDeep from 'lodash.clonedeep';
 
@@ -103,7 +103,7 @@ watchEffect(() => (player = playerRef.value));
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
-const maxLaunchPower = 50;
+const maxLaunchPower = 40;
 const bgColor = '#1b89e3';
 let arrowTips = [];
 
@@ -112,16 +112,16 @@ const startSimulation = () => {
   dummies
     .filter((i) => !i.fallen)
     .forEach((d) => {
-      var adjust = width / 32; // Multiplier to the speed
-      d.velocity = { x: d.moveDir.x / adjust, y: d.moveDir.y / adjust };
+      var mult = 0.07; // Multiplier to the speed
+      d.velocity = { x: d.moveDir.x * mult, y: d.moveDir.y * mult };
       // d.velocity = { x: d.moveDir.x, y: d.moveDir.y };
     });
   simulationRunning = true;
 };
 
 /** Cleanup after simulation, run the action */
-const endSimulation = (skippingReplay) => {
-  if (!skippingReplay) {
+const endSimulation = (replayEnding) => {
+  if (!replayEnding) {
     if (!replayingVal) {
       let states = [];
       for (let i = 0; i < dummies.length; i++) {
@@ -141,6 +141,14 @@ const endSimulation = (skippingReplay) => {
       }
     }
   }
+
+  // if (!replayEnding) {
+  //   // Reset move directions of dummies
+  //   for (let dum of dummies) {
+  //     dum.moveDir = null;
+  //   }
+  // }
+
   simulationRunning = false;
   replayingAction = false;
 };
@@ -172,6 +180,10 @@ const replayNextAction = () => {
 
 const fireOrSendFn = () => {
   if (replayingVal) return;
+  // Your own move directions must be set
+  if (dummies.find((d) => !d.moveDir && d.playerIndex === player && !d.fallen))
+    return;
+
   if (firing) {
     startSimulation();
   } else {
@@ -261,6 +273,7 @@ onMounted(() => {
 
       dum.moveDir = { x: dx, y: dy };
     }
+    window.dummies = dummies;
   };
 
   canvas.value.addEventListener('mousemove', pointerMove);
@@ -382,34 +395,35 @@ onMounted(() => {
         ctx.closePath();
 
         // Run physics
-        dummies
-          .filter((i) => !i.fallen)
-          .forEach((other, j) => {
-            if (
-              collision(
-                other.x,
-                other.y,
-                dum.x + dum.velocity.x,
-                dum.y + dum.velocity.y
-              ) &&
-              dum != other
-            ) {
-              var resolve = collisionResolution(
-                dum.x,
-                dum.y,
-                dum.velocity.x,
-                dum.velocity.y,
-                other.x,
-                other.y,
-                other.velocity.x,
-                other.velocity.y
-              );
-              dum.velocity.x = resolve.x;
-              dum.velocity.y = resolve.y;
-              other.velocity.x = -resolve.x;
-              other.velocity.y = -resolve.y;
-            }
-          });
+        for (let j = 0; j < dummies.length; j++) {
+          let other = dummies[j];
+          if (i === j) continue;
+          if (other.fallen) continue;
+          if (
+            collision(
+              other.x,
+              other.y,
+              dum.x + dum.velocity.x,
+              dum.y + dum.velocity.y
+            )
+          ) {
+            var resolve = collisionResolution(
+              dum.x,
+              dum.y,
+              dum.velocity.x,
+              dum.velocity.y,
+              other.x,
+              other.y,
+              other.velocity.x,
+              other.velocity.y
+            );
+            dum.velocity.x = resolve.x;
+            dum.velocity.y = resolve.y;
+            other.velocity.x = -resolve.x;
+            other.velocity.y = -resolve.y;
+          }
+        }
+
         dum.x += dum.velocity.x;
         dum.y += dum.velocity.y;
         dum.velocity.x *= drag;
@@ -467,6 +481,10 @@ onMounted(() => {
       actionsToReplay.push(action);
     }
   });
+});
+
+onUnmounted(() => {
+  location.reload();
 });
 </script>
 
