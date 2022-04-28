@@ -35,6 +35,7 @@ async function hydrate() {
   store.commit('SETUP');
   // store.commit('REPLAY_TURN');
   app.mount('#app');
+  window.game = store.state.game;
 
   // Get game ID from URL address
 
