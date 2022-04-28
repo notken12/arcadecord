@@ -16,14 +16,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useFacade } from '@app/components/base-ui/facade';
-import Common from '/gamecommons/seabattle';
-import gsap from 'gsap';
+import { ref, computed, onMounted, watch } from 'vue'
+import { useFacade } from '@app/components/base-ui/facade'
+import Common from '/gamecommons/seabattle'
+import gsap from 'gsap'
 
-const { game } = useFacade();
+const { game } = useFacade()
 
-const rotations = [-90, 0, 90, 180];
+const rotations = [-90, 0, 90, 180]
 
 const props = defineProps({
   ship: {
@@ -34,25 +34,25 @@ const props = defineProps({
   board: {
     type: Object,
   },
-});
+})
 
-const el = ref(null);
+const el = ref(null)
 
 const classes = computed(() => {
-  return props.selected ? 'selected' : '';
-});
+  return props.selected ? 'selected' : ''
+})
 
 const styles = computed(() => {
   return {
     'transform-origin': `${50 / props.ship.len}% 50%`,
-  };
-});
+  }
+})
 
 const imgURL = computed(() => {
-  var ship = props.ship;
-  var shipType = ship.type;
-  return '/assets/seabattle/ships/' + shipType + '.png';
-});
+  var ship = props.ship
+  var shipType = ship.type
+  return '/assets/seabattle/ships/' + shipType + '.png'
+})
 
 const updatePos = (animate) => {
   gsap.to(el.value, {
@@ -60,20 +60,20 @@ const updatePos = (animate) => {
     rotation: rotations[props.ship.dir],
     x: (props.ship.col * 100) / props.ship.len + '%',
     y: props.ship.row * 100 + '%',
-  });
-};
+  })
+}
 
 onMounted(() => {
-  updatePos();
-});
+  updatePos()
+})
 
 watch(
   () => props.ship,
   () => {
-    updatePos(true);
+    updatePos(true)
   },
   { deep: true }
-);
+)
 
 // const imgStyles = computed(() => {
 //   var ship = props.ship

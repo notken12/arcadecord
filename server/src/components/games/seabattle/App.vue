@@ -51,28 +51,28 @@
 </template>
 
 <script>
-import '@app/scss/games/seabattle.scss';
+import '@app/scss/games/seabattle.scss'
 
-import Common from '/gamecommons/seabattle';
-import ShipPlacer from './ShipPlacer.vue';
-import HitBoardView from './HitBoardView.vue';
-import cloneDeep from 'lodash.clonedeep';
-import { runAction, utils as clientUtils } from '@app/js/client-framework.js';
-import GameFlow from '@app/js/GameFlow.js';
-import bus from '@app/js/vue-event-bus';
+import Common from '/gamecommons/seabattle'
+import ShipPlacer from './ShipPlacer.vue'
+import HitBoardView from './HitBoardView.vue'
+import cloneDeep from 'lodash.clonedeep'
+import { runAction, utils as clientUtils } from '@app/js/client-framework.js'
+import GameFlow from '@app/js/GameFlow.js'
+import bus from '@app/js/vue-event-bus'
 
 function getMyHitBoard(game) {
-  var index = game.myIndex;
+  var index = game.myIndex
   if (index == -1) {
     if (GameFlow.isItUsersTurn(game, index)) {
       // game hasn't started yet but i can start the game by placing ships
-      index = game.turn; //dog
+      index = game.turn //dog
     }
   }
 
-  var myHitBoard = game.data.hitBoards[index];
+  var myHitBoard = game.data.hitBoards[index]
 
-  return myHitBoard;
+  return myHitBoard
 }
 
 export default {
@@ -81,84 +81,84 @@ export default {
       shipPlacementBoard: null,
       targetedCell: null,
       availableShips: null,
-    };
+    }
   },
   methods: {
     placeShips() {
-      console.log('placing ships');
-      var t1 = performance.now();
+      console.log('placing ships')
+      var t1 = performance.now()
       this.shipPlacementBoard = Common.PlaceShips(
         cloneDeep(this.availableShips),
         new Common.ShipPlacementBoard(
           this.myHitBoard.width,
           this.myHitBoard.height
         )
-      );
-      var t2 = performance.now();
+      )
+      var t2 = performance.now()
       console.log(
         'Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.'
-      );
+      )
     },
     setShips() {
       this.$runAction('placeShips', {
         shipPlacementBoard: this.shipPlacementBoard,
-      });
-      this.$endAnimation(500);
+      })
+      this.$endAnimation(500)
     },
     shoot() {
-      var cell = this.targetedCell;
-      console.log(this.availableShips);
+      var cell = this.targetedCell
+      console.log(this.game.data)
 
       if (cell) {
-        let { row, col } = cell;
-        this.$runAction('shoot', { row, col });
-        this.targetedCell = null;
-        this.$endAnimation(1500);
+        let { row, col } = cell
+        this.$runAction('shoot', { row, col })
+        this.targetedCell = null
+        this.$endAnimation(1500)
       }
     },
   },
   computed: {
     hint() {
       if (!this.game.data.placed[this.game.myIndex]) {
-        return 'Drag ships around or tap to rotate them';
+        return 'Drag ships around or tap to rotate them'
       } else {
-        return 'Tap on a tile';
+        return 'Tap on a tile'
       }
     },
     isItMyTurn() {
-      return GameFlow.isItMyTurn(this.game);
+      return GameFlow.isItMyTurn(this.game)
     },
     myHitBoard() {
-      var index = this.game.myIndex;
+      var index = this.game.myIndex
       if (index == -1) {
         if (GameFlow.isItUsersTurn(this.game, index)) {
           // game hasn't started yet but i can start the game by placing ships
-          index = this.game.turn;
+          index = this.game.turn
         }
       }
 
-      var myHitBoard = this.game.data.hitBoards[index];
-      return myHitBoard;
+      var myHitBoard = this.game.data.hitBoards[index]
+      return myHitBoard
     },
   },
   mounted() {
-    window.Common = Common;
+    window.Common = Common
 
     bus.on('changeCellect', (cell) => {
-      this.targetedCell = cell;
-    });
+      this.targetedCell = cell
+    })
 
     this.$replayTurn(() => {
-      this.$endReplay();
-    });
-    this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex);
-    console.log('mounted');
+      this.$endReplay()
+    })
+    this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex)
+    console.log('mounted')
 
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
       this.isItMyTurn
     ) {
-      this.placeShips();
+      this.placeShips()
     }
   },
   components: {
@@ -171,9 +171,9 @@ export default {
         !this.game.data.placed[this.myHitBoard.playerIndex] &&
         this.isItMyTurn
       ) {
-        this.placeShips();
+        this.placeShips()
       }
     },
   },
-};
+}
 </script>
