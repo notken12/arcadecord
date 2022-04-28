@@ -2,18 +2,9 @@
 
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
-matthew was here
-update docs caue changes
-
 ## Todo
 
 https://github.com/notken12/arcadecord/issues
-
-- Add more games
-- Add settings ui
-- Add unique IDs to every action and turn
-- Add feedback center
-- Add support for turns not in order of players
 
 ## How this works
 
@@ -22,12 +13,10 @@ https://github.com/notken12/arcadecord/issues
 - Player
 - Discord bot `/bot`
 - Game server `/server`
-- Website `/server`, `/games/types/*/index.html`, `/server/public`, `/server/src`
+- Website `/server`, `/server/src/components/games/*`, `/server/public`, `/server/src`
 - Database `/db`
 
 ### Gameplay process
-
-maogo
 
 1. The player can create a game with a Discord slash command.
 2. The Discord bot listens for the slash command and tells the game server, which creates a game.
