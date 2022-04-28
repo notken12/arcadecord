@@ -39,6 +39,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
     new Action(
       'setDummies',
       {
+        firing: false,
         dummies: [
           { x: 30, y: 50, fallen: false, moveDir: { x: 1, y: 0 }, faceDir: 30 },
           {
@@ -82,6 +83,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
     new Action(
       'setDummies',
       {
+        firing: true,
         dummies: [
           { x: -5, y: 10, fallen: true, moveDir: { x: 1, y: 0 }, faceDir: 30 },
           {
@@ -125,6 +127,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
     new Action(
       'setDummies',
       {
+        firing: false,
         dummies: [
           { x: -5, y: 10, fallen: true, moveDir: { x: 0, y: 0 }, faceDir: 30 },
           { x: 40, y: 50, fallen: false, moveDir: { x: 0, y: 0 }, faceDir: 80 },
@@ -169,6 +172,7 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
     new Action(
       'setDummies',
       {
+        firing: true,
         dummies: [
           { x: 30, y: 50, fallen: true, moveDir: { x: 1, y: 0 }, faceDir: 30 },
           {
@@ -207,9 +211,11 @@ test('set a direction for all dummies, complete a cycle and test if a dummy as f
       1
     )
   );
-  actions.forEach(async (action) => await game.handleAction(action));
+  for (let action of actions) {
+    expect(await game.handleAction(action)).toEqual({ success: true });
+  }
   expect(GameFlow.isItUsersTurn(game, 1)).toBe(true); // it should be player 1's turn
-  expect(game.data.firing).toBe(true);
+  expect(game.data.firing).toBe(false);
   expect(game.data.ice.size).toBe(90); // percent should have decreased
   expect(game.data.dummies[0].fallen).toBe(true);
 });
@@ -230,6 +236,7 @@ test('player 0 wins', async () => {
     new Action(
       'setDummies',
       {
+        firing: false,
         dummies: [
           { x: 30, y: 50, fallen: false, moveDir: { x: 1, y: 0 }, faceDir: 30 },
           {
@@ -273,6 +280,7 @@ test('player 0 wins', async () => {
     new Action(
       'setDummies',
       {
+        firing: true,
         dummies: [
           { x: -5, y: 10, fallen: true, moveDir: { x: 1, y: 0 }, faceDir: 30 },
           { x: 40, y: 50, fallen: true, moveDir: { x: -5, y: 0 }, faceDir: 80 },
@@ -294,10 +302,12 @@ test('player 0 wins', async () => {
     )
   );
 
-  actions.forEach(async (action) => await game.handleAction(action));
+  for (let action of actions) {
+    expect(await game.handleAction(action)).toEqual({ success: true });
+  }
   // it should be player 1's turn
   expect(game.data.ice.size).toBe(95); // percent should have decreased
   expect(game.hasEnded).toBe(true);
-  expect(game.data.firing).toBe(true);
+  expect(game.data.firing).toBe(false);
   expect(game.data.dummies[0].x).toBe(-5);
 });

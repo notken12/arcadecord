@@ -25,7 +25,7 @@ class Dummy {
 }
 
 class Ice {
-  static decrease = 5;
+  static DECREASE_PERCENT = 5;
   constructor(size) {
     this.size = size || 100;
   }
@@ -70,9 +70,9 @@ async function setDummies(game, action) {
   //   return game;
   // }
 
+  game.data.ice.size -= Ice.DECREASE_PERCENT;
+
   var winner = checkWinner(game);
-  game.data.winner = winner;
-  game.data.ice.size -= Ice.decrease;
 
   // game.data.player = [GameFlow.isItUsersTurn(game, 0), winner];
   if (winner !== null) await GameFlow.end(game, { winner });
