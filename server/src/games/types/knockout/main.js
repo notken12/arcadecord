@@ -37,7 +37,11 @@ class KnockoutGame extends Game {
           type: 'array',
           maxItems: 8,
         },
+        firing: {
+          type: 'boolean',
+        },
       },
+      required: ['dummies', 'firing'],
     });
   }
 

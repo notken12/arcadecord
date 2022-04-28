@@ -12,7 +12,7 @@
 <script setup>
 import { useFacade } from 'components/base-ui/facade';
 
-import { onMounted, ref, computed, watchEffect } from 'vue';
+import { onMounted, ref, computed, watchEffect, watch } from 'vue';
 
 import cloneDeep from 'lodash.clonedeep';
 
@@ -70,6 +70,15 @@ watchEffect(() => {
   replayingVal = replaying.value;
 });
 
+watch(replaying, (val) => {
+  // If the replay is skipped, we need to reset the simulation
+  if (!val) {
+    actionsToReplay = [];
+    endSimulation();
+    return;
+  }
+});
+
 const dummiesRef = computed(() => game.value.data.dummies);
 let dummies;
 watchEffect(() => {
@@ -118,7 +127,7 @@ const endSimulation = () => {
       let dummy = dummies[i];
       states[i] = cloneDeep(dummy);
     }
-    $runAction('setDummies', { dummies: states });
+    $runAction('setDummies', { dummies: states, firing: true });
   } else {
     // Replay the action
     let a = actionsToReplay.shift();
@@ -138,7 +147,7 @@ const replayNextAction = () => {
   let action = actionsToReplay[0];
   if (!action) return;
 
-  if (firing) {
+  if (action.data.firing) {
     replayingAction = true;
     // Apply move directions to dummies
     for (let i = 0; i < action.data.dummies.length; i++) {
@@ -160,6 +169,7 @@ const replayNextAction = () => {
 };
 
 const fireOrSendFn = () => {
+  if (replayingVal) return;
   if (dummies.filter((i) => i.moveDir).length == dummies.length) {
     startSimulation();
   } else {
@@ -169,7 +179,7 @@ const fireOrSendFn = () => {
       let dummy = dummies[i];
       states[i] = cloneDeep(dummy);
     }
-    $runAction('setDummies', { dummies: states });
+    $runAction('setDummies', { dummies: states, firing: false });
   }
 };
 
