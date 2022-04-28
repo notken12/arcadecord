@@ -45,39 +45,66 @@ async function setDummies(game, action) {
       );
     }
   });
-  if (game.data.firing == true) {
-    game.data.firing = false;
+
+  // Make sure the action thinks its firing if it's firing
+  // Useful distinction for replaying, don't need to check game state
+  if (game.data.firing !== action.data.firing) return false;
+
+  game.data.firing = !game.data.firing;
+
+  if (game.data.firing) {
+    // Now firing, this action set the positions only
     await GameFlow.endTurn(game);
+    return game;
   } else {
-    game.data.firing = true;
+    // Now not firing, this action fired
+    // Reset move directions
+    for (let dum of game.data.dummies) {
+      dum.moveDir = null;
+    }
   }
+
+  // if (game.data.firstTurn) {
+  //   game.data.firstTurn = false;
+  //   await GameFlow.endTurn(game);
+  //   return game;
+  // }
 
   var winner = checkWinner(game);
   game.data.winner = winner;
   game.data.ice.size -= Ice.decrease;
 
-  game.data.player = [GameFlow.isItUsersTurn(game, 0), winner];
-  if (winner) await GameFlow.end(game, { winner });
+  // game.data.player = [GameFlow.isItUsersTurn(game, 0), winner];
+  if (winner !== null) await GameFlow.end(game, { winner });
 
   return game;
 }
 
 function checkWinner(game) {
-  var p1 = 0,
-    p0 = 0,
-    winner = undefined,
-    cur;
-  for (var i = 0; i < game.data.dummies.length; i++) {
-    cur = game.data.dummies[i];
-    if (!cur.fallen) continue; //stop for loop if hasn't fallen
-    if (cur.playerIndex) p1++;
-    //player index is either 0 or 1
-    else p0++;
+  let seen = null;
+  for (let i = 0; i < game.data.dummies.length; i++) {
+    let dum = game.data.dummies[i];
+    if (!dum.fallen) {
+      if (seen === null) {
+        // Winner hasn't been set
+        seen = dum.playerIndex;
+      } else if (seen !== dum.playerIndex) {
+        // We saw non-fallen dummy that belongs to a different player before
+        // Thus we have dummies from both players that are not fallen
+        // Game is inconclusive
+        return null;
+      }
+    }
   }
-  if (p1 == 4) winner = 1;
-  else if (p0 == 4) winner = 0;
-  else if (p1 == 4 && p0 == 4) winner = -1; // draw cause they can all fall
-  return winner;
+  if (seen === null) {
+    // No non-fallen dummies were seen
+    // All dummies are fallen
+    // Draw
+    return -1;
+  }
+  // Only dummies that belong to 1 player were seen
+  // That player wins
+  return seen;
 }
 
 const collision = (x1, y1, x2, y2) =>
