@@ -74,7 +74,7 @@ watch(replaying, (val) => {
   // If the replay is skipped, we need to reset the simulation
   if (!val) {
     actionsToReplay = [];
-    endSimulation();
+    endSimulation(true);
     return;
   }
 });
@@ -120,23 +120,25 @@ const startSimulation = () => {
 };
 
 /** Cleanup after simulation, run the action */
-const endSimulation = () => {
-  if (!replayingVal) {
-    let states = [];
-    for (let i = 0; i < dummies.length; i++) {
-      let dummy = dummies[i];
-      states[i] = cloneDeep(dummy);
-    }
-    $runAction('setDummies', { dummies: states, firing: true });
-  } else {
-    // Replay the action
-    let a = actionsToReplay.shift();
-    replayAction(game.value, a);
+const endSimulation = (skippingReplay) => {
+  if (!skippingReplay) {
+    if (!replayingVal) {
+      let states = [];
+      for (let i = 0; i < dummies.length; i++) {
+        let dummy = dummies[i];
+        states[i] = cloneDeep(dummy);
+      }
+      $runAction('setDummies', { dummies: states, firing });
+    } else {
+      // Replay the action
+      let a = actionsToReplay.shift();
+      replayAction(game.value, a);
 
-    replayingAction = false;
+      replayingAction = false;
 
-    if (actionsToReplay.length === 0) {
-      $endReplay(0);
+      if (actionsToReplay.length === 0) {
+        $endReplay(0);
+      }
     }
   }
   simulationRunning = false;
@@ -170,7 +172,7 @@ const replayNextAction = () => {
 
 const fireOrSendFn = () => {
   if (replayingVal) return;
-  if (dummies.filter((i) => i.moveDir).length == dummies.length) {
+  if (firing) {
     startSimulation();
   } else {
     //console.log([...dummies]);
@@ -179,7 +181,7 @@ const fireOrSendFn = () => {
       let dummy = dummies[i];
       states[i] = cloneDeep(dummy);
     }
-    $runAction('setDummies', { dummies: states, firing: false });
+    $runAction('setDummies', { dummies: states, firing });
   }
 };
 

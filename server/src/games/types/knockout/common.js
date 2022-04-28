@@ -45,11 +45,19 @@ async function setDummies(game, action) {
       );
     }
   });
-  if (game.data.firing == true) {
-    game.data.firing = false;
+
+  // Make sure the action thinks its firing if it's firing
+  // Useful distinction for replaying, don't need to check game state
+  if (game.data.firing !== action.data.firing) return false;
+
+  game.data.firing = !game.data.firing;
+
+  if (game.data.firing) await GameFlow.endTurn(game);
+
+  if (game.data.firstTurn) {
+    game.data.firstTurn = false;
     await GameFlow.endTurn(game);
-  } else {
-    game.data.firing = true;
+    return game;
   }
 
   var winner = checkWinner(game);

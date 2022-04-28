@@ -49,7 +49,8 @@ class KnockoutGame extends Game {
     var spawn = Common.spawn();
     game.data.ice = spawn.ice;
     game.data.dummies = spawn.dummies;
-    game.data.firing = true;
+    game.data.firing = false;
+    game.data.firstTurn = true;
     return game;
   }
 }
