@@ -110,7 +110,8 @@ let arrowTips = [];
 
 const simulationDelay = 1.5; // seconds
 const dirsFadeOutDuration = 0.3; // seconds
-const dirsFadeOutDelay = 1.3 // seconds
+const dirsFadeOutDelay = 1.3; // seconds
+const dummyRotateDuration = 0.3; // seconds
 
 const style = {
   moveDirOpacity: 1,
@@ -121,7 +122,7 @@ const startSimulation = () => {
   dummies
     .filter((i) => !i.fallen)
     .forEach((d) => {
-      var mult = 0.07; // Multiplier to the speed
+      var mult = 0.05; // Multiplier to the speed
       d.velocity = { x: d.moveDir.x * mult, y: d.moveDir.y * mult };
       // d.velocity = { x: d.moveDir.x, y: d.moveDir.y };
     });
@@ -132,12 +133,7 @@ const startSimulation = () => {
 const endSimulation = (replayEnding) => {
   if (!replayEnding) {
     if (!replayingVal) {
-      let states = [];
-      for (let i = 0; i < dummies.length; i++) {
-        let dummy = dummies[i];
-        states[i] = cloneDeep(dummy);
-      }
-      $runAction('setDummies', { dummies: states, firing });
+      setDummiesFire();
     } else {
       // Replay the action
       let a = actionsToReplay.shift();
@@ -165,18 +161,32 @@ const endSimulation = (replayEnding) => {
 };
 
 const showMoveDirsAndStartSimulation = () => {
+  // Show all move directions
   style.moveDirOpacity = 1;
   showAllMoveDirs = true;
+
+  // Rotate penguins faceDirs toward their moveDirs
+  for (let dum of dummies) {
+    if (!dum.moveDir) continue;
+    let angle = Math.atan2(dum.moveDir.y, dum.moveDir.x);
+    gsap.to(dum, {
+      faceDir: angle,
+      duration: dummyRotateDuration,
+    });
+  }
+
+  // Start simulation
   setTimeout(() => {
     startSimulation();
   }, simulationDelay * 1000);
+
+  // Fade out move directions
   setTimeout(() => {
     gsap.to(style, {
       moveDirOpacity: 0,
       duration: dirsFadeOutDuration,
-      ease: 'power4.in',
     });
-  }, dirsFadeOutDelay * 1000)
+  }, dirsFadeOutDelay * 1000);
 };
 
 const replayNextAction = () => {
@@ -204,6 +214,22 @@ const replayNextAction = () => {
   }
 };
 
+const setDummiesFire = () => {
+  let states = [];
+  for (let i = 0; i < dummies.length; i++) {
+    let dummy = dummies[i];
+    states[i] = {
+      faceDir: dummy.faceDir,
+      fallen: dummy.fallen,
+      moveDir: dummy.moveDir,
+      playerIndex: dummy.playerIndex,
+      x: dummy.x,
+      y: dummy.y,
+    };
+  }
+  $runAction('setDummies', { dummies: states, firing });
+};
+
 const fireOrSendFn = () => {
   if (replayingVal) return;
   // Your own move directions must be set
@@ -213,12 +239,7 @@ const fireOrSendFn = () => {
   if (firing) {
     showMoveDirsAndStartSimulation();
   } else {
-    let states = [];
-    for (let i = 0; i < dummies.length; i++) {
-      let dummy = dummies[i];
-      states[i] = cloneDeep(dummy);
-    }
-    $runAction('setDummies', { dummies: states, firing });
+    setDummiesFire();
   }
 };
 
@@ -394,7 +415,7 @@ onMounted(() => {
         // Draw penguin body
         var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
         ctx.translate(c.x, c.y);
-        ctx.rotate(dum.faceDir);
+        ctx.rotate(dum.faceDir - Math.PI / 2);
         // ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
         ctx.shadowColor = 'black';
         ctx.shadowBlur = dummyRadius * 0.3;

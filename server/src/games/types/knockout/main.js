@@ -36,6 +36,33 @@ class KnockoutGame extends Game {
         dummies: {
           type: 'array',
           maxItems: 8,
+          items: {
+            type: 'object',
+            properties: {
+              faceDir: {
+                type: 'number',
+              },
+              fallen: {
+                type: 'boolean',
+              },
+              moveDir: {
+                type: ['object', 'null'],
+                properties: {
+                  x: { type: 'number' },
+                  y: { type: 'number' },
+                },
+                required: ['x', 'y'],
+              },
+              playerIndex: {
+                type: 'number',
+                maximum: 1,
+                minimum: 0,
+              },
+              x: { type: 'number' },
+              y: { type: 'number' },
+            },
+            required: ['faceDir', 'fallen', 'moveDir', 'playerIndex', 'x', 'y'],
+          },
         },
         firing: {
           type: 'boolean',
