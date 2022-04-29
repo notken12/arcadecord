@@ -12,8 +12,16 @@
 <template>
   <!-- GameView component, contains all basic game UI 
             like settings button -->
-  <game-view :game="game" :me="me" :hint="hint">
-    <div class="middle"><game-canvas></game-canvas></div>
+  <game-view :hint="hint">
+    <scores-view>
+      <template v-slot="scoreView">
+        <DummyIndicator :playerindex="scoreView.playerindex"></DummyIndicator>
+      </template>
+    </scores-view>
+
+    <div class="middle">
+      <game-canvas></game-canvas>
+    </div>
   </game-view>
 </template>
 
@@ -21,6 +29,7 @@
 import { computed } from 'vue';
 import 'scss/games/knockout.scss';
 import GameCanvas from './GameCanvas.vue';
+import DummyIndicator from './DummyIndicator.vue';
 
 // import Common from '/gamecommons/knockout';
 
@@ -32,3 +41,12 @@ const hint = computed(() => {
   return '';
 });
 </script>
+
+<style lang="scss" scoped>
+.middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+</style>

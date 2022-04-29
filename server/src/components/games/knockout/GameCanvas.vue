@@ -197,6 +197,14 @@ const fireOrSendFn = () => {
   }
 };
 
+const screenToCanvasPos = ({clientX, clientY}) => {
+  let cbbox = canvas.value.getBoundingClientRect();
+  return {
+    clientX: clientX - cbbox.x,
+    clientY: clientY - cbbox.y
+  }
+}
+
 onMounted(() => {
   window.dummies = dummies;
   ctx = canvas.value.getContext('2d');
@@ -248,7 +256,7 @@ onMounted(() => {
 
   const pointerMove = (e) => {
     if (replayingVal) return;
-    let { clientX, clientY } = e.touches?.[0] || e;
+    let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
     if (window.selected != undefined) {
@@ -281,7 +289,7 @@ onMounted(() => {
 
   const pointerDown = (e) => {
     if (replayingVal) return;
-    let { clientX, clientY } = e.touches?.[0] || e;
+    let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
     mouse.clicked = true;
@@ -300,15 +308,23 @@ onMounted(() => {
   canvas.value.addEventListener('mouseup', pointerUp);
   canvas.value.addEventListener('touchend', pointerUp);
 
-  function draw() {
-    width = window.innerWidth * scale;
-    height = window.innerHeight * scale;
+  const resize = () => {
+    const container = canvas.value.parentElement;
+    const size = Math.min(container.offsetWidth, container.offsetHeight);
+    width = size * scale;
+    height = size * scale;
 
     canvas.value.width = width;
     canvas.value.height = height;
     canvas.value.style.width = width / scale + 'px';
     canvas.value.style.height = height / scale + 'px';
 
+    // Get screen orientation
+    padding = size * -0.15
+    dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 85;
+  };
+
+  function draw() {
     // ctx.clearRect(0, 0, width, height);
 
     ctx.fillStyle = bgColor;
@@ -321,11 +337,9 @@ onMounted(() => {
     ctx.beginPath();
 
     // Get screen orientation
-    mobile = false; //height greater
-    if (height > width) {
+    if (mobile) {
       // width is screen width - padding
       // height is half of screen height
-      padding = height / 64;
       if (iceLoaded) {
         ctx.drawImage(
           ice,
@@ -335,10 +349,7 @@ onMounted(() => {
           height / 2 - padding * 2
         );
       }
-      mobile = true;
-      dummyRadius = (((height / 2 - padding * 2) / 20) * 100) / 85;
     } else {
-      padding = width / 64;
       ctx.drawImage(
         ice,
         width / 4 + padding,
@@ -346,7 +357,6 @@ onMounted(() => {
         width / 2 - padding * 2,
         width / 2 - padding * 2
       );
-      dummyRadius = (((width / 2 - padding * 2) / 20) * 100) / 85;
     }
     ctx.closePath();
 
@@ -474,7 +484,10 @@ onMounted(() => {
 
     requestAnimationFrame(draw);
   }
-  draw();
+
+  window.addEventListener('resize', resize);
+  resize();
+  window.requestAnimationFrame(draw);
 
   $replayTurn(() => {
     for (let action of previousTurn.value.actions) {
@@ -489,13 +502,18 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <div class="canvas-container">
   <canvas ref="canvas"></canvas>
+  </div>
   <button ref="fireOrSend" @click="fireOrSendFn">send</button>
 </template>
 
 <style scoped>
-button {
-  position: absolute;
-  bottom: 10vh;
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items:center;
+  justify-content: center
 }
 </style>

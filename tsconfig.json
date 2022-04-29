@@ -10,7 +10,8 @@
     "paths": {
       "@app/*": ["server/src/*"],
       "components/*": ["server/src/components/*"],
-      "scss/*": ["server/src/scss/*"]
+      "scss/*": ["server/src/scss/*"],
+      "/gamecommons/*": ["server/src/games/types/*/common"]
     },
     "allowJs": true
   },
