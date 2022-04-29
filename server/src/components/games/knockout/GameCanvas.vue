@@ -21,6 +21,7 @@ import {
 } from '@app/js/games/knockout/utils';
 import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
 import { replayAction } from '@app/js/client-framework';
+import gsap from 'gsap';
 
 import { useFacade } from 'components/base-ui/facade';
 
@@ -46,7 +47,8 @@ let dummyRadius,
   simulationRunning,
   padding,
   actionsToReplay = [],
-  replayingAction = false;
+  replayingAction = false,
+  showAllMoveDirs = false; // show move dirs before starting simulation
 
 const canvas = ref();
 const fireOrSend = ref(null);
@@ -104,8 +106,15 @@ const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
 const maxLaunchPower = 40;
-const bgColor = '#1b89e3';
 let arrowTips = [];
+
+const simulationDelay = 1.5; // seconds
+const dirsFadeOutDuration = 0.3; // seconds
+const dirsFadeOutDelay = 1.3 // seconds
+
+const style = {
+  moveDirOpacity: 1,
+};
 
 /** Send the penguins flying */
 const startSimulation = () => {
@@ -151,6 +160,23 @@ const endSimulation = (replayEnding) => {
 
   simulationRunning = false;
   replayingAction = false;
+  style.moveDirOpacity = 1;
+  showAllMoveDirs = false;
+};
+
+const showMoveDirsAndStartSimulation = () => {
+  style.moveDirOpacity = 1;
+  showAllMoveDirs = true;
+  setTimeout(() => {
+    startSimulation();
+  }, simulationDelay * 1000);
+  setTimeout(() => {
+    gsap.to(style, {
+      moveDirOpacity: 0,
+      duration: dirsFadeOutDuration,
+      ease: 'power4.in',
+    });
+  }, dirsFadeOutDelay * 1000)
 };
 
 const replayNextAction = () => {
@@ -165,7 +191,7 @@ const replayNextAction = () => {
       dummies[i].moveDir = ndum.moveDir;
     }
     // Show the players the directions, then start the simulation
-    setTimeout(startSimulation, 2000);
+    showMoveDirsAndStartSimulation();
   } else {
     // Else let the updateDummies do its thing
     let a = actionsToReplay.shift();
@@ -185,9 +211,8 @@ const fireOrSendFn = () => {
     return;
 
   if (firing) {
-    startSimulation();
+    showMoveDirsAndStartSimulation();
   } else {
-    //console.log([...dummies]);
     let states = [];
     for (let i = 0; i < dummies.length; i++) {
       let dummy = dummies[i];
@@ -197,13 +222,13 @@ const fireOrSendFn = () => {
   }
 };
 
-const screenToCanvasPos = ({clientX, clientY}) => {
+const screenToCanvasPos = ({ clientX, clientY }) => {
   let cbbox = canvas.value.getBoundingClientRect();
   return {
     clientX: clientX - cbbox.x,
-    clientY: clientY - cbbox.y
-  }
-}
+    clientY: clientY - cbbox.y,
+  };
+};
 
 onMounted(() => {
   window.dummies = dummies;
@@ -320,15 +345,14 @@ onMounted(() => {
     canvas.value.style.height = height / scale + 'px';
 
     // Get screen orientation
-    padding = size * -0.15
+    padding = size * -0.2;
     dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 85;
   };
 
   function draw() {
     // ctx.clearRect(0, 0, width, height);
 
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
 
     // drawing the ice is important because the dummies' position will be relative to it
     // so we'll use the ratios of the device to know that position
@@ -450,9 +474,9 @@ onMounted(() => {
 
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
-        // Don't display if it isn't your penguin or physics arent running
-        if (simulationRunning) return;
-        if (!replayingVal && dum.playerIndex !== player) return;
+        // Don't display if it isn't your penguins
+        if (!replayingVal && dum.playerIndex !== player && !showAllMoveDirs)
+          return;
 
         // Draw the move direction
         // and return the arrow tip location
@@ -463,7 +487,8 @@ onMounted(() => {
           width,
           height,
           padding,
-          dummyRadius
+          dummyRadius,
+          style.moveDirOpacity
         );
         arrowTips[i] = tip;
       }
@@ -503,7 +528,7 @@ onUnmounted(() => {
 
 <template>
   <div class="canvas-container">
-  <canvas ref="canvas"></canvas>
+    <canvas ref="canvas"></canvas>
   </div>
   <button ref="fireOrSend" @click="fireOrSendFn">send</button>
 </template>
@@ -513,7 +538,11 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   display: flex;
-  align-items:center;
-  justify-content: center
+  align-items: center;
+  justify-content: center;
+}
+
+button {
+  margin-bottom: 32px;
 }
 </style>
