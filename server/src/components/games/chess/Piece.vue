@@ -83,14 +83,14 @@ export default {
     },
   },
   methods: {
-    animate() {
+    animate(duration) {
       let top = ((7 - this.piece.rank) / 1) * 100;
       let left = (this.piece.file / 1) * 100;
       gsap.to(this.$refs.pieceEl, {
         x: left + '%',
         y: top + '%',
         ease: 'power3.inOut',
-        duration: 0.25,
+        duration: duration ?? 0.25,
         rotation: this.myColor === 1 ? 180 : 0,
       });
     },
@@ -109,14 +109,6 @@ export default {
     Draggable.zIndex = 1001;
     gsap.registerPlugin(Draggable);
 
-    let top = ((7 - this.piece.rank) / 1) * 100;
-    let left = (this.piece.file / 1) * 100;
-    gsap.set(this.$refs.pieceEl, {
-      x: left + '%',
-      y: top + '%',
-      ease: 'power3.inOut',
-      rotation: this.myColor === 1 ? 180 : 0,
-    });
     if (this.piece.color === this.myColor) {
       Draggable.create(this.$refs.pieceEl, {
         type: 'x,y',
@@ -165,6 +157,8 @@ export default {
         zIndexBoost: true,
       });
     }
+    
+    vm.animate(0)
   },
 };
 </script>
