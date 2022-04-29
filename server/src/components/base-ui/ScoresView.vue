@@ -58,5 +58,7 @@ export default {
   flex-wrap: nowrap;
   box-sizing: border-box;
   padding: 0 16px;
+  position: relative;
+  z-index: 10;
 }
 </style>

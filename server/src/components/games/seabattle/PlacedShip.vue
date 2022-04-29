@@ -96,6 +96,7 @@ watch(
 .placed-ship {
   position: absolute;
   height: 10%;
+  cursor: pointer;
 }
 
 .placed-ship-image {

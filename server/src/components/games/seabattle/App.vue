@@ -148,9 +148,6 @@ export default {
       this.targetedCell = cell;
     });
 
-    this.$replayTurn(() => {
-      this.$endReplay();
-    });
     this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex);
     console.log('mounted');
 
@@ -176,4 +173,17 @@ export default {
     },
   },
 };
+</script>
+
+<script setup>
+import { useFacade } from '@app/components/base-ui/facade';
+import { onMounted } from 'vue';
+
+const { $replayTurn, $endReplay } = useFacade();
+
+onMounted(() => {
+  $replayTurn(() => {
+    $endReplay(0);
+  });
+});
 </script>

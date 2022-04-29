@@ -271,7 +271,8 @@ async function resendInvite() {
 
 async function connect(gameId, callback) {
   let baseCallback = async (response) => {
-    if (response?.status != 'success') {
+    if (!response) return;
+    if (response.status != 'success') {
       log(`[arcadecord] connection failed with error ${response.error}`);
 
       callback({
