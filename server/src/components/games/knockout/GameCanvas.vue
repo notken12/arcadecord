@@ -10,8 +10,6 @@
 -->
 
 <script setup>
-import { useFacade } from 'components/base-ui/facade';
-
 import { onMounted, ref, computed, watchEffect, watch, onUnmounted } from 'vue';
 
 import cloneDeep from 'lodash.clonedeep';
@@ -23,6 +21,8 @@ import {
 } from '@app/js/games/knockout/utils';
 import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
 import { replayAction } from '@app/js/client-framework';
+
+import { useFacade } from 'components/base-ui/facade';
 
 const {
   game,
