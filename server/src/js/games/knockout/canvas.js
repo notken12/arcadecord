@@ -24,7 +24,8 @@ export function drawMoveDirection(
   width,
   height,
   padding,
-  dummyRadius
+  dummyRadius,
+  opacity
 ) {
   let scale = window.devicePixelRatio;
   const arrowColor = dum.playerIndex === 0 ? '#222222' : '#3c5a80';
@@ -58,6 +59,7 @@ export function drawMoveDirection(
   ctx.strokeStyle = arrowColor;
   ctx.fillStyle = arrowColor;
   ctx.lineWidth = arrowWidth;
+  ctx.globalAlpha = opacity;
 
   // Draw line
   ctx.beginPath();

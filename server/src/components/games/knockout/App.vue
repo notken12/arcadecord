@@ -42,11 +42,15 @@ const hint = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .middle {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+#app {
+  background: #1b89e3;
 }
 </style>
