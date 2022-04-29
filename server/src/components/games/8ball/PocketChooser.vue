@@ -1,3 +1,14 @@
+<!--
+  PocketChooser.vue - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <script setup>
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { createVector } from '@app/js/games/8ball/utils';
