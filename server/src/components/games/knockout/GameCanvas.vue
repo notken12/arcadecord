@@ -105,6 +105,8 @@ watchEffect(() => (player = playerRef.value));
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
+const restitution = 0.3;
+
 const maxLaunchPower = 40;
 let arrowTips = [];
 
@@ -472,10 +474,10 @@ onMounted(() => {
               other.velocity.x,
               other.velocity.y
             );
-            dum.velocity.x = resolve.x;
-            dum.velocity.y = resolve.y;
-            other.velocity.x = -resolve.x;
-            other.velocity.y = -resolve.y;
+            dum.velocity.x = resolve.x * restitution;
+            dum.velocity.y = resolve.y * restitution;
+            other.velocity.x = -resolve.x * restitution;
+            other.velocity.y = -resolve.y * restitution;
           }
         }
 
