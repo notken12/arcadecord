@@ -37,8 +37,11 @@ const {
 } = useFacade();
 
 // Relative coordinate system:
-// Ice width: 100
+// Ice size: 100
 // Dummy radius: 5
+
+const REL_DUM_RADIUS = 5;
+const REL_ICE_SIZE = 100;
 
 let dummyRadius,
   width,
@@ -67,6 +70,8 @@ const updateDummies = () => {
       y: ndum.y,
       faceDir: ndum.faceDir,
       velocity: ndum.velocity,
+      fallPercent: 0,
+      falling: false,
     });
   }
 };
@@ -88,7 +93,7 @@ watch(replaying, (val) => {
 const dummiesRef = computed(() => game.value.data.dummies);
 let dummies;
 watchEffect(() => {
-  dummies = dummiesRef.value;
+  dummies = cloneDeep(dummiesRef.value);
   updateDummies();
 });
 
@@ -109,15 +114,17 @@ watchEffect(() => (player = playerRef.value));
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
-const restitution = 0.6;
+const RESTITUTION = 0.6;
 
-const maxLaunchPower = 40;
+const MAX_LAUNCH_POWER = 40;
 let arrowTips = [];
 
-const simulationDelay = 1.5; // seconds
-const dirsFadeOutDuration = 0.3; // seconds
-const dirsFadeOutDelay = 1.3; // seconds
-const dummyRotateDuration = 0.5; // seconds
+const SIMULATION_DELAY = 1.5; // seconds
+const DIRS_FADE_OUT_DURATION = 0.3; // seconds
+const DIRS_FADE_OUT_DELAY = 1.3; // seconds
+const DUMMY_ROTATE_DURATION = 0.5; // seconds
+const DUMMY_FALL_DURATION = 0.4; // seconds
+const SPLASH_EFFECT_SIZE = 1;
 
 const style = {
   moveDirOpacity: 1,
@@ -130,7 +137,6 @@ const startSimulation = () => {
     .forEach((d) => {
       var mult = 0.05; // Multiplier to the speed
       d.velocity = { x: d.moveDir.x * mult, y: d.moveDir.y * mult };
-      // d.velocity = { x: d.moveDir.x, y: d.moveDir.y };
     });
   simulationRunning = true;
 };
@@ -170,22 +176,22 @@ const showMoveDirsAndStartSimulation = () => {
     let angle = Math.atan2(dum.moveDir.y, dum.moveDir.x);
     gsap.to(dum, {
       faceDir: angle,
-      duration: dummyRotateDuration,
+      duration: DUMMY_ROTATE_DURATION,
     });
   }
 
   // Start simulation
   setTimeout(() => {
     startSimulation();
-  }, simulationDelay * 1000);
+  }, SIMULATION_DELAY * 1000);
 
   // Fade out move directions
   setTimeout(() => {
     gsap.to(style, {
       moveDirOpacity: 0,
-      duration: dirsFadeOutDuration,
+      duration: DIRS_FADE_OUT_DURATION,
     });
-  }, dirsFadeOutDelay * 1000);
+  }, DIRS_FADE_OUT_DELAY * 1000);
 };
 
 const replayNextAction = () => {
@@ -280,7 +286,6 @@ onMounted(() => {
       let d = Math.sqrt(dx ** 2 + dy ** 2);
       if (d <= dummyRadius && player != ((i / 4) | 0)) {
         window.selected = i;
-        console.log('selected', i);
         return;
       }
     }
@@ -293,7 +298,6 @@ onMounted(() => {
       let d = Math.sqrt(dx ** 2 + dy ** 2);
       if (d < getHeadLen(dummyRadius) * 1.5) {
         window.selected = i;
-        console.log('selected', i);
         return;
       }
     }
@@ -319,12 +323,12 @@ onMounted(() => {
       }
 
       // Restrict to maximum
-      if (d > maxLaunchPower) {
+      if (d > MAX_LAUNCH_POWER) {
         let angle = Math.atan2(dy, dx);
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
-        dx = maxLaunchPower * cos;
-        dy = maxLaunchPower * sin;
+        dx = MAX_LAUNCH_POWER * cos;
+        dy = MAX_LAUNCH_POWER * sin;
       }
 
       dum.moveDir = { x: dx, y: dy };
@@ -384,23 +388,18 @@ onMounted(() => {
     ctx.beginPath();
 
     // Get screen orientation
-    if (mobile) {
-      // width is screen width - padding
-      // height is half of screen height
-      if (iceLoaded) {
-        ctx.drawImage(
-          ice,
-          width / 2 - height / 4 + padding,
-          height / 4 + padding,
-          height / 2 - padding * 2,
-          height / 2 - padding * 2
-        );
-      }
-    } else {
+    if (iceLoaded) {
+      // ctx.drawImage(
+      //   ice,
+      //   ((width / 2 - height / 4 + padding) * iceSize) / 100,
+      //   ((height / 4 + padding) * iceSize) / 100,
+      //   ((height / 2 - padding * 2) * iceSize) / 100,
+      //   ((height / 2 - padding * 2) * iceSize) / 100
+      // );
       ctx.drawImage(
         ice,
+        width / 2 - width / 4 + padding,
         width / 4 + padding,
-        height / 2 - width / 4 + padding,
         width / 2 - padding * 2,
         width / 2 - padding * 2
       );
@@ -410,7 +409,6 @@ onMounted(() => {
     // Draw dummies
     dummies.forEach((dum, i) => {
       if (!dum.fallen) {
-        ctx.beginPath();
         ctx.fillStyle = dum.playerIndex ? 'blue' : 'white';
 
         ctx.save();
@@ -424,32 +422,45 @@ onMounted(() => {
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
 
-        if (dum.playerIndex === 0 && blackPenguinLoaded) {
-          ctx.drawImage(
-            blackPenguin,
-            -dummyRadius,
-            -dummyRadius,
-            dummyRadius * 2,
-            dummyRadius * 2
-          );
-        } else if (dum.playerIndex === 1 && bluePenguinLoaded) {
-          ctx.drawImage(
-            bluePenguin,
-            -dummyRadius,
-            -dummyRadius,
-            dummyRadius * 2,
-            dummyRadius * 2
-          );
+        let displayRadius = dummyRadius;
+        if (dum.fallPercent !== null && dum.fallPercent !== undefined) {
+          displayRadius *= (100 - dum.fallPercent) / 100;
         }
 
-        ctx.fill();
-        ctx.closePath();
+        let x = -displayRadius;
+        let y = -displayRadius;
+        let w = displayRadius * 2;
+        let h = displayRadius * 2;
+
+        ctx.globalAlpha = 1 - dum.fallPercent / 100;
+        if (dum.playerIndex === 0 && blackPenguinLoaded) {
+          ctx.drawImage(blackPenguin, x, y, w, h);
+        } else if (dum.playerIndex === 1 && bluePenguinLoaded) {
+          ctx.drawImage(bluePenguin, x, y, w, h);
+        }
+
+        if (dum.falling) {
+          // Draw a circle to show the splash
+          let splashRadius =
+            dummyRadius * (1 + (dum.fallPercent / 100) * SPLASH_EFFECT_SIZE);
+
+          let x = -splashRadius;
+          let y = -splashRadius;
+
+          ctx.strokeStyle = '#a5eeff';
+          ctx.lineWidth = 1 * scale;
+          ctx.beginPath();
+          ctx.arc(0, 0, splashRadius, 0, 2 * Math.PI);
+          ctx.stroke();
+          ctx.closePath();
+        }
+
         ctx.restore();
 
-        // Label the penguin with its ID
-        ctx.beginPath();
-        ctx.strokeText(i, c.x, c.y);
-        ctx.closePath();
+        // // Label the penguin with its ID
+        // ctx.beginPath();
+        // ctx.strokeText(i, c.x, c.y);
+        // ctx.closePath();
 
         // Run physics
         for (let j = 0; j < dummies.length; j++) {
@@ -474,10 +485,10 @@ onMounted(() => {
               other.velocity.x,
               other.velocity.y
             );
-            dum.velocity.x = resolve.x * restitution;
-            dum.velocity.y = resolve.y * restitution;
-            other.velocity.x = -resolve.x * restitution;
-            other.velocity.y = -resolve.y * restitution;
+            dum.velocity.x = resolve.x * RESTITUTION;
+            dum.velocity.y = resolve.y * RESTITUTION;
+            other.velocity.x = -resolve.x * RESTITUTION;
+            other.velocity.y = -resolve.y * RESTITUTION;
           }
         }
 
@@ -485,15 +496,42 @@ onMounted(() => {
         dum.y += dum.velocity.y;
         dum.velocity.x *= drag;
         dum.velocity.y *= drag;
+
+        if (dum.falling) {
+          dum.velocity.x *= 0.85;
+          dum.velocity.y *= 0.85;
+        }
       }
 
       // Check if out of bounds
-      if (dum.x < 0 || dum.x > 100 || dum.y > 100 || dum.y < 0) {
-        dum.fallen = true;
-        dum.velocity = { x: 0, y: 0 };
+      if (
+        !dum.fallen &&
+        !dum.falling &&
+        (dum.x <= -REL_DUM_RADIUS ||
+          dum.x >= REL_ICE_SIZE + REL_DUM_RADIUS ||
+          dum.y >= REL_ICE_SIZE + REL_DUM_RADIUS ||
+          dum.y <= -REL_DUM_RADIUS)
+      ) {
+        dum.falling = true;
+        // dum.velocity = { x: 0, y: 0 }
+        // Animate dummy falling
+        gsap.fromTo(
+          dum,
+          {
+            fallPercent: 0,
+          },
+          {
+            fallPercent: 100,
+            duration: DUMMY_FALL_DURATION,
+            ease: 'power1.in',
+            onComplete() {
+              dum.fallen = true;
+              dum.falling = false;
+            },
+          }
+        );
       }
     });
-    //console.log(mouse)
 
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
@@ -519,8 +557,9 @@ onMounted(() => {
 
     if (
       simulationRunning &&
-      dummies.filter((i) => i.velocity.x < 0.05 && i.velocity.y < 0.05)
-        .length == 8
+      dummies.filter(
+        (i) => i.velocity.x < 0.03 && i.velocity.y < 0.03 && !i.falling
+      ).length == 8
     ) {
       endSimulation();
     }
