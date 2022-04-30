@@ -33,14 +33,15 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <img :src="url" :alt="alt" />
+  <img :src="url" :alt="alt" class="penguin" />
 </template>
 
 <style lang="scss" scoped>
 $size: 32px;
 
-img {
+.penguin {
   width: $size;
   height: $size;
+  filter: drop-shadow(2px, 2px, 2px, black);
 }
 </style>
