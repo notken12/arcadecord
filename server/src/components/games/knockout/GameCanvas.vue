@@ -24,6 +24,7 @@ import { replayAction } from '@app/js/client-framework';
 import gsap from 'gsap';
 
 import { useFacade } from 'components/base-ui/facade';
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 
 const {
   game,
@@ -46,6 +47,10 @@ const REL_ICE_SIZE = 100;
 let dummyRadius,
   width,
   height,
+  fullWidth,
+  fullHeight,
+  containerX,
+  containerY,
   ctx,
   drag = 0.97,
   mouse = { x: 0, y: 0, clicked: false },
@@ -57,8 +62,11 @@ let dummyRadius,
   replayingAction = false,
   showAllMoveDirs = false; // show move dirs before starting simulation
 
-const canvas = ref();
+const canvas = ref(null);
 const fireOrSend = ref(null);
+const canvasContainer = ref(null);
+
+useAspectRatio(1, canvasContainer);
 
 const updateDummies = () => {
   for (let i = 0; i < game.value.data.dummies.length; i++) {
@@ -281,6 +289,8 @@ onMounted(() => {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
       const rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+      rel.x += containerX * scale;
+      rel.y += containerY * scale;
       let dx = rel.x - mouse.x;
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
@@ -293,6 +303,8 @@ onMounted(() => {
       let tip = arrowTips[i];
       if (!tip) continue;
       const rel = fromRelative(tip.x, tip.y, mobile, width, height, padding);
+      rel.x += containerX * scale;
+      rel.y += containerY * scale;
       let dx = rel.x - mouse.x;
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
@@ -312,7 +324,14 @@ onMounted(() => {
       var dum = dummies[window.selected];
 
       // Get relative distances
-      var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
+      var rel = toRelative(
+        mouse.x - containerX * scale,
+        mouse.y - containerY * scale,
+        mobile,
+        width,
+        height,
+        padding
+      );
       let dx = rel.x - dum.x;
       let dy = rel.y - dum.y;
       const d = Math.sqrt(dx ** 2 + dy ** 2);
@@ -361,26 +380,39 @@ onMounted(() => {
   canvas.value.addEventListener('touchend', pointerUp);
 
   const resize = () => {
-    const container = canvas.value.parentElement;
-    const size = Math.min(container.offsetWidth, container.offsetHeight);
-    width = size * scale;
-    height = size * scale;
+    setTimeout(() => {
+      const container = canvas.value.parentElement;
+      const size = Math.min(container.offsetWidth, container.offsetHeight);
+      width = size * scale;
+      height = size * scale;
+      fullWidth = window.innerWidth * scale;
+      fullHeight = window.innerHeight * scale;
 
-    canvas.value.width = width;
-    canvas.value.height = height;
-    canvas.value.style.width = width / scale + 'px';
-    canvas.value.style.height = height / scale + 'px';
+      canvas.value.width = fullWidth;
+      canvas.value.height = fullHeight;
+      canvas.value.style.width = fullWidth / scale + 'px';
+      canvas.value.style.height = fullHeight / scale + 'px';
 
-    // Get screen orientation
-    padding = size * -0.2;
-    dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
+      // canvas.value.width = width;
+      // canvas.value.height = height;
+      // canvas.value.style.width = width / scale + 'px';
+      // canvas.value.style.height = height / scale + 'px';
+
+      // Get screen orientation
+      padding = size * -0.2;
+      dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
+
+      const cbbox = container.getBoundingClientRect();
+      containerX = cbbox.x;
+      containerY = cbbox.y;
+    }, 0);
   };
 
   function draw() {
-    // ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, fullWidth, fullHeight);
 
-    ctx.clearRect(0, 0, width, height);
-
+    ctx.translate(containerX * scale, containerY * scale);
+    // ctx.translate(containerX, containerY);
     // drawing the ice is important because the dummies' position will be relative to it
     // so we'll use the ratios of the device to know that position
     // also the ice is square 😳
@@ -569,6 +601,8 @@ onMounted(() => {
       replayNextAction();
     }
 
+    // Reset current transformation matrix to the identity matrix
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     requestAnimationFrame(draw);
   }
 
@@ -591,14 +625,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="canvas-container">
-    <canvas ref="canvas"></canvas>
+  <div class="canvas-container-wrapper">
+    <div ref="canvasContainer">
+      <canvas ref="canvas"></canvas>
+    </div>
   </div>
   <button ref="fireOrSend" @click="fireOrSendFn">send</button>
 </template>
 
 <style scoped>
-.canvas-container {
+.canvas-container-wrapper {
   width: 100%;
   height: 100%;
   display: flex;
@@ -608,5 +644,11 @@ onUnmounted(() => {
 
 button {
   margin-bottom: 32px;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
