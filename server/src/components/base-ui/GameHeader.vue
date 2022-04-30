@@ -66,5 +66,10 @@ const openSettings = () => {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  pointer-events: none;
+}
+
+.top * {
+  pointer-events: auto;
 }
 </style>

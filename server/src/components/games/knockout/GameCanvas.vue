@@ -43,6 +43,7 @@ const {
 
 const REL_DUM_RADIUS = 5;
 const REL_ICE_SIZE = 100;
+const DUM_LEDGE_TOLERANCE = 0.5; // radii
 
 let dummyRadius,
   width,
@@ -52,7 +53,7 @@ let dummyRadius,
   containerX,
   containerY,
   ctx,
-  drag = 0.97,
+  drag = 0.975,
   mouse = { x: 0, y: 0, clicked: false },
   mobile,
   selected,
@@ -65,8 +66,6 @@ let dummyRadius,
 const canvas = ref(null);
 const fireOrSend = ref(null);
 const canvasContainer = ref(null);
-
-useAspectRatio(1, canvasContainer);
 
 const updateDummies = () => {
   for (let i = 0; i < game.value.data.dummies.length; i++) {
@@ -83,6 +82,15 @@ const updateDummies = () => {
     });
   }
 };
+
+const getCanFireOrSend = () => {
+  if (replayingVal) return false;
+  if (dummies.find((d) => !d.moveDir && d.playerIndex === player && !d.fallen))
+    return false;
+  return true;
+};
+
+const canFireOrSend = ref(false);
 
 let replayingVal;
 watchEffect(() => {
@@ -171,13 +179,13 @@ const endSimulation = (replayEnding) => {
   replayingAction = false;
   style.moveDirOpacity = 1;
   showAllMoveDirs = false;
+  canFireOrSend.value = getCanFireOrSend();
 };
 
 const showMoveDirsAndStartSimulation = () => {
   // Show all move directions
   style.moveDirOpacity = 1;
   showAllMoveDirs = true;
-
   // Rotate penguins faceDirs toward their moveDirs
   for (let dum of dummies) {
     if (!dum.moveDir) continue;
@@ -246,8 +254,7 @@ const setDummiesFire = () => {
 const fireOrSendFn = () => {
   if (replayingVal) return;
   // Your own move directions must be set
-  if (dummies.find((d) => !d.moveDir && d.playerIndex === player && !d.fallen))
-    return;
+  if (!getCanFireOrSend()) return;
 
   if (firing) {
     showMoveDirsAndStartSimulation();
@@ -263,6 +270,37 @@ const screenToCanvasPos = ({ clientX, clientY }) => {
     clientY: clientY - cbbox.y,
   };
 };
+
+const resize = () => {
+  let scale = window.devicePixelRatio;
+
+  const container = canvas.value.parentElement;
+  const size = Math.min(container.offsetWidth, container.offsetHeight);
+  width = size * scale;
+  height = size * scale;
+  fullWidth = window.innerWidth * scale;
+  fullHeight = window.innerHeight * scale;
+
+  canvas.value.width = fullWidth;
+  canvas.value.height = fullHeight;
+  canvas.value.style.width = fullWidth / scale + 'px';
+  canvas.value.style.height = fullHeight / scale + 'px';
+
+  // canvas.value.width = width;
+  // canvas.value.height = height;
+  // canvas.value.style.width = width / scale + 'px';
+  // canvas.value.style.height = height / scale + 'px';
+
+  // Get screen orientation
+  padding = size * -0.2;
+  dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
+
+  const cbbox = container.getBoundingClientRect();
+  containerX = cbbox.x;
+  containerY = cbbox.y;
+};
+
+useAspectRatio(1, canvasContainer, resize);
 
 onMounted(() => {
   window.dummies = dummies;
@@ -320,7 +358,7 @@ onMounted(() => {
     let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
-    if (window.selected != undefined) {
+    if (window.selected !== undefined) {
       var dum = dummies[window.selected];
 
       // Get relative distances
@@ -338,25 +376,26 @@ onMounted(() => {
 
       if (d <= 5) {
         dum.moveDir = null;
-        return;
+      } else {
+        if (d > MAX_LAUNCH_POWER) {
+          let angle = Math.atan2(dy, dx);
+          // Restrict to maximum
+          let cos = Math.cos(angle);
+          let sin = Math.sin(angle);
+          dx = MAX_LAUNCH_POWER * cos;
+          dy = MAX_LAUNCH_POWER * sin;
+        }
+
+        dum.moveDir = { x: dx, y: dy };
       }
 
-      // Restrict to maximum
-      if (d > MAX_LAUNCH_POWER) {
-        let angle = Math.atan2(dy, dx);
-        let cos = Math.cos(angle);
-        let sin = Math.sin(angle);
-        dx = MAX_LAUNCH_POWER * cos;
-        dy = MAX_LAUNCH_POWER * sin;
-      }
-
-      dum.moveDir = { x: dx, y: dy };
+      canFireOrSend.value = getCanFireOrSend();
     }
     window.dummies = dummies;
   };
 
-  canvas.value.addEventListener('mousemove', pointerMove);
-  canvas.value.addEventListener('touchmove', pointerMove);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('touchmove', pointerMove);
 
   const pointerDown = (e) => {
     if (replayingVal) return;
@@ -379,35 +418,6 @@ onMounted(() => {
   canvas.value.addEventListener('mouseup', pointerUp);
   canvas.value.addEventListener('touchend', pointerUp);
 
-  const resize = () => {
-    setTimeout(() => {
-      const container = canvas.value.parentElement;
-      const size = Math.min(container.offsetWidth, container.offsetHeight);
-      width = size * scale;
-      height = size * scale;
-      fullWidth = window.innerWidth * scale;
-      fullHeight = window.innerHeight * scale;
-
-      canvas.value.width = fullWidth;
-      canvas.value.height = fullHeight;
-      canvas.value.style.width = fullWidth / scale + 'px';
-      canvas.value.style.height = fullHeight / scale + 'px';
-
-      // canvas.value.width = width;
-      // canvas.value.height = height;
-      // canvas.value.style.width = width / scale + 'px';
-      // canvas.value.style.height = height / scale + 'px';
-
-      // Get screen orientation
-      padding = size * -0.2;
-      dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
-
-      const cbbox = container.getBoundingClientRect();
-      containerX = cbbox.x;
-      containerY = cbbox.y;
-    }, 0);
-  };
-
   function draw() {
     ctx.clearRect(0, 0, fullWidth, fullHeight);
 
@@ -421,13 +431,6 @@ onMounted(() => {
 
     // Get screen orientation
     if (iceLoaded) {
-      // ctx.drawImage(
-      //   ice,
-      //   ((width / 2 - height / 4 + padding) * iceSize) / 100,
-      //   ((height / 4 + padding) * iceSize) / 100,
-      //   ((height / 2 - padding * 2) * iceSize) / 100,
-      //   ((height / 2 - padding * 2) * iceSize) / 100
-      // );
       ctx.drawImage(
         ice,
         width / 2 - width / 4 + padding,
@@ -465,6 +468,24 @@ onMounted(() => {
         let h = displayRadius * 2;
 
         ctx.globalAlpha = 1 - dum.fallPercent / 100;
+
+        // Show pulsing effect on your penguins that you still need to position
+        if (
+          !dum.moveDir &&
+          !dum.falling &&
+          dum.playerIndex === player &&
+          !replayingVal
+        ) {
+          let d = performance.now() % 1000;
+          if (d > 500) {
+            d = 1000 - d;
+          }
+          d /= 500;
+
+          let intensity = 0.4;
+          ctx.globalAlpha = d * intensity + 1 - intensity;
+        }
+
         if (dum.playerIndex === 0 && blackPenguinLoaded) {
           ctx.drawImage(blackPenguin, x, y, w, h);
         } else if (dum.playerIndex === 1 && bluePenguinLoaded) {
@@ -479,7 +500,7 @@ onMounted(() => {
           let x = -splashRadius;
           let y = -splashRadius;
 
-          ctx.strokeStyle = '#a5eeff';
+          ctx.strokeStyle = '#e5eeff';
           ctx.lineWidth = 1 * scale;
           ctx.beginPath();
           ctx.arc(0, 0, splashRadius, 0, 2 * Math.PI);
@@ -539,10 +560,10 @@ onMounted(() => {
       if (
         !dum.fallen &&
         !dum.falling &&
-        (dum.x <= -REL_DUM_RADIUS ||
-          dum.x >= REL_ICE_SIZE + REL_DUM_RADIUS ||
-          dum.y >= REL_ICE_SIZE + REL_DUM_RADIUS ||
-          dum.y <= -REL_DUM_RADIUS)
+        (dum.x <= -REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.x >= REL_ICE_SIZE + REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.y >= REL_ICE_SIZE + REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.y <= -REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE)
       ) {
         dum.falling = true;
         // dum.velocity = { x: 0, y: 0 }
@@ -606,8 +627,6 @@ onMounted(() => {
     requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize', resize);
-  resize();
   window.requestAnimationFrame(draw);
 
   $replayTurn(() => {
@@ -630,7 +649,13 @@ onUnmounted(() => {
       <canvas ref="canvas"></canvas>
     </div>
   </div>
-  <button ref="fireOrSend" @click="fireOrSendFn">send</button>
+  <button
+    ref="fireOrSend"
+    @click="fireOrSendFn"
+    :class="{ shown: canFireOrSend }"
+  >
+    Send
+  </button>
 </template>
 
 <style scoped>
@@ -644,11 +669,21 @@ onUnmounted(() => {
 
 button {
   margin-bottom: 32px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 canvas {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
+}
+
+.shown {
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>
