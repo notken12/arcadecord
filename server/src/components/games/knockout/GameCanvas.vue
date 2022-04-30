@@ -36,6 +36,10 @@ const {
   $endAnimation,
 } = useFacade();
 
+// Relative coordinate system:
+// Ice width: 100
+// Dummy radius: 5
+
 let dummyRadius,
   width,
   height,
@@ -105,7 +109,7 @@ watchEffect(() => (player = playerRef.value));
 const collision = (x1, y1, x2, y2) =>
   (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
-const restitution = 0.3;
+const restitution = 0.6;
 
 const maxLaunchPower = 40;
 let arrowTips = [];
@@ -113,7 +117,7 @@ let arrowTips = [];
 const simulationDelay = 1.5; // seconds
 const dirsFadeOutDuration = 0.3; // seconds
 const dirsFadeOutDelay = 1.3; // seconds
-const dummyRotateDuration = 0.3; // seconds
+const dummyRotateDuration = 0.5; // seconds
 
 const style = {
   moveDirOpacity: 1,
@@ -148,13 +152,6 @@ const endSimulation = (replayEnding) => {
       }
     }
   }
-
-  // if (!replayEnding) {
-  //   // Reset move directions of dummies
-  //   for (let dum of dummies) {
-  //     dum.moveDir = null;
-  //   }
-  // }
 
   simulationRunning = false;
   replayingAction = false;
@@ -281,7 +278,7 @@ onMounted(() => {
       let dx = rel.x - mouse.x;
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
-      if (d <= dummyRadius * 0.85 && player != ((i / 4) | 0)) {
+      if (d <= dummyRadius && player != ((i / 4) | 0)) {
         window.selected = i;
         console.log('selected', i);
         return;
@@ -309,16 +306,19 @@ onMounted(() => {
     mouse.y = clientY * scale;
     if (window.selected != undefined) {
       var dum = dummies[window.selected];
+
+      // Get relative distances
       var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
       let dx = rel.x - dum.x;
       let dy = rel.y - dum.y;
       const d = Math.sqrt(dx ** 2 + dy ** 2);
 
-      if (Math.abs(d) < dummyRadius / 10) {
+      if (d <= 5) {
         dum.moveDir = null;
         return;
       }
 
+      // Restrict to maximum
       if (d > maxLaunchPower) {
         let angle = Math.atan2(dy, dx);
         let cos = Math.cos(angle);
@@ -369,7 +369,7 @@ onMounted(() => {
 
     // Get screen orientation
     padding = size * -0.2;
-    dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 85;
+    dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
   };
 
   function draw() {
@@ -498,8 +498,8 @@ onMounted(() => {
     dummies.forEach((dum, i) => {
       if (dum.moveDir && !dum.fallen) {
         // Don't display if it isn't your penguins
-        if (!replayingVal && dum.playerIndex !== player && !showAllMoveDirs)
-          return;
+        if (dum.playerIndex !== player && !showAllMoveDirs) return;
+        if (replayingVal && !showAllMoveDirs) return;
 
         // Draw the move direction
         // and return the arrow tip location
@@ -538,9 +538,11 @@ onMounted(() => {
   window.requestAnimationFrame(draw);
 
   $replayTurn(() => {
-    for (let action of previousTurn.value.actions) {
-      actionsToReplay.push(action);
-    }
+    setTimeout(() => {
+      for (let action of previousTurn.value.actions) {
+        actionsToReplay.push(action);
+      }
+    }, 700);
   });
 });
 
