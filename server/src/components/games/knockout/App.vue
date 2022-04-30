@@ -34,11 +34,12 @@ import DummyIndicator from './DummyIndicator.vue';
 // import Common from '/gamecommons/knockout';
 
 import { useFacade } from 'components/base-ui/facade';
+import GameFlow from '@app/js/GameFlow';
 
 const { $replayTurn, $endReplay, previousTurn, game } = useFacade();
 
 const hint = computed(() => {
-  return '';
+  if (GameFlow.isItMyTurn(game.value)) return 'Position your penguins.';
 });
 </script>
 
