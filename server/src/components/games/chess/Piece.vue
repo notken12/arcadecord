@@ -157,8 +157,8 @@ export default {
         zIndexBoost: true,
       });
     }
-    
-    vm.animate(0)
+
+    vm.animate(0);
   },
 };
 </script>
