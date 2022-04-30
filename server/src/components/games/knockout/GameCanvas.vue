@@ -18,9 +18,10 @@ import {
   fromRelative,
   toRelative,
   collisionResolution,
+  collision,
 } from '@app/js/games/knockout/utils';
 import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
-import { replayAction } from '@app/js/client-framework';
+import { replayAction, utils } from '@app/js/client-framework';
 import gsap from 'gsap';
 
 import { useFacade } from 'components/base-ui/facade';
@@ -38,7 +39,7 @@ const {
 } = useFacade();
 
 // Relative coordinate system:
-// Ice size: 100
+// Ice size (width and height): 100
 // Dummy radius: 5
 
 const REL_DUM_RADIUS = 5;
@@ -102,6 +103,7 @@ watch(replaying, (val) => {
   if (!val) {
     actionsToReplay = [];
     endSimulation(true);
+    iceSize.value = iceSizeRef.value;
     return;
   }
 });
@@ -114,8 +116,21 @@ watchEffect(() => {
 });
 
 const iceSizeRef = computed(() => game.value.data.ice.size);
-let iceSize;
-watchEffect(() => (iceSize = iceSizeRef.value));
+const iceSize = {
+  value: 100,
+};
+let iceSizeSet = false;
+watchEffect(() => {
+  if (iceSizeSet) {
+    gsap.to(iceSize, {
+      value: iceSizeRef.value,
+      duration: ICE_SHRINK_DURATION,
+    });
+  } else {
+    iceSize.value = iceSizeRef.value;
+  }
+  iceSizeSet = true;
+});
 
 const firingRef = computed(() => game.value.data.firing);
 let firing;
@@ -126,9 +141,6 @@ const playerRef = computed(() =>
 );
 let player;
 watchEffect(() => (player = playerRef.value));
-
-const collision = (x1, y1, x2, y2) =>
-  (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
 const RESTITUTION = 0.6;
 
@@ -141,6 +153,7 @@ const DIRS_FADE_OUT_DELAY = 1.3; // seconds
 const DUMMY_ROTATE_DURATION = 0.5; // seconds
 const DUMMY_FALL_DURATION = 0.4; // seconds
 const SPLASH_EFFECT_SIZE = 1;
+const ICE_SHRINK_DURATION = 1; // seconds
 
 const style = {
   moveDirOpacity: 1,
@@ -158,7 +171,8 @@ const startSimulation = () => {
 };
 
 /** Cleanup after simulation, run the action */
-const endSimulation = (replayEnding) => {
+const endSimulation = async (replayEnding) => {
+  simulationRunning = false;
   if (!replayEnding) {
     if (!replayingVal) {
       setDummiesFire();
@@ -167,15 +181,15 @@ const endSimulation = (replayEnding) => {
       let a = actionsToReplay.shift();
       replayAction(game.value, a);
 
-      replayingAction = false;
-
       if (actionsToReplay.length === 0) {
+        replayingAction = false;
         $endReplay(0);
+      } else {
+        await utils.wait(ICE_SHRINK_DURATION * 1000);
       }
     }
   }
 
-  simulationRunning = false;
   replayingAction = false;
   style.moveDirOpacity = 1;
   showAllMoveDirs = false;
@@ -292,8 +306,8 @@ const resize = () => {
   // canvas.value.style.height = height / scale + 'px';
 
   // Get screen orientation
-  padding = size * -0.2;
-  dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
+  padding = size * 0.1;
+  dummyRadius = ((size - padding * 2) * REL_DUM_RADIUS) / 75;
 
   const cbbox = container.getBoundingClientRect();
   containerX = cbbox.x;
@@ -326,7 +340,15 @@ onMounted(() => {
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
-      const rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+      const rel = fromRelative(
+        dum.x,
+        dum.y,
+        mobile,
+        width,
+        height,
+        padding,
+        iceSize.value
+      );
       rel.x += containerX * scale;
       rel.y += containerY * scale;
       let dx = rel.x - mouse.x;
@@ -340,7 +362,15 @@ onMounted(() => {
     for (let i = 0; i < arrowTips.length; i++) {
       let tip = arrowTips[i];
       if (!tip) continue;
-      const rel = fromRelative(tip.x, tip.y, mobile, width, height, padding);
+      const rel = fromRelative(
+        tip.x,
+        tip.y,
+        mobile,
+        width,
+        height,
+        padding,
+        iceSize.value
+      );
       rel.x += containerX * scale;
       rel.y += containerY * scale;
       let dx = rel.x - mouse.x;
@@ -368,7 +398,8 @@ onMounted(() => {
         mobile,
         width,
         height,
-        padding
+        padding,
+        iceSize.value
       );
       let dx = rel.x - dum.x;
       let dy = rel.y - dum.y;
@@ -422,7 +453,6 @@ onMounted(() => {
     ctx.clearRect(0, 0, fullWidth, fullHeight);
 
     ctx.translate(containerX * scale, containerY * scale);
-    // ctx.translate(containerX, containerY);
     // drawing the ice is important because the dummies' position will be relative to it
     // so we'll use the ratios of the device to know that position
     // also the ice is square 😳
@@ -431,12 +461,13 @@ onMounted(() => {
 
     // Get screen orientation
     if (iceLoaded) {
+      let size = ((width - padding * 2) * iceSize.value) / 100;
       ctx.drawImage(
         ice,
-        width / 2 - width / 4 + padding,
-        width / 4 + padding,
-        width / 2 - padding * 2,
-        width / 2 - padding * 2
+        width / 2 - size / 2,
+        width / 2 - size / 2,
+        size,
+        size
       );
     }
     ctx.closePath();
@@ -448,7 +479,15 @@ onMounted(() => {
 
         ctx.save();
         // Draw penguin body
-        var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+        var c = fromRelative(
+          dum.x,
+          dum.y,
+          mobile,
+          width,
+          height,
+          padding,
+          iceSize.value
+        );
         ctx.translate(c.x, c.y);
         ctx.rotate(dum.faceDir - Math.PI / 2);
         // ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
@@ -471,6 +510,7 @@ onMounted(() => {
 
         // Show pulsing effect on your penguins that you still need to position
         if (
+          !simulationRunning &&
           !dum.moveDir &&
           !dum.falling &&
           dum.playerIndex === player &&
@@ -525,7 +565,9 @@ onMounted(() => {
               other.x,
               other.y,
               dum.x + dum.velocity.x,
-              dum.y + dum.velocity.y
+              dum.y + dum.velocity.y,
+              REL_DUM_RADIUS,
+              iceSize.value
             )
           ) {
             var resolve = collisionResolution(
@@ -602,7 +644,8 @@ onMounted(() => {
           height,
           padding,
           dummyRadius,
-          style.moveDirOpacity
+          style.moveDirOpacity,
+          iceSize.value
         );
         arrowTips[i] = tip;
       }

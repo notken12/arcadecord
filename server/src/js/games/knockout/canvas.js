@@ -25,7 +25,8 @@ export function drawMoveDirection(
   height,
   padding,
   dummyRadius,
-  opacity
+  opacity,
+  iceSize
 ) {
   let scale = window.devicePixelRatio;
   const arrowColor = dum.playerIndex === 0 ? '#222222' : '#3c5a80';
@@ -33,7 +34,7 @@ export function drawMoveDirection(
   const headlen = getHeadLen(dummyRadius);
   // const arrowWidth = 10;
   // Dummy location on canvas
-  var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+  var c = fromRelative(dum.x, dum.y, mobile, width, height, padding, iceSize);
   ctx.moveTo(c.x, c.y);
 
   // Arrow head location on canvas
@@ -43,7 +44,8 @@ export function drawMoveDirection(
     mobile,
     width,
     height,
-    padding
+    padding,
+    iceSize
   );
 
   var dx = dum.x - dum.moveDir.x;
@@ -107,7 +109,15 @@ export function drawMoveDirection(
 
   ctx.restore();
 
-  let relativeTip = toRelative(tipx, tipy, mobile, width, height, padding);
+  let relativeTip = toRelative(
+    tipx,
+    tipy,
+    mobile,
+    width,
+    height,
+    padding,
+    iceSize
+  );
 
   return { x: relativeTip.x, y: relativeTip.y };
 }
