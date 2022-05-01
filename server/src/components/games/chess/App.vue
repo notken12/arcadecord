@@ -25,6 +25,7 @@
     </div>
   </game-view>
 </template>
+
 <script>
 import Board from './Board.vue';
 import bus from '@app/js/vue-event-bus';

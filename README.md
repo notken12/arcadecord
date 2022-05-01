@@ -27,19 +27,15 @@ https://github.com/notken12/arcadecord/issues
 7. The server notifies the website when other players finish their turns and gives an updated state of the game.
 8. The Discord bot will send messages about events such as players finishing turns and when the game is over.
 
-## Example game
-
-See the example game in the `/server/games/types/example` folder. This is the easiest way to get started with making an Arcadecord game.
-
 ## Discord bot
 
-For the bot we are using Discord.js. The Discord application credentials (bot token, client secret, client id) are stored in `.env` files. The files are private and will need to be shared with you before you can run the program.
+For the bot we are using Discord.js. The Discord application credentials (bot token, client secret, client id) are stored in the `/.env` file. The files are private and will need to be shared with you before you can run the program.
 
 The main script for the bot is `/bot/bot.js`. Each interaction (commands, buttons, select menus) has its own script within the `/bot` folder.
 
 ## Game server
 
-The games running in the server are managed from `/games/gamesManager.js`.
+Games are stored in a MongoDB database in the cloud. The game state is represented using JSON and any time the game is interacted with, the server gets the game from the database, performs the actions, and saves the updated state.
 
 ### `Game.js`
 
@@ -88,7 +84,7 @@ Games automatically start when the first action is taken. Actions can only be ta
 - `async canUserSocketConnect(id)`: can the user's socket.io socket connect?
 - `getDataForClient(String userId)`: gets the data to be sent to the client via socket. Hides user ids which can be used to join as the player. Later user ids will be made available after we switch to using private keys
 
-Some of the functions intended for internal use aren't listed here. See `/games/Game.js`.
+Some of the functions intended for internal use aren't listed here. See `/server/src/games/Game.js`.
 
 ### `GameFlow.js`
 
@@ -100,11 +96,15 @@ Methods to control game flow.
 
 ### Game types
 
-Each different game has a folder in `/games/types`. The folder name is the game type's ID. The folder contains 3 files:
+Each different game has a folder in `/server/src/games/types`. The folder name is the game type's ID. The folder contains 3 files:
 
-- main.js
-- common.js
-- index.html
+- `common.spec.js`
+- `main.js`
+- `common.js`
+
+#### `common.spec.js`
+
+The test file for the game. Tests are crucial for ensuring that game logic is implemented correctly. The recommended development workflow is to write the game behavior in English, and then to write the tests for those behaviors, and then finally write the code in `main.js` and `common.js` to make those tests pass.
 
 #### `main.js`
 
@@ -128,11 +128,11 @@ Object that contains info about the game.
 - `emoji`: String, emoji used to represent the game. Can be normal emoji or custom discord emojis. Discord bots can use custom Discord emojis as if they were Nitro users.
 - `data`: Object, default data of the game. Game data is all the data about the game state. Ex: chess board state.
 
-This object is important because it is read to display the game in the Discord commands and make it available without the need to hard-code it in. See `/games/game-types.js`.
+This object is important because it is read to display the game in the Discord commands and make it available without the need to hard-code it in. See `/server/src/games/game-types.js`.
 
 ##### Game
 
-A class that extends the class `Game` from `/games/Game.js`. Will be called to create a new game. In the constructor, a new `Game` will be created with `super(options);` and then action models and event handlers are assigned.
+A class that extends the class `Game` from `/server/src/games/Game.js`. Will be called to create a new game. In the constructor, a new `Game` will be created with `super(options);` and then action models and event handlers are assigned.
 
 Optionally, a `getThumbnail` function can be defined which is used to generate a thumbnail for the Discord messages.
 
@@ -145,29 +145,128 @@ A file that contains data and functions that are used in both the website client
 - Action models - mandatory. These will be explained later.
 - **Any variables that needs to be consistent between the client and the server.**
 
-#### `index.html`
-
-The html file for playing the game. We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
-
-Import `/dist/js/client-framework.js` in the game's script. It contains all the utilities you need to implement interactivity with the server. It will be explained later.
-
 ## Website
 
-The website is served from an express server in `server.js`. All files from the `/server/public` folder are served at `/dist`. Files from `/server/src` are compiled and served at `/dist`.
+The website is served from an express server in `server.js`. All files from the `/server/src/public` folder are served at `/`. Files from `/server/src` are compiled and served at `/`.
 
-When accessing a game, the website will check if the user has permission to join the game. If so, it will serve the game type's `index.html` file.
+When accessing a game, the website will check if the user has permission to join the game. If so, it will render the Vue component `/server/src/components/games/{GAME_ID}/App.vue`.
 
-We will be using [vue.js](https://v3.vuejs.org/) to create a template of the basic UI (settings button, game manual). It's highly recommended to also use it for the game UI. Check out vue's Getting Started guide.
+We will be using [vue.js](https://v3.vuejs.org/) to create the UI (settings button, game manual). A template of the basic UI and useful logic has been built to make writing games easier.
 
 Gameplay pattern:
 
 - Show replay of last player's turn
-- Player takes their turn
+- Player takes actions and finishes their turn
 - Waiting for opponent
 
-### `/src/js/client-framework.js`
+## Building the game UI
 
-This contains everything you need to interact with the server.
+Vue is used for UI. Learn Vue first if you haven't at https://vuejs.org. Get started by creating at `/server/src/components/games/{GAME_ID}/App.vue`. That will be the main Vue component for the game.
+
+### UI template
+
+Use the `<game-view>` component to add the basic UI in and write your game UI inside of it.
+You can optionally use the `<score-view>` component to build score displays for players in the game. Use a template inside of it with `v-slot="scoreView"` and you'll be able to define a score display and get the player index with `scoreView.playerindex`.
+
+```vue
+<template>
+  <game-view>
+    <scores-view>
+      <template v-slot="scoreView">
+        <div>Score: {{ game.data.scores[scoreView.playerindex] }}</div>
+      </template>
+    </scores-view>
+
+    <div class="middle">
+      <!-- Put your main game UI here! -->
+    </div>
+  </game-view>
+</template>
+```
+
+### Framework for game logic/data
+
+Access to and control of the game is provided by `useFacade()`. Import and use it like this:
+
+```vue
+<script setup>
+import { useFacade } from '@app/components/base-ui/facade';
+
+const {
+  game,
+  $runAction,
+  $endAnimation,
+  $replayTurn,
+  $endReplay,
+  previousTurn,
+} = useFacade();
+
+// Make function to say hi to the game
+const sayHi = () => {
+  alert(`Hi ${game.value.name}!`);
+  // Notice how you have to use game.value
+  // This is because the data is made reactive by using
+  // Vue refs. See https://vuejs.org/guide/essentials/reactivity-fundamentals.html#reactive-variables-with-ref
+};
+</script>
+
+<template>
+  <game-view>
+    <div class="middle">
+      <!-- Put your main game UI here! -->
+      <button @click="sayHi">Say hi to {{ game.name }}</button>
+      <!-- In the template, you use game instead of game.value -->
+    </div>
+  </game-view>
+</template>
+```
+
+### Replay system
+
+The recommended design philosophy is to directly represent game data in the template as much as possible, and when it isn't (i.e. when using canvas) use Vue watchers to watch the game state and call the functions to update the UI. Because the data is driving the view and not the other way around, it's easy to implement a replay system as the template and watchers will be able to handle the changing game state no matter if it's live or replayed.
+
+Facade will take care of managing game state and showing replays when needed, and you tell it how replays will be run and, optionally define special UI behavior when replaying like preventing the user from interacting with the game.
+
+```vue
+<script setup>
+import { replayAction, utils } from '@app/js/client-framework';
+import { onMounted } from 'vue';
+import { useFacade } from '@app/components/base-ui/facade';
+
+const {
+  game,
+  $runAction,
+  $endAnimation,
+  $replayTurn,
+  $endReplay,
+  previousTurn,
+} = useFacade();
+
+const ANIMATION_DURATION = 1000; // ms
+
+// Start the replay once the component is displayed
+
+onMounted(() => {
+  $replayTurn(async () => {
+    for (let action of previousTurn.value.actions) {
+      // Replay the action
+      replayAction(game.value, action);
+      // Wait for the animations to finish up before doing the next action
+      await utils.wait(ANIMATION_DURATION);
+    }
+    // All done
+    // You can delay ending the replay too
+    $endReplay(300); // ms
+  });
+});
+</script>
+```
+
+## Low level library
+
+### `/server/src/js/client-framework.js`
+
+This contains the low level functions needed to interact with the server.
 
 #### Exports
 
@@ -183,3 +282,4 @@ This contains everything you need to interact with the server.
   - `callback`: Function, callback function to be called when the action acknowledgement is received from the server.
   - `clone`: Boolean, whether to clone the game before running the action. Used when you want to see what would happen if the action was run, for example when you want to run animations and don't want the UI to be affected.
 - `connect(gameId, callback)`: Function, connects to the server. Call this when the page loads and set up the game UI in the callback.
+- `replayAction(game, action)`: Function, replays an action. This is the same as runAction but it doesn't emit it to the server and it doesn't need to be your turn.
