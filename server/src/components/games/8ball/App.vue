@@ -812,6 +812,7 @@ const initThree = async () => {
             );
 
             ctx.stroke();
+            ctx.closePath();
 
             let cueBounceAngle =
               collision.cueBounceAngle +
@@ -837,7 +838,8 @@ const initThree = async () => {
                   (1 + directionLineLength * (1 - collision.hitPower))
             );
 
-            ctx.stroke();
+            // ctx.stroke();
+            ctx.closePath();
           }
         }
       }
