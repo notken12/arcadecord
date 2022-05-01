@@ -50,5 +50,6 @@ export default {
   gap: 8px;
   flex-wrap: nowrap;
   z-index: 99;
+  pointer-events: none;
 }
 </style>

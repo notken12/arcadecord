@@ -53,15 +53,10 @@ class KnockoutGame extends Game {
                 },
                 required: ['x', 'y'],
               },
-              playerIndex: {
-                type: 'number',
-                maximum: 1,
-                minimum: 0,
-              },
               x: { type: 'number' },
               y: { type: 'number' },
             },
-            required: ['faceDir', 'fallen', 'moveDir', 'playerIndex', 'x', 'y'],
+            required: ['faceDir', 'fallen', 'moveDir', 'x', 'y'],
           },
         },
         firing: {

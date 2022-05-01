@@ -18,12 +18,14 @@ import {
   fromRelative,
   toRelative,
   collisionResolution,
+  collision,
 } from '@app/js/games/knockout/utils';
 import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
-import { replayAction } from '@app/js/client-framework';
+import { replayAction, utils } from '@app/js/client-framework';
 import gsap from 'gsap';
 
 import { useFacade } from 'components/base-ui/facade';
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 
 const {
   game,
@@ -37,17 +39,22 @@ const {
 } = useFacade();
 
 // Relative coordinate system:
-// Ice size: 100
+// Ice size (width and height): 100
 // Dummy radius: 5
 
 const REL_DUM_RADIUS = 5;
 const REL_ICE_SIZE = 100;
+const DUM_LEDGE_TOLERANCE = 0.5; // radii
 
 let dummyRadius,
   width,
   height,
+  fullWidth,
+  fullHeight,
+  containerX,
+  containerY,
   ctx,
-  drag = 0.97,
+  drag = 0.975,
   mouse = { x: 0, y: 0, clicked: false },
   mobile,
   selected,
@@ -55,10 +62,12 @@ let dummyRadius,
   padding,
   actionsToReplay = [],
   replayingAction = false,
-  showAllMoveDirs = false; // show move dirs before starting simulation
+  showAllMoveDirs = false, // show move dirs before starting simulation
+  selectedDum;
 
-const canvas = ref();
+const canvas = ref(null);
 const fireOrSend = ref(null);
+const canvasContainer = ref(null);
 
 const updateDummies = () => {
   for (let i = 0; i < game.value.data.dummies.length; i++) {
@@ -76,6 +85,15 @@ const updateDummies = () => {
   }
 };
 
+const getCanFireOrSend = () => {
+  if (replayingVal) return false;
+  if (dummies.find((d) => !d.moveDir && d.playerIndex === player && !d.fallen))
+    return false;
+  return true;
+};
+
+const canFireOrSend = ref(false);
+
 let replayingVal;
 watchEffect(() => {
   replayingVal = replaying.value;
@@ -86,6 +104,7 @@ watch(replaying, (val) => {
   if (!val) {
     actionsToReplay = [];
     endSimulation(true);
+    iceSize.value = iceSizeRef.value;
     return;
   }
 });
@@ -98,8 +117,21 @@ watchEffect(() => {
 });
 
 const iceSizeRef = computed(() => game.value.data.ice.size);
-let iceSize;
-watchEffect(() => (iceSize = iceSizeRef.value));
+const iceSize = {
+  value: 100,
+};
+let iceSizeSet = false;
+watchEffect(() => {
+  if (iceSizeSet) {
+    gsap.to(iceSize, {
+      value: iceSizeRef.value,
+      duration: ICE_SHRINK_DURATION,
+    });
+  } else {
+    iceSize.value = iceSizeRef.value;
+  }
+  iceSizeSet = true;
+});
 
 const firingRef = computed(() => game.value.data.firing);
 let firing;
@@ -110,9 +142,6 @@ const playerRef = computed(() =>
 );
 let player;
 watchEffect(() => (player = playerRef.value));
-
-const collision = (x1, y1, x2, y2) =>
-  (x2 - x1) ** 2 + (y2 - y1) ** 2 <= 10 ** 2;
 
 const RESTITUTION = 0.6;
 
@@ -125,10 +154,13 @@ const DIRS_FADE_OUT_DELAY = 1.3; // seconds
 const DUMMY_ROTATE_DURATION = 0.5; // seconds
 const DUMMY_FALL_DURATION = 0.4; // seconds
 const SPLASH_EFFECT_SIZE = 1;
+const ICE_SHRINK_DURATION = 1; // seconds
 
 const style = {
   moveDirOpacity: 1,
 };
+
+const cursor = ref('auto');
 
 /** Send the penguins flying */
 const startSimulation = () => {
@@ -142,7 +174,8 @@ const startSimulation = () => {
 };
 
 /** Cleanup after simulation, run the action */
-const endSimulation = (replayEnding) => {
+const endSimulation = async (replayEnding) => {
+  simulationRunning = false;
   if (!replayEnding) {
     if (!replayingVal) {
       setDummiesFire();
@@ -151,25 +184,26 @@ const endSimulation = (replayEnding) => {
       let a = actionsToReplay.shift();
       replayAction(game.value, a);
 
-      replayingAction = false;
-
       if (actionsToReplay.length === 0) {
-        $endReplay(0);
+        replayingAction = false;
+        if (!a.data.firing) $endReplay(0);
+        else $endReplay(ICE_SHRINK_DURATION * 1000);
+      } else {
+        await utils.wait(ICE_SHRINK_DURATION * 1000);
       }
     }
   }
 
-  simulationRunning = false;
   replayingAction = false;
   style.moveDirOpacity = 1;
   showAllMoveDirs = false;
+  canFireOrSend.value = getCanFireOrSend();
 };
 
 const showMoveDirsAndStartSimulation = () => {
   // Show all move directions
   style.moveDirOpacity = 1;
   showAllMoveDirs = true;
-
   // Rotate penguins faceDirs toward their moveDirs
   for (let dum of dummies) {
     if (!dum.moveDir) continue;
@@ -210,11 +244,15 @@ const replayNextAction = () => {
   } else {
     // Else let the updateDummies do its thing
     let a = actionsToReplay.shift();
+    // if (a.data.firing) {
+    //   $endAnimation(ICE_SHRINK_DURATION * 1000);
+    // }
     replayAction(game.value, a);
 
     replayingAction = false;
     if (actionsToReplay.length === 0) {
-      $endReplay(0);
+      if (!a.data.firing) $endReplay(0);
+      else $endReplay(ICE_SHRINK_DURATION * 1000);
     }
   }
 };
@@ -226,11 +264,14 @@ const setDummiesFire = () => {
     states[i] = {
       faceDir: dummy.faceDir,
       fallen: dummy.fallen,
-      moveDir: dummy.moveDir,
+      moveDir: dummy.moveDir ?? null,
       playerIndex: dummy.playerIndex,
       x: dummy.x,
       y: dummy.y,
     };
+  }
+  if (firing) {
+    $endAnimation(ICE_SHRINK_DURATION * 1000);
   }
   $runAction('setDummies', { dummies: states, firing });
 };
@@ -238,8 +279,7 @@ const setDummiesFire = () => {
 const fireOrSendFn = () => {
   if (replayingVal) return;
   // Your own move directions must be set
-  if (dummies.find((d) => !d.moveDir && d.playerIndex === player && !d.fallen))
-    return;
+  if (!getCanFireOrSend()) return;
 
   if (firing) {
     showMoveDirsAndStartSimulation();
@@ -255,6 +295,34 @@ const screenToCanvasPos = ({ clientX, clientY }) => {
     clientY: clientY - cbbox.y,
   };
 };
+
+const resize = () => {
+  let scale = window.devicePixelRatio;
+
+  const container = canvas.value.parentElement;
+  const size = Math.min(container.offsetWidth, container.offsetHeight);
+  width = size * scale;
+  height = size * scale;
+  fullWidth = window.innerWidth * scale;
+  fullHeight = window.innerHeight * scale;
+
+  canvas.value.width = fullWidth;
+  canvas.value.height = fullHeight;
+  canvas.value.style.width = fullWidth / scale + 'px';
+  canvas.value.style.height = fullHeight / scale + 'px';
+
+  // Get screen orientation
+  padding = width * 0.1;
+  dummyRadius = ((width - padding * 2) * REL_DUM_RADIUS) / REL_ICE_SIZE;
+
+  const cbbox = container.getBoundingClientRect();
+  containerX = cbbox.x;
+  containerY = cbbox.y;
+
+  console.log('resize');
+};
+
+useAspectRatio(1, canvasContainer, resize);
 
 onMounted(() => {
   window.dummies = dummies;
@@ -280,67 +348,123 @@ onMounted(() => {
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
-      const rel = fromRelative(dum.x, dum.y, mobile, width, height, padding);
-      let dx = rel.x - mouse.x;
-      let dy = rel.y - mouse.y;
-      let d = Math.sqrt(dx ** 2 + dy ** 2);
-      if (d <= dummyRadius && player != ((i / 4) | 0)) {
-        window.selected = i;
+
+      const { d } = distanceToMouse(dum);
+
+      if (d <= REL_DUM_RADIUS && player != ((i / 4) | 0)) {
+        selectedDum = i;
         return;
       }
     }
     for (let i = 0; i < arrowTips.length; i++) {
       let tip = arrowTips[i];
       if (!tip) continue;
-      const rel = fromRelative(tip.x, tip.y, mobile, width, height, padding);
+      const rel = fromRelative(
+        tip.x,
+        tip.y,
+        mobile,
+        width,
+        height,
+        padding,
+        iceSize.value
+      );
+      rel.x += containerX * scale;
+      rel.y += containerY * scale;
       let dx = rel.x - mouse.x;
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
       if (d < getHeadLen(dummyRadius) * 1.5) {
-        window.selected = i;
+        selectedDum = i;
         return;
       }
     }
   }
 
+  const distanceToMouse = (dum) => {
+    // Get relative distances
+    var rel = toRelative(
+      mouse.x - containerX * scale,
+      mouse.y - containerY * scale,
+      mobile,
+      width,
+      height,
+      padding,
+      iceSize.value
+    );
+    let dx = rel.x - dum.x;
+    let dy = rel.y - dum.y;
+    const d = Math.sqrt(dx ** 2 + dy ** 2);
+    return { d, dx, dy };
+  };
+
   const pointerMove = (e) => {
-    if (replayingVal) return;
+    if (replayingVal || simulationRunning || showAllMoveDirs) return;
     let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
-    if (window.selected != undefined) {
-      var dum = dummies[window.selected];
+    if (selectedDum !== undefined) {
+      var dum = dummies[selectedDum];
+      let { d, dx, dy } = distanceToMouse(dum);
 
-      // Get relative distances
-      var rel = toRelative(mouse.x, mouse.y, mobile, width, height, padding);
-      let dx = rel.x - dum.x;
-      let dy = rel.y - dum.y;
-      const d = Math.sqrt(dx ** 2 + dy ** 2);
-
-      if (d <= 5) {
+      if (d <= REL_DUM_RADIUS) {
         dum.moveDir = null;
+      } else {
+        if (d > MAX_LAUNCH_POWER) {
+          let angle = Math.atan2(dy, dx);
+          // Restrict to maximum
+          let cos = Math.cos(angle);
+          let sin = Math.sin(angle);
+          dx = MAX_LAUNCH_POWER * cos;
+          dy = MAX_LAUNCH_POWER * sin;
+        }
+
+        dum.moveDir = { x: dx, y: dy };
+        cursor.value = 'grabbing';
+      }
+
+      canFireOrSend.value = getCanFireOrSend();
+    } else {
+      // Set the cursor to pointer if the user is hovering over a penguin they can move
+      for (let dum of dummies) {
+        if (dum.playerIndex !== player) continue;
+        const { d } = distanceToMouse(dum);
+        if (d <= REL_DUM_RADIUS) {
+          cursor.value = 'grab';
+          return;
+        }
+      }
+    }
+    for (let i = 0; i < arrowTips.length; i++) {
+      let tip = arrowTips[i];
+      if (!tip) continue;
+      const rel = fromRelative(
+        tip.x,
+        tip.y,
+        mobile,
+        width,
+        height,
+        padding,
+        iceSize.value
+      );
+      rel.x += containerX * scale;
+      rel.y += containerY * scale;
+      let dx = rel.x - mouse.x;
+      let dy = rel.y - mouse.y;
+      let d = Math.sqrt(dx ** 2 + dy ** 2);
+      if (d < getHeadLen(dummyRadius) * 1.5) {
+        cursor.value = 'grab';
         return;
       }
-
-      // Restrict to maximum
-      if (d > MAX_LAUNCH_POWER) {
-        let angle = Math.atan2(dy, dx);
-        let cos = Math.cos(angle);
-        let sin = Math.sin(angle);
-        dx = MAX_LAUNCH_POWER * cos;
-        dy = MAX_LAUNCH_POWER * sin;
-      }
-
-      dum.moveDir = { x: dx, y: dy };
     }
     window.dummies = dummies;
+    cursor.value = 'auto';
   };
 
-  canvas.value.addEventListener('mousemove', pointerMove);
-  canvas.value.addEventListener('touchmove', pointerMove);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('touchmove', pointerMove);
 
   const pointerDown = (e) => {
-    if (replayingVal) return;
+    if (replayingVal || simulationRunning || showAllMoveDirs) return;
     let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
@@ -354,33 +478,16 @@ onMounted(() => {
   const pointerUp = (_e) => {
     if (replayingVal) return;
     mouse.clicked = false;
-    window.selected = undefined;
+    selectedDum = undefined;
   };
 
   canvas.value.addEventListener('mouseup', pointerUp);
   canvas.value.addEventListener('touchend', pointerUp);
 
-  const resize = () => {
-    const container = canvas.value.parentElement;
-    const size = Math.min(container.offsetWidth, container.offsetHeight);
-    width = size * scale;
-    height = size * scale;
-
-    canvas.value.width = width;
-    canvas.value.height = height;
-    canvas.value.style.width = width / scale + 'px';
-    canvas.value.style.height = height / scale + 'px';
-
-    // Get screen orientation
-    padding = size * -0.2;
-    dummyRadius = (((size / 2 - padding * 2) / 20) * 100) / 75;
-  };
-
   function draw() {
-    // ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, fullWidth, fullHeight);
 
-    ctx.clearRect(0, 0, width, height);
-
+    ctx.translate(containerX * scale, containerY * scale);
     // drawing the ice is important because the dummies' position will be relative to it
     // so we'll use the ratios of the device to know that position
     // also the ice is square 😳
@@ -389,19 +496,13 @@ onMounted(() => {
 
     // Get screen orientation
     if (iceLoaded) {
-      // ctx.drawImage(
-      //   ice,
-      //   ((width / 2 - height / 4 + padding) * iceSize) / 100,
-      //   ((height / 4 + padding) * iceSize) / 100,
-      //   ((height / 2 - padding * 2) * iceSize) / 100,
-      //   ((height / 2 - padding * 2) * iceSize) / 100
-      // );
+      let size = ((width - padding * 2) * iceSize.value) / 100;
       ctx.drawImage(
         ice,
-        width / 2 - width / 4 + padding,
-        width / 4 + padding,
-        width / 2 - padding * 2,
-        width / 2 - padding * 2
+        width / 2 - size / 2,
+        width / 2 - size / 2,
+        size,
+        size
       );
     }
     ctx.closePath();
@@ -413,7 +514,15 @@ onMounted(() => {
 
         ctx.save();
         // Draw penguin body
-        var c = fromRelative(dum.x, dum.y, mobile, width, height, padding);
+        var c = fromRelative(
+          dum.x,
+          dum.y,
+          mobile,
+          width,
+          height,
+          padding,
+          iceSize.value
+        );
         ctx.translate(c.x, c.y);
         ctx.rotate(dum.faceDir - Math.PI / 2);
         // ctx.arc(c.x, c.y, dummyRadius, 0, 2 * Math.PI);
@@ -433,6 +542,25 @@ onMounted(() => {
         let h = displayRadius * 2;
 
         ctx.globalAlpha = 1 - dum.fallPercent / 100;
+
+        // Show pulsing effect on your penguins that you still need to position
+        if (
+          !simulationRunning &&
+          !dum.moveDir &&
+          !dum.falling &&
+          dum.playerIndex === player &&
+          !replayingVal
+        ) {
+          let d = performance.now() % 1000;
+          if (d > 500) {
+            d = 1000 - d;
+          }
+          d /= 500;
+
+          let intensity = 0.4;
+          ctx.globalAlpha = d * intensity + 1 - intensity;
+        }
+
         if (dum.playerIndex === 0 && blackPenguinLoaded) {
           ctx.drawImage(blackPenguin, x, y, w, h);
         } else if (dum.playerIndex === 1 && bluePenguinLoaded) {
@@ -447,7 +575,7 @@ onMounted(() => {
           let x = -splashRadius;
           let y = -splashRadius;
 
-          ctx.strokeStyle = '#a5eeff';
+          ctx.strokeStyle = '#e5eeff';
           ctx.lineWidth = 1 * scale;
           ctx.beginPath();
           ctx.arc(0, 0, splashRadius, 0, 2 * Math.PI);
@@ -462,33 +590,37 @@ onMounted(() => {
         // ctx.strokeText(i, c.x, c.y);
         // ctx.closePath();
 
-        // Run physics
-        for (let j = 0; j < dummies.length; j++) {
-          let other = dummies[j];
-          if (i === j) continue;
-          if (other.fallen) continue;
-          if (
-            collision(
-              other.x,
-              other.y,
-              dum.x + dum.velocity.x,
-              dum.y + dum.velocity.y
-            )
-          ) {
-            var resolve = collisionResolution(
-              dum.x,
-              dum.y,
-              dum.velocity.x,
-              dum.velocity.y,
-              other.x,
-              other.y,
-              other.velocity.x,
-              other.velocity.y
-            );
-            dum.velocity.x = resolve.x * RESTITUTION;
-            dum.velocity.y = resolve.y * RESTITUTION;
-            other.velocity.x = -resolve.x * RESTITUTION;
-            other.velocity.y = -resolve.y * RESTITUTION;
+        if (simulationRunning) {
+          // Run physics
+          for (let j = 0; j < dummies.length; j++) {
+            let other = dummies[j];
+            if (i === j) continue;
+            if (other.fallen) continue;
+            if (
+              collision(
+                other.x,
+                other.y,
+                dum.x + dum.velocity.x,
+                dum.y + dum.velocity.y,
+                REL_DUM_RADIUS,
+                iceSize.value
+              )
+            ) {
+              var resolve = collisionResolution(
+                dum.x,
+                dum.y,
+                dum.velocity.x,
+                dum.velocity.y,
+                other.x,
+                other.y,
+                other.velocity.x,
+                other.velocity.y
+              );
+              dum.velocity.x = resolve.x * RESTITUTION;
+              dum.velocity.y = resolve.y * RESTITUTION;
+              other.velocity.x = -resolve.x * RESTITUTION;
+              other.velocity.y = -resolve.y * RESTITUTION;
+            }
           }
         }
 
@@ -507,10 +639,10 @@ onMounted(() => {
       if (
         !dum.fallen &&
         !dum.falling &&
-        (dum.x <= -REL_DUM_RADIUS ||
-          dum.x >= REL_ICE_SIZE + REL_DUM_RADIUS ||
-          dum.y >= REL_ICE_SIZE + REL_DUM_RADIUS ||
-          dum.y <= -REL_DUM_RADIUS)
+        (dum.x <= -REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.x >= REL_ICE_SIZE + REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.y >= REL_ICE_SIZE + REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE ||
+          dum.y <= -REL_DUM_RADIUS * DUM_LEDGE_TOLERANCE)
       ) {
         dum.falling = true;
         // dum.velocity = { x: 0, y: 0 }
@@ -549,7 +681,8 @@ onMounted(() => {
           height,
           padding,
           dummyRadius,
-          style.moveDirOpacity
+          style.moveDirOpacity,
+          iceSize.value
         );
         arrowTips[i] = tip;
       }
@@ -569,11 +702,11 @@ onMounted(() => {
       replayNextAction();
     }
 
+    // Reset current transformation matrix to the identity matrix
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize', resize);
-  resize();
   window.requestAnimationFrame(draw);
 
   $replayTurn(() => {
@@ -591,14 +724,22 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="canvas-container">
-    <canvas ref="canvas"></canvas>
+  <div class="canvas-container-wrapper">
+    <div ref="canvasContainer">
+      <canvas ref="canvas" :style="{ cursor }"></canvas>
+    </div>
   </div>
-  <button ref="fireOrSend" @click="fireOrSendFn">send</button>
+  <button
+    ref="fireOrSend"
+    @click="fireOrSendFn"
+    :class="{ shown: canFireOrSend }"
+  >
+    Send
+  </button>
 </template>
 
 <style scoped>
-.canvas-container {
+.canvas-container-wrapper {
   width: 100%;
   height: 100%;
   display: flex;
@@ -608,5 +749,21 @@ onUnmounted(() => {
 
 button {
   margin-bottom: 32px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.shown {
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>

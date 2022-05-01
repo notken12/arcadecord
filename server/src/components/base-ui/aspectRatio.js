@@ -11,7 +11,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 // by convention, composable function names start with "use"
-export function useAspectRatio(ratio, element) {
+export function useAspectRatio(ratio, element, callback) {
   // state encapsulated and managed by the composable
   const width = ref(0);
   const height = ref(0);
@@ -65,6 +65,7 @@ export function useAspectRatio(ratio, element) {
       // update the element's style
       element.value.style.width = `${width.value}px`;
       element.value.style.height = `${height.value}px`;
+      callback();
     });
   }
 

@@ -60,5 +60,10 @@ export default {
   padding: 0 16px;
   position: relative;
   z-index: 10;
+  pointer-events: none;
+}
+
+.scores * {
+  pointer-events: auto;
 }
 </style>
