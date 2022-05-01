@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import { gsap } from 'gsap';
-import { Draggable } from 'gsap/Draggable.js';
+// import { gsap } from 'gsap';
+// import { Draggable } from 'gsap/Draggable.js';
 
 import Board from './Board.vue';
 import bus from '@app/js/vue-event-bus';
@@ -37,7 +37,7 @@ import GameFlow from '@app/js/GameFlow';
 import Common from '/gamecommons/chess';
 import { replayAction } from '@app/js/client-framework';
 
-gsap.registerPlugin(Draggable);
+// gsap.registerPlugin(Draggable);
 
 export default {
   data() {
