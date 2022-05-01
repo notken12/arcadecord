@@ -150,12 +150,13 @@ export default defineConfig({
       ],
     },
     emptyOutDir: true,
+    minify: false,
   },
   optimizeDeps: {
     esbuildOptions: {
-      plugins: [esbuildCommonjs(['node-fetch'])], // the problematic cjs module
+      plugins: [esbuildCommonjs(['node-fetch', 'gsap'])], // the problematic cjs module
     },
-    include: ['node-fetch'], // also here
+    include: ['node-fetch', 'gsap'], // also here
   },
   plugins: [
     // nodeResolve(),

@@ -65,7 +65,8 @@ export function useAspectRatio(ratio, element, callback) {
       // update the element's style
       element.value.style.width = `${width.value}px`;
       element.value.style.height = `${height.value}px`;
-      callback();
+
+      if (typeof callback === 'function') callback();
     });
   }
 

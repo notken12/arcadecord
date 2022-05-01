@@ -29,8 +29,8 @@ import { Table } from '@app/js/games/8ball/Table';
 
 import CannonDebugger from 'cannon-es-debugger';
 
-import gsap from 'gsap';
-import { Draggable } from 'gsap/dist/Draggable';
+import { gsap } from 'gsap';
+import { Draggable } from 'gsap/Draggable.js';
 
 import Common from '/gamecommons/8ball';
 
@@ -51,6 +51,8 @@ import {
   getMouseWorldPos,
   transformToValidPosition,
 } from '@app/js/games/8ball/CueDrag';
+
+gsap.registerPlugin(Draggable);
 
 const {
   game,
@@ -951,7 +953,7 @@ onMounted(async () => {
   window.shotPower = shotPower;
   window.shotPowerSetter = shotPowerSetter;
   window.shotAngle = shotAngle;
-  gsap.registerPlugin(Draggable);
+  // gsap.registerPlugin(Draggable);
   scaleRef.value = window.devicePixelRatio;
 
   await initThree();

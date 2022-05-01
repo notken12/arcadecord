@@ -27,6 +27,9 @@
 </template>
 
 <script>
+import gsap from 'gsap';
+import { Draggable } from 'gsap/dist/Draggable.js';
+
 import Board from './Board.vue';
 import bus from '@app/js/vue-event-bus';
 
@@ -60,6 +63,7 @@ export default {
     },
   },
   mounted() {
+    gsap.registerPlugin(Draggable);
     this.$replayTurn(() => {
       replayAction(
         this.game,

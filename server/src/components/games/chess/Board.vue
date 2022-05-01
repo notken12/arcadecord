@@ -62,13 +62,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 
 const el = ref(null);
 const grid = ref(null);
 
 useAspectRatio(1, el);
+
+provide('grid', grid);
 </script>
 
 <script>
