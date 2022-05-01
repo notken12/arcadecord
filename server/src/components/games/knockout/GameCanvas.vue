@@ -27,6 +27,8 @@ import gsap from 'gsap';
 import { useFacade } from 'components/base-ui/facade';
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 
+import Common from '/gamecommons/knockout';
+
 const {
   game,
   replaying,
@@ -42,9 +44,7 @@ const {
 // Ice size (width and height): 100
 // Dummy radius: 5
 
-const REL_DUM_RADIUS = 5;
-const REL_ICE_SIZE = 100;
-const DUM_LEDGE_TOLERANCE = 0.5; // radii
+const { REL_DUM_RADIUS, REL_ICE_SIZE, DUM_LEDGE_TOLERANCE } = Common;
 
 let dummyRadius,
   width,
@@ -54,7 +54,7 @@ let dummyRadius,
   containerX,
   containerY,
   ctx,
-  drag = 0.975,
+  drag = 0.972,
   mouse = { x: 0, y: 0, clicked: false },
   mobile,
   selected,
@@ -510,8 +510,6 @@ onMounted(() => {
     // Draw dummies
     dummies.forEach((dum, i) => {
       if (!dum.fallen) {
-        ctx.fillStyle = dum.playerIndex ? 'blue' : 'white';
-
         ctx.save();
         // Draw penguin body
         var c = fromRelative(

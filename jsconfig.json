@@ -7,7 +7,7 @@
       "@app/*": ["server/src/*"],
       "components/*": ["server/src/components/*"],
       "scss/*": ["server/src/scss/*"],
-      "/gamecommons/*": ["server/src/games/types/*/common"]
+      "/gamecommons/*": ["server/src/games/types/*/common.js"]
     }
   },
   "include": ["server/src/**/*.vue", "server/src/**/*.js"]

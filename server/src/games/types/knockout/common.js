@@ -9,6 +9,10 @@
 
 import GameFlow from '../../GameFlow.js';
 
+const REL_DUM_RADIUS = 5;
+const REL_ICE_SIZE = 100;
+const DUM_LEDGE_TOLERANCE = 0.5;
+
 class Dummy {
   constructor(x, y, faceDir, playerIndex, moveDir, fallen) {
     this.x = x; //x and y relative to ice size
@@ -142,4 +146,12 @@ function randRange(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-export default { Ice, Dummy, setDummies, spawn };
+export default {
+  Ice,
+  Dummy,
+  setDummies,
+  spawn,
+  REL_DUM_RADIUS,
+  REL_ICE_SIZE,
+  DUM_LEDGE_TOLERANCE,
+};

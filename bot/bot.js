@@ -224,6 +224,9 @@ async function getInviteMessage(game) {
   if (canvas) {
     const ctx = canvas.getContext('2d');
 
+    // Reset current transformation matrix to the identity matrix
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
     if (game.hasEnded) {
       if (game.winner === -1) {
         let drawOverlaySrc = path.resolve(
