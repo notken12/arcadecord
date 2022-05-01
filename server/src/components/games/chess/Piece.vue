@@ -14,14 +14,17 @@
 </template>
 
 <script setup>
-import gsap from 'gsap';
-import { Draggable } from 'gsap/dist/Draggable.js';
+import { gsap } from 'gsap';
+import { Draggable } from 'gsap/Draggable.js';
 
 import bus from '@app/js/vue-event-bus';
 
 import { useFacade } from '@app/components/base-ui/facade';
 
 import { computed, inject, onMounted, watch, ref } from 'vue';
+
+// const { Draggable } = DraggablePkg;
+gsap.registerPlugin(Draggable);
 
 const { game } = useFacade();
 const props = defineProps({
@@ -104,7 +107,7 @@ watch(
 // console.log(Draggable);
 // gsap.registerPlugin(Draggable);
 onMounted(() => {
-  gsap.registerPlugin(Draggable);
+  // gsap.registerPlugin(Draggable);
 
   if (props.piece.color === myColor.value) {
     Draggable.create(pieceEl.value, {

@@ -150,7 +150,7 @@ export default defineConfig({
       ],
     },
     emptyOutDir: true,
-    minify: false,
+    minify: true,
   },
   optimizeDeps: {
     esbuildOptions: {
