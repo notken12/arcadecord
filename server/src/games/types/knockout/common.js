@@ -26,6 +26,7 @@ class Dummy {
 
 class Ice {
   static DECREASE_PERCENT = 5;
+  static MIN_SIZE = 20;
   constructor(size) {
     this.size = size || 100;
   }
@@ -71,6 +72,7 @@ async function setDummies(game, action) {
   // }
 
   game.data.ice.size -= Ice.DECREASE_PERCENT;
+  if (game.data.ice.size < Ice.MIN_SIZE) game.data.ice.size = Ice.MIN_SIZE;
 
   var winner = checkWinner(game);
 

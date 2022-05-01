@@ -300,11 +300,6 @@ const resize = () => {
   canvas.value.style.width = fullWidth / scale + 'px';
   canvas.value.style.height = fullHeight / scale + 'px';
 
-  // canvas.value.width = width;
-  // canvas.value.height = height;
-  // canvas.value.style.width = width / scale + 'px';
-  // canvas.value.style.height = height / scale + 'px';
-
   // Get screen orientation
   padding = size * 0.1;
   dummyRadius = ((size - padding * 2) * REL_DUM_RADIUS) / 75;
