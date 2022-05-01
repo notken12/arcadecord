@@ -62,7 +62,8 @@ let dummyRadius,
   padding,
   actionsToReplay = [],
   replayingAction = false,
-  showAllMoveDirs = false; // show move dirs before starting simulation
+  showAllMoveDirs = false, // show move dirs before starting simulation
+  selectedDum;
 
 const canvas = ref(null);
 const fireOrSend = ref(null);
@@ -158,6 +159,8 @@ const ICE_SHRINK_DURATION = 1; // seconds
 const style = {
   moveDirOpacity: 1,
 };
+
+const cursor = ref('auto');
 
 /** Send the penguins flying */
 const startSimulation = () => {
@@ -346,22 +349,10 @@ onMounted(() => {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
 
-      var rel = toRelative(
-        mouse.x - containerX * scale,
-        mouse.y - containerY * scale,
-        mobile,
-        width,
-        height,
-        padding,
-        iceSize.value
-      );
-
-      let dx = dum.x - rel.x;
-      let dy = dum.y - rel.y;
-      let d = Math.sqrt(dx ** 2 + dy ** 2);
+      const { d } = distanceToMouse(dum);
 
       if (d <= REL_DUM_RADIUS && player != ((i / 4) | 0)) {
-        window.selected = i;
+        selectedDum = i;
         return;
       }
     }
@@ -383,33 +374,37 @@ onMounted(() => {
       let dy = rel.y - mouse.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
       if (d < getHeadLen(dummyRadius) * 1.5) {
-        window.selected = i;
+        selectedDum = i;
         return;
       }
     }
   }
 
+  const distanceToMouse = (dum) => {
+    // Get relative distances
+    var rel = toRelative(
+      mouse.x - containerX * scale,
+      mouse.y - containerY * scale,
+      mobile,
+      width,
+      height,
+      padding,
+      iceSize.value
+    );
+    let dx = rel.x - dum.x;
+    let dy = rel.y - dum.y;
+    const d = Math.sqrt(dx ** 2 + dy ** 2);
+    return { d, dx, dy };
+  };
+
   const pointerMove = (e) => {
-    if (replayingVal) return;
+    if (replayingVal || simulationRunning || showAllMoveDirs) return;
     let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
-    if (window.selected !== undefined) {
-      var dum = dummies[window.selected];
-
-      // Get relative distances
-      var rel = toRelative(
-        mouse.x - containerX * scale,
-        mouse.y - containerY * scale,
-        mobile,
-        width,
-        height,
-        padding,
-        iceSize.value
-      );
-      let dx = rel.x - dum.x;
-      let dy = rel.y - dum.y;
-      const d = Math.sqrt(dx ** 2 + dy ** 2);
+    if (selectedDum !== undefined) {
+      var dum = dummies[selectedDum];
+      let { d, dx, dy } = distanceToMouse(dum);
 
       if (d <= REL_DUM_RADIUS) {
         dum.moveDir = null;
@@ -424,18 +419,52 @@ onMounted(() => {
         }
 
         dum.moveDir = { x: dx, y: dy };
+        cursor.value = 'grabbing';
       }
 
       canFireOrSend.value = getCanFireOrSend();
+    } else {
+      // Set the cursor to pointer if the user is hovering over a penguin they can move
+      for (let dum of dummies) {
+        if (dum.playerIndex !== player) continue;
+        const { d } = distanceToMouse(dum);
+        if (d <= REL_DUM_RADIUS) {
+          cursor.value = 'grab';
+          return;
+        }
+      }
+    }
+    for (let i = 0; i < arrowTips.length; i++) {
+      let tip = arrowTips[i];
+      if (!tip) continue;
+      const rel = fromRelative(
+        tip.x,
+        tip.y,
+        mobile,
+        width,
+        height,
+        padding,
+        iceSize.value
+      );
+      rel.x += containerX * scale;
+      rel.y += containerY * scale;
+      let dx = rel.x - mouse.x;
+      let dy = rel.y - mouse.y;
+      let d = Math.sqrt(dx ** 2 + dy ** 2);
+      if (d < getHeadLen(dummyRadius) * 1.5) {
+        cursor.value = 'grab';
+        return;
+      }
     }
     window.dummies = dummies;
+    cursor.value = 'auto';
   };
 
   window.addEventListener('mousemove', pointerMove);
   window.addEventListener('touchmove', pointerMove);
 
   const pointerDown = (e) => {
-    if (replayingVal) return;
+    if (replayingVal || simulationRunning || showAllMoveDirs) return;
     let { clientX, clientY } = screenToCanvasPos(e.touches?.[0] || e);
     mouse.x = clientX * scale;
     mouse.y = clientY * scale;
@@ -449,7 +478,7 @@ onMounted(() => {
   const pointerUp = (_e) => {
     if (replayingVal) return;
     mouse.clicked = false;
-    window.selected = undefined;
+    selectedDum = undefined;
   };
 
   canvas.value.addEventListener('mouseup', pointerUp);
@@ -697,7 +726,7 @@ onUnmounted(() => {
 <template>
   <div class="canvas-container-wrapper">
     <div ref="canvasContainer">
-      <canvas ref="canvas"></canvas>
+      <canvas ref="canvas" :style="{ cursor }"></canvas>
     </div>
   </div>
   <button
