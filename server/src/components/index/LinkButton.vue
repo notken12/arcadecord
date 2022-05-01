@@ -25,4 +25,8 @@ const props = defineProps({
 </template>
 <style lang="scss" scoped>
 @use 'scss/base/button';
+
+a {
+  text-decoration: none;
+}
 </style>
