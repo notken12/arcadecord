@@ -36,7 +36,7 @@ import LinkButton from 'components/index/LinkButton.vue';
         <span>.</span>
       </h3>
       <div class="buttons">
-        <Button icon="add">Add to Discord</Button>
+        <LinkButton icon="add" href="/invite">Add to Discord</LinkButton>
 
         <LinkButton outlined href="#features">See features</LinkButton>
       </div>
