@@ -115,12 +115,23 @@ export class Ball {
       ),
     });
 
-    body.linearDamping = body.angularDamping = 0.5; // Hardcode
+    body.linearDamping = 0.5;
+    body.angularDamping = 0.5;
+    // body.linearDamping = 0;
+    // body.angularDamping = 0;
     body.allowSleep = true;
 
     // Sleep parameters
     body.sleepSpeedLimit = 0.5; // Body will feel sleepy if speed< 0.05 (speed == norm of velocity)
     body.sleepTimeLimit = 0.1; // Body falls asleep after 1s of sleepiness
+
+    body.addEventListener('collide', (e) => {
+      // console.log('end contact');
+      // console.log(e);
+    });
+
+    let inertia = (2 / 5) * Ball.MASS * Ball.RADIUS ** 2;
+    // body.inertia = new CANNON.Vec3(inertia, inertia, inertia);
 
     return body;
   }

@@ -98,7 +98,8 @@ const world = new CANNON.World({
 world.solver.iterations = 10;
 world.solver.tolerance = 0; // Force solver to use all iterations
 world.allowSleep = true;
-
+world.fixedTimeStep = 1 / 60;
+world.fixedStep = 1 / 60;
 function setCollisionBehavior() {
   // world.defaultContactMaterial.friction = 0.1
   // world.defaultContactMaterial.restitution = 0.85
@@ -144,12 +145,12 @@ function setCollisionBehavior() {
     Ball.CONTACT_MATERIAL,
     Ball.CONTACT_MATERIAL,
     {
-      friction: 1,
-      restitution: 0.9,
-      frictionEquationRelaxation: 1,
-      frictionEquationStiffness: 1e15,
-      contactEquationRelaxation: 1,
-      //contactEquationStiffness: 1e15,
+      friction: 1000,
+      restitution: 0.97,
+      // frictionEquationRelaxation: 1e10,
+      // frictionEquationStiffness: 1e10,
+      // contactEquationRelaxation: 1000.0,
+      // contactEquationStiffness: 1,
     }
   );
 
@@ -609,7 +610,8 @@ const initThree = async () => {
       b.color,
       b.quaternion,
       b.out,
-      `/assets/8ball/${b.name}.jpg`
+      // `/assets/8ball/${b.name}.jpg`
+      `/assets/8ball/10ball.jpg`
     );
     balls.push(ball);
   }
