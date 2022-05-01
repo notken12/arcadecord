@@ -29,7 +29,7 @@ export function collisionResolution(c1x, c1y, v1x, v1y, c2x, c2y, v2x, v2y) {
 
 /** Returns true of two points collide */
 export const collision = (x1, y1, x2, y2, radius, iceSize) => {
-  let mult = 1 + (1 - iceSize / 100) / 2;
+  let mult = 1 + (100 - iceSize) / 100 / 2;
   return (x2 - x1) ** 2 + (y2 - y1) ** 2 <= (radius * 2 * mult) ** 2;
 };
 

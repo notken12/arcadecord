@@ -183,7 +183,8 @@ const endSimulation = async (replayEnding) => {
 
       if (actionsToReplay.length === 0) {
         replayingAction = false;
-        $endReplay(0);
+        if (!a.data.firing) $endReplay(0);
+        else $endReplay(ICE_SHRINK_DURATION * 1000);
       } else {
         await utils.wait(ICE_SHRINK_DURATION * 1000);
       }
@@ -240,11 +241,15 @@ const replayNextAction = () => {
   } else {
     // Else let the updateDummies do its thing
     let a = actionsToReplay.shift();
+    // if (a.data.firing) {
+    //   $endAnimation(ICE_SHRINK_DURATION * 1000);
+    // }
     replayAction(game.value, a);
 
     replayingAction = false;
     if (actionsToReplay.length === 0) {
-      $endReplay(0);
+      if (!a.data.firing) $endReplay(0);
+      else $endReplay(ICE_SHRINK_DURATION * 1000);
     }
   }
 };
@@ -256,11 +261,14 @@ const setDummiesFire = () => {
     states[i] = {
       faceDir: dummy.faceDir,
       fallen: dummy.fallen,
-      moveDir: dummy.moveDir,
+      moveDir: dummy.moveDir ?? null,
       playerIndex: dummy.playerIndex,
       x: dummy.x,
       y: dummy.y,
     };
+  }
+  if (firing) {
+    $endAnimation(ICE_SHRINK_DURATION * 1000);
   }
   $runAction('setDummies', { dummies: states, firing });
 };
@@ -301,12 +309,14 @@ const resize = () => {
   canvas.value.style.height = fullHeight / scale + 'px';
 
   // Get screen orientation
-  padding = size * 0.1;
-  dummyRadius = ((size - padding * 2) * REL_DUM_RADIUS) / 75;
+  padding = width * 0.1;
+  dummyRadius = ((width - padding * 2) * REL_DUM_RADIUS) / REL_ICE_SIZE;
 
   const cbbox = container.getBoundingClientRect();
   containerX = cbbox.x;
   containerY = cbbox.y;
+
+  console.log('resize');
 };
 
 useAspectRatio(1, canvasContainer, resize);
@@ -335,21 +345,22 @@ onMounted(() => {
   function select() {
     for (var i = 0; i < dummies.length; i++) {
       var dum = dummies[i];
-      const rel = fromRelative(
-        dum.x,
-        dum.y,
+
+      var rel = toRelative(
+        mouse.x - containerX * scale,
+        mouse.y - containerY * scale,
         mobile,
         width,
         height,
         padding,
         iceSize.value
       );
-      rel.x += containerX * scale;
-      rel.y += containerY * scale;
-      let dx = rel.x - mouse.x;
-      let dy = rel.y - mouse.y;
+
+      let dx = dum.x - rel.x;
+      let dy = dum.y - rel.y;
       let d = Math.sqrt(dx ** 2 + dy ** 2);
-      if (d <= dummyRadius && player != ((i / 4) | 0)) {
+
+      if (d <= REL_DUM_RADIUS && player != ((i / 4) | 0)) {
         window.selected = i;
         return;
       }
@@ -400,7 +411,7 @@ onMounted(() => {
       let dy = rel.y - dum.y;
       const d = Math.sqrt(dx ** 2 + dy ** 2);
 
-      if (d <= 5) {
+      if (d <= REL_DUM_RADIUS) {
         dum.moveDir = null;
       } else {
         if (d > MAX_LAUNCH_POWER) {
@@ -550,35 +561,37 @@ onMounted(() => {
         // ctx.strokeText(i, c.x, c.y);
         // ctx.closePath();
 
-        // Run physics
-        for (let j = 0; j < dummies.length; j++) {
-          let other = dummies[j];
-          if (i === j) continue;
-          if (other.fallen) continue;
-          if (
-            collision(
-              other.x,
-              other.y,
-              dum.x + dum.velocity.x,
-              dum.y + dum.velocity.y,
-              REL_DUM_RADIUS,
-              iceSize.value
-            )
-          ) {
-            var resolve = collisionResolution(
-              dum.x,
-              dum.y,
-              dum.velocity.x,
-              dum.velocity.y,
-              other.x,
-              other.y,
-              other.velocity.x,
-              other.velocity.y
-            );
-            dum.velocity.x = resolve.x * RESTITUTION;
-            dum.velocity.y = resolve.y * RESTITUTION;
-            other.velocity.x = -resolve.x * RESTITUTION;
-            other.velocity.y = -resolve.y * RESTITUTION;
+        if (simulationRunning) {
+          // Run physics
+          for (let j = 0; j < dummies.length; j++) {
+            let other = dummies[j];
+            if (i === j) continue;
+            if (other.fallen) continue;
+            if (
+              collision(
+                other.x,
+                other.y,
+                dum.x + dum.velocity.x,
+                dum.y + dum.velocity.y,
+                REL_DUM_RADIUS,
+                iceSize.value
+              )
+            ) {
+              var resolve = collisionResolution(
+                dum.x,
+                dum.y,
+                dum.velocity.x,
+                dum.velocity.y,
+                other.x,
+                other.y,
+                other.velocity.x,
+                other.velocity.y
+              );
+              dum.velocity.x = resolve.x * RESTITUTION;
+              dum.velocity.y = resolve.y * RESTITUTION;
+              other.velocity.x = -resolve.x * RESTITUTION;
+              other.velocity.y = -resolve.y * RESTITUTION;
+            }
           }
         }
 
