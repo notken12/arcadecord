@@ -42,7 +42,7 @@ import LinkButton from './LinkButton.vue';
   gap: 32px;
   justify-content: space-between;
   user-select: none;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .right {
@@ -70,8 +70,8 @@ a {
   }
 }
 
-@media only screen and (max-width: 600px) {
-  button {
+@media only screen and (max-width: 450px) {
+  .button {
     display: none;
   }
 }

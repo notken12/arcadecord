@@ -45,6 +45,7 @@ import Link from './Link.vue';
   flex-wrap: wrap-reverse;
   gap: 32px;
   max-width: 100%;
+  height: 100%;
 }
 
 div {
@@ -58,11 +59,9 @@ div {
 
 .right {
   display: grid;
-  gap: 32px;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 16px;
   grid-auto-rows: auto;
-  height: 100%;
 
   div {
     display: flex;
