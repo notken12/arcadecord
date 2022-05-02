@@ -8,6 +8,7 @@ defineProps({
   <div class="card">
     <div class="card-title">
       {{ title }}
+      <slot name="title"></slot>
     </div>
     <div class="card-body">
       <slot></slot>
@@ -36,5 +37,10 @@ defineProps({
 
 .card-title {
   font-size: 150%;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  font-weight: bold;
 }
 </style>

@@ -18,7 +18,15 @@ import Link from 'components/index/Link.vue';
           <Link href="mailto:contact@arcadecord.com">contact us by email</Link>!
           We would be glad to welcome new members to the Arcadecord team.
         </p>
-        <Card title="Ken">
+        <Card>
+          <template v-slot:title>
+            <img
+              src="/public/profile-pictures/notken12.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
+            Ken
+          </template>
           <div>
             Creator of the Arcadecord project and the main developer behind it.
             <code>notken12#0898</code> on Discord.
@@ -36,8 +44,52 @@ import Link from 'components/index/Link.vue';
             </Link>
           </div>
         </Card>
-        <Card title="Seth"> Contributor to Arcadecord's code and art. </Card>
-        <Card title="Craz">Contributor to Arcadecord's code.</Card>
+        <Card>
+          <template v-slot:title>
+            <img
+              src="/public/profile-pictures/SethDevsStuff.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
+            Seth
+          </template>
+          <div>Contributor to Arcadecord's code and art.</div>
+          <div>
+            <Link href="https://github.com/SethDevsStuff">
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
+            </Link>
+          </div>
+        </Card>
+        <Card>
+          <template v-slot:title>
+            <img
+              src="/public/profile-pictures/Crazexpert.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
+            Craz
+          </template>
+          <div>Contributor to Arcadecord's code.</div>
+          <div>
+            <Link href="https://github.com/Crazexpert">
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
+            </Link>
+          </div>
+        </Card>
       </section>
     </Content>
     <Footer></Footer>
@@ -55,6 +107,14 @@ import Link from 'components/index/Link.vue';
   width: 100%;
   height: 100%;
   background: #1b1b1f;
+}
+
+$pfp-size: 32px;
+
+.pfp {
+  width: $pfp-size;
+  height: $pfp-size;
+  border-radius: 100px;
 }
 
 a {
