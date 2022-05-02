@@ -28,6 +28,12 @@ defineProps({
   box-shadow: theme.$md-elevation-level2;
 }
 
+.card-body {
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
 .card-title {
   font-size: 150%;
 }

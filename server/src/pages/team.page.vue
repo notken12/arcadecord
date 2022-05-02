@@ -19,8 +19,22 @@ import Link from 'components/index/Link.vue';
           We would be glad to welcome new members to the Arcadecord team.
         </p>
         <Card title="Ken">
-          Creator of the Arcadecord project and the main developer behind it.
-          <code>notken12#0898</code> on Discord.
+          <div>
+            Creator of the Arcadecord project and the main developer behind it.
+            <code>notken12#0898</code> on Discord.
+          </div>
+          <div>
+            <Link href="https://github.com/notken12">
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
+            </Link>
+          </div>
         </Card>
         <Card title="Seth"> Contributor to Arcadecord's code and art. </Card>
         <Card title="Craz">Contributor to Arcadecord's code.</Card>
@@ -44,11 +58,17 @@ import Link from 'components/index/Link.vue';
 }
 
 a {
-  display: inline;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
 p {
-  display: inline;
+  display: block;
+  a {
+    display: inline;
+  }
 }
 </style>
 
