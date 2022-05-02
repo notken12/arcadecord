@@ -27,6 +27,14 @@ const options = {
   data: {},
 };
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+// 👇️ "/home/john/Desktop/javascript"
+const __dirname = path.dirname(__filename);
+
 // Game constructor, extends base Game class
 // Don't forget to super(options);
 class EightBallGame extends Game {
@@ -199,6 +207,27 @@ class EightBallGame extends Game {
     ];
     game.data.cueFoul = false;
     return game;
+  }
+  async getThumbnail() {
+    const { default: Canvas } = await import('canvas');
+
+    const canvas = Canvas.createCanvas(
+      Game.thumbnailDimensions.width,
+      Game.thumbnailDimensions.height
+    );
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let thumbnailSrc = path.resolve(
+      __dirname,
+      '../../../public/assets/8ball/thumbnail.png'
+    );
+    let thumbnail = await Canvas.loadImage(thumbnailSrc);
+    ctx.drawImage(thumbnail, 0, 0, canvas.width, canvas.height);
+
+    return canvas;
   }
 }
 

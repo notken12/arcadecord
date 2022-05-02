@@ -857,6 +857,9 @@ const initThree = async () => {
         ctx.rotate(-shotAngle - Math.PI);
 
         if (cueStickImageLoaded) {
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = 'black';
+          ctx.shadowOffsetY = 0;
           ctx.drawImage(
             cueStickImage,
             -(cueStickImage.width / 2) * scale,
