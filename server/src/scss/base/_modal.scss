@@ -25,6 +25,10 @@
   background-color: theme.$md-sys-surface;
   color: theme.$md-sys-on-surface;
   overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -34,10 +38,10 @@
   align-items: center;
   padding: 0 16px;
   gap: 16px;
-  position: fixed;
   background-color: #ffffff11;
   width: 100%;
   box-shadow: theme.$md-elevation-level3;
+  padding: 0 16px;
 }
 
 .modal-header .btn-icon {
@@ -61,5 +65,7 @@
 
 .modal-content {
   padding: 16px;
-  margin-top: 64px;
+  display: flex;
+  height: 100%;
+  width: 100%;
 }

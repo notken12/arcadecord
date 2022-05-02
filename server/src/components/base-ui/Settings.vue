@@ -11,6 +11,7 @@
 
 <script setup>
 import Switch from './Switch.vue';
+import Link from '../index/Link.vue';
 
 import bus from '@app/js/vue-event-bus.js';
 import { ref, watch } from 'vue';
@@ -76,19 +77,28 @@ function resend() {
         </div>
       </div>
       <div class="modal-content">
-        <div v-if="store">
-          <button @click="resend" :disabled="resending">Resend invite</button>
-          <h2>Graphics</h2>
+        <section class="settings-section">
+          <template v-if="store">
+            <button @click="resend" :disabled="resending">Resend invite</button>
+            <h2>Graphics</h2>
+            <ul class="settings-items">
+              <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
+            </ul>
+          </template>
+          <h2>Account</h2>
           <ul class="settings-items">
-            <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
+            <li>
+              <a href="/sign-out">Sign out</a>
+            </li>
           </ul>
-        </div>
-        <h2>Account</h2>
-        <ul class="settings-items">
-          <li>
-            <a href="/sign-out">Sign out</a>
-          </li>
-        </ul>
+        </section>
+        <section class="links-section">
+          <Link href="/help-feedback">Help and Feedback</Link
+          ><span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
+          <Link href="/support-us">Support Us</Link>
+          <span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
+          <Link href="/terms-of-service">Terms of Service</Link>
+        </section>
       </div>
     </div>
   </div>
@@ -97,10 +107,16 @@ function resend() {
 <style lang="scss" scoped>
 @use 'scss/base/theme' as theme;
 
-.modal-content {
+.modal-content,
+.settings-section {
   gap: 16px;
   display: flex;
   flex-direction: column;
+  /* height: 100%; */
+}
+
+.modal-content {
+  height: 100%;
 }
 
 ul {
@@ -138,6 +154,13 @@ h2 {
   font-size: 1em;
   margin: 0;
   margin-bottom: -8px;
+}
+
+.links-section {
+  font-weight: bold;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center; */
 }
 </style>
 
