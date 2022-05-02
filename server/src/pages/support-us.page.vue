@@ -22,7 +22,7 @@ import GameDisplay from 'components/index/GameDisplay.vue';
 <template>
   <div class="container">
     <Header></Header>
-    <Content id="features">
+    <Content id="content">
       <section>
         <h3>Support us</h3>
         <p>

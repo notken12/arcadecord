@@ -33,7 +33,7 @@ import LinkButton from 'components/index/LinkButton.vue';
 
         <p>
           <span>Alternatively, you can email us at&nbsp;</span>
-          <a href="mailto:help@arcadecord.io">help@arcadecord.io</a
+          <a href="mailto:help@arcadecord.com">help@arcadecord.com</a
           ><span>.</span>
         </p>
       </section>

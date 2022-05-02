@@ -27,6 +27,7 @@ a {
   color: theme.$color-light;
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: bold;
 }
 
 a:hover {
