@@ -18,10 +18,19 @@
         v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
       ></ship-placer>
       <hit-board-view
+        class="board"
         :board="myHitBoard"
         :target="targetedCell"
         :game="game"
+        :style="styles"
         v-else
+      ></hit-board-view>
+      <hit-board-view
+        class="board replay-board"
+        :style="replayStyles"
+        :target="null"
+        :game="game"
+        :board="otherHitBoard"
       ></hit-board-view>
     </div>
 
@@ -107,7 +116,7 @@ export default {
     },
     shoot() {
       var cell = this.targetedCell;
-      console.log(this.game.data);
+      console.log(this.game);
 
       if (cell) {
         let { row, col } = cell;
@@ -140,6 +149,16 @@ export default {
       var myHitBoard = this.game.data.hitBoards[index];
       return myHitBoard;
     },
+    otherHitBoard() {
+      var index = this.game.myIndex;
+      if (index == -1) {
+        if (GameFlow.isItUsersTurn(this.game, index)) {
+          // game hasn't started yet but i can start the game by placing ships
+          index = this.game.turn;
+        }
+      }
+      return this.game.data.hitBoards[[1, 0][index]];
+    },
   },
   mounted() {
     window.Common = Common;
@@ -149,7 +168,6 @@ export default {
     });
 
     this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex);
-    console.log('mounted');
 
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
@@ -177,13 +195,52 @@ export default {
 
 <script setup>
 import { useFacade } from '@app/components/base-ui/facade';
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { replayAction, utils } from '@app/js/client-framework';
 
-const { $replayTurn, $endReplay } = useFacade();
+const {
+  game,
+  me,
+  replaying,
+  $replayTurn,
+  $endReplay,
+  $endAnimation,
+  previousTurn,
+  contested,
+} = useFacade();
+
+const styles = computed(() => {
+  if (replaying.value) {
+    var transform = 'translateX(-100%)';
+  } else {
+    var transform = 'translateX(0%)';
+  }
+
+  return {
+    transform,
+  };
+});
+const replayStyles = computed(() => {
+  if (replaying.value) {
+    var transform = 'translateX(0%)';
+  } else {
+    var transform = 'translateX(-150%)';
+  }
+
+  return {
+    transform,
+  };
+});
 
 onMounted(() => {
   $replayTurn(() => {
-    $endReplay(0);
+    $endReplay(10000);
   });
 });
 </script>
+<style lang="scss">
+.board {
+}
+.replay-board {
+}
+</style>

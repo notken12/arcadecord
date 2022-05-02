@@ -15,7 +15,7 @@
     <div>
       <div class="ratio horizontal">
         <canvas width="500" height="500"></canvas>
-        <div class="hit-board" :style="styles">
+        <div class="hit-board" :style="styles" ref="boardEl">
           <div class="hit-board-ships">
             <placed-ship
               v-for="ship in board.revealedShips"
@@ -86,4 +86,11 @@ export default {
     PlacedShip,
   },
 };
+</script>
+<script setup>
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
+import { ref, computed, onMounted } from 'vue';
+
+const boardEl = ref(null);
+useAspectRatio(1, boardEl);
 </script>
