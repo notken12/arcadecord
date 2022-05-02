@@ -484,9 +484,10 @@ class Game {
       if (this.sockets[pid]) unjoinedSockets.push(pid);
     }
     for (let player of this.players) {
-      let id = player.id;
-      if (unjoinedSockets.includes(id)) {
-        unjoinedSockets.splice(unjoinedSockets.indexOf(id, 1));
+      let pid = player.id;
+      let index = unjoinedSockets.indexOf(pid);
+      if (index >= 0) {
+        unjoinedSockets.splice(index, 1);
       }
     }
     return unjoinedSockets;
