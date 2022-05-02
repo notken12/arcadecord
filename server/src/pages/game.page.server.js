@@ -49,7 +49,7 @@ export async function onBeforeRender(pageContext) {
   if (user.banned) {
     throw RenderErrorPage({
       pageContext: {
-        errorInfo: 'You are not allowed to join this game.',
+        errorInfo: GameConnectionError.USER_BANNED,
       },
     });
   }
@@ -100,14 +100,14 @@ export async function onBeforeRender(pageContext) {
     } else {
       throw RenderErrorPage({
         pageContext: {
-          errorInfo: 'Game not found',
+          errorInfo: GameConnectionError.GAME_NOT_FOUND,
         },
       });
     }
   } else {
     throw RenderErrorPage({
       pageContext: {
-        errorInfo: 'Game not found',
+        errorInfo: GameConnectionError.GAME_NOT_FOUND,
       },
     });
   }

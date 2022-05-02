@@ -10,29 +10,44 @@
 -->
 
 <template>
-  <div>{{ errorText }}</div>
+  <div class="top" v-if="isGameError">
+    <div class="fabs">
+      <button class="btn-fab" @click="openSettings">
+        <i class="material-icons">settings</i>
+      </button>
+    </div>
+  </div>
+
+  <Settings v-if="settingsOpen"></Settings>
+  <div class="error-text">{{ errorText }}</div>
 </template>
 
 <script setup>
-import { computed, inject } from 'vue';
+import { computed, inject, onMounted, ref } from 'vue';
 import { GameConnectionError } from '../games/GameErrors.js';
+import Settings from '@app/components/base-ui/Settings.vue';
+import bus from '@app/js/vue-event-bus.js';
 const pageContext = inject('pageContext');
+
+const isGameError = ref(false);
 
 const errorText = computed(() => {
   if (pageContext.errorInfo) {
+    isGameError.value = true;
     switch (pageContext.errorInfo) {
       case GameConnectionError.DISCORD_USER_NOT_FOUND:
-        return "¯\_(ツ)_/¯ You aren't in this game's Discord server. Please join the server and try again.";
+        return "¯\\_(ツ)_/¯ You aren't in this game's Discord server. Please join the server and try again.";
       case GameConnectionError.DISCORD_USER_UNAUTHORIZED:
         return 'You must have slash command permissions to play!';
       case GameConnectionError.GAME_FULL:
         return 'This game is full!';
       case GameConnectionError.GAME_NOT_FOUND:
-        return '¯\_(ツ)_/¯ Game not found';
+        return '¯\\_(ツ)_/¯ Game not found';
       case GameConnectionError.USER_BANNED:
         // TODO: add link to help and feedback page
-        return "¯\_(ツ)_/¯ We're sorry, but you've been banned from Arcadecord. If you think this is a mistake, please contact us.";
+        return "¯\\_(ツ)_/¯ We're sorry, but you've been banned from Arcadecord. If you think this is a mistake, please contact us.";
       default:
+        isGameError.value = false;
         return pageContext.errorInfo;
     }
   }
@@ -40,6 +55,20 @@ const errorText = computed(() => {
     return 'Page not found';
   }
   return 'Something went wrong';
+});
+
+const settingsOpen = ref(false);
+
+const openSettings = () => {
+  settingsOpen.value = true;
+};
+const closeSettings = () => {
+  settingsOpen.value = false;
+};
+
+onMounted(() => {
+  bus.on('open-settings', openSettings);
+  bus.on('close-settings', closeSettings);
 });
 </script>
 
@@ -70,12 +99,29 @@ html,
   display: flex;
   font-display: swap;
   overflow: hidden;
-  // position: absolute;
+  /* position: absolute; */
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+}
+
+.error-text {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.top {
+  width: 100%;
+}
+
+.fabs {
+  justify-content: flex-end;
 }
 </style>

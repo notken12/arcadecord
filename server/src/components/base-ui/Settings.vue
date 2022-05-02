@@ -23,9 +23,9 @@ const closeManual = () => {
 
 const store = useStore();
 
-const settings = store.state.user.settings;
+const settings = store?.state?.user?.settings;
 
-const enableConfetti = ref(settings.enableConfetti ?? true);
+const enableConfetti = ref(settings?.enableConfetti ?? true);
 
 function debounce(callback, wait) {
   let timerId;
@@ -76,12 +76,13 @@ function resend() {
         </div>
       </div>
       <div class="modal-content">
-        <button @click="resend" :disabled="resending">Resend invite</button>
-
-        <h2>Graphics</h2>
-        <ul class="settings-items">
-          <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
-        </ul>
+        <div v-if="store">
+          <button @click="resend" :disabled="resending">Resend invite</button>
+          <h2>Graphics</h2>
+          <ul class="settings-items">
+            <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
+          </ul>
+        </div>
         <h2>Account</h2>
         <ul class="settings-items">
           <li>
