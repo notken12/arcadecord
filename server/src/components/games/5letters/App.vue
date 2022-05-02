@@ -84,9 +84,13 @@ const middleStyles = computed(() => {
   };
 });
 
-watch(myAnswer, () => {
-  window.dispatchEvent(new Event('resize'));
-});
+watch(
+  myAnswer,
+  () => {
+    window.dispatchEvent(new Event('resize'));
+  },
+  { flush: 'post' }
+);
 
 onMounted(() => {
   $replayTurn(async () => {
@@ -126,11 +130,9 @@ onMounted(() => {
         <h2 v-if="!myAnswer">Choose a secret word</h2>
         <div class="container">
           <WordChooser v-if="!myAnswer"></WordChooser>
-          <Board
-            :guesses="myGuesses"
-            v-if="myAnswer && theirAnswer"
-            active
-          ></Board>
+          <!-- v-if="myAnswer && theirAnswer" -->
+
+          <Board :guesses="myGuesses" v-else active></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>

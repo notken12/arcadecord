@@ -18,6 +18,7 @@ export function useAspectRatio(ratio, element, callback) {
 
   // a composable can update its managed state over time.
   function update(event) {
+    if (!element.value) return;
     // shrink the element so the parent can resize
     element.value.style.width = `0px`;
     element.value.style.height = `0px`;
