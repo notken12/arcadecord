@@ -649,7 +649,7 @@ app.get('/invite', (_req, res) => {
       process.env.BOT_CLIENT_ID +
       '&redirect_uri=' +
       encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=bot%20applications.commands%20identify%20email'
+      '&response_type=code&scope=bot%20applications.commands%20identify'
   );
 });
 
