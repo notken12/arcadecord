@@ -170,7 +170,7 @@ export async function render(pageContext) {
         <meta name="description" content="${desc}" />
         <title>${title}</title>
 
-        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
