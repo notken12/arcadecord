@@ -282,7 +282,7 @@ const initThree = () => {
   let frames = 0;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xaaaaaa);
+  scene.background = new THREE.Color(0xc9d4ee);
   camera = new THREE.PerspectiveCamera(
     75,
     canvasWrapper.value.clientWidth / canvasWrapper.value.clientHeight,
@@ -816,7 +816,7 @@ onMounted(() => {
         @touchmove="pointerMove($event)"
         @touchend="pointerUp($event)"
       ></canvas>
-      <p style="position: absolute; top: 16px">{{ fps }} fps</p>
+      <!-- <p style="position: absolute; top: 16px">{{ fps }} fps</p> -->
       <div
         class="canvas-overlay"
         @animationend="overlayAnimated = false"
