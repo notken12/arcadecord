@@ -94,10 +94,13 @@ watch(
 
 onMounted(() => {
   $replayTurn(async () => {
+    await utils.wait(300);
+
     for (let action of previousTurn.value.actions) {
       replayAction(game.value, action);
 
       if (action.type === 'guess') {
+        console.log('updateguesses from replay');
         bus.emit('updateGuesses');
         await utils.wait(letterAnimationLength * 5);
       }

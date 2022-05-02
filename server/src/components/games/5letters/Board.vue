@@ -146,6 +146,7 @@ const keyboardEnter = () => {
       bus.emit('toast', 'Not in word list');
       return;
     }
+    console.log('updateguesses from keyboardenter');
     bus.emit('updateGuesses');
   }
 };
@@ -175,18 +176,21 @@ const theirAnswer = computed(() => {
   return game.value.data.answers[theirIndex];
 });
 
-bus.on('updateGuesses', async () => {
-  let guessIndex = props.guesses.length - 1;
-  let lastGuess = cloneDeep(props.guesses[guessIndex]);
-  if (!lastGuess) return;
+onMounted(() => {
+  bus.on('updateGuesses', async () => {
+    console.log('updateguesses');
+    let guessIndex = props.guesses.length - 1;
+    let lastGuess = cloneDeep(props.guesses[guessIndex]);
+    if (!lastGuess) return;
 
-  // if (guessIndex === lastGuessIndex) return
-  // lastGuessIndex = guessIndex + 0
+    // if (guessIndex === lastGuessIndex) return
+    // lastGuessIndex = guessIndex + 0
 
-  for (let i = 0; i < 5; i++) {
-    grid[guessIndex][i].hintLetter = lastGuess.word[i];
-    grid[guessIndex][i].hint = lastGuess.hints[i];
-  }
+    for (let i = 0; i < 5; i++) {
+      grid[guessIndex][i].hintLetter = lastGuess.word[i];
+      grid[guessIndex][i].hint = lastGuess.hints[i];
+    }
+  });
 });
 </script>
 
