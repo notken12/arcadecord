@@ -292,7 +292,7 @@ const initThree = () => {
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas.value, antialias: true });
   renderer.shadowMap.enabled = true;
-  // renderer.shadowMap.type = THREE.BasicShadowMap // default THREE.PCFShadowMap
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(
     canvasWrapper.value.clientWidth,
@@ -395,8 +395,8 @@ const initThree = () => {
   scene.add(ambientLight);
 
   // add point light
-  const pointLight = new THREE.PointLight(0xffffff, 0.5);
-  pointLight.position.set(0, 0.4, 0);
+  // const pointLight = new THREE.PointLight(0xffffff, 0.5);
+  // pointLight.position.set(0, 0.4, 0);
   // pointLight.castShadow = true
   // //Set up shadow properties for the light
   // pointLight.shadow.mapSize.width = 1024 // default
@@ -406,9 +406,9 @@ const initThree = () => {
   // pointLight.shadow.radius = 1
   // scene.add(pointLight)
 
-  const spotLight = new THREE.SpotLight(0xffffff);
-  spotLight.position.set(0.3, 0.75, 0);
-  spotLight.lookAt(new THREE.Vector3(0, 0, 0));
+  // const spotLight = new THREE.SpotLight(0xffffff);
+  // spotLight.position.set(0.3, 0.75, 0);
+  // spotLight.lookAt(new THREE.Vector3(0, 0, 0));
   // spotLight.castShadow = true
 
   // spotLight.shadow.mapSize.width = 1024
@@ -420,41 +420,41 @@ const initThree = () => {
 
   // scene.add(spotLight)
 
-  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
-  directionalLight1.position.set(0.4, 0.4, 0.8);
+  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.9);
+  directionalLight1.position.set(0.6, 0.4, 0);
   directionalLight1.castShadow = true;
 
   scene.add(directionalLight1);
   scene.add(directionalLight1.target);
-  directionalLight1.target.position.set(0, 0, 0.8);
+  directionalLight1.target.position.set(0, -0.2, 0);
 
-  directionalLight1.shadow.camera.top = 0.4;
+  directionalLight1.shadow.camera.top = 0.43;
   directionalLight1.shadow.camera.bottom = -0.15;
-  directionalLight1.shadow.camera.left = -0.2;
-  directionalLight1.shadow.camera.right = 0.2;
-  directionalLight1.shadow.camera.near = 0.1;
-  directionalLight1.shadow.camera.far = 0.9;
-  directionalLight1.shadow.mapSize.width = 256;
+  directionalLight1.shadow.camera.left = -1.0;
+  directionalLight1.shadow.camera.right = 1.0;
+  directionalLight1.shadow.camera.near = 0.2;
+  directionalLight1.shadow.camera.far = 1.0;
+  directionalLight1.shadow.mapSize.width = 1024;
   directionalLight1.shadow.mapSize.height = 256;
 
-  const directionalLight2 = directionalLight1.clone();
-  directionalLight2.position.set(0.4, 0.4, -0.8);
+  // const directionalLight2 = directionalLight1.clone();
+  // directionalLight2.position.set(0.4, 0.4, -0.8);
+  //
+  // directionalLight1.castShadow = true;
 
-  directionalLight1.castShadow = true;
-
-  scene.add(directionalLight2);
-  scene.add(directionalLight2.target);
-  directionalLight2.target.position.set(0, 0, -0.8);
+  // scene.add(directionalLight2);
+  // scene.add(directionalLight2.target);
+  // directionalLight2.target.position.set(0, 0, -0.8);
 
   if (orbitControlsEnabled) {
     scene.add(new THREE.CameraHelper(directionalLight1.shadow.camera));
-    scene.add(new THREE.CameraHelper(directionalLight2.shadow.camera));
+    // scene.add(new THREE.CameraHelper(directionalLight2.shadow.camera));
   }
 
-  const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1);
+  // const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.1);
   // scene.add(pointLightHelper)
 
-  const helper = new THREE.CameraHelper(pointLight.shadow.camera);
+  // const helper = new THREE.CameraHelper(pointLight.shadow.camera);
   // scene.add(helper);
 
   // add ball
@@ -470,8 +470,8 @@ const initThree = () => {
     })
   );
 
-  ballObject.castShadow = false;
-  ballObject.receiveShadow = false;
+  ballObject.castShadow = true;
+  ballObject.receiveShadow = true;
 
   ballObject.position.setY(0.02);
   scene.add(ballObject);
