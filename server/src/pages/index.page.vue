@@ -28,10 +28,11 @@ import GameDisplay from 'components/index/GameDisplay.vue';
       <section class="games row">
         <GameDisplay game="8ball">8 Ball</GameDisplay>
         <GameDisplay game="cuppong">Cup Pong</GameDisplay>
+        <GameDisplay game="5letters">5 Letters</GameDisplay>
+        <GameDisplay game="knockout">Knockout</GameDisplay>
         <GameDisplay game="seabattle">Sea Battle</GameDisplay>
         <GameDisplay game="4inarow">4 in a Row</GameDisplay>
         <GameDisplay game="chess">Chess</GameDisplay>
-        <GameDisplay game="knockout">Knockout</GameDisplay>
         <GameDisplay game="filler">Filler</GameDisplay>
       </section>
       <section class="row">
