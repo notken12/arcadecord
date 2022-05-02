@@ -23,7 +23,7 @@ defineProps({
 @use 'scss/base/theme' as theme;
 
 a {
-  font-family: Inter;
+  font-family: Work Sans;
   color: theme.$color-light;
   text-decoration: none;
   transition: color 0.2s;

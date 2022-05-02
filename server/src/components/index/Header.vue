@@ -43,6 +43,10 @@ import LinkButton from './LinkButton.vue';
   justify-content: space-between;
   user-select: none;
   overflow: hidden;
+
+  a {
+    font-weight: normal;
+  }
 }
 
 .right {
@@ -58,10 +62,6 @@ import LinkButton from './LinkButton.vue';
 .links {
   display: flex;
   gap: 32px;
-}
-
-a {
-  text-decoration: none;
 }
 
 @media only screen and (max-width: 840px) {
