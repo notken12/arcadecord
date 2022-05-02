@@ -80,5 +80,5 @@ export function useAspectRatio(ratio, element, callback) {
   onUnmounted(() => window.removeEventListener('resize', update));
 
   // expose managed state as return value
-  return { width, height };
+  return { width, height, update };
 }

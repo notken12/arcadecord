@@ -17,7 +17,7 @@ import Toast from './Toast.vue';
 
 import { useFacade } from '@app/components/base-ui/facade';
 import bus from '@app/js/vue-event-bus';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { letterAnimationLength } from '@app/js/games/5letters/constants';
 import { replayAction, utils } from '@app/js/client-framework';
 
@@ -82,6 +82,10 @@ const middleStyles = computed(() => {
   return {
     transform,
   };
+});
+
+watch(myAnswer, () => {
+  window.dispatchEvent(new Event('resize'));
 });
 
 onMounted(() => {
