@@ -75,7 +75,7 @@ const options = {
       new Common.ShipPlacementBoard(10, 10),
     ],
   },
-  emoji: '<:seabattle:956316581842014249>',
+  emoji: '<:seabattle:971043096341127178>',
 };
 
 class SeaBattleGame extends Game {

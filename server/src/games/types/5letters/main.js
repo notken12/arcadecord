@@ -22,7 +22,7 @@ const options = {
   aliases: ['wordle', 'wordgame'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:5letters:970815965430439956>',
+  emoji: '<:5letters:971037718584889404>',
   data: {},
   hidden: true,
 };

@@ -32,7 +32,7 @@ const options = {
   aliases: ['connect4', '4inarow'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:4inarow:956316582064291881>',
+  emoji: '<:4inarow:971043096290816010>',
   data: {
     board: new Common.Board(7, 6),
     colors: [1, 0],

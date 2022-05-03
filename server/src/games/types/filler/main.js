@@ -25,7 +25,7 @@ const options = {
   aliases: ['switch', 'squaregame'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:filler:956316583016403045>',
+  emoji: '<:filler:971043094613098496>',
   data: {},
 };
 

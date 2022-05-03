@@ -32,7 +32,7 @@ const options = {
   aliases: ['beerpong', 'pong', 'cup'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:cuppong:956316582055911511>',
+  emoji: '<:cuppong:971043096676679700>',
   data: {},
 };
 
