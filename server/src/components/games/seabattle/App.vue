@@ -11,27 +11,29 @@
 
 <template>
   <game-view :game="game" :me="me" :hint="hint">
-    <div class="middle">
-      <ship-placer
-        :board="shipPlacementBoard"
-        :game="game"
-        v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
-      ></ship-placer>
-      <hit-board-view
-        class="board"
-        :board="myHitBoard"
-        :target="targetedCell"
-        :game="game"
-        :style="styles"
-        v-else
-      ></hit-board-view>
-      <hit-board-view
-        class="board replay-board"
-        :style="replayStyles"
-        :target="null"
-        :game="game"
-        :board="otherHitBoard"
-      ></hit-board-view>
+    <div class="middle" :style="replayStyles">
+      <div>
+        <hit-board-view
+          class="board replay-board"
+          :target="null"
+          :game="game"
+          :board="otherHitBoard"
+        ></hit-board-view>
+      </div>
+      <div>
+        <ship-placer
+          :board="shipPlacementBoard"
+          :game="game"
+          v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
+        ></ship-placer>
+        <hit-board-view
+          class="board"
+          :board="myHitBoard"
+          :target="targetedCell"
+          :game="game"
+          v-else
+        ></hit-board-view>
+      </div>
     </div>
 
     <div class="bottom">
@@ -224,7 +226,7 @@ const replayStyles = computed(() => {
   if (replaying.value) {
     var transform = 'translateX(0%)';
   } else {
-    var transform = 'translateX(-150%)';
+    var transform = 'translateX(-50%)';
   }
 
   return {
@@ -239,8 +241,19 @@ onMounted(() => {
 });
 </script>
 <style lang="scss">
-.board {
+.middle {
+  display: flex;
+  flex-direction: row;
+  width: 200%;
+  max-width: 200%;
+  transition: transform 0.3s ease;
 }
-.replay-board {
+
+.middle > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

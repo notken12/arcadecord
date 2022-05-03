@@ -24,6 +24,7 @@ export function useAspectRatio(ratio, element, callback) {
     element.value.style.height = `0px`;
 
     requestAnimationFrame(() => {
+      if (!element.value) return;
       const parent = element.value.parentElement;
 
       var cs = getComputedStyle(parent);
