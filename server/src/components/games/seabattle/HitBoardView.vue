@@ -10,46 +10,38 @@
 -->
 
 <template>
-  <div class="ratio vertical">
-    <canvas width="500" height="500"></canvas>
-    <div>
-      <div class="ratio horizontal">
-        <canvas width="500" height="500"></canvas>
-        <div class="hit-board" :style="styles">
-          <div class="hit-board-ships">
-            <placed-ship
-              v-for="ship in board.revealedShips"
-              :key="ship.id"
-              :ship="ship"
-              :board="board"
-            >
-            </placed-ship>
-          </div>
+  <div class="hit-board" :style="styles" ref="boardEl">
+    <div class="hit-board-ships">
+      <placed-ship
+        v-for="ship in board.revealedShips"
+        :key="ship.id"
+        :ship="ship"
+        :board="board"
+      >
+      </placed-ship>
+    </div>
 
-          <div class="hit-board-grid">
-            <div
-              class="hit-board-row"
-              v-for="row in board.cells"
-              :key="board.cells.indexOf(row)"
-            >
-              <hit-board-cell
-                v-for="cell in row"
-                :key="cell.id"
-                :cell="cell"
-                :board="board"
-                :game="game"
-              ></hit-board-cell>
-            </div>
-          </div>
-
-          <transition name="fade">
-            <div class="target-crosshair" v-if="target" :style="targetStyles">
-              <img src="@app/public/assets/seabattle/crosshair.png" />
-            </div>
-          </transition>
-        </div>
+    <div class="hit-board-grid">
+      <div
+        class="hit-board-row"
+        v-for="row in board.cells"
+        :key="board.cells.indexOf(row)"
+      >
+        <hit-board-cell
+          v-for="cell in row"
+          :key="cell.id"
+          :cell="cell"
+          :board="board"
+          :game="game"
+        ></hit-board-cell>
       </div>
     </div>
+
+    <transition name="fade">
+      <div class="target-crosshair" v-if="target" :style="targetStyles">
+        <img src="@app/public/assets/seabattle/crosshair.png" />
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -86,4 +78,11 @@ export default {
     PlacedShip,
   },
 };
+</script>
+<script setup>
+import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
+import { ref, computed, onMounted } from 'vue';
+
+const boardEl = ref(null);
+useAspectRatio(1, boardEl);
 </script>

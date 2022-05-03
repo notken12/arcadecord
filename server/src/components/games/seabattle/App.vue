@@ -11,18 +11,29 @@
 
 <template>
   <game-view :game="game" :me="me" :hint="hint">
-    <div class="middle">
-      <ship-placer
-        :board="shipPlacementBoard"
-        :game="game"
-        v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
-      ></ship-placer>
-      <hit-board-view
-        :board="myHitBoard"
-        :target="targetedCell"
-        :game="game"
-        v-else
-      ></hit-board-view>
+    <div class="middle" :style="replayStyles">
+      <div>
+        <hit-board-view
+          class="board replay-board"
+          :target="null"
+          :game="game"
+          :board="otherHitBoard"
+        ></hit-board-view>
+      </div>
+      <div>
+        <ship-placer
+          :board="shipPlacementBoard"
+          :game="game"
+          v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
+        ></ship-placer>
+        <hit-board-view
+          class="board"
+          :board="myHitBoard"
+          :target="targetedCell"
+          :game="game"
+          v-else
+        ></hit-board-view>
+      </div>
     </div>
 
     <div class="bottom">
@@ -107,7 +118,7 @@ export default {
     },
     shoot() {
       var cell = this.targetedCell;
-      console.log(this.game.data);
+      console.log(this.game);
 
       if (cell) {
         let { row, col } = cell;
@@ -140,6 +151,16 @@ export default {
       var myHitBoard = this.game.data.hitBoards[index];
       return myHitBoard;
     },
+    otherHitBoard() {
+      var index = this.game.myIndex;
+      if (index == -1) {
+        if (GameFlow.isItUsersTurn(this.game, index)) {
+          // game hasn't started yet but i can start the game by placing ships
+          index = this.game.turn;
+        }
+      }
+      return this.game.data.hitBoards[[1, 0][index]];
+    },
   },
   mounted() {
     window.Common = Common;
@@ -149,7 +170,6 @@ export default {
     });
 
     this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex);
-    console.log('mounted');
 
     if (
       !this.game.data.placed[this.myHitBoard.playerIndex] &&
@@ -177,13 +197,63 @@ export default {
 
 <script setup>
 import { useFacade } from '@app/components/base-ui/facade';
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { replayAction, utils } from '@app/js/client-framework';
 
-const { $replayTurn, $endReplay } = useFacade();
+const {
+  game,
+  me,
+  replaying,
+  $replayTurn,
+  $endReplay,
+  $endAnimation,
+  previousTurn,
+  contested,
+} = useFacade();
+
+const styles = computed(() => {
+  if (replaying.value) {
+    var transform = 'translateX(-100%)';
+  } else {
+    var transform = 'translateX(0%)';
+  }
+
+  return {
+    transform,
+  };
+});
+const replayStyles = computed(() => {
+  if (replaying.value) {
+    var transform = 'translateX(0%)';
+  } else {
+    var transform = 'translateX(-50%)';
+  }
+
+  return {
+    transform,
+  };
+});
 
 onMounted(() => {
   $replayTurn(() => {
-    $endReplay(0);
+    $endReplay(10000);
   });
 });
 </script>
+<style lang="scss">
+.middle {
+  display: flex;
+  flex-direction: row;
+  width: 200%;
+  max-width: 200%;
+  transition: transform 0.3s ease;
+}
+
+.middle > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
