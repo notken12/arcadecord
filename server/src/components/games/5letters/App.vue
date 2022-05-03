@@ -46,7 +46,7 @@ const hint = computed(() => {
 
 const myIndex = computed(() => {
   if (game.value.myIndex !== -1) {
-    return game.value.myIndex;
+    return game.value.myIndex + 0;
   }
   return 1;
 });
