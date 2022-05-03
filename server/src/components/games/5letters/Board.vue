@@ -78,7 +78,7 @@ for (let j = 0; j < props.guesses.length; j++) {
 }
 
 const getInsertionRow = () => {
-  return props.guesses.length;
+  return props.guesses.length ?? -1;
 };
 
 const getInsertionIndex = () => {
