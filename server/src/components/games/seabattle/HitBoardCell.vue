@@ -34,6 +34,15 @@ export default {
     cellStyles() {
       var board = this.board;
       board.ships = board.revealedShips;
+      var animation = 'none';
+      switch (this.cell.state) {
+        case Common.CELL_STATE_HIT:
+          animation = 'Hit 0.5s';
+          break;
+        case Common.CELL_STATE_MISS:
+          animation = 'Miss 0.5s';
+          break;
+      }
 
       var show = true;
       if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
@@ -42,7 +51,7 @@ export default {
 
       return {
         'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
-        animation: this.animation || 'none',
+        animation,
       };
     },
     imgURL() {

@@ -235,8 +235,12 @@ const replayStyles = computed(() => {
 });
 
 onMounted(() => {
-  $replayTurn(() => {
-    $endReplay(10000);
+  $replayTurn(async () => {
+    for (let action of previousTurn.value.actions) {
+      replayAction(game.value, action);
+      await utils.wait(300);
+    }
+    $endReplay(100);
   });
 });
 </script>
