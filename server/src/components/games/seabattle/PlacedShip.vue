@@ -68,11 +68,10 @@ onMounted(() => {
 });
 
 watch(
-  () => props.ship,
+  () => [props.ship.row, props.ship.col],
   () => {
     updatePos(true);
   },
-  { deep: true }
 );
 
 // const imgStyles = computed(() => {
