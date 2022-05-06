@@ -34,16 +34,15 @@ export default {
     cellStyles() {
       let board = this.board;
       board.ships = board.revealedShips;
-      let animation = this.animation;
 
       let show = true;
-      if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
+      if (Common.getShipAt(this.board, this.cell.col, this.cell.row)) {
         show = false;
       }
 
       return {
         'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
-        animation,
+        animation: this.animation,
       };
     },
     imgURL() {
@@ -53,7 +52,7 @@ export default {
   methods: {
     cellClicked() {
       if (
-        this.cell.state === Common.BOARD_STATE_EMPTY &&
+        this.cell.state === Common.CELL_STATE_EMPTY &&
         GameFlow.isItMyTurn(this.game)
       ) {
         bus.emit('changeCellect', this.cell);
@@ -87,6 +86,7 @@ export default {
             break;
         }
       },
+      // immediate: true
     },
   },
 };
