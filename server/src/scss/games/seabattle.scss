@@ -49,7 +49,9 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  border: 0.5px solid #00000055;
+  background-image: url('/assets/seabattle/FullBack.svg');
+  background-size: cover;
+  //border: 0.5px solid #00000055;
 }
 
 .ship-placer-row {
@@ -63,7 +65,7 @@
 .hit-board-cell {
   width: 100%;
   height: 100%;
-  border: 0.5px solid #00000055;
+  //border: 0.5px solid #00000055;
   user-select: none;
   box-sizing: border-box;
 }
@@ -79,7 +81,11 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
+  background-image: url('/assets/seabattle/FullBack.svg');
+  background-size: cover;
+  /*
   border: 1px solid #00000055;
+  */
 }
 
 .hit-board-row {

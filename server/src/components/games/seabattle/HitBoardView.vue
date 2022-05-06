@@ -33,6 +33,7 @@
           :cell="cell"
           :board="board"
           :game="game"
+          class="hit-board-cell"
         ></hit-board-cell>
       </div>
     </div>
