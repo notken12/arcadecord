@@ -34,15 +34,7 @@ export default {
     cellStyles() {
       let board = this.board;
       board.ships = board.revealedShips;
-      let animation = 'none';
-      switch (this.cell.state) {
-        case Common.CELL_STATE_HIT:
-          animation = 'hit 0.5s';
-          break;
-        case Common.CELL_STATE_MISS:
-          animation = 'miss 0.5s';
-          break;
-      }
+      let animation = this.animation;
 
       let show = true;
       if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
