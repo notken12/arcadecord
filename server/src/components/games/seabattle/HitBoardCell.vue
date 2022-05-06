@@ -32,19 +32,19 @@ export default {
   props: ['cell', 'board'],
   computed: {
     cellStyles() {
-      var board = this.board;
+      let board = this.board;
       board.ships = board.revealedShips;
-      var animation = 'none';
+      let animation = 'none';
       switch (this.cell.state) {
         case Common.CELL_STATE_HIT:
-          animation = 'Hit 0.5s';
+          animation = 'hit 0.5s';
           break;
         case Common.CELL_STATE_MISS:
-          animation = 'Miss 0.5s';
+          animation = 'miss 0.5s';
           break;
       }
 
-      var show = true;
+      let show = true;
       if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
         show = false;
       }
