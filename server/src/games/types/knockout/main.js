@@ -30,7 +30,7 @@ const options = {
   aliases: ['boom', 'knockout'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:knockout:956316584476049469>',
+  emoji: '<:knockout:971043094470463498>',
   data: {},
 };
 

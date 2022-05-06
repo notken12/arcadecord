@@ -97,7 +97,7 @@ function resend() {
           ><span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
           <Link href="/support-us">Support Us</Link>
           <span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
-          <Link href="/terms-of-service">Terms of Service</Link>
+          <Link href="/discord">Discord Server</Link>
         </section>
       </div>
     </div>

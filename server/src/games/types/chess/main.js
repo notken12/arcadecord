@@ -35,7 +35,7 @@ const options = {
   aliases: ['cheese'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:chess:956316582093668382>',
+  emoji: '<:chess:971043095871377449>',
   data: {
     // Populate on init
   },

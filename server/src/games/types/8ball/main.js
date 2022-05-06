@@ -23,7 +23,7 @@ const options = {
   aliases: ['pool'],
   minPlayers: 2,
   maxPlayers: 2,
-  emoji: '<:a_8ball:956316582089490492>',
+  emoji: '<:a8ball:971043096764756008>',
   data: {},
 };
 
