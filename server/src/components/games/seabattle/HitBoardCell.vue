@@ -32,26 +32,17 @@ export default {
   props: ['cell', 'board'],
   computed: {
     cellStyles() {
-      var board = this.board;
+      let board = this.board;
       board.ships = board.revealedShips;
-      var animation = 'none';
-      switch (this.cell.state) {
-        case Common.CELL_STATE_HIT:
-          animation = 'Hit 0.5s';
-          break;
-        case Common.CELL_STATE_MISS:
-          animation = 'Miss 0.5s';
-          break;
-      }
 
-      var show = true;
-      if (Common.getShipAt(this.board, this.cell.x, this.cell.y)) {
+      let show = true;
+      if (Common.getShipAt(this.board, this.cell.col, this.cell.row)) {
         show = false;
       }
 
       return {
         'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
-        animation,
+        animation: this.animation,
       };
     },
     imgURL() {
@@ -61,7 +52,7 @@ export default {
   methods: {
     cellClicked() {
       if (
-        this.cell.state === Common.BOARD_STATE_EMPTY &&
+        this.cell.state === Common.CELL_STATE_EMPTY &&
         GameFlow.isItMyTurn(this.game)
       ) {
         bus.emit('changeCellect', this.cell);
@@ -95,6 +86,7 @@ export default {
             break;
         }
       },
+      // immediate: true
     },
   },
 };

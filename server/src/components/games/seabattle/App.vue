@@ -240,7 +240,7 @@ onMounted(() => {
       replayAction(game.value, action);
       await utils.wait(300);
     }
-    $endReplay(100);
+    $endReplay(500);
   });
 });
 </script>

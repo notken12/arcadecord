@@ -13,9 +13,9 @@ const SHIP_TYPES = ['Carrier', 'Battleship', 'Cruiser', 'Destroyer'];
 const SHIP_LENGTHS = [4, 3, 2, 1];
 const SHIP_QUANTITIES = [1, 2, 3, 4];
 
-const BOARD_STATE_EMPTY = 0;
-const BOARD_STATE_MISS = 1;
-const BOARD_STATE_HIT = 2;
+const CELL_STATE_EMPTY = 0;
+const CELL_STATE_MISS = 1;
+const CELL_STATE_HIT = 2;
 const CELL_SIZE = 40;
 
 const DIR_OFFSETS = [
@@ -63,7 +63,7 @@ async function shoot(game, action) {
   var hitBoard = game.data.hitBoards[playerIndex];
   let { col: c, row: r } = action.data;
 
-  if (hitBoard.cells[r][c].state !== BOARD_STATE_EMPTY) {
+  if (hitBoard.cells[r][c].state !== CELL_STATE_EMPTY) {
     return false; // already shot
   }
 
@@ -78,7 +78,7 @@ async function shoot(game, action) {
   // get ship at x, y
   var ship = getShipAt(board, c, r);
   if (!ship) {
-    hitBoard.cells[r][c].state = BOARD_STATE_MISS;
+    hitBoard.cells[r][c].state = CELL_STATE_MISS;
 
     // missed, end turn
     await GameFlow.endTurn(game);
@@ -87,7 +87,7 @@ async function shoot(game, action) {
   }
 
   // hit, give another chance
-  hitBoard.cells[r][c].state = BOARD_STATE_HIT;
+  hitBoard.cells[r][c].state = CELL_STATE_HIT;
 
   // check if ship is sunk
   let sunk = true;
@@ -107,7 +107,7 @@ async function shoot(game, action) {
   for (let c = rangeC[0]; c <= rangeC[1]; c++) {
     for (let r = rangeR[0]; r <= rangeR[1]; r++) {
       // Check if hitboard has hits for all of the cells the ships occupy
-      if (hitBoard.cells[r][c].state !== BOARD_STATE_HIT) {
+      if (hitBoard.cells[r][c].state !== CELL_STATE_HIT) {
         sunk = false;
         break;
       }
@@ -418,9 +418,9 @@ export default {
   SHIP_TYPES,
   SHIP_LENGTHS,
   SHIP_QUANTITIES,
-  BOARD_STATE_EMPTY,
-  BOARD_STATE_HIT,
-  BOARD_STATE_MISS,
+  CELL_STATE_EMPTY,
+  CELL_STATE_HIT,
+  CELL_STATE_MISS,
   CELL_SIZE,
   shoot,
   ShipPlacementBoard,
