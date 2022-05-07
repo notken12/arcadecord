@@ -71,9 +71,8 @@ watch(
   () => [props.ship.row, props.ship.col],
   () => {
     updatePos(true);
-  },
+  }
 );
-
 </script>
 
 <style lang="scss">
