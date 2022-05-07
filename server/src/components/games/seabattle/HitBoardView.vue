@@ -40,7 +40,7 @@
 
     <transition name="fade">
       <div class="target-crosshair" v-if="target" :style="targetStyles">
-        <img src="@app/public/assets/seabattle/crosshair.png" />
+        <img src="@app/public/assets/seabattle/crosshair.svg" />
       </div>
     </transition>
   </div>
