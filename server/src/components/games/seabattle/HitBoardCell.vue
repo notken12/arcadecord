@@ -41,12 +41,12 @@ export default {
       }
 
       return {
-        'background-image': show ? 'url(' + this.imgURL + ')' : 'none',
+        'background-image': show && this.cell.state !== Common.CELL_STATE_EMPTY ? 'url(' + this.imgURL + ')' : 'none',
         animation: this.animation,
       };
     },
     imgURL() {
-      return '/assets/seabattle/cell-states/' + this.cell.state + '.png';
+      return '/assets/seabattle/cell-states/' + this.cell.state + '.svg';
     },
   },
   methods: {
