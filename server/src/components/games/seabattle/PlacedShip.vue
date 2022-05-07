@@ -51,7 +51,7 @@ const styles = computed(() => {
 const imgURL = computed(() => {
   var ship = props.ship;
   var shipType = ship.type;
-  return '/assets/seabattle/ships/' + shipType + '.png';
+  return '/assets/seabattle/ships/' + shipType + '.svg';
 });
 
 const updatePos = (animate) => {
@@ -74,21 +74,6 @@ watch(
   },
 );
 
-// const imgStyles = computed(() => {
-//   var ship = props.ship
-
-//   var x = ship.x * Common.CELL_SIZE
-//   var y = ship.y * Common.CELL_SIZE
-//   var width = ship.length * Common.CELL_SIZE
-//   var height = Common.CELL_SIZE
-
-//   return {
-//     left: x + 'px',
-//     top: y + 'px',
-//     width: width + 'px',
-//     height: height + 'px',
-//   }
-// })
 </script>
 
 <style lang="scss">
@@ -96,6 +81,7 @@ watch(
   position: absolute;
   height: 10%;
   cursor: pointer;
+  filter: drop-shadow(0 2px 4px #00000099);
 }
 
 .placed-ship-image {

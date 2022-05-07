@@ -71,7 +71,6 @@ export default {
   height: 16.6666667%;
   box-sizing: border-box;
   z-index: 0;
-  -webkit-filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
   filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.5));
 }
 .piece.yellow {
