@@ -15,10 +15,11 @@
       <div>
         <hit-board-view
           class="board replay-board"
-          :target="null"
+          :target="targetedCell"
           :game="game"
           :board="otherHitBoard"
-        ></hit-board-view>
+        >
+        </hit-board-view>
       </div>
       <div>
         <ship-placer
@@ -61,7 +62,7 @@
   </game-view>
 </template>
 
-<script>
+<script setup>
 import '@app/scss/games/seabattle.scss';
 
 import Common from '/gamecommons/seabattle';
@@ -71,133 +72,8 @@ import cloneDeep from 'lodash.clonedeep';
 import { runAction, utils as clientUtils } from '@app/js/client-framework.js';
 import GameFlow from '@app/js/GameFlow.js';
 import bus from '@app/js/vue-event-bus';
-
-function getMyHitBoard(game) {
-  var index = game.myIndex;
-  if (index == -1) {
-    if (GameFlow.isItUsersTurn(game, index)) {
-      // game hasn't started yet but i can start the game by placing ships
-      index = game.turn; //dog
-    }
-  }
-
-  var myHitBoard = game.data.hitBoards[index];
-
-  return myHitBoard;
-}
-
-export default {
-  data() {
-    return {
-      shipPlacementBoard: null,
-      targetedCell: null,
-      availableShips: null,
-    };
-  },
-  methods: {
-    placeShips() {
-      console.log('placing ships');
-      var t1 = performance.now();
-      this.shipPlacementBoard = Common.PlaceShips(
-        cloneDeep(this.availableShips),
-        new Common.ShipPlacementBoard(
-          this.myHitBoard.width,
-          this.myHitBoard.height
-        )
-      );
-      var t2 = performance.now();
-      console.log(
-        'Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.'
-      );
-    },
-    setShips() {
-      this.$runAction('placeShips', {
-        shipPlacementBoard: this.shipPlacementBoard,
-      });
-      this.$endAnimation(500);
-    },
-    shoot() {
-      var cell = this.targetedCell;
-      console.log(this.game);
-
-      if (cell) {
-        let { row, col } = cell;
-        this.$runAction('shoot', { row, col });
-        this.targetedCell = null;
-        this.$endAnimation(1500);
-      }
-    },
-  },
-  computed: {
-    hint() {
-      if (!this.game.data.placed[this.game.myIndex]) {
-        return 'Drag ships around or tap to rotate them';
-      } else {
-        return 'Tap on a tile';
-      }
-    },
-    isItMyTurn() {
-      return GameFlow.isItMyTurn(this.game);
-    },
-    myHitBoard() {
-      var index = this.game.myIndex;
-      if (index == -1) {
-        if (GameFlow.isItUsersTurn(this.game, index)) {
-          // game hasn't started yet but i can start the game by placing ships
-          index = this.game.turn;
-        }
-      }
-
-      var myHitBoard = this.game.data.hitBoards[index];
-      return myHitBoard;
-    },
-    otherHitBoard() {
-      var index = this.game.myIndex;
-      if (index == -1) {
-        if (GameFlow.isItUsersTurn(this.game, index)) {
-          // game hasn't started yet but i can start the game by placing ships
-          index = this.game.turn;
-        }
-      }
-      return this.game.data.hitBoards[[1, 0][index]];
-    },
-  },
-  mounted() {
-    window.Common = Common;
-
-    bus.on('changeCellect', (cell) => {
-      this.targetedCell = cell;
-    });
-
-    this.availableShips = Common.getAvailableShips(this.myHitBoard.playerIndex);
-
-    if (
-      !this.game.data.placed[this.myHitBoard.playerIndex] &&
-      this.isItMyTurn
-    ) {
-      this.placeShips();
-    }
-  },
-  components: {
-    ShipPlacer,
-    HitBoardView,
-  },
-  watch: {
-    replaying() {
-      if (
-        !this.game.data.placed[this.myHitBoard.playerIndex] &&
-        this.isItMyTurn
-      ) {
-        this.placeShips();
-      }
-    },
-  },
-};
-</script>
-
-<script setup>
 import { useFacade } from '@app/components/base-ui/facade';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { replayAction, utils } from '@app/js/client-framework';
 
 const {
@@ -206,35 +82,113 @@ const {
   replaying,
   $replayTurn,
   $endReplay,
-  $endAnimation,
   previousTurn,
-  contested,
+  $runAction,
+  $endAnimation,
 } = useFacade();
+
+let availableShips
 
 const styles = computed(() => {
   if (replaying.value) {
-    var transform = 'translateX(-100%)';
+    let transform = 'translateX(-100%)';
   } else {
-    var transform = 'translateX(0%)';
+    let transform = 'translateX(0%)';
   }
 
   return {
     transform,
   };
 });
+
 const replayStyles = computed(() => {
+  let transform
   if (replaying.value) {
-    var transform = 'translateX(0%)';
+    transform = 'translateX(0%)';
   } else {
-    var transform = 'translateX(-50%)';
+    transform = 'translateX(-50%)';
   }
 
   return {
     transform,
   };
 });
+
+const hint = computed(() => {
+  if (replaying.value) return
+  if (!game.value.data.placed[game.value.myIndex]) {
+    return 'Place your ships!';
+  } else {
+    return 'Tap on a tile to fire';
+  }
+});
+
+const isItMyTurn = computed(() => GameFlow.isItMyTurn(game.value));
+
+const myIndex = computed(() => {
+  return game.value.myIndex === -1 ? 1 : game.value.myIndex;
+});
+
+const myHitBoard = computed(() => {
+  return game.value.data.hitBoards[myIndex.value];
+});
+
+const otherHitBoard = computed(() => {
+  return game.value.data.hitBoards[[1, 0][myIndex.value]];
+});
+
+watch(replaying, () => {
+  if (!game.value.data.placed[myIndex.value] && isItMyTurn.value) placeShips();
+});
+
+const targetedCell = ref(null);
+
+const setShips = () => {
+  $runAction('placeShips', {
+    shipPlacementBoard: shipPlacementBoard.value,
+  });
+  $endAnimation(500);
+};
+
+const shipPlacementBoard = ref(null)
+
+const placeShips = () => {
+  console.log('placing ships');
+  let t1 = performance.now();
+  shipPlacementBoard.value = Common.PlaceShips(
+    cloneDeep(availableShips),
+    new Common.ShipPlacementBoard(
+      myHitBoard.value.width,
+      myHitBoard.value.height
+    )
+  );
+  let t2 = performance.now();
+  console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
+};
+
+const shoot = () => {
+  if (targetedCell.value) {
+    let { row, col } = targetedCell.value;
+    $runAction('shoot', { row, col });
+    targetedCell.value = null;
+    $endAnimation(1500);
+  }
+};
 
 onMounted(() => {
+  bus.on('changeCellect', (cell) => {
+    targetedCell.value = cell;
+  });
+
+  availableShips = Common.getAvailableShips(myHitBoard.value.playerIndex);
+
+  if (
+    !game.value.data.placed[myHitBoard.value.playerIndex] &&
+    isItMyTurn.value
+  ) {
+    placeShips();
+  }
+
   $replayTurn(async () => {
     for (let action of previousTurn.value.actions) {
       replayAction(game.value, action);
