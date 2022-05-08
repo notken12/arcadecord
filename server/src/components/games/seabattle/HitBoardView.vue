@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <Crosshair v-if="target" :target="target" :board="board" />
+    <Crosshair :target="target" :board="board" />
   </div>
 </template>
 

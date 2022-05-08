@@ -5,7 +5,6 @@ import { onMounted, ref, computed, watch } from 'vue';
 const props = defineProps({
   target: {
     type: Object,
-    required: true,
   },
   board: {
     type: Object,
@@ -19,10 +18,18 @@ const INITIAL_ANIMATION_DURATION = 0.2; // seconds
 const NON_INTIAL_ANIMATION_DURATION = 0.1; // seconds
 
 const updatePos = (initial) => {
+  if (!props.target) {
+    gsap.to(el.value, {
+      opacity: 0,
+      duration: 0.1,
+    });
+    return;
+  }
   const x = `${props.target.col * 100}%`;
   const y = `${props.target.row * 100}%`;
   if (!initial) {
     gsap.to(el.value, {
+      opacity: 1,
       x,
       y,
       duration: NON_INTIAL_ANIMATION_DURATION,
@@ -52,14 +59,16 @@ const styles = computed(() => {
   return {
     width: `${(1 / props.board.width) * 100}%`,
     height: `${(1 / props.board.height) * 100}%`,
+    pointerEvents: props.target ? 'auto' : 'none',
   };
 });
 
 watch(
-  () => [props.target.col, props.target.row],
-  () => {
-    updatePos(false);
-  }
+  () => props.target,
+  (_newValue, oldValue) => {
+    updatePos(!oldValue);
+  },
+  { deep: true, flush: 'post' }
 );
 
 onMounted(() => {
@@ -68,7 +77,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- <Transition name="target-fade"> -->
   <div class="target-crosshair" :style="styles" ref="el"></div>
+  <!-- </Transition> -->
 </template>
 
 <style lang="scss" scoped>
@@ -76,8 +87,8 @@ onMounted(() => {
   position: absolute;
   top: 0;
   left: 0;
-  transition: opacity 0.2s;
   background-image: url('/assets/seabattle/crosshair.svg');
   background-size: contain;
+  opacity: 0;
 }
 </style>

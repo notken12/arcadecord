@@ -16,7 +16,6 @@
         <hit-board-view
           class="board replay-board"
           :target="targetedCell"
-          :game="game"
           :board="otherHitBoard"
         >
         </hit-board-view>
@@ -31,31 +30,29 @@
           class="board"
           :board="myHitBoard"
           :target="targetedCell"
-          :game="game"
           v-else
         ></hit-board-view>
       </div>
     </div>
 
-    <div class="bottom">
-      <button
-        @click="placeShips"
-        v-if="!game.data.placed[game.myIndex] && isItMyTurn"
-      >
-        Shuffle
-      </button>
-      <button
-        @click="setShips"
-        v-if="!game.data.placed[game.myIndex] && isItMyTurn"
-      >
-        Done
-      </button>
-      <button
-        @click="shoot"
-        v-if="game.data.placed[game.myIndex] && targetedCell"
-      >
-        Fire!
-      </button>
+    <div class="bottom" :class="{ hidden: replaying }">
+      <div v-if="!game.data.placed[game.myIndex]" class="bottom-section">
+        <button
+          @click="placeShips"
+          :class="{ hidden: !game.data.placed[game.myIndex] && isItMyTurn }"
+        >
+          Shuffle
+        </button>
+        <button
+          @click="setShips"
+          :class="{ hidden: !game.data.placed[game.myIndex] && isItMyTurn }"
+        >
+          Done
+        </button>
+      </div>
+      <div v-else class="bottom-section">
+        <button @click="shoot" :class="{ hidden: !targetedCell }">Fire!</button>
+      </div>
     </div>
 
     <div id="game-canvas"></div>
@@ -87,7 +84,7 @@ const {
   $endAnimation,
 } = useFacade();
 
-let availableShips
+let availableShips;
 
 const styles = computed(() => {
   if (replaying.value) {
@@ -102,8 +99,8 @@ const styles = computed(() => {
 });
 
 const replayStyles = computed(() => {
-  let transform
-  if (replaying.value) {
+  let transform;
+  if (replaying.value && game.value.data.placed[game.value.myIndex]) {
     transform = 'translateX(0%)';
   } else {
     transform = 'translateX(-50%)';
@@ -115,7 +112,7 @@ const replayStyles = computed(() => {
 });
 
 const hint = computed(() => {
-  if (replaying.value) return
+  if (replaying.value) return;
   if (!game.value.data.placed[game.value.myIndex]) {
     return 'Place your ships!';
   } else {
@@ -150,7 +147,7 @@ const setShips = () => {
   $endAnimation(500);
 };
 
-const shipPlacementBoard = ref(null)
+const shipPlacementBoard = ref(null);
 
 const placeShips = () => {
   console.log('placing ships');
@@ -190,9 +187,27 @@ onMounted(() => {
   }
 
   $replayTurn(async () => {
+    if (
+      previousTurn.value.actions.length === 1 &&
+      previousTurn.value.actions[0].type === 'placeShips'
+    ) {
+      $endReplay(0);
+      return;
+    }
     for (let action of previousTurn.value.actions) {
-      replayAction(game.value, action);
-      await utils.wait(300);
+      if (action.type === 'shoot') {
+        await utils.wait(200);
+        targetedCell.value = {
+          row: action.data.row,
+          col: action.data.col,
+        };
+        await utils.wait(300);
+        targetedCell.value = null;
+        await utils.wait(100);
+        replayAction(game.value, action);
+      } else {
+        replayAction(game.value, action);
+      }
     }
     $endReplay(500);
   });
@@ -213,5 +228,18 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  max-height: 500px;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  gap: 16px;
 }
 </style>
