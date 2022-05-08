@@ -37,18 +37,8 @@
 
     <div class="bottom" :class="{ hidden: replaying }">
       <div v-if="!game.data.placed[game.myIndex]" class="bottom-section">
-        <button
-          @click="placeShips"
-          :class="{ hidden: !game.data.placed[game.myIndex] && isItMyTurn }"
-        >
-          Shuffle
-        </button>
-        <button
-          @click="setShips"
-          :class="{ hidden: !game.data.placed[game.myIndex] && isItMyTurn }"
-        >
-          Done
-        </button>
+        <button @click="placeShips">Shuffle</button>
+        <button @click="setShips">Done</button>
       </div>
       <div v-else class="bottom-section">
         <button @click="shoot" :class="{ hidden: !targetedCell }">Fire!</button>
@@ -120,7 +110,9 @@ const hint = computed(() => {
   }
 });
 
-const isItMyTurn = computed(() => GameFlow.isItMyTurn(game.value));
+const isItMyTurn = computed(() => {
+  return GameFlow.isItMyTurn(game.value);
+});
 
 const myIndex = computed(() => {
   return game.value.myIndex === -1 ? 1 : game.value.myIndex;

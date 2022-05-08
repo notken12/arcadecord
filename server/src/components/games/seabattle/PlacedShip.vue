@@ -34,6 +34,7 @@ const props = defineProps({
   board: {
     type: Object,
   },
+  drag: Boolean
 });
 
 const el = ref(null);
