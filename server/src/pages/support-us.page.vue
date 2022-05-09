@@ -26,12 +26,12 @@ import GameDisplay from 'components/index/GameDisplay.vue';
       <section>
         <h3>Support us</h3>
         <p>
-          To support Arcadecord, you can donate on Ko-fi or vote for us on
-          top.gg. We're a small team working for free, and any donations will
-          help keep the project going. Thank you so much for your consideration!
+          You can donate on Ko-fi to help support Arcadecord. We're a small team
+          working for free, and any donations will help keep the project going.
+          Every $1 makes a difference. Thank you so much for your consideration!
         </p>
         <LinkButton href="/ko-fi">Ko-Fi</LinkButton>
-        <LinkButton href="/top-gg">Vote</LinkButton>
+        <!-- <LinkButton href="/top-gg">Vote</LinkButton> -->
       </section>
     </Content>
     <Footer></Footer>
