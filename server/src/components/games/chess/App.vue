@@ -27,9 +27,6 @@
 </template>
 
 <script>
-// import { gsap } from 'gsap';
-// import { Draggable } from 'gsap/Draggable.js';
-
 import Board from './Board.vue';
 import bus from '@app/js/vue-event-bus';
 

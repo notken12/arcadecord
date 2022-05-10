@@ -38,52 +38,36 @@
       </div>
     </div>
 
-    <transition name="fade">
-      <div class="target-crosshair" v-if="target" :style="targetStyles">
-        <img src="@app/public/assets/seabattle/crosshair.svg" />
-      </div>
-    </transition>
+    <Crosshair :target="target" :board="board" />
   </div>
 </template>
 
-<script>
+<script setup>
 import HitBoardCell from './HitBoardCell.vue';
 import PlacedShip from './PlacedShip.vue';
+import Crosshair from './Crosshair.vue';
 
-export default {
-  props: ['board', 'target'],
-  data() {
-    return {};
-  },
-  computed: {
-    styles() {
-      return {
-        'background-size':
-          (1 / this.board.width) * 100 +
-          '% ' +
-          (1 / this.board.height) * 100 +
-          '%',
-      };
-    },
-    targetStyles() {
-      return {
-        left: (this.target.col / this.board.width) * 100 + '%',
-        top: (this.target.row / this.board.height) * 100 + '%',
-        width: (1 / this.board.width) * 100 + '%',
-        height: (1 / this.board.height) * 100 + '%',
-      };
-    },
-  },
-  components: {
-    HitBoardCell,
-    PlacedShip,
-  },
-};
-</script>
-<script setup>
 import { useAspectRatio } from '@app/components/base-ui/aspectRatio';
 import { ref, computed, onMounted } from 'vue';
 
+const props = defineProps({
+  board: {
+    type: Object,
+    required: true,
+  },
+  target: {
+    type: Object,
+  },
+});
+
 const boardEl = ref(null);
 useAspectRatio(1, boardEl);
+
+const styles = computed(() => {
+  return {
+    'background-size': `${(1 / props.board.width) * 100}% ${
+      (1 / props.board.height) * 100
+    }%`,
+  };
+});
 </script>

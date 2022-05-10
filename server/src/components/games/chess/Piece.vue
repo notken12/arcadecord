@@ -23,9 +23,6 @@ import { useFacade } from '@app/components/base-ui/facade';
 
 import { computed, inject, onMounted, watch, ref } from 'vue';
 
-// const { Draggable } = DraggablePkg;
-// gsap.registerPlugin(Draggable);
-
 const { game } = useFacade();
 const props = defineProps({
   piece: {

@@ -18,79 +18,69 @@
   ></div>
 </template>
 
-<script>
+<script setup>
 import Common from '/gamecommons/seabattle';
 import GameFlow from '@app/js/GameFlow.js';
 import bus from '@app/js/vue-event-bus';
+import { computed, ref, watch } from 'vue';
+import { useFacade } from '@app/components/base-ui/facade';
 
-export default {
-  data() {
-    return {
-      animation: 'none',
-    };
+const props = defineProps({
+  cell: {
+    type: Object,
+    required: true,
   },
-  props: ['cell', 'board'],
-  computed: {
-    cellStyles() {
-      let board = this.board;
-      board.ships = board.revealedShips;
+  board: {
+    type: Object,
+    required: true,
+  },
+});
 
-      let show = true;
-      if (Common.getShipAt(this.board, this.cell.col, this.cell.row)) {
-        show = false;
-      }
+const { game, replaying } = useFacade();
 
-      return {
-        'background-image':
-          show && this.cell.state !== Common.CELL_STATE_EMPTY
-            ? 'url(' + this.imgURL + ')'
-            : 'none',
-        animation: this.animation,
-      };
-    },
-    imgURL() {
-      return '/assets/seabattle/cell-states/' + this.cell.state + '.svg';
-    },
-  },
-  methods: {
-    cellClicked() {
-      if (
-        this.cell.state === Common.CELL_STATE_EMPTY &&
-        GameFlow.isItMyTurn(this.game)
-      ) {
-        bus.emit('changeCellect', this.cell);
-      }
-    },
-    altText: function () {
-      switch (this.cell.state) {
-        case Common.CELL_STATE_HIT:
-          return 'Hit';
-        case Common.CELL_STATE_MISS:
-          return 'Miss';
-        case Common.CELL_STATE_EMPTY:
-          return 'Unknown';
-        default:
-          return 'Unknown';
-      }
-    },
-  },
-  watch: {
-    'cell.state': {
-      handler: function (newVal, oldVal) {
-        switch (newVal) {
-          case Common.CELL_STATE_HIT:
-            this.animation = 'hit 0.5s';
-            break;
-          case Common.CELL_STATE_MISS:
-            this.animation = 'miss 1s';
-            break;
-          default:
-            this.animation = 'none';
-            break;
-        }
-      },
-      // immediate: true
-    },
-  },
+const animation = ref('none');
+
+const imgURL = computed(() => {
+  return `/assets/seabattle/cell-states/${props.cell.state}.svg`;
+});
+
+const cellStyles = computed(() => {
+  props.board.ships = props.board.revealedShips;
+
+  let show = !Common.getShipAt(props.board, props.cell.col, props.cell.row);
+
+  return {
+    'background-image':
+      show && props.cell.state !== Common.CELL_STATE_EMPTY
+        ? `url(${imgURL.value})`
+        : 'none',
+    animation: animation.value,
+  };
+});
+
+const cellClicked = () => {
+  if (replaying.value) return;
+  if (
+    props.cell.state === Common.CELL_STATE_EMPTY &&
+    GameFlow.isItMyTurn(game.value)
+  )
+    bus.emit('changeCellect', props.cell);
 };
+
+watch(
+  () => props.cell.state,
+  (newVal) => {
+    switch (newVal) {
+      case Common.CELL_STATE_HIT:
+        animation.value = 'hit 0.5s';
+        break;
+      case Common.CELL_STATE_MISS:
+        animation.value = 'miss 1s';
+        break;
+      default:
+        animation.value = 'none';
+        break;
+    }
+  }
+);
 </script>

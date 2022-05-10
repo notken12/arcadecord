@@ -103,16 +103,6 @@
   background-size: 100%;
 }
 
-.target-crosshair {
-  position: absolute;
-  transition: top 0.1s, left 0.1s, opacity 0.2s;
-}
-
-.target-crosshair img {
-  width: 100%;
-  height: 100%;
-}
-
 @keyframes miss {
   0% {
     opacity: 0;
