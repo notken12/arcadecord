@@ -56,7 +56,7 @@ Canvas.registerFont(
   { family: 'Work Sans' }
 );
 
-client.sendStartMessage = async function (g) {
+client.sendStartMessage = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -103,7 +103,7 @@ client.sendStartMessage = async function (g) {
   return await channel.send(message);
 };
 
-client.sendTurnInvite = async function (g) {
+client.sendTurnInvite = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -114,7 +114,7 @@ client.sendTurnInvite = async function (g) {
 
   let textChannel = await client.channels.fetch(game.channel);
   if (game.startMessage) {
-    textChannel.messages.delete(game.startMessage).catch(() => {});
+    textChannel.messages.delete(game.startMessage).catch(() => { });
   }
 
   if (game.inThread) {
@@ -137,15 +137,14 @@ client.sendTurnInvite = async function (g) {
   }
 
   if (game.lastTurnInvite) {
-    channel.messages.delete(game.lastTurnInvite).catch(() => {});
+    channel.messages.delete(game.lastTurnInvite).catch(() => { });
   }
 
   var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex];
 
   var m = {
-    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${
-      game.emoji + ' ' || ''
-    }${game.name}*`,
+    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${game.emoji + ' ' || ''
+      }${game.name}*`,
     allowedMentions: {
       parse: [],
     },
@@ -157,22 +156,18 @@ client.sendTurnInvite = async function (g) {
 
   let invite = await getInviteMessage(game);
   invite.embeds[0].setTitle(`${game.emoji || ''}  ${game.name}`);
+
+  let currentPlayer = game.players[game.turn];
   if (!game.hasEnded) {
-    invite.content = `Your turn, <@${game.players[game.turn].discordUser.id}>`;
+    invite.content = `Your turn, <@${currentPlayer.discordUser.id}>`;
   } else {
     if (game.winner === -1) {
-      invite.content = `It's a draw! <@${
-        game.players[game.turn].discordUser.id
-      }>`;
+      invite.content = `It's a draw! <@${currentPlayer.discordUser.id}>`;
     } else {
       if (game.winner === game.turn) {
-        invite.content = `${Emoji.CHECK} You win, <@${
-          game.players[game.turn].discordUser.id
-        }>!`;
+        invite.content = `${Emoji.CHECK} You win, <@${currentPlayer.discordUser.id}>!`;
       } else {
-        invite.content = `${Emoji.X} You lose, <@${
-          game.players[game.turn].discordUser.id
-        }>!`;
+        invite.content = `${Emoji.X} You lose, <@${currentPlayer.discordUser.id}>!`;
       }
     }
   }
@@ -182,6 +177,15 @@ client.sendTurnInvite = async function (g) {
     name: `${lastPlayer.discordUser.tag}`,
     iconURL: `https://cdn.discordapp.com/avatars/${lastPlayer.discordUser.id}/${lastPlayer.discordUser.avatar}.webp?size=32`,
   });
+
+  // Don't ping user if they're curently playing the game
+  if (
+    game.sockets[currentPlayer.id] !== null &&
+    game.sockets[currentPlayer.id] !== undefined
+  )
+    invite.allowedMentions = {
+      parse: [],
+    };
 
   return await channel.send(invite);
 };
