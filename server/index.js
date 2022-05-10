@@ -96,7 +96,7 @@ const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
 app.use(cors());
 
 // Health check
-app.head('/health', function(req, res) {
+app.head('/health', function (req, res) {
   res.sendStatus(200);
 });
 
@@ -104,7 +104,7 @@ app.head('/health', function(req, res) {
 // app.use('/dist', express.static(path.resolve('build/server/dist')));
 
 // Check the name of the host
-app.get('/name', function(req, res) {
+app.get('/name', function (req, res) {
   res.send(host.name);
 });
 
@@ -196,7 +196,7 @@ io.on('connection', (socket) => {
   appInsightsClient.trackEvent({ name: 'Socket opened' });
   //console.log('a user connected');
 
-  socket.on('connect_socket', async function(data, callback) {
+  socket.on('connect_socket', async function (data, callback) {
     const cookies = parse(socket.request.headers.cookie || '');
 
     let cookie = cookies.accessToken;
@@ -598,7 +598,7 @@ io.on('connection', (socket) => {
 });
 
 // Track all HTTP requests with Application Insights
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   appInsightsClient.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
@@ -615,8 +615,8 @@ import signOutController from './controllers/sign-out.controller.js';
 app.get('/discord-oauth', (req, res) => {
   res.redirect(
     'https://discord.com/api/oauth2/authorize?client_id=903801669194772531&redirect_uri=' +
-    encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-    '&response_type=code&scope=identify'
+      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
+      '&response_type=code&scope=identify'
   );
 });
 
@@ -646,10 +646,10 @@ app.get('/sign-in', signInController);
 app.get('/invite', (_req, res) => {
   res.redirect(
     'https://discord.com/api/oauth2/authorize?client_id=' +
-    process.env.BOT_CLIENT_ID +
-    '&redirect_uri=' +
-    encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-    '&response_type=code&scope=bot%20applications.commands%20identify'
+      process.env.BOT_CLIENT_ID +
+      '&redirect_uri=' +
+      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
+      '&response_type=code&scope=bot%20applications.commands%20identify'
   );
 });
 

@@ -82,7 +82,7 @@ const moveShip = (id, pos) => {
     if (pos.row !== undefined) ship.row = pos.row;
     if (pos.dir !== undefined) ship.dir = pos.dir;
     console.log('changed ship');
-    console.log(ship)
+    console.log(ship);
   }
 };
 
