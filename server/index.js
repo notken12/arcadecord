@@ -659,6 +659,10 @@ app.get('/discord-invite', (_req, res) => {
   res.redirect(process.env.DISCORD_SERVER_INVITE);
 });
 
+app.get('/ko-fi', (_req, res) => {
+  res.redirect('https://ko-fi.com/arcadecord');
+});
+
 import { createPageRenderer } from 'vite-plugin-ssr';
 
 var viteDevServer;
