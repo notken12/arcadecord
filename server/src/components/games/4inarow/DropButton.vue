@@ -15,24 +15,27 @@
   </button>
 </template>
 
-<script>
+<script setup>
+import { useFacade } from '@app/components/base-ui/facade';
 import GameFlow from '@app/js/GameFlow';
 import bus from '@app/js/vue-event-bus';
-export default {
-  props: {
-    selectedColumn: {
-      type: Number,
-      default: null,
-    },
+
+const { $runAction, $endAnimation } = useFacade();
+
+const props = defineProps({
+  selectedColumn: {
+    type: Number,
+    default: null,
   },
-  methods: {
-    placePiece() {
-      this.$runAction('place', { col: this.selectedColumn });
-      bus.emit('changeColumn', null);
-    },
-  },
+});
+
+const placePiece = () => {
+  $runAction('place', { col: props.selectedColumn });
+  $endAnimation(300);
+  bus.emit('changeColumn', null);
 };
 </script>
+
 <style lang="scss">
 @use 'scss/base/_theme' as theme;
 

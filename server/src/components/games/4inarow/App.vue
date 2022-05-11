@@ -25,24 +25,20 @@
     </div>
   </game-view>
 </template>
-<script>
+
+<script setup>
 import Board from './Board.vue';
 
-import GameFlow from '@app/js/GameFlow';
-import Common from '/gamecommons/chess';
-//♙♘♗♖♕♔♟︎♞♝♜♛♚
-export default {
-  methods: {},
-  computed: {},
-  mounted() {
-    this.$replayTurn(() => {
-      this.$endReplay(300);
-    });
-  },
-  components: {
-    Board,
-  },
-};
+import { onMounted } from 'vue';
+import { useFacade } from '@app/components/base-ui/facade';
+
+const { $replayTurn, $endReplay } = useFacade();
+
+onMounted(() => {
+  $replayTurn(() => {
+    $endReplay(300);
+  });
+});
 </script>
 
 <style lang="scss">
