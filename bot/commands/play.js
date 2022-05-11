@@ -23,7 +23,7 @@ import {
 import db from '../../db/db2.js';
 import Emoji from '../../Emoji.js';
 
-const THREAD_THRESHOLD = 10; // If the server's member count is above this threshold, automatically use a thread
+const THREAD_THRESHOLD = 100; // If the server's member count is above this threshold, automatically use a thread
 
 function getActionRows(dbOptionsId, invitedUsersIds) {
   let rows = [new MessageActionRow()];
