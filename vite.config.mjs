@@ -18,11 +18,9 @@ import { babel } from '@rollup/plugin-babel';
 import { visualizer } from 'rollup-plugin-visualizer';
 import graph from 'rollup-plugin-graph';
 import brotli from 'rollup-plugin-brotli';
-import handlebars from 'vite-plugin-handlebars';
 import ssr from 'vite-plugin-ssr/plugin';
 import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import cjs from 'rollup-plugin-cjs-es';
 
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -13,7 +13,7 @@
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "npm run startsingle",
-    "startprod": "concurrently \"node server/index.js 1\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
+    "startprod": "concurrently \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
     "startsingle": "concurrently \"nodemon --watch server server/index.js single\" \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "format": "prettier --write '**/*.js'"
   },
@@ -85,28 +85,23 @@
     "vite": "^2.9.6",
     "vite-plugin-ssr": "^0.3.64",
     "vue": "^3.2.33",
-    "vuex": "^4.0.2"
-  },
-  "devDependencies": {
+    "vuex": "^4.0.2",
     "@babel/preset-env": "^7.16.11",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "@peeky/test": "^0.13.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@vitejs/plugin-vue": "^2.2.4",
-    "babel-jest": "^27.5.1",
     "eslint": "^8.11.0",
     "eslint-plugin-vue": "^8.5.0",
-    "jest": "^27.5.1",
-    "nodemon": "^2.0.15",
-    "prettier": "^2.5.1",
     "rollup-plugin-brotli": "^3.1.0",
-    "rollup-plugin-cjs-es": "^1.0.1",
     "rollup-plugin-graph": "^2.0.0",
     "rollup-plugin-visualizer": "^5.5.4",
-    "sass": "^1.48.0",
-    "vite-plugin-handlebars": "^1.6.0",
+    "sass": "^1.48.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
     "vitest": "^0.7.10"
   }
 }
