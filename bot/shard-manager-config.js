@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import architecture from './config/architecture.js'
+import architecture from './config/architecture.js';
 
 export function loadShardManagerConfig() {
   var hostId = process.argv[2];
@@ -18,16 +18,16 @@ export function loadShardManagerConfig() {
     // Use environment variables
     config = {
       port: Number(process.env.PORT),
-      shardList: JSON.parse(process.env.SHARD_LIST).map(x => Number(x)),
-      id: Number(process.env.SHARD_MANAGER_ID)
-    }
+      shardList: JSON.parse(process.env.SHARD_LIST).map((x) => Number(x)),
+      id: Number(process.env.SHARD_MANAGER_ID),
+    };
   }
   if (process.env.TOTAL_SHARDS != null) {
-    totalShards = Number(process.env.TOTAL_SHARDS)
+    totalShards = Number(process.env.TOTAL_SHARDS);
   }
   return {
     config,
     totalShards,
-    hosts
-  }
+    hosts,
+  };
 }
