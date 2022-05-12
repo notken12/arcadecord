@@ -1,3 +1,12 @@
+// config.js - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 // get architecture from config
 import architecture from './config/architecture.js';
 
@@ -11,12 +20,12 @@ export function loadHostConfig() {
     // Use environment vars for config
     const host = {
       port: Number(process.env.PORT),
-      name: process.env.HOST_NAME,
-      id: Number(process.env.HOST_ID),
+      name: process.env.GAME_SERVER_HOST_NAME,
+      id: Number(process.env.GAME_SERVER_HOST_ID),
     };
     if (host.port == null || host.name == null || host.id == null) {
       throw new Error(
-        'Arcadecord: Host configuration has missing fields. Set them using the environment variables PORT, HOST_NAME, and HOST_ID. Or provide a host ID from server/config/architecture.js as an argument.'
+        'Arcadecord: Host configuration has missing fields. Set them using the environment variables PORT, GAME_SERVER_HOST_NAME, and GAME_SERVER_HOST_ID. Or provide a host ID from server/config/architecture.js as an argument.'
       );
     }
     return host;

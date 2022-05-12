@@ -12,13 +12,13 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config('../../.env');
 
-import config from './config.js';
+import { loadApiConfig } from './config.js';
 
 import FormData from 'form-data';
 
-const { ipcApiUrl } = config;
+const { botIpcUrl } = loadApiConfig();
 
-const baseUrl = ipcApiUrl;
+const baseUrl = botIpcUrl;
 
 function getAuthHeader() {
   return {

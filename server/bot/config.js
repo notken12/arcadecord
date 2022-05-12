@@ -7,6 +7,8 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-export default {
-  ipcApiUrl: 'http://localhost:2000',
-};
+export function loadApiConfig() {
+  return {
+    botIpcUrl: process.env.BOT_IPC_URL ?? 'http://localhost:2000',
+  };
+}

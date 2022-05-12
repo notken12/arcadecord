@@ -8,37 +8,17 @@
 // without the express permission of Ken Zhou.
 
 import { ShardingManager } from 'discord.js';
-import {
-  MessageAttachment,
-  MessageActionRow,
-  MessageEmbed,
-  MessageSelectMenu,
-  MessageButton,
-} from 'discord.js';
 import express from 'express';
-import path from 'path';
 
 // load .env that will be used for all processes running shard managers
 import dotenv from 'dotenv';
 dotenv.config();
 
-//load config for this specific host
-var hostId = process.argv[2];
-
 import authMiddleware from './auth-middleware.js';
 
-import architecture from './config/architecture.js';
+import { loadShardManagerConfig } from './shard-manager-config.js';
 
-import { gameTypes } from '../server/src/games/game-types.js';
-import Emoji from '../Emoji.js';
-
-// import multer from 'multer'
-// const upload = multer({ dest: 'uploads/' })
-
-const totalShards = architecture.totalShards;
-const hosts = architecture.hosts;
-
-const config = hosts.find((host) => host.id === hostId);
+const { config, totalShards, hosts } = loadShardManagerConfig();
 
 const shardList = config.shardList.map((id) => Number(id));
 const port = config.port;
@@ -269,12 +249,12 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 });
 
 app.listen(port, () =>
-  console.log(`Bot host ${hostId} listening on port ${port}`)
+  console.log(`Bot host ${config.id} listening on port ${port}`)
 );
 
 console.log(
   'Starting shard manager ' +
-    hostId +
+    config.id +
     ' with ' +
     shardList.length +
     ' shards out of ' +

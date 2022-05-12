@@ -16,11 +16,9 @@ dotenv.config();
 
 import authMiddleware from './auth-middleware.js';
 
-import architecture from './config/architecture.js';
+import { loadHostConfig } from './config.js';
 
-var { hosts, ipcApiPort, totalShards } = architecture;
-
-var port = ipcApiPort;
+const { hosts, port, totalShards } = loadHostConfig();
 
 var hostIndex = 0;
 function getHostByRoundRobin() {
