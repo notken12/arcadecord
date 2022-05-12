@@ -1,6 +1,6 @@
 # Configuration
 
-## Game server
+## Game server: `server/index.js`
 
 Environment vars:
 
@@ -9,14 +9,14 @@ Environment vars:
 - `GAME_SERVER_HOST_ID`: (Number) id of the host
 - `BOT_IPC_URL`: url of the bot proxy
 
-## Bot proxy
+## Bot proxy: `bot/proxy.js`
 
 Environment vars:
 
 - `BOT_PROXY_PORT`: (Number) port to listen on
 - `TOTAL_SHARDS`: total amount of bot shards. This must add up to the total amount of shards being spawned by bot shard managers. See `SHARD_LIST` @ Bot shard manager
 
-## Bot shard manager
+## Bot shard manager: `bot/index.js`
 
 Environment vars:
 
