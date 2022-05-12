@@ -6,7 +6,7 @@ Environment vars:
 
 - `PORT`: (Number) port to listen on
 - `GAME_SERVER_HOST_NAME`: name of the host
-- `GAME_SERVER_HOST_ID`: (Number) id of the host
+- `GAME_SERVER_HOST_ID`: id of the host
 - `BOT_IPC_URL`: url of the bot proxy
 
 ## Bot proxy: `bot/proxy.js`
