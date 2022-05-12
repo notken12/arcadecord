@@ -26,62 +26,43 @@
   </game-view>
 </template>
 
-<script>
+<script setup>
 import Board from './Board.vue';
 import bus from '@app/js/vue-event-bus';
 
-import GameFlow from '@app/js/GameFlow';
 import Common from '/gamecommons/chess';
 import { replayAction } from '@app/js/client-framework';
+import { useFacade } from '@app/components/base-ui/facade';
+import { ref, computed, onMounted } from 'vue';
 
-// gsap.registerPlugin(Draggable);
+const { game, $replayTurn, $endReplay, previousTurn } = useFacade();
 
-export default {
-  data() {
-    return {
-      selectedPiece: null,
-    };
-  },
-  methods: {
-    movePiece() {},
-  },
-  computed: {
-    hint() {
-      if (this.selectedPiece) {
-        return 'Tap a square to move to';
-      } else {
-        return 'Tap a piece to select it';
-      }
-    },
-    board: function () {
-      return this.game.data.board;
-    },
-    myColor() {
-      let index = this.game.myIndex === -1 ? 1 : this.game.myIndex;
-      return this.game.data.colors[index];
-    },
-  },
-  mounted() {
-    // gsap.registerPlugin(Draggable);
-    this.$replayTurn(() => {
-      replayAction(
-        this.game,
-        this.game.turns[this.game.turns.length - 1].actions[0]
-      );
-      this.$endReplay(1000);
-    });
+const selectedPiece = ref(null);
 
-    bus.on('piece-selected', (piece) => {
-      this.selectedPiece = piece;
-    });
+const hint = computed(() => {
+  if (selectedPiece.value) return 'Tap a square to move to';
+  else return 'Tap a piece to select it';
+});
 
-    window.Common = Common;
-    window.game = this.game;
-  },
-  components: {
-    Board,
-  },
-};
+const board = computed(() => {
+  return game.value.data.board;
+});
+
+const myColor = computed(() => {
+  let index = this.game.myIndex === -1 ? 1 : this.game.myIndex;
+  return this.game.data.colors[index];
+});
+
+onMounted(() => {
+  $replayTurn(() => {
+    replayAction(game.value, previousTurn.value.actions[0]);
+    $endReplay(1000);
+  });
+
+  bus.on('piece-selected', (piece) => {
+    selectedPiece.value = piece;
+  });
+});
 </script>
 
 <style lang="scss">

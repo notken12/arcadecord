@@ -31,7 +31,7 @@
   </game-view>
 </template>
 
-<script>
+<script setup>
 // Import Vue components
 import ScoreBadge from './ScoreBadge.vue';
 import Board from './Board.vue';
@@ -42,6 +42,8 @@ import Changer from './Changer.vue';
 
 import { replayAction } from '@app/js/client-framework.js';
 import Common from '/gamecommons/filler';
+import { useFacade } from '@app/components/base-ui/facade';
+import { onMounted, computed } from 'vue';
 
 // Export Vue component
 
@@ -51,41 +53,30 @@ import Common from '/gamecommons/filler';
 
 // ** See ChangerButton.vue for an example of how to run an action **
 
-export default {
-  data() {
-    return {};
-  },
-  methods: {
-    getBlobSize(playerIndex) {
-      var blob = Common.Board.getPlayerBlob(this.game.data.board, playerIndex);
-      return blob.length;
-    },
-  },
-  computed: {
-    hint() {
-      return 'Tap a color to switch to that color';
-    },
-  },
-  components: {
-    ScoreBadge,
-    Board,
-    Changer,
-  },
-  mounted() {
-    // Define how turn replays should be handled
-    this.$replayTurn(() => {
-      // Replay opponent's first (and only) action, which is switching colors
+const { game, $replayTurn, $endReplay, previousTurn } = useFacade();
 
-      // In other games you would want to loop through all actions and
-      // replay them at a given interval for the animations to play out
-      replayAction(this.game, this.previousTurn.actions[0]);
+// const getBlobSize = (playerIndex) => {
+//   let blob = Common.Board.getPlayerBlob(game.value.data.board, playerIndex);
+//   return blob.length;
+// };
 
-      // End the turn replay after 750 ms, which is how long the css animation takes
-      this.$endReplay(750); // ms
-    });
-  },
-  methods: {},
-};
+const hint = computed(() => {
+  return 'Tap a color to switch to that color';
+});
+
+onMounted(() => {
+  // Define how turn replays should be handled
+  $replayTurn(() => {
+    // Replay opponent's first (and only) action, which is switching colors
+
+    // In other games you would want to loop through all actions and
+    // replay them at a given interval for the animations to play out
+    replayAction(game.value, previousTurn.value.actions[0]);
+
+    // End the turn replay after 750 ms, which is how long the css animation takes
+    $endReplay(750); // ms
+  });
+});
 </script>
 
 <style src="scss/games/filler.scss" lang="scss"></style>

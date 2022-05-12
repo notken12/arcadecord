@@ -10,9 +10,12 @@
 let start = Date.now();
 
 import dotenv from 'dotenv';
-dotenv.config({
-  path: './server/.env',
-});
+dotenv.config();
+
+// Get host configuration
+import { loadHostConfig } from './config.js';
+const host = loadHostConfig();
+console.log(host);
 
 import express from 'express';
 const app = express();
@@ -69,29 +72,9 @@ const __dirname = path.dirname(__filename);
 // Connect to database
 await db.connect(process.env.MONGODB_URI);
 
-// get architecture from config
-import architecture from './config/architecture.js';
-
-const { hosts } = architecture;
-
-// get the current host info
-const hostId = process.argv[2];
-const host = hosts.find((host) => host.id === hostId);
-
-var port;
-
-if (
-  process.env.NODE_ENV === 'production' &&
-  process.env.HOSTED_ON === 'heroku'
-) {
-  port = process.env.PORT;
-} else {
-  port = host.port;
-}
-
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
-const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
+const SnowflakeGenerator = new Generator(946684800000, host.id);
 
 app.use(cors());
 
@@ -157,13 +140,13 @@ async function useBuiltFile(pathName, req, res) {
   }
 });*/
 
-server.listen(port, () => {
+server.listen(host.port, () => {
   let duration = Date.now() - start;
   appInsights.defaultClient.trackMetric({
     name: 'Server startup time',
     value: duration,
   });
-  console.log(`Server host ${hostId} listening at port ${port}`);
+  console.log(`Server host ${host.id} listening at port ${host.port}`);
 });
 
 const io = new Server(server, {
@@ -742,7 +725,6 @@ app.get('*', async (req, res, next) => {
     userId,
   };
   const pageContext = await renderPage(pageContextInit);
-  const { httpResponse } = pageContext;
 
   if (pageContext.redirectTo) {
     res.redirect(307, pageContext.redirectTo);
