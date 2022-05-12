@@ -24,6 +24,7 @@ export function loadHostConfig() {
       id: Number(process.env.GAME_SERVER_HOST_ID),
     };
     if (host.port == null || host.name == null || host.id == null) {
+      console.log(host);
       throw new Error(
         'Arcadecord: Host configuration has missing fields. Set them using the environment variables PORT, GAME_SERVER_HOST_NAME, and GAME_SERVER_HOST_ID. Or provide a host ID from server/config/architecture.js as an argument.'
       );

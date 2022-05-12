@@ -6,6 +6,11 @@ services:
       dockerfile: './docker/gameserver/Dockerfile'
     ports:
       - '3000:3000'
+    environment:
+      - PORT=3000
+      - GAME_SERVER_HOST_ID=0
+      - GAME_SERVER_HOST_NAME=mango
+      - BOT_IPC_URL=localhost:2000
   botproxy:
     build:
       context: .
