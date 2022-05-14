@@ -22,7 +22,7 @@ const baseUrl = botIpcUrl;
 
 function getAuthHeader() {
   return {
-    Authorization: `Bearer ${process.env.BOT_IPC_API_TOKEN}`,
+    Authorization: `Bearer ${process.env.BOT_IPC_TOKEN}`,
   };
 }
 
