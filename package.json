@@ -13,7 +13,7 @@
     "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "npm run startsingle",
-    "startprod": "concurrently \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
+    "startprod": "concurrently \"node server/web.js\" \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
     "startsingle": "concurrently \"nodemon --watch server server/web.js\" \"nodemon --watch server server/index.js single\" \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
     "format": "prettier --write '**/*.js'"
   },
