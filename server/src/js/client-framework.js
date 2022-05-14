@@ -38,7 +38,8 @@ let onPageHasUnsavedChanges, onAllChangesSaved;
 async function useOnClient() {
   console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
-  socket = io(`${import.meta.env.VITE_GAME_SERVER_URL}`);
+  console.log('connecting to ' + import.meta.env.VITE_GAME_SERVER_URL);
+  socket = io(import.meta.env.VITE_GAME_SERVER_URL);
 
   const beforeUnloadListener = (event) => {
     event.preventDefault();
@@ -71,21 +72,21 @@ class Action {
 
 const client = {
   eventHandlers: {},
-  emit: function (event, ...args) {
+  emit: function(event, ...args) {
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       callback(...args);
     }
   },
-  on: function (event, callback) {
+  on: function(event, callback) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
     this.eventHandlers[event].push(callback);
   },
 };
 
 const utils = {
-  getGameId: function (location) {
+  getGameId: function(location) {
     return location.pathname.split('/')[2];
   },
   propertiesToIgnore: ['client', 'actionModels'],

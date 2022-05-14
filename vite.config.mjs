@@ -22,6 +22,9 @@ import ssr from 'vite-plugin-ssr/plugin';
 import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function* getFiles(dir) {
@@ -39,12 +42,12 @@ async function* getFiles(dir) {
   }
 }
 
-var walk = function (dir) {
+var walk = function(dir) {
   // Get all .html files
   var results = [];
   if (dir.endsWith('/games/types')) return results;
   var list = fs.readdirSync(dir);
-  list.forEach(function (file) {
+  list.forEach(function(file) {
     file = dir + '/' + file;
     var stat = fs.statSync(file);
     if (stat && stat.isDirectory()) {
