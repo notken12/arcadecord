@@ -35,14 +35,17 @@ export default {
       userId: user._id,
     };
 
-    const response = await fetch(`${process.env.GAME_SERVER_URL}/create-game`, {
-      method: 'post',
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.GAME_SERVER_TOKEN}`,
-      },
-    }).catch((e) => {
+    const response = await fetch(
+      `${process.env.VITE_GAME_SERVER_URL}/create-game`,
+      {
+        method: 'post',
+        body: JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.GAME_SERVER_TOKEN}`,
+        },
+      }
+    ).catch((e) => {
       console.error(e);
       return { ok: false };
     });

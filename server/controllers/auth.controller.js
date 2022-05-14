@@ -33,7 +33,7 @@ export default (req, res) => {
     if (
       error === 'access_denied' &&
       errorDescription ===
-        'The resource owner or authorization server denied the request'
+      'The resource owner or authorization server denied the request'
     ) {
       res.send(
         `Whoops, looks like you've denied Arcadecord access to your account. If this is a mistake, please go back and try again.<br>
@@ -90,7 +90,7 @@ export default (req, res) => {
           )._id;
           let token = generateAccessToken(id.toString());
           res.cookie('accessToken', token, {
-            httpOnly: true,
+            httpOnly: false,
             maxAge: tenYears,
           });
         } else {
@@ -102,7 +102,7 @@ export default (req, res) => {
           });
           let token = generateAccessToken(existingUserId.toString());
           res.cookie('accessToken', token, {
-            httpOnly: true,
+            httpOnly: false,
             maxAge: tenYears,
           });
         }

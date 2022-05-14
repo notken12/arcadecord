@@ -114,7 +114,7 @@ export default {
         label: 'Sign in',
         style: 'LINK',
         // emoji: '',
-        url: process.env.GAME_SERVER_URL + '/sign-in',
+        url: process.env.VITE_GAME_SERVER_URL + '/sign-in',
       });
       row.addComponents([button]);
       await interaction.editReply({

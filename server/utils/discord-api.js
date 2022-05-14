@@ -11,7 +11,7 @@ import fetch from 'node-fetch';
 import db from '../../db/db2.js';
 import BotApi from '../bot/api.js';
 
-const serialize = function (obj) {
+const serialize = function(obj) {
   let str = [];
   for (let p in obj)
     if (obj.hasOwnProperty(p)) {
@@ -37,7 +37,7 @@ async function getNewAccessToken(dbUser) {
   body.append('grant_type', 'refresh_token');
   body.append('refresh_token', dbUser.discordRefreshToken);
   // body.append('scope', 'identify email connections')
-  body.append('redirect_uri', process.env.GAME_SERVER_URL + '/auth');
+  body.append('redirect_uri', process.env.VITE_GAME_SERVER_URL + '/auth');
 
   // console.log(body)
   var res = await fetch('https://discord.com/api/v8/oauth2/token', {

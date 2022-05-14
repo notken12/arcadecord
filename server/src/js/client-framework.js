@@ -71,21 +71,21 @@ class Action {
 
 const client = {
   eventHandlers: {},
-  emit: function (event, ...args) {
+  emit: function(event, ...args) {
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       callback(...args);
     }
   },
-  on: function (event, callback) {
+  on: function(event, callback) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
     this.eventHandlers[event].push(callback);
   },
 };
 
 const utils = {
-  getGameId: function (location) {
+  getGameId: function(location) {
     return location.pathname.split('/')[2];
   },
   propertiesToIgnore: ['client', 'actionModels'],
@@ -269,6 +269,15 @@ async function resendInvite() {
   });
 }
 
+const parseCookie = (str) =>
+  str
+    .split(';')
+    .map((v) => v.split('='))
+    .reduce((acc, v) => {
+      acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+      return acc;
+    }, {});
+
 async function connect(gameId, callback) {
   let baseCallback = async (response) => {
     if (!response) return;
@@ -301,6 +310,7 @@ async function connect(gameId, callback) {
     'connect_socket',
     {
       gameId: gameId,
+      accessToken: parseCookie(document.cookie).accessToken,
     },
     baseCallback
   );
