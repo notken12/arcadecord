@@ -37,6 +37,7 @@ function toBase62(n) {
 }
 
 export default async (req, res) => {
+  console.log('creating game');
   try {
     // get token from headers
     var authHeader = req.headers.authorization;

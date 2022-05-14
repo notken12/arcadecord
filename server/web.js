@@ -70,19 +70,6 @@ const __dirname = path.dirname(__filename);
 // Connect to database
 await db.connect(process.env.MONGODB_URI);
 
-import httpProxy from 'http-proxy';
-
-let proxy;
-
-if (host.gameServerProxyPort != null) {
-  // Create a basic proxy server in one line of code...
-  //
-  // This listens on port 8000 for incoming HTTP requests
-  // and proxies them to port 9000
-  console.log(`Proxying websocket to port ${host.gameServerProxyPort}`);
-  proxy = httpProxy.createProxyServer({});
-}
-
 app.use(cors());
 
 // Health check
@@ -252,16 +239,29 @@ app.get('*', async (req, res, next) => {
   }
 });
 
-app.use('*', (req, res, next) => {
-  if (proxy) {
-    const target = `http://localhost:${host.gameServerProxyPort}`;
-    console.log(`proxing to ${target}`);
-    proxy.web(req, res, {
-      target,
-    });
-  } else {
-    next();
-  }
-});
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
+
+if (host.gameServerProxyPort != null) {
+  // Create a basic proxy server in one line of code...
+  //
+  // This listens on port 8000 for incoming HTTP requests
+  // and proxies them to port 9000
+  console.log(`Proxying websocket to port ${host.gameServerProxyPort}`);
+  const target = `http://localhost:${host.gameServerProxyPort}`;
+  const middleware = createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    ws: true,
+    /**
+     * Fix bodyParser
+     **/
+    onProxyReq: fixRequestBody,
+  });
+
+  app.use((req, res, next) => {
+    console.log(`Proxing request to ${target}`);
+    middleware(req, res, next);
+  });
+}
 
 export const handler = app;
