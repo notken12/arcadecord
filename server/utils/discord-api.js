@@ -11,7 +11,7 @@ import fetch from 'node-fetch';
 import db from '../../db/db2.js';
 import BotApi from '../bot/api.js';
 
-const serialize = function(obj) {
+const serialize = function (obj) {
   let str = [];
   for (let p in obj)
     if (obj.hasOwnProperty(p)) {
