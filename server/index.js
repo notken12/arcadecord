@@ -19,6 +19,7 @@ const host = loadHostConfig();
 import express from 'express';
 const app = express();
 
+import shrinkRay from 'shrink-ray-current';
 // Compress all requests
 app.use(shrinkRay());
 
@@ -40,7 +41,6 @@ import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import cors from 'cors';
 import JWT from 'jsonwebtoken';
-import shrinkRay from 'shrink-ray-current';
 
 import db from '../db/db2.js';
 
@@ -82,62 +82,10 @@ app.head('/health', function (req, res) {
   res.sendStatus(200);
 });
 
-// app.use('/public', express.static(path.resolve('build/server/public')));
-// app.use('/dist', express.static(path.resolve('build/server/dist')));
-
 // Check the name of the host
 app.get('/name', function (req, res) {
   res.send(host.name);
 });
-
-//console.log(vite.middlewares.stack[5].handle.toString());
-
-async function useBuiltFile(pathName, req, res) {
-  try {
-    if (process.env.NODE_ENV !== 'production') {
-      // Dev mode, use Vite dev server
-      const url = req.originalUrl;
-      // 1. Read html file
-      let template = fs.readFileSync(
-        path.resolve(__dirname, pathName),
-        'utf-8'
-      );
-
-      // 2. Apply Vite HTML transforms. This injects the Vite HMR client, and
-      //    also applies HTML transforms from Vite plugins, e.g. global preambles
-      //    from @vitejs/plugin-react
-      template = await viteDevServer.transformIndexHtml(url, template);
-
-      // 6. Send the rendered HTML back.
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-    } else {
-      // Production, use static built files
-      var prefix = path.resolve(__dirname, './src');
-      var filePath = path
-        .resolve(__dirname, pathName)
-        .replace(path.resolve(prefix, './public'), `${__dirname}/dist`)
-        .replace(prefix, `${__dirname}/src/dist`);
-      res.sendFile(filePath);
-    }
-  } catch (err) {
-    // Send internal server error
-    console.error(err);
-    res.status(500).end('Internal server error');
-  }
-}
-
-// Example: Express
-// On request, build each file on request and respond with its built contents
-/*app.use(async (req, res, next) => {
-  try {
-    var proxyResult = await proxySnowpackDev(req.url, res);
-    if (!proxyResult) {
-      next();
-    }
-  } catch (err) {
-    next();
-  }
-});*/
 
 server.listen(host.port, () => {
   let duration = Date.now() - start;
@@ -145,19 +93,21 @@ server.listen(host.port, () => {
     name: 'Server startup time',
     value: duration,
   });
-  console.log(`Server host ${host.id} listening at port ${host.port}`);
+  console.log(`Game server host ${host.id} listening at port ${host.port}`);
 });
 
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'arcadecord.herokuapp.com'],
+    origin: [
+      'http://localhost:3000',
+      'arcadecord.herokuapp.com',
+      'www.arcadecord.com',
+      'arcadecord.com',
+    ],
   },
 });
 
 // Use redis adapter to communicate socket data with other hosts
-// import redis from 'socket.io-redis';
-// io.adapter(redis({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT }));
-
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 
@@ -585,154 +535,5 @@ app.use(function (req, res, next) {
   next();
 });
 
-/*app.get('/vite/:url', (req, res) => {
-  console.log(req.params.url);
-  proxyViteDev(req.params.url, res);
-})*/
-
-// Use controllers to handle requests
-import authController from './controllers/auth.controller.js';
-import signOutController from './controllers/sign-out.controller.js';
-
-app.get('/discord-oauth', (req, res) => {
-  res.redirect(
-    'https://discord.com/api/oauth2/authorize?client_id=903801669194772531&redirect_uri=' +
-      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=identify'
-  );
-});
-
-//get authorization code
-app.get('/auth', authController);
-
-app.get('/game/:gameId', async (req, res, next) => {
-  if (
-    req.params.gameId !== undefined &&
-    req.params.gameId !== null &&
-    req.params.gameId !== 'favicon.ico'
-  ) {
-    res.cookie('gameId', req.params.gameId, {
-      maxAge: 1000 * 60 * 60 * 24 * 365,
-    });
-  }
-
-  next();
-});
-
 import createGameController from './controllers/create-game.controller.js';
 app.post('/create-game', createGameController);
-
-import signInController from './controllers/sign-in.controller.js';
-app.get('/sign-in', signInController);
-
-app.get('/invite', (_req, res) => {
-  res.redirect(
-    'https://discord.com/api/oauth2/authorize?client_id=' +
-      process.env.BOT_CLIENT_ID +
-      '&redirect_uri=' +
-      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
-      '&response_type=code&scope=bot%20applications.commands%20identify'
-  );
-});
-
-app.get('/sign-out', signOutController);
-
-app.get('/discord-invite', (_req, res) => {
-  res.redirect(process.env.DISCORD_SERVER_INVITE);
-});
-
-app.get('/ko-fi', (_req, res) => {
-  res.redirect('https://ko-fi.com/arcadecord');
-});
-
-import { createPageRenderer } from 'vite-plugin-ssr';
-
-var viteDevServer;
-const isProduction = process.env.NODE_ENV === 'production';
-// const root = `${path.dirname(import.meta.url)}/src`;
-const root = `${__dirname}/src`;
-const base = '/';
-const baseAssets = '/';
-const outDir = `dist`;
-
-if (!isProduction) {
-  // IF DEVELOPMENT
-
-  // Create Vite server in middleware mode. This disables Vite's own HTML
-  // serving logic and let the parent server take control.
-  //
-  // In middleware mode, if you want to use Vite's own HTML serving logic
-  // use `'html'` as the `middlewareMode` (ref https://vitejs.dev/config/#server-middlewaremode)
-  let { createServer: createViteServer } = await import('vite');
-  let hmr = true;
-
-  if (process.env.HOSTED_ON === 'gitpod') {
-    hmr = false;
-  }
-
-  viteDevServer = await createViteServer({
-    server: {
-      middlewareMode: 'ssr',
-      hmr,
-    },
-  });
-  // use vite's connect instance as middleware
-  app.use(viteDevServer.middlewares);
-} else {
-  // IF PRODUCTION
-  app.use('/', express.static(path.resolve(__dirname, 'src/dist/client')));
-}
-
-const renderPage = createPageRenderer({
-  viteDevServer,
-  isProduction,
-  root,
-  base,
-  baseAssets,
-  outDir,
-});
-
-const apiRoutes = [
-  '/create-game',
-  '/auth',
-  '/invite-successful',
-  '/discord-oauth2-sign-in',
-  '/discord-oauth2-invite-bot',
-  '/sign-in',
-  '/discord-invite',
-];
-
-app.get('*', async (req, res, next) => {
-  const url = req.originalUrl;
-  let matchingRoute = apiRoutes.find((r) => url.startsWith(r));
-  if (matchingRoute) return next();
-
-  let cookie = req.cookies.accessToken;
-
-  //check database if user is signed in
-  let userId;
-  let token;
-  try {
-    token = JWT.verify(cookie, process.env.JWT_SECRET);
-    userId = token.id;
-  } catch (e) {
-    userId = null;
-  }
-
-  const pageContextInit = {
-    url,
-    userId,
-  };
-  const pageContext = await renderPage(pageContextInit);
-
-  if (pageContext.redirectTo) {
-    res.redirect(307, pageContext.redirectTo);
-  } else if (!pageContext.httpResponse) {
-    return next();
-  } else {
-    const { body, statusCode, contentType } = pageContext.httpResponse;
-    res.status(statusCode).type(contentType).send(body);
-  }
-});
-
-export const handler = app;

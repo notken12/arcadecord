@@ -17,7 +17,7 @@ export function loadHostConfig() {
   const host = hosts.find((host) => host.id === hostId) || {};
 
   // Use environment vars for config
-  host.port = Number(process.env.PORT ?? host.port);
+  host.port = Number(process.env.GAME_SERVER_HOST_PORT ?? host.port);
   host.name = process.env.GAME_SERVER_HOST_NAME ?? host.name;
   host.id = process.env.GAME_SERVER_HOST_ID ?? host.id;
   if (host.port == null || host.name == null || host.id == null) {

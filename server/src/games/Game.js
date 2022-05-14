@@ -149,7 +149,7 @@ class Game {
     }
   }
   getURL() {
-    return process.env.GAME_SERVER_URL + '/game/' + this.id;
+    return process.env.WEB_SERVER_URL + '/game/' + this.id;
   }
   on(event, callback) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
