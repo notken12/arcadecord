@@ -90,29 +90,6 @@ const utils = {
     return location.pathname.split('/')[2];
   },
   propertiesToIgnore: ['client', 'actionModels'],
-  functionsToApplyToGame: {
-    isItUsersTurn(a, i) {
-      console.warn(
-        'game.isItUsersTurn is deprecated. Use GameFlow.isItUsersTurn(game, index) instead.'
-      );
-      return (
-        this.turn == i || (!this.hasStarted && !this.isGameFull() && i == -1)
-      );
-    },
-    isItMyTurn() {
-      console.warn(
-        'game.isItMyTurn is deprecated. Use GameFlow.isItMyTurn(game) instead.'
-      );
-      return !this.hasEnded && this.isItUsersTurn(undefined, this.myIndex);
-    },
-    isGameFull() {
-      console.warn(
-        'game.isGameFull is deprecated. Use GameFlow.isGameFull(game) instead.'
-      );
-      return this.players.length >= this.maxPlayers;
-    },
-  },
-
   async setUpGame(game) {
     let { default: Common } = await import(
       `../games/types/${game.typeId}/common.js`
@@ -126,10 +103,6 @@ const utils = {
 
     for (let key in game.clientActionModels) {
       game.clientActionModels[key] = Common[game.clientActionModels[key]];
-    }
-
-    for (let key in this.functionsToApplyToGame) {
-      game[key] = this.functionsToApplyToGame[key].bind(game);
     }
 
     return game;
