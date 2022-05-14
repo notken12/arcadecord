@@ -17,13 +17,19 @@ export function loadHostConfig() {
   const host = hosts.find((host) => host.id === hostId) || {};
 
   // Use environment vars for config
-  host.port = Number(process.env.PORT ?? host.port);
+  host.port = Number(process.env.GAME_SERVER_HOST_PORT ?? host.port);
   host.name = process.env.GAME_SERVER_HOST_NAME ?? host.name;
   host.id = process.env.GAME_SERVER_HOST_ID ?? host.id;
-  if (host.port == null || host.name == null || host.id == null) {
+  host.webServerUrl = process.env.WEB_SERVER_URL;
+  if (
+    host.port == null ||
+    host.name == null ||
+    host.id == null ||
+    host.webServerUrl == null
+  ) {
     console.log(host);
     throw new Error(
-      'Arcadecord: Host configuration has missing fields. Set them using the environment variables PORT, GAME_SERVER_HOST_NAME, and GAME_SERVER_HOST_ID. Or provide a host ID from server/config/architecture.js as an argument.'
+      'Arcadecord: Host configuration has missing fields. Set them using the environment variables GAME_SERVER_HOST_PORT, GAME_SERVER_HOST_NAME, GAME_SERVER_HOST_ID, WEB_SERVER_URL. Or provide a host ID from server/config/architecture.js as an argument.'
     );
   }
   return host;

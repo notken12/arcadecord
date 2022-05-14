@@ -38,7 +38,7 @@ let onPageHasUnsavedChanges, onAllChangesSaved;
 async function useOnClient() {
   console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
-  socket = io(`${window.location.origin}`);
+  socket = io(`${import.meta.env.VITE_GAME_SERVER_URL}`);
 
   const beforeUnloadListener = (event) => {
     event.preventDefault();

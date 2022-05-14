@@ -49,7 +49,7 @@ export default (req, res) => {
     params.append('client_secret', process.env.BOT_CLIENT_SECRET);
     params.append('grant_type', 'authorization_code');
     params.append('code', code);
-    params.append('redirect_uri', process.env.GAME_SERVER_URL + '/auth');
+    params.append('redirect_uri', process.env.WEB_SERVER_URL + '/auth');
 
     const options = {
       method: 'POST',
