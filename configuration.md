@@ -11,6 +11,7 @@ Environment vars:
 - `WEB_SERVER_URL`: public URL of the web host
 - `BOT_CLIENT_ID`: (Number) client id of the Discord bot
 - `DISCORD_SERVER_INVITE`: invite link to official Discord server
+- `VITE_GAME_SERVER_PROXY_PORT`: (Number) (optional) Specify a port to proxy websocket to so that only 1 port needs to be exposed to the web. Useful for Heroku which only allows you to expose one random port which is the PORT variable.
 
 ## Game server: `server/index.js`
 

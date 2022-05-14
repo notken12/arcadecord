@@ -70,6 +70,19 @@ const __dirname = path.dirname(__filename);
 // Connect to database
 await db.connect(process.env.MONGODB_URI);
 
+import httpProxy from 'http-proxy';
+
+let proxy;
+
+if (host.gameServerProxyPort != null) {
+  // Create a basic proxy server in one line of code...
+  //
+  // This listens on port 8000 for incoming HTTP requests
+  // and proxies them to port 9000
+  console.log(`Proxying websocket to port ${host.gameServerProxyPort}`);
+  proxy = httpProxy.createProxyServer({});
+}
+
 app.use(cors());
 
 // Health check
@@ -236,6 +249,17 @@ app.get('*', async (req, res, next) => {
   } else {
     const { body, statusCode, contentType } = pageContext.httpResponse;
     res.status(statusCode).type(contentType).send(body);
+  }
+});
+
+app.use('*', (req, res, next) => {
+  if (proxy) {
+    console.log('proxying');
+    proxy.web(req, res, {
+      target: `http://localhost:${host.gameServerProxyPort}`,
+    });
+  } else {
+    next();
   }
 });
 
