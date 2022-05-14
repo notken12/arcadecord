@@ -12,7 +12,7 @@ export default (req, res) => {
     'https://discord.com/api/oauth2/authorize?client_id=' +
       process.env.BOT_CLIENT_ID +
       '&redirect_uri=' +
-      encodeURIComponent(process.env.GAME_SERVER_URL + '/auth') +
+      encodeURIComponent(process.env.WEB_SERVER_URL + '/auth') +
       '&response_type=code&scope=identify'
   );
 };

@@ -9,7 +9,7 @@
 
 export function loadWebHostConfig() {
   const host = {
-    gameServerUrl: process.env.GAME_SERVER_URL,
+    gameServerUrl: process.env.VITE_GAME_SERVER_URL,
     port: Number(process.env.PORT),
     id: process.env.WEB_HOST_ID,
     url: process.env.WEB_SERVER_URL,

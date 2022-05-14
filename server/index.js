@@ -98,12 +98,7 @@ server.listen(host.port, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'arcadecord.herokuapp.com',
-      'www.arcadecord.com',
-      'arcadecord.com',
-    ],
+    origin: [host.webServerUrl],
   },
 });
 

@@ -101,8 +101,6 @@ async function fetchUserFromAccessToken(access_token) {
 
   if (!me.ok) {
     console.log("couldn't fetch user's @me");
-    console.log(me);
-    console.log('tried to fetch with access token: ' + access_token);
     // refresh access token
     console.log('refreshing access token');
 
