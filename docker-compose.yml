@@ -1,5 +1,16 @@
 version: '3.9'
 services:
+  web:
+    build:
+      context: .
+      dockerfile: './docker/web/Dockerfile'
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - WEB_HOST_ID=0
+      - WEB_HOST_NAME=mangoweb
+      - WEB_SERVER_URL=localhost:5000
   gameserver:
     build:
       context: .
@@ -7,7 +18,7 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - PORT=3000
+      - GAME_SERVER_HOST_PORT=3000
       - GAME_SERVER_HOST_ID=0
       - GAME_SERVER_HOST_NAME=mango
       - BOT_IPC_URL=localhost:2000

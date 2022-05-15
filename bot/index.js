@@ -62,7 +62,7 @@ app.use(authMiddleware);
 
 app.get('/users/:id', (req, res) => {
   //console.log("Received user request for " + req.params.id);
-  var shard = getShardByRoundRobin();
+  let shard = getShardByRoundRobin();
   manager
     .broadcastEval(
       (c, { id }) => {
@@ -105,7 +105,7 @@ app.get('/gettest', (req, res) => {
 //test
 
 app.post('/message', (req, res) => {
-  var shard = getShardByGuild(req.body.guild);
+  let shard = getShardByGuild(req.body.guild);
   manager
     .broadcastEval(
       async (c, { channel, message }) => {
@@ -131,7 +131,7 @@ app.post('/startmessage', async (req, res) => {
     res.status(400).send('Missing guild');
     return;
   }
-  var shard = getShardByGuild(req.body.game.guild);
+  let shard = getShardByGuild(req.body.game.guild);
 
   manager
     .broadcastEval(
@@ -151,7 +151,7 @@ app.post('/startmessage', async (req, res) => {
 });
 
 app.post('/turninvite', async (req, res) => {
-  var shard = getShardByGuild(req.body.guild);
+  let shard = getShardByGuild(req.body.guild);
 
   manager
     .broadcastEval(
@@ -171,7 +171,8 @@ app.post('/turninvite', async (req, res) => {
 });
 
 app.delete('/message/:guild/:channel/:message', (req, res) => {
-  var shard = getShardByGuild(req.params.guild);
+  let shard = getShardByGuild(req.params.guild);
+
   manager
     .broadcastEval(
       async (c, { channel, message }) => {
@@ -197,7 +198,8 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
 
 app.get('/permissions/:guild/:channel/:user', (req, res) => {
   try {
-    var shard = getShardByGuild(req.params.guild);
+    let shard = getShardByGuild(req.params.guild);
+
     manager
       .broadcastEval(
         async (c, { guild, channel, user }) => {

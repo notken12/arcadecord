@@ -21,6 +21,7 @@ export const CanUserJoinError = {
   GAME_NOT_FOUND: 'GAME_NOT_FOUND',
   GAME_FULL: 'GAME_FULL',
   ALREADY_IN_GAME: 'ALREADY_IN_GAME',
+  NO_PERMISSION: 'NO_PERMISSION',
 };
 
 export const AddPlayerError = {
@@ -29,6 +30,7 @@ export const AddPlayerError = {
   GAME_FULL: 'GAME_FULL',
   ALREADY_IN_GAME: 'ALREADY_IN_GAME',
   GAME_NOT_FOUND: 'GAME_NOT_FOUND',
+  NO_PERMISSION: 'NO_PERMISSION',
 };
 
 export const UserPermissionError = {

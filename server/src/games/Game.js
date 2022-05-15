@@ -310,6 +310,16 @@ class Game {
             ok: false,
             error: AddPlayerError.ALREADY_IN_GAME,
           };
+        case CanUserJoinError.NO_PERMISSION:
+          return {
+            ok: false,
+            error: AddPlayerError.NO_PERMISSION,
+          };
+        case CanUserJoinError.DISCORD_USER_NOT_FOUND:
+          return {
+            ok: false,
+            error: AddPlayerError.DISCORD_USER_NOT_FOUND,
+          };
         default:
           return {
             ok: false,
@@ -452,6 +462,7 @@ class Game {
     if (!(await this.doesUserHavePermission(user)).ok)
       return {
         ok: false,
+        error: CanUserJoinError.NO_PERMISSION,
       };
 
     if (this.players.filter((player) => player.id === user.id).length > 0) {

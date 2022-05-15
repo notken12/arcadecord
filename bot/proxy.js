@@ -22,16 +22,16 @@ const { hosts, port, totalShards } = loadHostConfig();
 
 var hostIndex = 0;
 function getHostByRoundRobin() {
-  var host = hosts[hostIndex];
+  let host = hosts[hostIndex];
   hostIndex = (hostIndex + 1) % hosts.length;
   return host;
 }
 
 function getShardByGuild(guild_id) {
-  var num_shards = totalShards;
+  let num_shards = totalShards;
 
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-  var shard_id = (guild_id >>> 22) % num_shards;
+  let shard_id = (guild_id >>> 22) % num_shards;
   return shard_id;
 }
 
@@ -63,6 +63,7 @@ function forwardRequest(host, req, res) {
     options.body = undefined;
   }
   //console.log('Proxying to ' + options.url);
+
   fetch(options.url, options)
     .then(async (response) => {
       // send response back
@@ -89,7 +90,7 @@ function proxyRoundRobin(req, res) {
 }
 
 function proxyByGuild(guildId, req, res) {
-  var host = getHostByGuild(guildId);
+  let host = getHostByGuild(guildId);
   // forward request to host
   if (host) return forwardRequest(host, req, res);
   else {

@@ -13,5 +13,5 @@ COPY . .
 RUN npm run build
 
 EXPOSE 3000
-ENV GAME_SERVER_HOST_PORT=3000
-CMD node server/index.js
+ENV PORT=3000
+CMD node server/web.js
