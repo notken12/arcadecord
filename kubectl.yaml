@@ -1,12 +1,20 @@
+# Run `eval $(minikube docker-env)` to enable using local Docker images
+# Run `docker compose build` to build the images
+# Then run `kubectl apply -f kubectl.yaml` to apply this config
+#
+# Make sure to run `minikube tunnel` to expose to localhost!!
+
+# BEGIN WEB CONFIG
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: web
 data:
   port: '3000'
-  webHostId: '0'
-  webHostName: mango
-  webHostUrl: '127.0.0.1:3000'
+  id: '0'
+  name: mosog
+  url: '127.0.0.1:3000'
+  gameServerUrl: '127.0.0.1:5000'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 apiVersion: apps/v1
@@ -41,17 +49,22 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: web
-                  key: webHostId
+                  key: id
             - name: WEB_HOST_NAME
               valueFrom:
                 configMapKeyRef:
                   name: web
-                  key: webHostName
+                  key: name
             - name: WEB_HOST_URL
               valueFrom:
                 configMapKeyRef:
                   name: web
-                  key: webHostUrl
+                  key: url
+            - name: VITE_GAME_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: gameServerUrl
 ---
 apiVersion: v1
 kind: Service
@@ -68,3 +81,76 @@ spec:
   selector:
     app: web
   type: LoadBalancer
+# END WEB CONFIG
+---
+# BEGIN GAMESERVER CONFIG
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gameserver
+data:
+  port: '5000'
+  name: mosoggame
+  id: '1'
+  webUrl: '127.0.0.1:3000'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gameserver
+  labels:
+    app: gameserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gameserver
+  template:
+    metadata:
+      labels:
+        app: gameserver
+    spec:
+      containers:
+        - name: gameserver
+          image: arcadecord_gameserver
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: GAME_SERVER_HOST_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: port
+            - name: GAME_SERVER_HOST_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: name
+            - name: GAME_SERVER_HOST_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: id
+            - name: WEB_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: webUrl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gameserver
+  labels:
+    app: gameserver
+spec:
+  ports:
+    - nodePort: 30002
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+  selector:
+    app: gameserver
+  type: LoadBalancer
+# END GAMESERVER CONFIG
