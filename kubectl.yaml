@@ -17,6 +17,7 @@ data:
   gameServerUrl: '127.0.0.1:5000'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+# Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,6 +40,7 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
+              name: pub-http-web-svc
           env:
             - name: PORT
               valueFrom:
@@ -47,14 +49,12 @@ spec:
                   key: port
             - name: WEB_HOST_ID
               valueFrom:
-                configMapKeyRef:
-                  name: web
-                  key: id
+                fieldRef:
+                  fieldPath: metadata.name # use pod's name
             - name: WEB_HOST_NAME
               valueFrom:
-                configMapKeyRef:
-                  name: web
-                  key: name
+                fieldRef:
+                  fieldPath: metadata.name # use pod's name
             - name: WEB_HOST_URL
               valueFrom:
                 configMapKeyRef:
@@ -77,7 +77,7 @@ spec:
     - nodePort: 30001
       port: 3000
       protocol: TCP
-      targetPort: 3000
+      targetPort: pub-http-web-svc
   selector:
     app: web
   type: LoadBalancer
@@ -116,6 +116,7 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5000
+              name: pub-http-ws-gameserver-svc
           env:
             - name: GAME_SERVER_HOST_PORT
               valueFrom:
@@ -124,19 +125,19 @@ spec:
                   key: port
             - name: GAME_SERVER_HOST_NAME
               valueFrom:
-                configMapKeyRef:
-                  name: gameserver
-                  key: name
+                fieldRef:
+                  fieldPath: metadata.name # use pod's name
             - name: GAME_SERVER_HOST_ID
               valueFrom:
-                configMapKeyRef:
-                  name: gameserver
-                  key: id
+                fieldRef:
+                  fieldPath: metadata.name # use pod's name
             - name: WEB_SERVER_URL
               valueFrom:
                 configMapKeyRef:
                   name: gameserver
                   key: webUrl
+            - name: BOT_IPC_URL
+              value: 'http://gameserver:5000'
 ---
 apiVersion: v1
 kind: Service
@@ -149,8 +150,100 @@ spec:
     - nodePort: 30002
       port: 5000
       protocol: TCP
-      targetPort: 5000
+      targetPort: pub-http-ws-gameserver-svc
   selector:
     app: gameserver
   type: LoadBalancer
 # END GAMESERVER CONFIG
+---
+# BEGIN BOTPROXY CONFIG
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: botproxy
+data:
+  port: '3000'
+  totalShards: '2'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: botproxy
+  labels:
+    app: botproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: botproxy
+  template:
+    metadata:
+      labels:
+        app: botproxy
+    spec:
+      containers:
+        - name: botproxy
+          image: arcadecord_botproxy
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+              name: http-botproxy-svc
+          env:
+            - name: BOT_PROXY_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: botproxy
+                  key: port
+            - name: TOTAL_SHARDS
+              valueFrom:
+                configMapKeyRef:
+                  name: botproxy
+                  key: totalShards
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: botproxy
+  labels:
+    app: botproxy
+spec:
+  ports:
+    - port: 2000
+      protocol: TCP
+      targetPort: http-botproxy-svc
+  selector:
+    app: botproxy
+# END BOTPROXY CONFIG
+---
+# BEGIN SHARDMANAGER CONFIG
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: shardmanager
+# data:
+#   port: '2100'
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: shardmanager
+#   labels:
+#     app: shardmanager
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: shardmanager
+#   template:
+#     metadata:
+#       labels:
+#         app: shardmanager
+#     spec:
+#       containers:
+#         - name: shardmanager
+#           image: arcadecord_shardmanager
+#           imagePullPolicy: Never
+#           ports:
+#             - containerPort: 3000
+#               name: http-shardmanager-svc
+# END SHARDMANAGER CONFIG
