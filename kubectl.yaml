@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web
+data:
+  port: '3000'
+  webHostId: '0'
+  webHostName: mango
+  webHostUrl: '127.0.0.1:3000'
+---
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: arcadecord_web
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: port
+            - name: WEB_HOST_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: webHostId
+            - name: WEB_HOST_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: webHostName
+            - name: WEB_HOST_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: webHostUrl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  ports:
+    - nodePort: 30001
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: web
+  type: LoadBalancer
