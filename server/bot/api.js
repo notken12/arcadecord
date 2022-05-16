@@ -12,6 +12,7 @@ import fetch from 'node-fetch';
 import { loadApiConfig } from './config.js';
 
 const config = loadApiConfig();
+console.log('bot api config: ', config);
 
 function getAuthHeader() {
   return {

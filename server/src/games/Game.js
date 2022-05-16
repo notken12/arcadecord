@@ -86,7 +86,7 @@ class Game {
 
     this.client = {
       eventHandlers: {},
-      emit: function (event, ...args) {
+      emit: function(event, ...args) {
         if (game.testing) return;
         if (!this.eventHandlers[event]) return;
 
@@ -94,11 +94,11 @@ class Game {
           callback(this, ...args);
         }
       },
-      on: function (event, callback) {
+      on: function(event, callback) {
         if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
         this.eventHandlers[event].push(callback);
       },
-      getDataForClient: function () {
+      getDataForClient: function() {
         return {
           eventHandlers: this.eventHandlers,
           emit: this.emit.toString(),
@@ -121,7 +121,7 @@ class Game {
       player.id = player.id.toString();
     }
 
-    this.turns.getDataForClient = function (userId) {
+    this.turns.getDataForClient = function(userId) {
       var data = [];
       for (let turn of this) {
         data.push(Turn.getDataForClient(turn, userId));
@@ -178,7 +178,7 @@ class Game {
       if (!valid) {
         console.warn(
           'Action data does not follow schema: ' +
-            JSON.stringify(validate.errors)
+          JSON.stringify(validate.errors)
         );
         return {
           success: false,
@@ -189,10 +189,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-          action.type +
-          '" to game: "' +
-          this.typeId +
-          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+        action.type +
+        '" to game: "' +
+        this.typeId +
+        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       );
     }
 
@@ -645,7 +645,7 @@ class Game {
     }
   }
 
-  getImage() {}
+  getImage() { }
 
   getChanges(oldData, newData) {
     var changes = {};
@@ -700,19 +700,24 @@ class Game {
     return game;
   }
 
-  getThumbnail() {}
+  getThumbnail() { }
 }
 
 Game.eventHandlersDiscord = {
-  init: async function (game) {
+  init: async function(game) {
     var res = await BotApi.sendStartMessage(game);
 
-    var msg = await res.json();
+    var msg = await res.json().catch((e) => {
+      console.log(res);
+      console.log(e);
+      return game;
+    });
+    if (!msg) return game;
     game.startMessage = msg.id;
 
     return game;
   },
-  turn: async function (game) {
+  turn: async function(game) {
     var res = await BotApi.sendTurnInvite(game);
 
     var msg = await res.json();

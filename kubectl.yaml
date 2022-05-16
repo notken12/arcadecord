@@ -25,8 +25,8 @@ data:
   port: '3000'
   id: '0'
   name: mosog
-  url: '127.0.0.1:3000'
-  gameServerUrl: '127.0.0.1:5000'
+  url: 'http://127.0.0.1:3000'
+  gameServerUrl: 'http://127.0.0.1:5000'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -67,7 +67,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name # use pod's name
-            - name: WEB_HOST_URL
+            - name: WEB_SERVER_URL
               valueFrom:
                 configMapKeyRef:
                   name: web
@@ -77,6 +77,31 @@ spec:
                 configMapKeyRef:
                   name: web
                   key: gameServerUrl
+            - name: TOTAL_SHARDS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: totalShards
+            - name: SHARD_MANAGER_COUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerCount
+            - name: SHARD_MANAGER_POD_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodPrefix
+            - name: SHARD_MANAGER_POD_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodAddress
+            - name: BOT_IPC_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: botIpcToken
 ---
 apiVersion: v1
 kind: Service

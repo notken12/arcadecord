@@ -56,9 +56,6 @@ export default async (req, res) => {
   try {
     // get token from headers
     var authHeader = req.headers.authorization;
-    console.log(req.headers);
-    console.log('game server token: ' + process.env.GAME_SERVER_TOKEN);
-    console.log('provided authorization header: ' + authHeader);
     if (!authHeader) {
       res.status(401).send('Access denied. No token provided.');
       return;

@@ -15,6 +15,7 @@ Environment vars:
 - `TOTAL_SHARDS`: total amount of bot shards. This must add up to the total amount of shards being spawned by bot shard managers. See `SHARD_LIST` @ Bot shard manager
 - `SHARD_MANAGER_COUNT`: amount of shard managers that exist.
 - `SHARD_MANAGER_POD_PREFIX`: name of kubernetes StatefulSet service that the pods are under + '-'. Used to find the hostnames of bot shard managers
+- `SHARD_MANAGER_POD_ADDRESS`: template string of the address of shard managers: `%ID%` is replaced with the shard manager pod's ID. Example: http://shardmanager-%ID%:3000
 
 ## Game server: `server/index.js`
 
@@ -25,8 +26,11 @@ Environment vars:
 - `GAME_SERVER_HOST_ID`: id of the host
 - `BOT_IPC_URL`: url of the bot proxy
 - `WEB_SERVER_URL`: public URL of the web host
-- `SHARD_MANAGER_POD_ADDRESS`: template string of the address of shard managers: `%ID%` is replaced with the shard manager pod's ID. Example: http://shardmanager-%ID%:3000
 - `GAME_SERVER_TOKEN`: secret token to allow access to the /create-game endpoint which is used to create a game.
+- `TOTAL_SHARDS`: total amount of bot shards. This must add up to the total amount of shards being spawned by bot shard managers. See `SHARD_LIST` @ Bot shard manager
+- `SHARD_MANAGER_COUNT`: amount of shard managers that exist.
+- `SHARD_MANAGER_POD_PREFIX`: name of kubernetes StatefulSet service that the pods are under + '-'. Used to find the hostnames of bot shard managers
+- `SHARD_MANAGER_POD_ADDRESS`: template string of the address of shard managers: `%ID%` is replaced with the shard manager pod's ID. Example: http://shardmanager-%ID%:3000
 
 ## Bot shard manager: `bot/index.js`
 
@@ -39,3 +43,6 @@ Environment vars:
 - `VITE_GAME_SERVER_URL`: url of the game server
 - `GAME_SERVER_TOKEN`: match game server's `GAME_SERVER_TOKEN`
 - `WEB_SERVER_URL`: public URL of the web host
+- `TOTAL_SHARDS`: total amount of bot shards. This must add up to the total amount of shards being spawned by bot shard managers. See `SHARD_LIST` @ Bot shard manager
+- `SHARD_MANAGER_COUNT`: amount of shard managers that exist.
+- `SHARD_MANAGER_POD_PREFIX`: name of kubernetes StatefulSet service that the pods are under + '-'. Used to find the hostnames of bot shard managers
