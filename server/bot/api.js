@@ -9,12 +9,7 @@
 
 import fetch from 'node-fetch';
 
-import dotenv from 'dotenv';
-dotenv.config('../../.env');
-
 import { loadApiConfig } from './config.js';
-
-import FormData from 'form-data';
 
 const { botIpcUrl } = loadApiConfig();
 
@@ -33,6 +28,12 @@ function auth(options) {
   options.headers.Authorization = getAuthHeader().Authorization;
 }
 
+function routeRoundRobin(path) {}
+
+function routeByGuild(path, guild) {}
+
+function getBaseUrl(guildId) {}
+
 async function fetchUser(userId) {
   try {
     var url = baseUrl + '/users/' + userId;
@@ -47,67 +48,6 @@ async function fetchUser(userId) {
     console.error(err);
     return null;
   }
-}
-
-function sendPostTest() {
-  var url = baseUrl + '/posttest';
-
-  var options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      message: 'test',
-      userId: 'test',
-    }),
-  };
-  auth(options);
-
-  return fetch(url, options);
-}
-
-function sendGetTest() {
-  var url = baseUrl + '/gettest';
-
-  var options = {
-    method: 'GET',
-  };
-  auth(options);
-
-  return fetch(url, options);
-}
-
-function sendMessage(message, guild, channel) {
-  var url = baseUrl + '/message';
-  var data = {
-    guild: guild,
-    channel: channel,
-    message: message,
-  };
-
-  const formData = new FormData();
-  formData.append('guild', JSON.stringify(data.guild));
-  formData.append('channel', JSON.stringify(data.channel));
-  formData.append('message', JSON.stringify(data.message));
-
-  const files = data.message.files;
-  if (files) {
-    for (var i = 0; i < files.length; i++) {
-      formData.append('file' + i, files[i].attachment);
-    }
-  }
-
-  var options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    body: formData,
-  };
-  auth(options);
-
-  return fetch(url, options);
 }
 
 function sendStartMessage(game) {
@@ -172,9 +112,6 @@ function getUserPermissionsInChannel(guildId, channelId, userId) {
 export default {
   sendStartMessage,
   fetchUser,
-  sendPostTest,
-  sendGetTest,
-  sendMessage,
   deleteMessage,
   getUserPermissionsInChannel,
   sendTurnInvite,

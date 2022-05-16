@@ -20,7 +20,6 @@ import graph from 'rollup-plugin-graph';
 import brotli from 'rollup-plugin-brotli';
 import ssr from 'vite-plugin-ssr/plugin';
 import { esbuildCommonjs, viteCommonjs } from '@originjs/vite-plugin-commonjs';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 import dotenv from 'dotenv';
 dotenv.config();
