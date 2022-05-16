@@ -43,17 +43,20 @@ function getShardId(guildId) {
   return (guildId >>> 22) % config.totalShards;
 }
 
+function getShardManagerAddress(shard_manager_id) {
+  return config.shardManagerPodAddress.replace('%ID%', shard_manager_id);
+}
+
 function getBaseUrlByGuild(guildId) {
   let shard_id = getShardId(guildId);
   let shard_manager_id = shard_id % config.shardManagerCount;
-  let url = config.shardManagerPodPrefix + shard_manager_id;
-  return url;
+  return getShardManagerAddress(shard_manager_id);
 }
 
 function getBaseUrlRoundRobin() {
   let shard_manager_id = currentManager;
   currentManager = (currentManager + 1) % config.shardManagerCount;
-  return shard_manager_id;
+  return getShardManagerAddress(shard_manager_id);
 }
 
 // Stateless (round robin)
@@ -74,6 +77,7 @@ async function fetchUser(userId) {
 
 // Stateful (by guild, needs to be sent to right shard manager)
 function sendStartMessage(game) {
+  let guildId = game.guild;
   let path = '/startmessage';
   var data = {
     game,
@@ -92,6 +96,7 @@ function sendStartMessage(game) {
 
 // Stateful
 function sendTurnInvite(game) {
+  let guildId = game.guild;
   let path = '/turninvite';
   let data = {
     game,

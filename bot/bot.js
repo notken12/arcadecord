@@ -8,7 +8,7 @@
 // without the express permission of Ken Zhou.
 
 // Require the necessary discord.js classes
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
 import {
   MessageAttachment,
   MessageActionRow,
@@ -31,7 +31,7 @@ import db from '../db/db2.js';
 await db.connect(process.env.MONGODB_URI);
 
 // .env is used for all shards
-config();
+dotenv.config();
 
 // get __dirname
 import path from 'path';
@@ -41,6 +41,10 @@ const __filename = fileURLToPath(import.meta.url);
 
 // 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
+
+import { loadShardManagerConfig } from './shard-manager-config.js';
+const config = loadShardManagerConfig();
+console.log(`Shard started with config: `, config);
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
@@ -56,7 +60,7 @@ Canvas.registerFont(
   { family: 'Work Sans' }
 );
 
-client.sendStartMessage = async function (g) {
+client.sendStartMessage = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -103,7 +107,7 @@ client.sendStartMessage = async function (g) {
   return await channel.send(message);
 };
 
-client.sendTurnInvite = async function (g) {
+client.sendTurnInvite = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -114,7 +118,7 @@ client.sendTurnInvite = async function (g) {
 
   let textChannel = await client.channels.fetch(game.channel);
   if (game.startMessage) {
-    textChannel.messages.delete(game.startMessage).catch(() => {});
+    textChannel.messages.delete(game.startMessage).catch(() => { });
   }
 
   if (game.inThread) {
@@ -137,15 +141,14 @@ client.sendTurnInvite = async function (g) {
   }
 
   if (game.lastTurnInvite) {
-    channel.messages.delete(game.lastTurnInvite).catch(() => {});
+    channel.messages.delete(game.lastTurnInvite).catch(() => { });
   }
 
   var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex];
 
   var m = {
-    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${
-      game.emoji + ' ' || ''
-    }${game.name}*`,
+    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${game.emoji + ' ' || ''
+      }${game.name}*`,
     allowedMentions: {
       parse: [],
     },
@@ -334,9 +337,9 @@ const eventFiles = readdirSync(__dirname + '/events').filter((file) =>
 for (const file of eventFiles) {
   let { default: event } = await import(`./events/${file}`);
   if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
+    client.once(event.name, (...args) => event.execute(config, ...args));
   } else {
-    client.on(event.name, (...args) => event.execute(...args));
+    client.on(event.name, (...args) => event.execute(config, ...args));
   }
 }
 

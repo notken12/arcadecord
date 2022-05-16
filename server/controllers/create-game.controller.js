@@ -8,19 +8,34 @@
 // without the express permission of Ken Zhou.
 
 import db from '../../db/db2.js';
-// get architecture from config
-import architecture from '../config/architecture.js';
 import { gameTypes } from '../src/games/game-types.js';
 
-const { hosts } = architecture;
+// Get host configuration
+import { loadHostConfig } from '../config.js';
+const host = loadHostConfig();
 
-// get the current host info
-const hostId = process.argv[2];
-const host = hosts.find((host) => host.id === hostId);
+const cyrb53 = function(str, seed = 0) {
+  let h1 = 0xdeadbeef ^ seed,
+    h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 =
+    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
+    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 =
+    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
+    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
 
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
-const SnowflakeGenerator = new Generator(946684800000, hosts.indexOf(host));
+const seed = cyrb53(host.id);
+console.log(`Snowflake generator using seed ${seed}`);
+const SnowflakeGenerator = new Generator(946684800000, seed);
 
 function toBase62(n) {
   if (n === 0) {
@@ -41,6 +56,9 @@ export default async (req, res) => {
   try {
     // get token from headers
     var authHeader = req.headers.authorization;
+    console.log(req.headers);
+    console.log('game server token: ' + process.env.GAME_SERVER_TOKEN);
+    console.log('provided authorization header: ' + authHeader);
     if (!authHeader) {
       res.status(401).send('Access denied. No token provided.');
       return;

@@ -10,7 +10,7 @@
 export default {
   name: 'ready',
   once: true,
-  execute(client) {
+  execute(_config, client) {
     client.user.setActivity('/play', { type: 'PLAYING' });
     console.log(`Ready! Logged in as ${client.user.tag}`);
   },

@@ -10,7 +10,7 @@
 export default {
   name: 'interactionCreate',
   once: false,
-  async execute(interaction) {
+  async execute(config, interaction) {
     var client = interaction.client;
     if (interaction.isCommand()) {
       const command = client.commands.get(interaction.commandName);
@@ -18,7 +18,7 @@ export default {
       if (!command) return;
 
       try {
-        await command.execute(interaction);
+        await command.execute(config, interaction);
       } catch (error) {
         console.error(error);
         await interaction
@@ -34,7 +34,7 @@ export default {
       if (!menu) return;
 
       try {
-        await menu.execute(interaction);
+        await menu.execute(config, interaction);
       } catch (error) {
         console.error(error);
         await interaction
@@ -55,7 +55,7 @@ export default {
       }
 
       try {
-        await button.execute(interaction);
+        await button.execute(config, interaction);
       } catch (error) {
         console.error(error);
         await interaction

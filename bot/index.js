@@ -19,6 +19,7 @@ import authMiddleware from './auth-middleware.js';
 import { loadShardManagerConfig } from './shard-manager-config.js';
 
 const config = loadShardManagerConfig();
+console.log(config);
 const { totalShards } = config;
 
 function getShardList() {

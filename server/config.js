@@ -23,7 +23,7 @@ export function loadHostConfig() {
   host.webServerUrl = process.env.WEB_SERVER_URL;
   host.totalShards = Number(process.env.TOTAL_SHARDS);
   host.shardManagerCount = Number(process.env.SHARD_MANAGER_COUNT);
-  host.shardManagerPodPrefix = process.env.SHARD_MANAGER_POD_PREFIX;
+  host.shardManagerPodAddress = process.env.SHARD_MANAGER_POD_ADDRESS;
   for (let prop in host) {
     if (host[prop] == null) {
       console.log(host);

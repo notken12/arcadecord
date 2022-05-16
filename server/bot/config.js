@@ -11,7 +11,7 @@ export function loadApiConfig() {
   let config = {
     totalShards: Number(process.env.TOTAL_SHARDS),
     shardManagerCount: Number(process.env.SHARD_MANAGER_COUNT),
-    shardManagerPodPrefix: Number(process.env.SHARD_MANAGER_POD_PREFIX),
+    shardManagerPodAddress: process.env.SHARD_MANAGER_POD_ADDRESS,
   };
   return config;
 }

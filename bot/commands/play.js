@@ -80,7 +80,7 @@ export default {
         .setName('with')
         .setRequired(false)
     ),
-  async execute(interaction) {
+  async execute(config, interaction) {
     await interaction.deferReply({ ephemeral: true });
 
     var user = interaction.user;
@@ -113,8 +113,7 @@ export default {
       let button = new MessageButton({
         label: 'Sign in',
         style: 'LINK',
-        // emoji: '',
-        url: process.env.VITE_GAME_SERVER_URL + '/sign-in',
+        url: config.gameServerUrl + '/sign-in',
       });
       row.addComponents([button]);
       await interaction.editReply({

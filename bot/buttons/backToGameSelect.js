@@ -8,17 +8,13 @@
 // without the express permission of Ken Zhou.
 
 import db from '../../db/db2.js';
-import fetch from 'node-fetch';
-import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { gameTypes } from '../../server/src/games/game-types.js';
-import Emoji from '../../Emoji.js';
 import { getMessage as getGameSelectMsg } from '../commands/play.js';
 
 export default {
   data: {
     name: 'backToGameSelect',
   },
-  async execute(interaction) {
+  async execute(_config, interaction) {
     await interaction.deferUpdate();
 
     let dbOptionsId = interaction.message.id;

@@ -11,7 +11,10 @@ metadata:
 data:
   totalShards: '2'
   shardManagerCount: '2'
-  shardManagerPodPrefix: 'http://shardmanager-'
+  shardManagerPodPrefix: 'shardmanager-'
+  shardManagerPodAddress: 'http://shardmanager-%ID%.shardmanager.default.svc.cluster.local:3000'
+  botIpcToken: '7sFp0ASKbkMA4P8CJIb6lcCrwKA62ob26GGMK04vfT7dk5rV2xaPdJ3qtswP'
+  gameServerUrlInternal: 'http://gameserver:5000'
 ---
 # BEGIN WEB CONFIG
 apiVersion: v1
@@ -102,6 +105,7 @@ data:
   name: mosoggame
   id: '1'
   webUrl: '127.0.0.1:3000'
+  gameServerToken: 'NRyjgYoKwMkR6XBgVLBMwnEHTyxf29c7CUtbMvuOU0bSR4mAkxqmGalXjYFD'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -143,10 +147,8 @@ spec:
             - name: WEB_SERVER_URL
               valueFrom:
                 configMapKeyRef:
-                  name: gameserver
-                  key: webUrl
-            - name: BOT_IPC_URL
-              value: 'http://gameserver:5000'
+                  name: web
+                  key: url
             - name: TOTAL_SHARDS
               valueFrom:
                 configMapKeyRef:
@@ -162,6 +164,21 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodPrefix
+            - name: SHARD_MANAGER_POD_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodAddress
+            - name: BOT_IPC_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: botIpcToken
+            - name: GAME_SERVER_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: gameServerToken
 ---
 apiVersion: v1
 kind: Service
@@ -229,6 +246,11 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name # use pod's name
+            - name: TOTAL_SHARDS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: totalShards
             - name: SHARD_MANAGER_COUNT
               valueFrom:
                 configMapKeyRef:
@@ -239,9 +261,29 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodPrefix
-            - name: TOTAL_SHARDS
+            - name: BOT_IPC_TOKEN
               valueFrom:
                 configMapKeyRef:
                   name: sharding
-                  key: totalShards
+                  key: botIpcToken
+            - name: GAME_SERVER_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: gameserver
+                  key: gameServerToken
+            - name: VITE_GAME_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: gameServerUrl
+            - name: GAME_SERVER_URL_INTERNAL
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: gameServerUrlInternal
+            - name: WEB_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: web
+                  key: url
 # END SHARDMANAGER CONFIG

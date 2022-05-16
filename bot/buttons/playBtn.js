@@ -9,25 +9,18 @@
 
 import db from '../../db/db2.js';
 import fetch from 'node-fetch';
-import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { gameTypes } from '../../server/src/games/game-types.js';
 import Emoji from '../../Emoji.js';
 
 export default {
   data: {
     name: 'playGame',
   },
-  async execute(interaction) {
+  async execute(config, interaction) {
     await interaction.deferUpdate();
     var dbOptionsId = interaction.message.id;
 
     var user = await db.users.getByDiscordId(interaction.user.id);
     var dbOptions = await db.slashCommandOptions.getById(dbOptionsId);
-
-    let guildId = interaction.guild.id;
-    let channelId = interaction.channel.id;
-
-    let gameType = gameTypes[dbOptions.typeId];
 
     const body = {
       options: {
@@ -40,14 +33,15 @@ export default {
       userId: user._id,
     };
 
+    console.log('sending with game server token:' + config.gameServerToken);
     const response = await fetch(
-      `${process.env.VITE_GAME_SERVER_URL}/create-game`,
+      `${config.gameServerUrlInternal}/create-game`,
       {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.GAME_SERVER_TOKEN}`,
+          Authorization: `Bearer ${config.gameServerToken}`,
         },
       }
     ).catch((e) => {
