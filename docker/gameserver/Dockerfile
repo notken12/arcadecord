@@ -10,8 +10,6 @@ RUN npm ci --production
 # Copy the source files into the image
 COPY . .
 
-RUN npm run build
-
 EXPOSE 3000
 ENV GAME_SERVER_HOST_PORT=3000
 CMD node server/index.js

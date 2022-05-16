@@ -21,16 +21,16 @@ export function loadHostConfig() {
   host.name = process.env.GAME_SERVER_HOST_NAME ?? host.name;
   host.id = process.env.GAME_SERVER_HOST_ID ?? host.id;
   host.webServerUrl = process.env.WEB_SERVER_URL;
-  if (
-    host.port == null ||
-    host.name == null ||
-    host.id == null ||
-    host.webServerUrl == null
-  ) {
-    console.log(host);
-    throw new Error(
-      'Arcadecord: Host configuration has missing fields. Set them using the environment variables GAME_SERVER_HOST_PORT, GAME_SERVER_HOST_NAME, GAME_SERVER_HOST_ID, WEB_SERVER_URL. Or provide a host ID from server/config/architecture.js as an argument.'
-    );
+  host.totalShards = Number(process.env.TOTAL_SHARDS);
+  host.shardManagerCount = Number(process.env.SHARD_MANAGER_COUNT);
+  host.shardManagerPodPrefix = process.env.SHARD_MANAGER_POD_PREFIX;
+  for (let prop in host) {
+    if (host[prop] == null) {
+      console.log(host);
+      throw new Error(
+        'Arcadecord: Host configuration has missing fields. See configuration.md for configuration help.'
+      );
+    }
   }
   return host;
 }

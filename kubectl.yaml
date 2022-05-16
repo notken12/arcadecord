@@ -4,6 +4,15 @@
 #
 # Make sure to run `minikube tunnel` to expose to localhost!!
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sharding
+data:
+  totalShards: '2'
+  shardManagerCount: '2'
+  shardManagerPodPrefix: 'http://shardmanager-'
+---
 # BEGIN WEB CONFIG
 apiVersion: v1
 kind: ConfigMap
@@ -138,6 +147,21 @@ spec:
                   key: webUrl
             - name: BOT_IPC_URL
               value: 'http://gameserver:5000'
+            - name: TOTAL_SHARDS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: totalShards
+            - name: SHARD_MANAGER_COUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerCount
+            - name: SHARD_MANAGER_POD_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodPrefix
 ---
 apiVersion: v1
 kind: Service
@@ -155,65 +179,6 @@ spec:
     app: gameserver
   type: LoadBalancer
 # END GAMESERVER CONFIG
----
-# BEGIN BOTPROXY CONFIG
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: botproxy
-data:
-  port: '3000'
-  totalShards: '2'
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: botproxy
-  labels:
-    app: botproxy
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: botproxy
-  template:
-    metadata:
-      labels:
-        app: botproxy
-    spec:
-      containers:
-        - name: botproxy
-          image: arcadecord_botproxy
-          imagePullPolicy: Never
-          ports:
-            - containerPort: 3000
-              name: http-botpxy-svc
-          env:
-            - name: BOT_PROXY_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: botproxy
-                  key: port
-            - name: TOTAL_SHARDS
-              valueFrom:
-                configMapKeyRef:
-                  name: botproxy
-                  key: totalShards
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: botproxy
-  labels:
-    app: botproxy
-spec:
-  ports:
-    - port: 2000
-      protocol: TCP
-      targetPort: http-botpxy-svc
-  selector:
-    app: botproxy
-# END BOTPROXY CONFIG
 ---
 # BEGIN SHARDMANAGER CONFIG
 apiVersion: v1
@@ -260,12 +225,23 @@ spec:
             - containerPort: 3000
               name: http-shardm-svc
           env:
-            - name: SHARD_MANAGER_ID
+            - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name # use pod's name
-            # - name: SHARD_LIST
-            #   value: '[$(SHARD_MANAGER_ID)]'
-          command: ['env']
-          args: ['SHARD_LIST="[$(SHARD_MANAGER_ID)]"']
+            - name: SHARD_MANAGER_COUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerCount
+            - name: SHARD_MANAGER_POD_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodPrefix
+            - name: TOTAL_SHARDS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: totalShards
 # END SHARDMANAGER CONFIG

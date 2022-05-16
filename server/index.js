@@ -36,15 +36,13 @@ app.use(
 import { createServer } from 'http';
 const server = createServer(app);
 import { Server } from 'socket.io';
-import { parse } from 'cookie';
 import cookieParser from 'cookie-parser';
-import fs from 'fs';
 import cors from 'cors';
 import JWT from 'jsonwebtoken';
 
 import db from '../db/db2.js';
 
-import { fetchUser, fetchUserFromAccessToken } from './utils/discord-api.js';
+import { fetchUser } from './utils/discord-api.js';
 import { gameTypes } from './src/games/game-types.js';
 import Action from './src/games/Action.js';
 import Turn from './src/games/Turn.js';
@@ -70,10 +68,6 @@ const __dirname = path.dirname(__filename);
 
 // Connect to database
 await db.connect(process.env.MONGODB_URI);
-
-// Create snowflake generator
-import { Generator } from 'snowflake-generator';
-const SnowflakeGenerator = new Generator(946684800000, host.id);
 
 app.use(cors());
 

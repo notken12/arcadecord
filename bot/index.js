@@ -18,7 +18,8 @@ import authMiddleware from './auth-middleware.js';
 
 import { loadShardManagerConfig } from './shard-manager-config.js';
 
-const { config, totalShards, hosts } = loadShardManagerConfig();
+const config = loadShardManagerConfig();
+const { totalShards } = config;
 
 function getShardList() {
   let shardList = [];
@@ -237,12 +238,12 @@ app.listen(port, () =>
 
 console.log(
   'Starting shard manager ' +
-    config.id +
-    ' with ' +
-    shardList.length +
-    ' shards out of ' +
-    totalShards +
-    ' total shards'
+  config.id +
+  ' with ' +
+  shardList.length +
+  ' shards out of ' +
+  totalShards +
+  ' total shards'
 );
 
 manager.spawn();
