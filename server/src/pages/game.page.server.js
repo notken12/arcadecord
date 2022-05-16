@@ -15,7 +15,6 @@ import { createApp } from '@app/renderer/gameApp';
 // import { createApp } from '@app/renderer/app'
 import { renderToString } from '@vue/server-renderer';
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr';
-import * as Client from '@app/js/client-framework.js';
 import { GameConnectionError } from '../games/GameErrors.js';
 
 export async function onBeforeRender(pageContext) {

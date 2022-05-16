@@ -143,6 +143,7 @@ export default defineConfig({
         manualChunks: undefined,
       },
       external: [
+        'node-fetch',
         /server\/src\/games\/types\/(.*)main.(.*)$/,
         /server\/src\/games\/([^\/]*)$/,
         /.test.[jt]sx?$/,
@@ -154,9 +155,9 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: {
-      plugins: [esbuildCommonjs(['node-fetch', 'gsap'])], // the problematic cjs module
+      // plugins: [esbuildCommonjs(['node-fetch', 'gsap'])], // the problematic cjs module
     },
-    include: ['node-fetch', 'gsap'], // also here
+    // include: ['node-fetch', 'gsap'], // also here
   },
   plugins: [
     // nodeResolve(),

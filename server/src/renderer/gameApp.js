@@ -17,7 +17,6 @@ import VueAppInsights from '@app/js/vue-app-insights.js';
 import { appInsights } from '@app/js/client-framework.js';
 
 import baseMixin from 'components/base-ui/base.mixin.js';
-import * as Client from '@app/js/client-framework.js';
 
 export { createApp };
 
