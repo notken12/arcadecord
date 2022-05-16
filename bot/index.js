@@ -20,7 +20,15 @@ import { loadShardManagerConfig } from './shard-manager-config.js';
 
 const { config, totalShards, hosts } = loadShardManagerConfig();
 
-const shardList = config.shardList.map((id) => Number(id));
+function getShardList() {
+  let shardList = [];
+  for (let i = config.id; i < totalShards; i += config.shardManagerCount) {
+    shardList.push(i);
+  }
+  return shardList;
+}
+
+const shardList = getShardList();
 const port = config.port;
 
 // load balancing for tasks that can be done on any shard
@@ -49,14 +57,9 @@ const manager = new ShardingManager('./bot/bot.js', {
 manager.on('shardCreate', (shard) => console.log(`Launched shard ${shard.id}`));
 
 // create http server to handle requests
-var app = express();
+const app = express();
 
 app.use(express.json()); // Used to parse JSON bodies
-
-app.use((req, res, next) => {
-  //console.log(req.path);
-  next();
-});
 
 app.use(authMiddleware);
 
@@ -103,28 +106,6 @@ app.get('/gettest', (req, res) => {
 });
 
 //test
-
-app.post('/message', (req, res) => {
-  let shard = getShardByGuild(req.body.guild);
-  manager
-    .broadcastEval(
-      async (c, { channel, message }) => {
-        try {
-          return await c.channels.fetch(channel).send(message);
-        } catch (e) {
-          console.log(e);
-          return null;
-        }
-      },
-      {
-        shard: shard,
-        context: { channel: req.body.channel, message: req.body.message },
-      }
-    )
-    .then((sentMessage) => {
-      res.send(sentMessage);
-    });
-});
 
 app.post('/startmessage', async (req, res) => {
   if (!req.body.game?.guild) {

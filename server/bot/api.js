@@ -11,9 +11,7 @@ import fetch from 'node-fetch';
 
 import { loadApiConfig } from './config.js';
 
-const { botIpcUrl } = loadApiConfig();
-
-const baseUrl = botIpcUrl;
+const config = loadApiConfig();
 
 function getAuthHeader() {
   return {
@@ -28,32 +26,57 @@ function auth(options) {
   options.headers.Authorization = getAuthHeader().Authorization;
 }
 
-function routeRoundRobin(path) {}
+let currentManager = 0;
+function routeRoundRobin(path, options) {
+  let url = getBaseUrlRoundRobin() + path;
+  auth(options);
+  return fetch(url, options);
+}
 
-function routeByGuild(path, guild) {}
+function routeByGuild(path, options, guildId) {
+  let url = getBaseUrlByGuild(guildId) + path;
+  auth(options);
+  return fetch(url, options);
+}
 
-function getBaseUrl(guildId) {}
+function getShardId(guildId) {
+  return (guildId >>> 22) % config.totalShards;
+}
 
+function getBaseUrlByGuild(guildId) {
+  let shard_id = getShardId(guildId);
+  let shard_manager_id = shard_id % config.shardManagerCount;
+  let url = config.shardManagerPodPrefix + shard_manager_id;
+  return url;
+}
+
+function getBaseUrlRoundRobin() {
+  let shard_manager_id = currentManager;
+  currentManager = (currentManager + 1) % config.shardManagerCount;
+  return shard_manager_id;
+}
+
+// Stateless (round robin)
 async function fetchUser(userId) {
   try {
-    var url = baseUrl + '/users/' + userId;
+    let path = '/users/' + userId;
 
     var options = {
       method: 'GET',
     };
-    auth(options);
 
-    return await (await fetch(url, options)).json();
+    return await (await routeRoundRobin(path, options)).json();
   } catch (err) {
     console.error(err);
     return null;
   }
 }
 
+// Stateful (by guild, needs to be sent to right shard manager)
 function sendStartMessage(game) {
-  var url = baseUrl + '/startmessage';
+  let path = '/startmessage';
   var data = {
-    game: game,
+    game,
   };
 
   var options = {
@@ -63,15 +86,15 @@ function sendStartMessage(game) {
     },
     body: JSON.stringify(data),
   };
-  auth(options);
 
-  return fetch(url, options);
+  return routeByGuild(path, options, guildId);
 }
 
+// Stateful
 function sendTurnInvite(game) {
-  var url = baseUrl + '/turninvite';
-  var data = {
-    game: game,
+  let path = '/turninvite';
+  let data = {
+    game,
   };
 
   var options = {
@@ -81,32 +104,30 @@ function sendTurnInvite(game) {
     },
     body: JSON.stringify(data),
   };
-  auth(options);
 
-  return fetch(url, options);
+  return routeByGuild(path, options, guildId);
 }
 
+// Stateful
 function deleteMessage(guildId, channelId, messageId) {
-  var url = baseUrl + '/message/' + guildId + '/' + channelId + '/' + messageId;
+  let path = '/message/' + guildId + '/' + channelId + '/' + messageId;
 
   var options = {
     method: 'DELETE',
   };
-  auth(options);
 
-  return fetch(url, options);
+  return routeByGuild(path, options, guildId);
 }
 
+// Stateful
 function getUserPermissionsInChannel(guildId, channelId, userId) {
-  var url =
-    baseUrl + '/permissions/' + guildId + '/' + channelId + '/' + userId;
+  let path = '/permissions/' + guildId + '/' + channelId + '/' + userId;
 
   var options = {
     method: 'GET',
   };
-  auth(options);
 
-  return fetch(url, options);
+  return routeByGuild(path, options, guildId);
 }
 
 export default {

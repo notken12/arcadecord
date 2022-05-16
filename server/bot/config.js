@@ -8,7 +8,10 @@
 // without the express permission of Ken Zhou.
 
 export function loadApiConfig() {
-  return {
-    botIpcUrl: process.env.BOT_IPC_URL ?? 'http://localhost:2000',
+  let config = {
+    totalShards: Number(process.env.TOTAL_SHARDS),
+    shardManagerCount: Number(process.env.SHARD_MANAGER_COUNT),
+    shardManagerPodPrefix: Number(process.env.SHARD_MANAGER_POD_PREFIX),
   };
+  return config;
 }

@@ -103,11 +103,6 @@ app.get('/users/:id', (req, res) => {
   proxyRoundRobin(req, res);
 });
 
-app.post('/message/start', (req, res) => {
-  //console.log('start message');
-  proxyByGuild(req.body.game.guild, req, res);
-});
-
 app.post('/posttest', (req, res) => {
   //console.log('post test request');
   proxyRoundRobin(req, res);
@@ -116,11 +111,6 @@ app.post('/posttest', (req, res) => {
 app.get('/gettest', (req, res) => {
   //console.log('get test request');
   proxyByGuild(0, req, res);
-});
-
-app.post('/message', (req, res) => {
-  //console.log('post message');
-  proxyByGuild(req.body.guild, req, res);
 });
 
 app.post('/startmessage', (req, res) => {
