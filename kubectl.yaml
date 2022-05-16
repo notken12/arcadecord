@@ -40,7 +40,7 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
-              name: pub-http-web-svc
+              name: http-web-svc
           env:
             - name: PORT
               valueFrom:
@@ -77,7 +77,7 @@ spec:
     - nodePort: 30001
       port: 3000
       protocol: TCP
-      targetPort: pub-http-web-svc
+      targetPort: http-web-svc
   selector:
     app: web
   type: LoadBalancer
@@ -116,7 +116,7 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5000
-              name: pub-http-ws-gameserver-svc
+              name: http-ws-gs-svc
           env:
             - name: GAME_SERVER_HOST_PORT
               valueFrom:
@@ -150,7 +150,7 @@ spec:
     - nodePort: 30002
       port: 5000
       protocol: TCP
-      targetPort: pub-http-ws-gameserver-svc
+      targetPort: http-ws-gs-svc
   selector:
     app: gameserver
   type: LoadBalancer
@@ -187,7 +187,7 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
-              name: http-botproxy-svc
+              name: http-botpxy-svc
           env:
             - name: BOT_PROXY_PORT
               valueFrom:
@@ -210,40 +210,62 @@ spec:
   ports:
     - port: 2000
       protocol: TCP
-      targetPort: http-botproxy-svc
+      targetPort: http-botpxy-svc
   selector:
     app: botproxy
 # END BOTPROXY CONFIG
 ---
 # BEGIN SHARDMANAGER CONFIG
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: shardmanager
-# data:
-#   port: '2100'
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: shardmanager
-#   labels:
-#     app: shardmanager
-# spec:
-#   replicas: 2
-#   selector:
-#     matchLabels:
-#       app: shardmanager
-#   template:
-#     metadata:
-#       labels:
-#         app: shardmanager
-#     spec:
-#       containers:
-#         - name: shardmanager
-#           image: arcadecord_shardmanager
-#           imagePullPolicy: Never
-#           ports:
-#             - containerPort: 3000
-#               name: http-shardmanager-svc
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shardmanager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shardmanager
+  labels:
+    app: shardmanager
+spec:
+  ports:
+    - port: 3000
+      name: http-shardm-svc
+  clusterIP: None
+  selector:
+    app: shardmanager
+---
+# Access each pod with hostname shardmanager-{N}.
+# shardmanager-0, shardmanager-1
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: shardmanager
+spec:
+  serviceName: 'shardmanager'
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shardmanager
+  template:
+    metadata:
+      labels:
+        app: shardmanager
+    spec:
+      containers:
+        - name: shardmanager
+          image: arcadecord_shardmanager
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+              name: http-shardm-svc
+          env:
+            - name: SHARD_MANAGER_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name # use pod's name
+            # - name: SHARD_LIST
+            #   value: '[$(SHARD_MANAGER_ID)]'
+          command: ['env']
+          args: ['SHARD_LIST="[$(SHARD_MANAGER_ID)]"']
 # END SHARDMANAGER CONFIG
