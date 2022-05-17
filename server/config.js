@@ -27,8 +27,8 @@ export function loadHostConfig() {
   for (let prop in host) {
     if (host[prop] == null) {
       console.log(host);
-      throw new Error(
-        'Arcadecord: Host configuration has missing fields. See configuration.md for configuration help.'
+      console.log(
+        'Warning: Arcadecord: Host configuration has missing fields. See configuration.md for configuration help.'
       );
     }
   }
