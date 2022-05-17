@@ -143,16 +143,19 @@ export default defineConfig({
         manualChunks: undefined,
       },
       external: [
-        'node-fetch',
+        // 'node-fetch',
         /server\/src\/games\/types\/(.*)main.(.*)$/,
         /server\/src\/games\/([^\/]*)$/,
         /.test.[jt]sx?$/,
-        'encoding',
+        // 'encoding',
       ],
     },
     emptyOutDir: true,
     minify: false,
   },
+  // ssr: {
+    // external: [/server\/src\/games\/([^\/]*)$/]
+  // },
   optimizeDeps: {
     esbuildOptions: {
       // plugins: [esbuildCommonjs(['node-fetch', 'gsap'])], // the problematic cjs module
@@ -161,25 +164,19 @@ export default defineConfig({
   },
   plugins: [
     // nodeResolve(),
-    commonjs({
-      transformMixedEsModules: true,
-    }),
+    // commonjs({
+      // transformMixedEsModules: true,
+    // }),
     vue(),
     babel({
       babelHelpers: 'bundled',
-      // exclude: 'node_modules/**'
+      exclude: 'node_modules/**'
     }),
     ssr(),
-    // commonjs({
-    //   transformMixedEsModules: true,
-    // }),
-    // cjs({
-    //   nested: true
-    // }),
     brotli(),
-    visualizer({
-      template: 'treemap',
-    }),
+    // visualizer({
+      // template: 'treemap',
+    // }),
     /*graph({
       prune: true
     })*/

@@ -4,6 +4,12 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+  {
+    "command": "PORT=9000 NODE_ENV=production node server/web.js",
+    "name": "Run web server",
+    "request": "launch",
+    "type": "node-terminal"
+  },
     {
       "command": "npm start",
       "name": "Run npm start",
