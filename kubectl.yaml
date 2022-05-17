@@ -13,8 +13,15 @@ data:
   shardManagerCount: '2'
   shardManagerPodPrefix: 'shardmanager-'
   shardManagerPodAddress: 'http://shardmanager-%ID%.shardmanager.default.svc.cluster.local:3000'
-  botIpcToken: '7sFp0ASKbkMA4P8CJIb6lcCrwKA62ob26GGMK04vfT7dk5rV2xaPdJ3qtswP'
   gameServerUrlInternal: 'http://gameserver:5000'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sharding
+type: Opaque
+data:
+  botIpcToken: 'N3NGcDBBU0tia01BNFA4Q0pJYjZsY0Nyd0tBNjJvYjI2R0dNSzA0dmZUN2RrNXJWMnhhUGRKM3F0c3dQ'
 ---
 # BEGIN WEB CONFIG
 apiVersion: v1
@@ -99,7 +106,7 @@ spec:
                   key: shardManagerPodAddress
             - name: BOT_IPC_TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: sharding
                   key: botIpcToken
 ---
@@ -130,7 +137,14 @@ data:
   name: mosoggame
   id: '1'
   webUrl: '127.0.0.1:3000'
-  gameServerToken: 'NRyjgYoKwMkR6XBgVLBMwnEHTyxf29c7CUtbMvuOU0bSR4mAkxqmGalXjYFD'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gameserver
+type: Opaque
+data:
+  gameServerToken: 'TlJ5amdZb0t3TWtSNlhCZ1ZMQk13bkVIVHl4ZjI5YzdDVXRiTXZ1T1UwYlNSNG1Ba3hxbUdhbFhqWUZE'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -196,12 +210,12 @@ spec:
                   key: shardManagerPodAddress
             - name: BOT_IPC_TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: sharding
                   key: botIpcToken
             - name: GAME_SERVER_TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: gameserver
                   key: gameServerToken
 ---
@@ -288,12 +302,12 @@ spec:
                   key: shardManagerPodPrefix
             - name: BOT_IPC_TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: sharding
                   key: botIpcToken
             - name: GAME_SERVER_TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: gameserver
                   key: gameServerToken
             - name: VITE_GAME_SERVER_URL
