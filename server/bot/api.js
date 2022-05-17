@@ -11,6 +11,9 @@ import fetch from 'node-fetch';
 
 import { loadApiConfig } from './config.js';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const config = loadApiConfig();
 console.log('bot api config: ', config);
 

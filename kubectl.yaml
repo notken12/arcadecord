@@ -13,7 +13,7 @@ data:
   shardManagerCount: '2'
   shardManagerPodPrefix: 'shardmanager-'
   shardManagerPodAddress: 'http://shardmanager-%ID%.shardmanager.default.svc.cluster.local:3000'
-  gameServerUrlInternal: 'http://gameserver:5000'
+  gameServerUrlInternal: 'http://gameserver:3000'
 ---
 apiVersion: v1
 kind: Secret
@@ -29,11 +29,11 @@ kind: ConfigMap
 metadata:
   name: web
 data:
-  port: '3000'
+  port: '5000'
   id: '0'
   name: mosog
-  url: 'http://127.0.0.1:3000'
-  gameServerUrl: 'http://127.0.0.1:5000'
+  url: 'http://127.0.0.1:5000'
+  gameServerUrl: 'http://127.0.0.1:3000'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -58,8 +58,14 @@ spec:
           image: arcadecord_web
           imagePullPolicy: Never
           ports:
-            - containerPort: 3000
+            - containerPort: 5000
               name: http-web-svc
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http-web-svc
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 1
           env:
             - name: PORT
               valueFrom:
@@ -119,12 +125,13 @@ metadata:
 spec:
   ports:
     - nodePort: 30001
-      port: 3000
+      port: 5000
       protocol: TCP
       targetPort: http-web-svc
   selector:
     app: web
   type: LoadBalancer
+  sessionAffinity: None
 # END WEB CONFIG
 ---
 # BEGIN GAMESERVER CONFIG
@@ -133,10 +140,9 @@ kind: ConfigMap
 metadata:
   name: gameserver
 data:
-  port: '5000'
+  port: '3000'
   name: mosoggame
   id: '1'
-  webUrl: '127.0.0.1:3000'
 ---
 apiVersion: v1
 kind: Secret
@@ -153,7 +159,7 @@ metadata:
   labels:
     app: gameserver
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: gameserver
@@ -167,8 +173,14 @@ spec:
           image: arcadecord_gameserver
           imagePullPolicy: Never
           ports:
-            - containerPort: 5000
+            - containerPort: 3000
               name: http-ws-gs-svc
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http-ws-gs-svc
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 1
           env:
             - name: GAME_SERVER_HOST_PORT
               valueFrom:
@@ -228,12 +240,13 @@ metadata:
 spec:
   ports:
     - nodePort: 30002
-      port: 5000
+      port: 3000
       protocol: TCP
       targetPort: http-ws-gs-svc
   selector:
     app: gameserver
   type: LoadBalancer
+  sessionAffinity: ClientIP
 # END GAMESERVER CONFIG
 ---
 # BEGIN SHARDMANAGER CONFIG
