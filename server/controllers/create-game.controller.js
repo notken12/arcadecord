@@ -14,7 +14,7 @@ import { gameTypes } from '../src/games/game-types.js';
 import { loadHostConfig } from '../config.js';
 const host = loadHostConfig();
 
-const cyrb53 = function(str, seed = 0) {
+const cyrb53 = function (str, seed = 0) {
   let h1 = 0xdeadbeef ^ seed,
     h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {

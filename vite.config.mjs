@@ -154,7 +154,7 @@ export default defineConfig({
     minify: false,
   },
   // ssr: {
-    // external: [/server\/src\/games\/([^\/]*)$/]
+  // external: [/server\/src\/games\/([^\/]*)$/]
   // },
   optimizeDeps: {
     esbuildOptions: {
@@ -165,17 +165,17 @@ export default defineConfig({
   plugins: [
     // nodeResolve(),
     // commonjs({
-      // transformMixedEsModules: true,
+    // transformMixedEsModules: true,
     // }),
     vue(),
     babel({
       babelHelpers: 'bundled',
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
     }),
     ssr(),
     brotli(),
     // visualizer({
-      // template: 'treemap',
+    // template: 'treemap',
     // }),
     /*graph({
       prune: true

@@ -60,7 +60,7 @@ Canvas.registerFont(
   { family: 'Work Sans' }
 );
 
-client.sendStartMessage = async function(g) {
+client.sendStartMessage = async function (g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -107,7 +107,7 @@ client.sendStartMessage = async function(g) {
   return await channel.send(message);
 };
 
-client.sendTurnInvite = async function(g) {
+client.sendTurnInvite = async function (g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -118,7 +118,7 @@ client.sendTurnInvite = async function(g) {
 
   let textChannel = await client.channels.fetch(game.channel);
   if (game.startMessage) {
-    textChannel.messages.delete(game.startMessage).catch(() => { });
+    textChannel.messages.delete(game.startMessage).catch(() => {});
   }
 
   if (game.inThread) {
@@ -141,14 +141,15 @@ client.sendTurnInvite = async function(g) {
   }
 
   if (game.lastTurnInvite) {
-    channel.messages.delete(game.lastTurnInvite).catch(() => { });
+    channel.messages.delete(game.lastTurnInvite).catch(() => {});
   }
 
   var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex];
 
   var m = {
-    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${game.emoji + ' ' || ''
-      }${game.name}*`,
+    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${
+      game.emoji + ' ' || ''
+    }${game.name}*`,
     allowedMentions: {
       parse: [],
     },
