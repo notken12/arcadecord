@@ -17,6 +17,11 @@ jobs:
       matrix:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    
+    env:
+      GAME_SERVER_HOST_NAME: mango
+      GAME_SERVER_HOST_ID: mango
+      GAME_SERVER_HOST_PORT: 3000
 
     steps:
       - uses: actions/checkout@v2
