@@ -124,13 +124,12 @@ metadata:
     app: web
 spec:
   ports:
-    - nodePort: 30001
-      port: 5000
+    - port: 5000
       protocol: TCP
       targetPort: http-web-svc
   selector:
     app: web
-  type: LoadBalancer
+  type: NodePort
   sessionAffinity: None
 # END WEB CONFIG
 ---
@@ -239,14 +238,12 @@ metadata:
     app: gameserver
 spec:
   ports:
-    - nodePort: 30002
-      port: 3000
+    - port: 3000
       protocol: TCP
       targetPort: http-ws-gs-svc
   selector:
     app: gameserver
-  type: LoadBalancer
-  sessionAffinity: ClientIP
+  type: NodePort
 # END GAMESERVER CONFIG
 ---
 # BEGIN SHARDMANAGER CONFIG
@@ -339,3 +336,23 @@ spec:
                   name: web
                   key: url
 # END SHARDMANAGER CONFIG
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: hello-world.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 5000
