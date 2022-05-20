@@ -32,8 +32,8 @@ data:
   port: '5000'
   id: '0'
   name: mosog
-  url: 'http://127.0.0.1:5000'
-  gameServerUrl: 'http://127.0.0.1:3000'
+  url: 'http://mogo.gov'
+  gameServerUrl: 'http://api.mogo.gov'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -337,39 +337,16 @@ spec:
                   key: url
 # END SHARDMANAGER CONFIG
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-conf
-  namespace: ingress-nginx
-data:
-  nginx.config: |
-    user nginx;
-    worker_processes 1;
-    events {
-      worker_connections 10240;
-    }
-    http {
-      include       /etc/nginx/mime.types;
-
-      server {
-        listen: 80;
-        server_name localhost;
-
-        gzip on;
-      }
-    }
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-service
+  name: web-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     kubernetes.io/ingress.class: nginx
 spec:
   rules:
-    - host: hello-world.info
+    - host: mogo.gov
       http:
         paths:
           - path: /(.*)
@@ -379,3 +356,23 @@ spec:
                 name: web
                 port:
                   number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gameserver-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: api.mogo.gov
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: gameserver
+                port:
+                  number: 3000

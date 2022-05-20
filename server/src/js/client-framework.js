@@ -35,11 +35,28 @@ var socket;
 
 let onPageHasUnsavedChanges, onAllChangesSaved;
 
+async function getGameServerUrl() {
+  function throwErr(e) {
+    console.error(e);
+    throw new Error(
+      'Failed to fetch game server url. Make sure the web server is configured correctly, see configuration.md'
+    );
+  }
+
+  const res = await fetch('/game-server-url').catch(throwErr);
+  if (!res.ok) {
+    throwErr();
+  }
+  return res.text();
+}
+
 async function useOnClient() {
   console.log(`[arcadecord] running in ${import.meta.env.MODE} mode`);
 
-  console.log('connecting to ' + import.meta.env.VITE_GAME_SERVER_URL);
-  socket = io(import.meta.env.VITE_GAME_SERVER_URL);
+  const url = await getGameServerUrl();
+
+  console.log('connecting to ' + url);
+  socket = io(url);
 
   const beforeUnloadListener = (event) => {
     event.preventDefault();
