@@ -158,7 +158,7 @@ metadata:
   labels:
     app: gameserver
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: gameserver
@@ -342,8 +342,8 @@ kind: Ingress
 metadata:
   name: web-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
     - host: mogo.gov
@@ -355,15 +355,33 @@ spec:
               service:
                 name: web
                 port:
-                  number: 5000
+                  name: http-web-svc
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: gameserver-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-secure: 'false'
+    nginx.ingress.kubernetes.io/session-cookie-path: '/'
+    nginx.ingress.kubernetes.io/session-cookie-samesite: 'None'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-credentials: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-methods: 'PUT, GET, POST,
+      OPTIONS, DELETE, PATCH'
+    nginx.ingress.kubernetes.io/cors-allow-origin: 'http://*.mogo.gov, https://*.mogo.gov, http://mogo.gov, https://mogo.gov'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Access-Control-Allow-Origin: $http_origin";
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_set_header Host $host;
 spec:
   rules:
     - host: api.mogo.gov
@@ -375,4 +393,4 @@ spec:
               service:
                 name: gameserver
                 port:
-                  number: 3000
+                  name: http-ws-gs-svc

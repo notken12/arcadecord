@@ -56,7 +56,9 @@ async function useOnClient() {
   const url = await getGameServerUrl();
 
   console.log('connecting to ' + url);
-  socket = io(url);
+  socket = io(url, {
+    withCredentials: true,
+  });
 
   const beforeUnloadListener = (event) => {
     event.preventDefault();
