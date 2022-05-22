@@ -4,6 +4,15 @@
 #
 # Make sure to run `minikube tunnel` to expose to localhost!!
 
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: ingress-nginx
+data:
+  error-log-level: 'debug'
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,7 +42,7 @@ data:
   id: '0'
   name: mosog
   url: 'http://mogo.gov'
-  gameServerUrl: 'http://api.mogo.gov'
+  gameServerUrl: 'https://api.mogo.gov'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -370,6 +379,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
     nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-redirect: 'off'
     nginx.ingress.kubernetes.io/ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/enable-cors: 'true'
@@ -382,7 +392,14 @@ metadata:
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
       proxy_set_header Host $host;
+      proxy_cache_bypass $http_upgrade;
 spec:
+  tls:
+    - hosts:
+        - api.mogo.gov
+        # assumes that tls-secret exists and the SSL
+        # certificate contains a common name for api.mogo.gov
+      secretName: tls-secret
   rules:
     - host: api.mogo.gov
       http:

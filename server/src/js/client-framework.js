@@ -58,6 +58,7 @@ async function useOnClient() {
   console.log('connecting to ' + url);
   socket = io(url, {
     withCredentials: true,
+    transports: ['websocket'],
   });
 
   const beforeUnloadListener = (event) => {
