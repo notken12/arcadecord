@@ -21,6 +21,7 @@ import {
 
 import { createGame } from '../../controllers/create-game.controller.js';
 import { AddPlayerError } from './GameErrors.js';
+import GameFlow from './GameFlow.js';
 
 const testdb = await createTestingDb();
 
@@ -123,5 +124,47 @@ describe('User may connect to a game if', () => {
       ok: true,
     });
     expect(game.isConnectionContested(user3._id)).toEqual(true);
+  });
+});
+
+describe.todo('Personal stats', () => {
+  it('Total games played will increase after game end, total games won will increase for winner', async () => {
+    const user1 = await mockUser();
+    const user2 = await mockUser();
+    const game = await createGame(
+      {
+        options: {
+          ...mockGameOptions(),
+        },
+        userId: user1._id,
+      },
+      true // mark as testing
+    );
+
+    expect(await game.addPlayer(user2._id)).toEqual({
+      ok: true,
+    });
+
+    await GameFlow.end(game, { winner: 0 }); // first player wins
+    expect(game.winner).toBe(0);
+    expect(game.hasEnded).toBe(true);
+
+    const newUser1 = await db.users.getById(user1._id);
+    const newUser2 = await db.users.getById(user2._id);
+
+    // Both players should have increased their games played stat
+    expect(newUser1.stats.gamesPlayed).toBe(1);
+    expect(newUser2.stats.gamesPlayed).toBe(1);
+
+    // Only the winner (newUser1) should have increased their games won stat
+    expect(newUser1.stats.gamesWon).toBe(1);
+    expect(newUser2.stats.gamesWon).toBe(0);
+
+    // Increase the stats for the specific game type too
+    expect(newUser1.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
+    expect(newUser2.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
+
+    expect(newUser1.stats.gameTypes[game.typeId].gamesWon).toBe(1);
+    expect(newUser2.stats.gameTypes[game.typeId].gamesWon).toBe(0);
   });
 });
