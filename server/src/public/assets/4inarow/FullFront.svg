@@ -1,3 +1,14 @@
+<!--
+  FullFront.svg - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <svg width="1260" height="1080" viewBox="0 0 1260 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H180V180H0V0ZM170 90C170 134.183 134.183 170 90 170C45.8172 170 10 134.183 10 90C10 45.8172 45.8172 10 90 10C134.183 10 170 45.8172 170 90Z" fill="#0016D8"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M180 0H360V180H180V0ZM350 90C350 134.183 314.183 170 270 170C225.817 170 190 134.183 190 90C190 45.8172 225.817 10 270 10C314.183 10 350 45.8172 350 90Z" fill="#0016D8"/>

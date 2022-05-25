@@ -1,3 +1,14 @@
+<!--
+  RedChecker.svg - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="250" cy="250" r="250" fill="#FF0000"/>
 <circle cx="250" cy="250" r="221" fill="#FF0000"/>

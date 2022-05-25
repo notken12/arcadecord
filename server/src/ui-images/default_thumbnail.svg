@@ -1,3 +1,14 @@
+<!--
+  default_thumbnail.svg - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_17_10)">
 <rect width="300" height="200" rx="8" fill="url(#paint0_linear_17_10)" fill-opacity="0.3"/>

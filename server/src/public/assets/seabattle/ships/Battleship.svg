@@ -1,3 +1,14 @@
+<!--
+  Battleship.svg - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <svg width="300" height="100" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M14 65.3288V34.6712L84.1791 22H164.765L280.495 49.5684L164.758 78H84.1791L14 65.3288Z" fill="#54703F" stroke="#759B58" stroke-width="4"/>
 <rect x="77" y="38" width="30" height="24" rx="7" fill="#91BC6E"/>

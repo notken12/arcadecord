@@ -1,3 +1,14 @@
+<!--
+  cuppong.svg - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+-->
+
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10.689 4.59337C10.3262 2.17495 12.1993 0 14.6447 0H85.3552C87.8007 0 89.6738 2.17495 89.311 4.59336L75.511 96.5934C75.2173 98.5514 73.5352 100 71.5553 100H28.4447C26.4648 100 24.7827 98.5514 24.489 96.5934L10.689 4.59337Z" fill="#FF2525"/>
 <rect x="7" width="86" height="8" rx="4" fill="white"/>
