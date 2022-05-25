@@ -1,0 +1,44 @@
+Based on https://github.com/socketio/socket.io-protocol#sample-session
+
+ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Host: api.mogo.gov" -H "Origin: https://mogo.gov" -H "Sec-WebSocket-Key: pLvnfpC71NK4SRk5fi5oHA==" "https://api.mogo.gov/socket.io/?EIO=4&transport=websocket" -k
+HTTP/2 400
+date: Tue, 24 May 2022 00:55:00 GMT
+content-type: application/json
+set-cookie: INGRESSCOOKIE=1653353701.658.60.286834|2f7b94802c77e7067b59a3bb091ed2aa; Path=/; Secure; HttpOnly; SameSite=None
+access-control-allow-origin: https://mogo.gov
+access-control-allow-credentials: true
+access-control-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+access-control-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+access-control-max-age: 1728000
+
+{"code":3,"message":"Bad request"}⏎
+
+~/dev
+ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Host: api.mogo.gov" -H "Origin: https://mogo.gov" -H "Sec-WebSocket-Key: pLvnfpC71NK4SRk5fi5oHA==" "https://api.mogo.gov/socket.io/?EIO=4&transport=polling" -k
+HTTP/2 200
+date: Tue, 24 May 2022 00:59:16 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 118
+set-cookie: INGRESSCOOKIE=1653353957.716.42.292807|2f7b94802c77e7067b59a3bb091ed2aa; Path=/; Secure; HttpOnly; SameSite=None
+access-control-allow-origin: https://mogo.gov
+access-control-allow-credentials: true
+access-control-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+access-control-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+access-control-max-age: 1728000
+
+0{"sid":"EjUVfmd9cigOY772AAAA","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000000}⏎
+
+~/dev
+ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Host: api.mogo.gov" -H "Origin: https://mogo.gov" -H "Sec-WebSocket-Key: pLvnfpC71NK4SRk5fi5oHA==" "https://api.mogo.gov/socket.io/?EIO=4&transport=websocket&sid=EjUVfmd9cigOY772AAAA" -k
+HTTP/2 400
+date: Tue, 24 May 2022 01:00:24 GMT
+content-type: application/json
+set-cookie: INGRESSCOOKIE=1653354025.155.60.24676|2f7b94802c77e7067b59a3bb091ed2aa; Path=/; Secure; HttpOnly; SameSite=None
+access-control-allow-origin: https://mogo.gov
+access-control-allow-credentials: true
+access-control-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+access-control-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+access-control-max-age: 1728000
+
+{"code":1,"message":"Session ID unknown"}⏎
+

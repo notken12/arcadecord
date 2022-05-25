@@ -238,6 +238,8 @@ spec:
                 secretKeyRef:
                   name: gameserver
                   key: gameServerToken
+            - name: DEBUG
+              value: '*'
 ---
 apiVersion: v1
 kind: Service
@@ -376,12 +378,11 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-secure: 'false'
     nginx.ingress.kubernetes.io/session-cookie-path: '/'
     nginx.ingress.kubernetes.io/session-cookie-samesite: 'None'
-    nginx.ingress.kubernetes.io/use-regex: 'true'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
     nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
     nginx.ingress.kubernetes.io/proxy-redirect: 'off'
-    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
-    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    # nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-allow-credentials: 'true'
     nginx.ingress.kubernetes.io/cors-allow-methods: 'PUT, GET, POST,
@@ -389,10 +390,14 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-origin: 'http://*.mogo.gov, https://*.mogo.gov, http://mogo.gov, https://mogo.gov'
     nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers "Access-Control-Allow-Origin: $http_origin";
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $host;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection $connection_upgrade;
-      proxy_set_header Host $host;
-      proxy_cache_bypass $http_upgrade;
+    nginx.org/websocket-services: 'gameserver'
+    nginx.ingress.kubernetes.io/websocket-services: 'gameserver'
+    nginx.ingress.kubernetes.io/proxy-ssl-server-name: 'true'
+    nginx.ingress.kubernetes.io/proxy-ssl-name: 'true'
 spec:
   tls:
     - hosts:
@@ -404,7 +409,7 @@ spec:
     - host: api.mogo.gov
       http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:

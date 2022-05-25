@@ -58,7 +58,7 @@ async function useOnClient() {
   console.log('connecting to ' + url);
   socket = io(url, {
     withCredentials: true,
-    transports: ['websocket'],
+    // transports: ['websocket'],
   });
 
   const beforeUnloadListener = (event) => {
@@ -92,21 +92,21 @@ class Action {
 
 const client = {
   eventHandlers: {},
-  emit: function(event, ...args) {
+  emit: function (event, ...args) {
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       callback(...args);
     }
   },
-  on: function(event, callback) {
+  on: function (event, callback) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
     this.eventHandlers[event].push(callback);
   },
 };
 
 const utils = {
-  getGameId: function(location) {
+  getGameId: function (location) {
     return location.pathname.split('/')[2];
   },
   propertiesToIgnore: ['client', 'actionModels'],

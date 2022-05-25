@@ -14,7 +14,7 @@
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "npm run startsingle",
     "startprod": "concurrently \"node server/web.js\" \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
-    "startsingle": "concurrently \"nodemon --watch server server/web.js\" \"nodemon --watch server server/index.js single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.js 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.js\"",
+    "startsingle": "concurrently \"nodemon --watch server server/web.js\" \"DEBUG=engine,socket.io* nodemon --watch server server/index.js single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.js 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.js\"",
     "format": "prettier --write '**/*.js'"
   },
   "engines": {
