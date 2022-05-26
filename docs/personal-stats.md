@@ -3,6 +3,7 @@
 Track each player's personal stats (shared across all servers):
 
 Spec:
+
 - Track
   - Total games played
   - Total games won
