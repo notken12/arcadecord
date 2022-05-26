@@ -18,6 +18,8 @@ const host = loadHostConfig();
 
 import express from 'express';
 const app = express();
+app.enable('trust proxy');
+app.set('port', host.port || 3000);
 
 import shrinkRay from 'shrink-ray-current';
 // Compress all requests
