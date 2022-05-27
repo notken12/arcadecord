@@ -1,14 +1,3 @@
-<!--
-  PlaceArrow.svg - Arcadecord
-
-  Copyright (C) 2022 Ken Zhou
-
-  This file is part of Arcadecord.
-
-  Arcadecord can not be copied and/or distributed
-  without the express permission of Ken Zhou.
--->
-
 <svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="500" height="500" fill="white"/>
 <path d="M281.729 389.859C266.712 412.643 233.288 412.644 218.271 389.859L72.3209 168.412C55.6688 143.146 73.7897 109.5 104.049 109.5H395.951C426.21 109.5 444.331 143.146 427.679 168.412L281.729 389.859Z" fill="#C4C4C4"/>

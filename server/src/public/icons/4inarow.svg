@@ -1,14 +1,3 @@
-<!--
-  4inarow.svg - Arcadecord
-
-  Copyright (C) 2022 Ken Zhou
-
-  This file is part of Arcadecord.
-
-  Arcadecord can not be copied and/or distributed
-  without the express permission of Ken Zhou.
--->
-
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="50" y="50" width="43" height="43" fill="#FFE921"/>
 <rect x="4" y="7" width="43" height="43" fill="#FFE921"/>

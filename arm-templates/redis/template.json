@@ -1,0 +1,25 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "resources": [
+    {
+      "name": "arcadecord-dev",
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2021-06-01",
+      "location": "eastus",
+      "dependsOn": [],
+      "properties": {
+        "sku": {
+          "name": "Basic",
+          "family": "C",
+          "capacity": 0
+        },
+        "redisConfiguration": {},
+        "enableNonSslPort": false,
+        "redisVersion": "6"
+      },
+      "tags": {}
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "locationName": {
+      "type": "string"
+    },
+    "defaultExperience": {
+      "type": "string"
+    },
+    "isZoneRedundant": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "apiVersion": "2022-02-15-preview",
+      "kind": "MongoDB",
+      "type": "Microsoft.DocumentDb/databaseAccounts",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "locations": [
+          {
+            "id": "[concat(parameters('name'), '-', parameters('location'))]",
+            "failoverPriority": 0,
+            "locationName": "[parameters('locationName')]"
+          }
+        ],
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8,
+            "backupStorageRedundancy": "Local"
+          }
+        },
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "ipRules": [
+          {
+            "ipAddressOrRange": "104.42.195.92"
+          },
+          {
+            "ipAddressOrRange": "40.76.54.131"
+          },
+          {
+            "ipAddressOrRange": "52.176.6.30"
+          },
+          {
+            "ipAddressOrRange": "52.169.50.45"
+          },
+          {
+            "ipAddressOrRange": "52.187.184.26"
+          },
+          {
+            "ipAddressOrRange": "108.56.138.209"
+          }
+        ],
+        "dependsOn": [],
+        "capabilities": [
+          {
+            "name": "EnableMongo"
+          },
+          {
+            "name": "DisableRateLimitingResponses"
+          },
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "apiProperties": {
+          "serverVersion": "4.0"
+        },
+        "enableFreeTier": false,
+        "capacity": {
+          "totalThroughputLimit": 4000
+        }
+      },
+      "tags": {
+        "defaultExperience": "[parameters('defaultExperience')]",
+        "hidden-cosmos-mmspecial": ""
+      }
+    }
+  ],
+  "outputs": {}
+}

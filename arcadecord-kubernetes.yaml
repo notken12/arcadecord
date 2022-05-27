@@ -1,6 +1,6 @@
 # Run `eval $(minikube docker-env)` to enable using local Docker images
 # Run `docker compose build` to build the images
-# Then run `kubectl apply -f kubectl.yaml` to apply this config
+# Then run `kubectl apply -f arcadecord-kubernetes.yaml` to apply this config
 #
 # Make sure to run `minikube tunnel` to expose to localhost!!
 
