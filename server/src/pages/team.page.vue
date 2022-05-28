@@ -32,7 +32,7 @@ import Link from 'components/index/Link.vue';
         <Card>
           <template v-slot:title>
             <img
-              src="/public/profile-pictures/notken12.jpg"
+              src="/profile-pictures/notken12.jpg"
               alt="Profile picture"
               class="pfp"
             />
@@ -58,7 +58,7 @@ import Link from 'components/index/Link.vue';
         <Card>
           <template v-slot:title>
             <img
-              src="/public/profile-pictures/SethDevsStuff.jpg"
+              src="/profile-pictures/SethDevsStuff.jpg"
               alt="Profile picture"
               class="pfp"
             />
@@ -81,7 +81,7 @@ import Link from 'components/index/Link.vue';
         <Card>
           <template v-slot:title>
             <img
-              src="/public/profile-pictures/Crazexpert.jpg"
+              src="/profile-pictures/Crazexpert.jpg"
               alt="Profile picture"
               class="pfp"
             />
@@ -138,6 +138,7 @@ a {
 
 p {
   display: block;
+
   a {
     display: inline;
   }

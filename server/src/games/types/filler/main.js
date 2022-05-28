@@ -13,9 +13,6 @@ import Common from './common.js';
 // Import Game class
 import Game from '../../Game.js';
 
-// Import Canvas to draw thumbnail
-import Canvas from 'canvas';
-
 // Game options, required. Export as options
 // README.md
 const options = {
@@ -71,6 +68,7 @@ class FillerGame extends Game {
   }
 
   async getThumbnail() {
+    const { default: Canvas } = await import('canvas');
     const colors = [
       '#ff1744',
       '#ff9100',

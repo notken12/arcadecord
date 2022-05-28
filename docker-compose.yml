@@ -1,5 +1,5 @@
 # To remove unused docker images run:
-# docker rmi (docker images -f dangling=true -q)
+# docker rmi (docker images -f "dangling=true" -q) -f
 version: '3.9'
 services:
   web:
@@ -25,6 +25,7 @@ services:
       - GAME_SERVER_HOST_NAME=mango
       - BOT_IPC_URL=localhost:2000
   shardmanager:
+    platform: linux/x86_64
     build:
       context: .
       dockerfile: './docker/shardmanager/Dockerfile'
