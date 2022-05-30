@@ -134,7 +134,6 @@ onMounted(() => {
 watch(
   () => [props.ship.row, props.ship.col, props.ship.dir],
   () => {
-    console.log('ship changed');
     updatePos(true);
   }
 );

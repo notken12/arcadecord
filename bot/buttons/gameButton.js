@@ -33,7 +33,7 @@ function getOptionsMessage(dbOptions, interaction) {
 
   embed.addField(`🧑‍🤝‍🧑  Players: ${playerCount}`, '** **', false);
 
-  embed.addField('⚙️  Options', '** **', false);
+  // embed.addField('⚙️  Options', '** **', false);
 
   let row = new MessageActionRow();
 

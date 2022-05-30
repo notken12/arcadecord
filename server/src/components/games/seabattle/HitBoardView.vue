@@ -10,7 +10,7 @@
 -->
 
 <template>
-  <div class="hit-board" :style="styles" ref="boardEl">
+  <div class="hit-board board" :style="styles" ref="boardEl">
     <div class="hit-board-ships">
       <placed-ship
         v-for="ship in board.revealedShips"

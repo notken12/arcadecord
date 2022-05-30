@@ -13,24 +13,19 @@
   <game-view :game="game" :me="me" :hint="hint">
     <div class="middle" :style="replayStyles">
       <div>
-        <hit-board-view
-          class="board replay-board"
-          :target="targetedCell"
-          :board="otherHitBoard"
-        >
+        <hit-board-view :target="targetedCell" :board="otherHitBoard">
         </hit-board-view>
       </div>
       <div>
         <ship-placer
           :board="shipPlacementBoard"
-          :game="game"
-          v-if="!game.data.placed[myHitBoard.playerIndex] && shipPlacementBoard"
-        ></ship-placer>
+          v-if="!game.data.placed[myIndex] && shipPlacementBoard"
+        >
+        </ship-placer>
         <hit-board-view
-          class="board"
           :board="myHitBoard"
           :target="targetedCell"
-          v-else
+          v-if="game.data.placed[myIndex]"
         ></hit-board-view>
       </div>
     </div>
@@ -44,8 +39,6 @@
         <button @click="shoot" :class="{ hidden: !targetedCell }">Fire!</button>
       </div>
     </div>
-
-    <div id="game-canvas"></div>
   </game-view>
 </template>
 
@@ -74,33 +67,6 @@ const {
   $endAnimation,
 } = useFacade();
 
-let availableShips;
-
-const styles = computed(() => {
-  if (replaying.value) {
-    let transform = 'translateX(-100%)';
-  } else {
-    let transform = 'translateX(0%)';
-  }
-
-  return {
-    transform,
-  };
-});
-
-const replayStyles = computed(() => {
-  let transform;
-  if (replaying.value && game.value.data.placed[game.value.myIndex]) {
-    transform = 'translateX(0%)';
-  } else {
-    transform = 'translateX(-50%)';
-  }
-
-  return {
-    transform,
-  };
-});
-
 const hint = computed(() => {
   if (replaying.value) return;
   if (!game.value.data.placed[game.value.myIndex]) {
@@ -118,12 +84,29 @@ const myIndex = computed(() => {
   return game.value.myIndex === -1 ? 1 : game.value.myIndex;
 });
 
+const opponentIndex = computed(() => {
+  return myIndex === 1 ? 0 : 1;
+});
+
+const replayStyles = computed(() => {
+  let transform;
+  if (replaying.value && game.value.data.placed[myIndex.value]) {
+    transform = 'translateX(0%)';
+  } else {
+    transform = 'translateX(-50%)';
+  }
+
+  return {
+    transform,
+  };
+});
+
 const myHitBoard = computed(() => {
   return game.value.data.hitBoards[myIndex.value];
 });
 
 const otherHitBoard = computed(() => {
-  return game.value.data.hitBoards[[1, 0][myIndex.value]];
+  return game.value.data.hitBoards[opponentIndex.value];
 });
 
 watch(replaying, () => {
@@ -134,15 +117,17 @@ const targetedCell = ref(null);
 
 const setShips = () => {
   $runAction('placeShips', {
-    shipPlacementBoard: shipPlacementBoard.value,
+    shipPlacementBoard: cloneDeep(shipPlacementBoard.value),
   });
   $endAnimation(500);
 };
 
 const shipPlacementBoard = ref(null);
 
+const availableShips = Common.getAvailableShips(myHitBoard.value.playerIndex);
+
 const placeShips = () => {
-  console.log('placing ships');
+  // console.log('placing ships');
   let t1 = performance.now();
   shipPlacementBoard.value = Common.PlaceShips(
     cloneDeep(availableShips),
@@ -152,8 +137,12 @@ const placeShips = () => {
     )
   );
   let t2 = performance.now();
-  console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
+  // console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
 };
+
+if (!game.value.data.placed[myHitBoard.value.playerIndex] && isItMyTurn.value) {
+  placeShips();
+}
 
 const shoot = () => {
   if (targetedCell.value) {
@@ -168,15 +157,6 @@ onMounted(() => {
   bus.on('changeCellect', (cell) => {
     targetedCell.value = cell;
   });
-
-  availableShips = Common.getAvailableShips(myHitBoard.value.playerIndex);
-
-  if (
-    !game.value.data.placed[myHitBoard.value.playerIndex] &&
-    isItMyTurn.value
-  ) {
-    placeShips();
-  }
 
   $replayTurn(async () => {
     if (

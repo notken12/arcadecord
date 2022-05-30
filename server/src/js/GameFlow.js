@@ -12,7 +12,6 @@ const GameFlow = {
     //once first action has been made, start the game
     //first start and then handle first action
     game.hasStarted = true;
-    game.client.emit('start');
   },
   end(game, result) {
     //end the game
@@ -24,16 +23,11 @@ const GameFlow = {
       game.winner = -1;
     }
     game.turn = (game.turn + 1) % game.players.length;
-
-    game.client.emit('turn');
-    game.client.emit('end', result);
   },
   endTurn(game) {
     if (game.hasEnded) return;
 
     game.turn = (game.turn + 1) % game.players.length;
-
-    game.client.emit('turn');
   },
   isItMyTurn(game, ignoreGameEnd) {
     return (

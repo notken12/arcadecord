@@ -11,7 +11,7 @@
 
 <template>
   <div class="ship-placer-container" ref="boardEl">
-    <div class="ship-placer-board" ref="board">
+    <div class="ship-placer-board">
       <div class="ship-placer-row" v-for="y in board.width" :key="y">
         <div
           class="ship-placer-cell"
@@ -68,7 +68,6 @@ provide('boardEl', boardEl);
 const moveShip = (id, pos) => {
   let ship = props.board.ships.find((s) => s.id === id);
   if (!ship) return;
-  console.log(pos);
   let board = cloneDeep(props.board);
 
   let correspondingShip = board.ships.find((s) => s.id === id);
@@ -81,8 +80,6 @@ const moveShip = (id, pos) => {
     if (pos.col !== undefined) ship.col = pos.col;
     if (pos.row !== undefined) ship.row = pos.row;
     if (pos.dir !== undefined) ship.dir = pos.dir;
-    console.log('changed ship');
-    console.log(ship);
   }
 };
 
