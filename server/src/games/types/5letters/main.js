@@ -24,7 +24,7 @@ const options = {
   maxPlayers: 2,
   emoji: '<:5letters:971037718584889404>',
   data: {},
-  hidden: true,
+  hidden: false,
 };
 
 // Game constructor, extends base Game class
@@ -64,7 +64,7 @@ class FiveLettersGame extends Game {
       required: ['word'],
     });
 
-    this.getThumbnail = async function () {
+    this.getThumbnail = async function() {
       const { default: Canvas } = await import('canvas');
 
       const canvas = Canvas.createCanvas(

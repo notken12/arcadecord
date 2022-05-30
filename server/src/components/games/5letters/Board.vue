@@ -146,7 +146,6 @@ const keyboardEnter = () => {
       bus.emit('toast', 'Not in word list');
       return;
     }
-    console.log('updateguesses from keyboardenter');
     bus.emit('updateGuesses');
   }
 };
@@ -155,7 +154,6 @@ onMounted(() => {
   bus.on('keyboard:press', keyboardPress);
   bus.on('keyboard:backspace', keyboardBackspace);
   bus.on('keyboard:enter', keyboardEnter);
-  let lastGuess = props.guesses[props.guesses.length - 1];
 });
 
 onUnmounted(() => {
@@ -178,7 +176,6 @@ const theirAnswer = computed(() => {
 
 onMounted(() => {
   bus.on('updateGuesses', async () => {
-    console.log('updateguesses');
     let guessIndex = props.guesses.length - 1;
     let lastGuess = cloneDeep(props.guesses[guessIndex]);
     if (!lastGuess) return;

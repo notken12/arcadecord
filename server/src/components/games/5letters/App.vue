@@ -100,7 +100,6 @@ onMounted(() => {
       replayAction(game.value, action);
 
       if (action.type === 'guess') {
-        console.log('updateguesses from replay');
         bus.emit('updateGuesses');
         await utils.wait(letterAnimationLength * 5);
       }
@@ -135,7 +134,7 @@ onMounted(() => {
           <WordChooser v-if="!myAnswer"></WordChooser>
           <!-- v-if="myAnswer && theirAnswer" -->
 
-          <Board :guesses="myGuesses" v-else active></Board>
+          <Board :guesses="myGuesses" v-if="myAnswer" active></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>
