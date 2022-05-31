@@ -64,7 +64,7 @@ class FiveLettersGame extends Game {
       required: ['word'],
     });
 
-    this.getThumbnail = async function() {
+    this.getThumbnail = async function () {
       const { default: Canvas } = await import('canvas');
 
       const canvas = Canvas.createCanvas(
