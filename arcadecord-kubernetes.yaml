@@ -41,8 +41,8 @@ data:
   port: '5000'
   id: '0'
   name: mosog
-  url: 'http://mogo.gov'
-  gameServerUrl: 'https://api.mogo.gov'
+  url: 'http://arcadecord.com'
+  gameServerUrl: 'https://api.arcadecord.com'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -64,8 +64,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: arcadecord_web
-          imagePullPolicy: Never
+          image: arcadecord.azurecr.io/arcadecord_web:latest
           ports:
             - containerPort: 5000
               name: http-web-svc
@@ -151,6 +150,7 @@ data:
   port: '3000'
   name: mosoggame
   id: '1'
+  redis: 'redis://redis-server:6379'
 ---
 apiVersion: v1
 kind: Secret
@@ -178,8 +178,7 @@ spec:
     spec:
       containers:
         - name: gameserver
-          image: arcadecord_gameserver
-          imagePullPolicy: Never
+          image: arcadecord.azurecr.io/arcadecord_gameserver:latest
           ports:
             - containerPort: 3000
               name: http-ws-gs-svc
@@ -296,8 +295,7 @@ spec:
     spec:
       containers:
         - name: shardmanager
-          image: arcadecord_shardmanager
-          imagePullPolicy: Never
+          image: arcadecord.azurecr.io/arcadecord_shardmanager:latest
           ports:
             - containerPort: 3000
               name: http-shardm-svc
@@ -430,3 +428,39 @@ spec:
                 name: gameserver
                 port:
                   name: http-ws-gs-svc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-server
+  template:
+    metadata:
+      labels:
+        app: redis-server
+    spec:
+      nodeSelector:
+        'beta.kubernetes.io/os': linux
+      containers:
+        - name: redis-server
+          image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: 'yes'
+          ports:
+            - containerPort: 6379
+              name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis-server
