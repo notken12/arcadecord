@@ -1,0 +1,53 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "value": "arcadecord-dev"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "dnsPrefix": {
+            "value": "arcadecord-dev-dns"
+        },
+        "kubernetesVersion": {
+            "value": "1.22.6"
+        },
+        "networkPlugin": {
+            "value": "kubenet"
+        },
+        "enableRBAC": {
+            "value": true
+        },
+        "adminGroupObjectIDs": {
+            "value": [
+                "7a738227-a7d6-4f00-8a83-8642444e8e2b"
+            ]
+        },
+        "enablePrivateCluster": {
+            "value": true
+        },
+        "enableHttpApplicationRouting": {
+            "value": true
+        },
+        "enableAzurePolicy": {
+            "value": false
+        },
+        "enableSecretStoreCSIDriver": {
+            "value": true
+        },
+        "vmssNodePool": {
+            "value": true
+        },
+        "networkPolicy": {
+            "value": "calico"
+        },
+        "acrName": {
+            "value": "arcadecord"
+        },
+        "acrResourceGroup": {
+            "value": "RG_Arcadecord_DEV"
+        }
+    }
+}
