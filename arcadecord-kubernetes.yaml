@@ -41,8 +41,8 @@ data:
   port: '5000'
   id: '0'
   name: mosog
-  url: 'http://arcadecord.com'
-  gameServerUrl: 'https://api.arcadecord.com'
+  url: 'https://preview.arcadecord.com'
+  gameServerUrl: 'https://preview-api.arcadecord.com'
 ---
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -353,9 +353,16 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/from-to-www-redirect: 'true'
 spec:
+  tls:
+    - hosts:
+        - preview.arcadecord.com
+        # assumes that tls-secret exists and the SSL
+        # certificate contains a common name for api.arcadecord.com
+      secretName: tls-secret
   rules:
-    - host: mogo.gov
+    - host: preview.arcadecord.com
       http:
         paths:
           - path: /(.*)
@@ -385,7 +392,7 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-credentials: 'true'
     nginx.ingress.kubernetes.io/cors-allow-methods: 'PUT, GET, POST,
       OPTIONS, DELETE, PATCH'
-    nginx.ingress.kubernetes.io/cors-allow-origin: 'http://*.mogo.gov, https://*.mogo.gov, http://mogo.gov, https://mogo.gov'
+    nginx.ingress.kubernetes.io/cors-allow-origin: 'http://*.arcadecord.com, https://*.arcadecord.com, http://arcadecord.com, https://arcadecord.com'
     nginx.ingress.kubernetes.io/proxy-http-version: '1.1'
     nginx.ingress.kubernetes.io/server-snippets: |
       location / {
@@ -413,12 +420,12 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api.mogo.gov
+        - preview-api.arcadecord.com
         # assumes that tls-secret exists and the SSL
-        # certificate contains a common name for api.mogo.gov
+        # certificate contains a common name for api.arcadecord.com
       secretName: tls-secret
   rules:
-    - host: api.mogo.gov
+    - host: preview-api.arcadecord.com
       http:
         paths:
           - path: /

@@ -14,7 +14,7 @@ import { gameTypes } from '../src/games/game-types.js';
 import { loadHostConfig } from '../config.js';
 const host = loadHostConfig();
 
-const cyrb53 = function (str, seed = 0) {
+const cyrb53 = function(str, seed = 0) {
   let h1 = 0xdeadbeef ^ seed,
     h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {
@@ -57,18 +57,18 @@ export default async (req, res) => {
     // get token from headers
     var authHeader = req.headers.authorization;
     if (!authHeader) {
-      res.status(200);
+      res.sendStatus(200);
       return;
     }
     if (!authHeader.startsWith('Bearer ')) {
-      res.status(200);
+      res.sendStatus(200);
       return;
     }
     // Remove Bearer from string
     var token = authHeader.slice(7, authHeader.length);
 
     if (token !== process.env.GAME_SERVER_TOKEN) {
-      res.status(200);
+      res.sendStatus(200);
       return;
     }
 
@@ -77,7 +77,7 @@ export default async (req, res) => {
 
     if (!game) {
       console.log('User not authorized');
-      res.status(200);
+      res.sendStatus(200);
       return;
     }
     game = await db.games.create(game);
@@ -85,7 +85,7 @@ export default async (req, res) => {
     res.json(game);
   } catch (e) {
     console.error(e);
-    res.status(200);
+    res.sendStatus(200);
   }
 };
 
