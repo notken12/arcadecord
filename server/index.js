@@ -71,15 +71,19 @@ const __dirname = path.dirname(__filename);
 // Connect to database
 await db.connect(process.env.MONGODB_URI);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: host.webServerUrl,
+  })
+);
 
 // Health check
-app.head('/health', function (req, res) {
+app.head('/health', function(req, res) {
   res.sendStatus(200);
 });
 
 // Check the name of the host
-app.get('/name', function (req, res) {
+app.get('/name', function(req, res) {
   res.send(host.name);
 });
 
@@ -97,7 +101,7 @@ const io = new Server(server, {
     origin: [host.webServerUrl],
     // origin: '*',
     methods: ['GET', 'POST'],
-    credentials: true,
+    // credentials: true,
   },
   allowEIO3: true,
 });
@@ -122,7 +126,7 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
 io.on('connection', (socket) => {
   appInsightsClient.trackEvent({ name: 'Socket opened' });
 
-  socket.on('connect_socket', async function (data, callback) {
+  socket.on('connect_socket', async function(data, callback) {
     let cookie = data.accessToken;
 
     let tokenUserId;
@@ -522,7 +526,7 @@ io.on('connection', (socket) => {
 });
 
 // Track all HTTP requests with Application Insights
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   appInsightsClient.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
