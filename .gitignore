@@ -1,6 +1,8 @@
 *:*
 stats.html
 
+donotcommit/
+
 # Logs
 logs
 *.log

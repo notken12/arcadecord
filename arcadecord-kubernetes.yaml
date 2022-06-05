@@ -123,6 +123,11 @@ spec:
                 secretKeyRef:
                   name: sharding
                   key: botIpcToken
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb
+                  key: connectionString
 ---
 apiVersion: v1
 kind: Service
@@ -239,6 +244,11 @@ spec:
                   key: gameServerToken
             - name: DEBUG
               value: '*'
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb
+                  key: connectionString
 ---
 apiVersion: v1
 kind: Service
@@ -344,6 +354,11 @@ spec:
                 configMapKeyRef:
                   name: web
                   key: url
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb
+                  key: connectionString
 # END SHARDMANAGER CONFIG
 ---
 apiVersion: networking.k8s.io/v1
