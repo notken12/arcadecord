@@ -4,46 +4,7 @@
 #
 # Make sure to run `minikube tunnel` to expose to localhost!!
 
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: nginx-config
-  namespace: ingress-nginx
-data:
-  error-log-level: 'debug'
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sharding
-data:
-  totalShards: '2'
-  shardManagerCount: '2'
-  shardManagerPodPrefix: 'shardmanager-'
-  shardManagerPodAddress: 'http://shardmanager-%ID%.shardmanager.default.svc.cluster.local:3000'
-  gameServerUrlInternal: 'http://gameserver:3000'
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sharding
-type: Opaque
-data:
-  botIpcToken: 'N3NGcDBBU0tia01BNFA4Q0pJYjZsY0Nyd0tBNjJvYjI2R0dNSzA0dmZUN2RrNXJWMnhhUGRKM3F0c3dQ'
----
 # BEGIN WEB CONFIG
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: web
-data:
-  port: '5000'
-  id: '0'
-  name: mosog
-  url: 'https://preview.arcadecord.com'
-  gameServerUrl: 'https://preview-api.arcadecord.com'
----
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 # Environment variables using metadata: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
 apiVersion: apps/v1
@@ -128,6 +89,16 @@ spec:
                 secretKeyRef:
                   name: mongodb
                   key: connectionString
+            - name: BOT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sharding
+                  key: botClientSecret
+            - name: BOT_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: bot
+                  key: clientId
 ---
 apiVersion: v1
 kind: Service
@@ -147,24 +118,6 @@ spec:
 # END WEB CONFIG
 ---
 # BEGIN GAMESERVER CONFIG
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: gameserver
-data:
-  port: '3000'
-  name: mosoggame
-  id: '1'
-  redis: 'redis://redis-server:6379'
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: gameserver
-type: Opaque
-data:
-  gameServerToken: 'TlJ5amdZb0t3TWtSNlhCZ1ZMQk13bkVIVHl4ZjI5YzdDVXRiTXZ1T1UwYlNSNG1Ba3hxbUdhbFhqWUZE'
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -249,6 +202,16 @@ spec:
                 secretKeyRef:
                   name: mongodb
                   key: connectionString
+            - name: BOT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sharding
+                  key: botClientSecret
+            - name: BOT_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: bot
+                  key: clientId
 ---
 apiVersion: v1
 kind: Service
@@ -267,11 +230,6 @@ spec:
 # END GAMESERVER CONFIG
 ---
 # BEGIN SHARDMANAGER CONFIG
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: shardmanager
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -359,6 +317,26 @@ spec:
                 secretKeyRef:
                   name: mongodb
                   key: connectionString
+            # - name: BOT_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: sharding
+            #       key: botToken
+            - name: BOT_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: bot
+                  key: botToken
+            - name: BOT_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: bot
+                  key: clientId
+            - name: BOT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sharding
+                  key: botClientSecret
 # END SHARDMANAGER CONFIG
 ---
 apiVersion: networking.k8s.io/v1
