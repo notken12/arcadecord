@@ -11,24 +11,15 @@ import fetch from 'node-fetch';
 import db from '../../db/db2.js';
 import BotApi from '../bot/api.js';
 
-const serialize = function (obj) {
-  let str = [];
-  for (let p in obj)
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-    }
-  return str.join('&');
-};
-
 async function getNewAccessToken(dbUser) {
   // console.log(`using refresh token: ${dbUser.discordAccessToken}`)
-  let queryString = serialize({
-    client_id: process.env.BOT_CLIENT_ID,
-    client_secret: process.env.BOT_CLIENT_SECRET,
-    grant_type: 'refresh_token',
-    refresh_token: dbUser.discordRefreshToken,
-    scope: 'identify',
-  });
+  // let queryString = serialize({
+  //   client_id: process.env.BOT_CLIENT_ID,
+  //   client_secret: process.env.BOT_CLIENT_SECRET,
+  //   grant_type: 'refresh_token',
+  //   refresh_token: dbUser.discordRefreshToken,
+  //   scope: 'identify',
+  // });
   // console.log(queryString)
 
   let body = new URLSearchParams();
@@ -37,7 +28,7 @@ async function getNewAccessToken(dbUser) {
   body.append('grant_type', 'refresh_token');
   body.append('refresh_token', dbUser.discordRefreshToken);
   // body.append('scope', 'identify email connections')
-  body.append('redirect_uri', process.env.VITE_GAME_SERVER_URL + '/auth');
+  body.append('redirect_uri', process.env.WEB_SERVER_URL + '/auth');
 
   // console.log(body)
   var res = await fetch('https://discord.com/api/v8/oauth2/token', {
@@ -74,7 +65,7 @@ async function fetchUserMe(access_token) {
       authorization: `${'Bearer'} ${access_token}`,
     },
   }).catch((err) => {
-    console.error("couldn't fetch user's @me");
+    console.error("error fetching user's @me");
     console.error(err);
     return null;
   });
@@ -101,6 +92,7 @@ async function fetchUserFromAccessToken(access_token) {
 
   if (!me.ok) {
     console.log("couldn't fetch user's @me");
+    console.log(me);
     // refresh access token
     console.log('refreshing access token');
 

@@ -26,8 +26,8 @@ data:
   port: '5000'
   id: '0'
   name: mosog
-  url: 'https://preview.arcadecord.com'
-  gameServerUrl: 'https://preview-api.arcadecord.com'
+  url: 'https://www.arcadecord.com'
+  gameServerUrl: 'https://api.arcadecord.com'
 ---
 apiVersion: v1
 kind: ConfigMap

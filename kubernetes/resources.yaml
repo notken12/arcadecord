@@ -79,26 +79,38 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodAddress
+            # - name: BOT_IPC_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: sharding
+            #       key: botIpcToken
             - name: BOT_IPC_TOKEN
               valueFrom:
-                secretKeyRef:
-                  name: sharding
+                configMapKeyRef:
+                  name: bot
                   key: botIpcToken
             - name: MONGODB_URI
               valueFrom:
                 secretKeyRef:
                   name: mongodb
                   key: connectionString
+            # - name: BOT_CLIENT_SECRET
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: sharding
+            #       key: botClientSecret
             - name: BOT_CLIENT_SECRET
               valueFrom:
-                secretKeyRef:
-                  name: sharding
+                configMapKeyRef:
+                  name: bot
                   key: botClientSecret
             - name: BOT_CLIENT_ID
               valueFrom:
                 configMapKeyRef:
                   name: bot
                   key: clientId
+            - name: DEBUG
+              value: '*'
 ---
 apiVersion: v1
 kind: Service
@@ -185,15 +197,25 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodAddress
+            # - name: BOT_IPC_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: sharding
+            #       key: botIpcToken
             - name: BOT_IPC_TOKEN
               valueFrom:
-                secretKeyRef:
-                  name: sharding
+                configMapKeyRef:
+                  name: bot
                   key: botIpcToken
+            # - name: GAME_SERVER_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: gameserver
+            #       key: gameServerToken
             - name: GAME_SERVER_TOKEN
               valueFrom:
-                secretKeyRef:
-                  name: gameserver
+                configMapKeyRef:
+                  name: gameserversecret
                   key: gameServerToken
             - name: DEBUG
               value: '*'
@@ -204,8 +226,8 @@ spec:
                   key: connectionString
             - name: BOT_CLIENT_SECRET
               valueFrom:
-                secretKeyRef:
-                  name: sharding
+                configMapKeyRef:
+                  name: bot
                   key: botClientSecret
             - name: BOT_CLIENT_ID
               valueFrom:
@@ -287,14 +309,24 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodPrefix
+            # - name: BOT_IPC_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: sharding
+            #       key: botIpcToken
             - name: BOT_IPC_TOKEN
               valueFrom:
-                secretKeyRef:
-                  name: sharding
+                configMapKeyRef:
+                  name: bot
                   key: botIpcToken
+            # - name: GAME_SERVER_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: gameserver
+            #       key: gameServerToken
             - name: GAME_SERVER_TOKEN
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: gameserver
                   key: gameServerToken
             - name: VITE_GAME_SERVER_URL
@@ -350,12 +382,12 @@ metadata:
 spec:
   tls:
     - hosts:
-        - preview.arcadecord.com
+        - www.arcadecord.com
         # assumes that tls-secret exists and the SSL
         # certificate contains a common name for api.arcadecord.com
       secretName: tls-secret
   rules:
-    - host: preview.arcadecord.com
+    - host: www.arcadecord.com
       http:
         paths:
           - path: /(.*)
@@ -385,7 +417,7 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-credentials: 'true'
     nginx.ingress.kubernetes.io/cors-allow-methods: 'PUT, GET, POST,
       OPTIONS, DELETE, PATCH'
-    nginx.ingress.kubernetes.io/cors-allow-origin: 'https://preview.arcadecord.com'
+    nginx.ingress.kubernetes.io/cors-allow-origin: 'https://www.arcadecord.com'
     nginx.ingress.kubernetes.io/proxy-http-version: '1.1'
     nginx.ingress.kubernetes.io/server-snippets: |
       location / {
@@ -413,12 +445,12 @@ metadata:
 spec:
   tls:
     - hosts:
-        - preview-api.arcadecord.com
+        - api.arcadecord.com
         # assumes that tls-secret exists and the SSL
         # certificate contains a common name for api.arcadecord.com
       secretName: tls-secret
   rules:
-    - host: preview-api.arcadecord.com
+    - host: api.arcadecord.com
       http:
         paths:
           - path: /

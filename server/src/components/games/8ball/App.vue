@@ -802,13 +802,13 @@ const initThree = async () => {
             );
             ctx.lineTo(
               cpos.x +
-                bbcos *
-                  ballDisplayRadius *
-                  (2 + directionLineLength * collision.hitPower),
+              bbcos *
+              ballDisplayRadius *
+              (2 + directionLineLength * collision.hitPower),
               cpos.y +
-                bbsin *
-                  ballDisplayRadius *
-                  (2 + directionLineLength * collision.hitPower)
+              bbsin *
+              ballDisplayRadius *
+              (2 + directionLineLength * collision.hitPower)
             );
 
             ctx.stroke();
@@ -829,13 +829,13 @@ const initThree = async () => {
             );
             ctx.lineTo(
               cpos.x +
-                cbcos *
-                  ballDisplayRadius *
-                  (1 + directionLineLength * (1 - collision.hitPower)),
+              cbcos *
+              ballDisplayRadius *
+              (1 + directionLineLength * (1 - collision.hitPower)),
               cpos.y +
-                cbsin *
-                  ballDisplayRadius *
-                  (1 + directionLineLength * (1 - collision.hitPower))
+              cbsin *
+              ballDisplayRadius *
+              (1 + directionLineLength * (1 - collision.hitPower))
             );
 
             // ctx.stroke();
@@ -864,9 +864,9 @@ const initThree = async () => {
             cueStickImage,
             -(cueStickImage.width / 2) * scale,
             ballDisplayRadius * 2 +
-              shotPower *
-                Math.max(canvas.value.width, canvas.value.height) *
-                0.2,
+            shotPower *
+            Math.max(canvas.value.width, canvas.value.height) *
+            0.2,
             scale * cueStickImage.width,
             scale * cueStickImage.height
           );
@@ -1107,49 +1107,32 @@ onUnmounted(() => {
     <!-- Game UI goes in here -->
     <scores-view>
       <template v-slot="scoreView">
-        <AssignedPattern
-          :pattern="game.data.players[scoreView.playerindex].assignedPattern"
-          :playerindex="scoreView.playerindex"
-        ></AssignedPattern>
+        <AssignedPattern :pattern="game.data.players[scoreView.playerindex].assignedPattern"
+          :playerindex="scoreView.playerindex"></AssignedPattern>
       </template>
     </scores-view>
 
     <div class="middle">
       <!-- Game UI just for 8 ball -->
-      <div
-        class="controls-wrapper"
-        :class="{
-          shown:
-            showControls &&
-            !replaying &&
-            !(canHit8Ball && chosenPocket === null),
-        }"
-      >
+      <div class="controls-wrapper" :class="{
+        shown:
+          showControls &&
+          !replaying &&
+          !(canHit8Ball && chosenPocket === null),
+      }">
         <SpinControl @spinchange="changeShotSpin($event)" />
         <PowerControl @powerchange="changeShotPower($event)" @hit="hitBall()" />
       </div>
       <div class="canvas-wrapper" ref="canvasWrapper">
         <canvas id="game-canvas" ref="canvas"></canvas>
-        <canvas
-          id="controls-canvas"
-          ref="controlsCanvas"
-          :class="{ shown: showControls }"
-        ></canvas>
-        <p style="position: absolute; top: 16px">{{ fps }} fps</p>
+        <canvas id="controls-canvas" ref="controlsCanvas" :class="{ shown: showControls }"></canvas>
+        <!-- <p style="position: absolute; top: 16px">{{ fps }} fps</p> -->
         <div id="spinner" ref="spinner"></div>
         <Transition name="fade">
-          <PocketChooser
-            v-if="
-              (canHit8Ball && isItMyTurn && !replaying) || chosenPocket !== null
-            "
-            :width="canvasWidth"
-            :height="canvasHeight"
-            :renderer="renderer"
-            :camera="cameraRef"
-            :scale="scaleRef"
-            :chosen="chosenPocket"
-            @choosePocket="choosePocket($event)"
-          ></PocketChooser>
+          <PocketChooser v-if="
+            (canHit8Ball && isItMyTurn && !replaying) || chosenPocket !== null
+          " :width="canvasWidth" :height="canvasHeight" :renderer="renderer" :camera="cameraRef" :scale="scaleRef"
+            :chosen="chosenPocket" @choosePocket="choosePocket($event)"></PocketChooser>
         </Transition>
       </div>
     </div>

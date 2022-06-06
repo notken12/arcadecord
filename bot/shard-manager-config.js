@@ -16,6 +16,7 @@ export function loadShardManagerConfig() {
     ),
     totalShards: Number(process.env.TOTAL_SHARDS),
     shardManagerCount: Number(process.env.SHARD_MANAGER_COUNT),
+    webServerUrl: process.env.WEB_SERVER_URL,
     gameServerUrl: process.env.VITE_GAME_SERVER_URL,
     gameServerToken: process.env.GAME_SERVER_TOKEN,
     gameServerUrlInternal: process.env.GAME_SERVER_URL_INTERNAL,

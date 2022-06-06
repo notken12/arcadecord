@@ -46,3 +46,4 @@ Environment vars:
 - `TOTAL_SHARDS`: total amount of bot shards. This must add up to the total amount of shards being spawned by bot shard managers. See `SHARD_LIST` @ Bot shard manager
 - `SHARD_MANAGER_COUNT`: amount of shard managers that exist.
 - `SHARD_MANAGER_POD_PREFIX`: name of kubernetes StatefulSet service that the pods are under + '-'. Used to find the hostnames of bot shard managers
+- `WEB_SERVER_URL`: public URL of the web host

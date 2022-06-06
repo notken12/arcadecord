@@ -12,6 +12,7 @@ export function loadApiConfig() {
     totalShards: Number(process.env.TOTAL_SHARDS),
     shardManagerCount: Number(process.env.SHARD_MANAGER_COUNT),
     shardManagerPodAddress: process.env.SHARD_MANAGER_POD_ADDRESS,
+    botIpcToken: process.env.BOT_IPC_TOKEN,
   };
   return config;
 }

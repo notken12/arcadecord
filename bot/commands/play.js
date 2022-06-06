@@ -113,7 +113,7 @@ export default {
       let button = new MessageButton({
         label: 'Sign in',
         style: 'LINK',
-        url: config.gameServerUrl + '/sign-in',
+        url: config.webServerUrl + '/sign-in',
       });
       row.addComponents([button]);
       await interaction.editReply({

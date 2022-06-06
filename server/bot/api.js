@@ -19,7 +19,7 @@ console.log('bot api config: ', config);
 
 function getAuthHeader() {
   return {
-    Authorization: `Bearer ${process.env.BOT_IPC_TOKEN}`,
+    Authorization: `Bearer ${config.botIpcToken}`,
   };
 }
 
