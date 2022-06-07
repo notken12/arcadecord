@@ -137,6 +137,10 @@ const placeShips = () => {
   // console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
 };
 
+if (!game.value.data.placed[myHitBoard.value.playerIndex] && isItMyTurn.value) {
+  placeShips();
+}
+
 const shoot = () => {
   if (targetedCell.value) {
     let { row, col } = targetedCell.value;
@@ -150,10 +154,6 @@ onMounted(() => {
   bus.on('changeCellect', (cell) => {
     targetedCell.value = cell;
   });
-
-  if (!game.value.data.placed[myIndex.value] && isItMyTurn.value) {
-    placeShips();
-  }
 
   $replayTurn(async () => {
     if (
