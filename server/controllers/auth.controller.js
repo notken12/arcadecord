@@ -33,7 +33,7 @@ export default (req, res) => {
     if (
       error === 'access_denied' &&
       errorDescription ===
-      'The resource owner or authorization server denied the request'
+        'The resource owner or authorization server denied the request'
     ) {
       res.send(
         `Whoops, looks like you've denied Arcadecord access to your account. If this is a mistake, please go back and try again.<br>

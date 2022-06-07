@@ -13,14 +13,24 @@
   <game-view :hint="hint">
     <div class="middle" :style="replayStyles">
       <div>
-        <hit-board-view :target="targetedCell" :board="otherHitBoard" v-if="otherHitBoard">
+        <hit-board-view
+          :target="targetedCell"
+          :board="otherHitBoard"
+          v-if="otherHitBoard"
+        >
         </hit-board-view>
       </div>
       <div>
-        <ship-placer :board="shipPlacementBoard" v-if="!game.data.placed[myIndex] && shipPlacementBoard">
+        <ship-placer
+          :board="shipPlacementBoard"
+          v-if="!game.data.placed[myIndex] && shipPlacementBoard"
+        >
         </ship-placer>
-        <hit-board-view :board="myHitBoard" :target="targetedCell"
-          v-if="(game.data.placed[myIndex] || justMeInGame) && myHitBoard">
+        <hit-board-view
+          :board="myHitBoard"
+          :target="targetedCell"
+          v-if="(game.data.placed[myIndex] || justMeInGame) && myHitBoard"
+        >
         </hit-board-view>
       </div>
     </div>
@@ -199,7 +209,7 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-.middle>div {
+.middle > div {
   width: 100%;
   height: 100%;
   display: flex;
