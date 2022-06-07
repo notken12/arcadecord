@@ -11,6 +11,7 @@
 
 <template>
   <game-view :game="game" :me="me" :hint="hint">
+  <game-view :hint="hint">
     <div class="middle" :style="replayStyles">
       <div>
         <hit-board-view :target="targetedCell" :board="otherHitBoard">
@@ -109,6 +110,10 @@ const otherHitBoard = computed(() => {
   return game.value.data.hitBoards[opponentIndex.value];
 });
 
+const justMeInGame = computed(() => {
+  return game.value.players.length === 1 && game.value.myIndex === 0;
+});
+
 watch(replaying, () => {
   if (!game.value.data.placed[myIndex.value] && isItMyTurn.value) placeShips();
 });
@@ -194,7 +199,7 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-.middle > div {
+.middle>div {
   width: 100%;
   height: 100%;
   display: flex;

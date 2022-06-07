@@ -12,13 +12,8 @@
 <template>
   <div class="hit-board board" :style="styles" ref="boardEl">
     <div class="hit-board-ships">
-      <placed-ship
-        v-for="ship in board.revealedShips"
-        :key="ship.id"
-        :ship="ship"
-        :board="board"
-      >
-      </placed-ship>
+      <PlacedShip v-for="ship in board.revealedShips" :key="ship.id" :ship="ship" :board="board">
+      </PlacedShip>
     </div>
 
     <div class="hit-board-grid">
@@ -65,9 +60,8 @@ useAspectRatio(1, boardEl);
 
 const styles = computed(() => {
   return {
-    'background-size': `${(1 / props.board.width) * 100}% ${
-      (1 / props.board.height) * 100
-    }%`,
+    'background-size': `${(1 / props.board.width) * 100}% ${(1 / props.board.height) * 100
+      }%`,
   };
 });
 </script>
