@@ -145,7 +145,7 @@ const placeShips = () => {
   // console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
 };
 
-if (!game.value.data.placed[myHitBoard.value.playerIndex] && isItMyTurn.value) {
+if (!game.value.data.placed[myIndex.value] && isItMyTurn.value) {
   placeShips();
 }
 
@@ -178,7 +178,7 @@ onMounted(() => {
           row: action.data.row,
           col: action.data.col,
         };
-        await utils.wait(300);
+        await utils.wait(500);
         targetedCell.value = null;
         await utils.wait(100);
         replayAction(game.value, action);
