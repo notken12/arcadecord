@@ -10,7 +10,6 @@
 -->
 
 <template>
-  <game-view :game="game" :me="me" :hint="hint">
   <game-view :hint="hint">
     <div class="middle" :style="replayStyles">
       <div>
@@ -18,16 +17,9 @@
         </hit-board-view>
       </div>
       <div>
-        <ship-placer
-          :board="shipPlacementBoard"
-          v-if="!game.data.placed[myIndex] && shipPlacementBoard"
-        >
+        <ship-placer :board="shipPlacementBoard" v-if="!game.data.placed[myIndex] && shipPlacementBoard">
         </ship-placer>
-        <hit-board-view
-          :board="myHitBoard"
-          :target="targetedCell"
-          v-if="game.data.placed[myIndex]"
-        ></hit-board-view>
+        <hit-board-view :board="myHitBoard" :target="targetedCell" v-if="game.data.placed[myIndex]"></hit-board-view>
       </div>
     </div>
 
