@@ -17,19 +17,10 @@
     </div>
 
     <div class="hit-board-grid">
-      <div
-        class="hit-board-row"
-        v-for="row in board.cells"
-        :key="board.cells.indexOf(row)"
-      >
-        <hit-board-cell
-          v-for="cell in row"
-          :key="cell.id"
-          :cell="cell"
-          :board="board"
-          :game="game"
-          class="hit-board-cell"
-        ></hit-board-cell>
+      <div class="hit-board-row" v-for="row in board.cells.length" :key="row - 1">
+        <HitBoardCell v-for="cell in board.cells[row - 1]" :key="cell.id" :cell="cell" :board="board"
+          class="hit-board-cell">
+        </HitBoardCell>
       </div>
     </div>
 
