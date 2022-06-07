@@ -13,22 +13,24 @@
   <game-view :hint="hint">
     <div class="middle" :style="replayStyles">
       <div>
-        <hit-board-view :target="targetedCell" :board="otherHitBoard">
+        <hit-board-view :target="targetedCell" :board="otherHitBoard" v-if="otherHitBoard">
         </hit-board-view>
       </div>
       <div>
         <ship-placer :board="shipPlacementBoard" v-if="!game.data.placed[myIndex] && shipPlacementBoard">
         </ship-placer>
-        <hit-board-view :board="myHitBoard" :target="targetedCell" v-if="game.data.placed[myIndex]"></hit-board-view>
+        <hit-board-view :board="myHitBoard" :target="targetedCell"
+          v-if="(game.data.placed[myIndex] || justMeInGame) && myHitBoard">
+        </hit-board-view>
       </div>
     </div>
 
     <div class="bottom" :class="{ hidden: replaying }">
-      <div v-if="!game.data.placed[game.myIndex]" class="bottom-section">
+      <div v-show="!game.data.placed[myIndex]" class="bottom-section">
         <button @click="placeShips">Shuffle</button>
         <button @click="setShips">Done</button>
       </div>
-      <div v-else class="bottom-section">
+      <div v-show="game.data.placed[myIndex]" class="bottom-section">
         <button @click="shoot" :class="{ hidden: !targetedCell }">Fire!</button>
       </div>
     </div>
@@ -78,6 +80,7 @@ const myIndex = computed(() => {
 });
 
 const opponentIndex = computed(() => {
+  let myIndex = game.value.myIndex === -1 ? 1 : game.value.myIndex;
   return myIndex === 1 ? 0 : 1;
 });
 
@@ -121,10 +124,10 @@ const setShips = () => {
 
 const shipPlacementBoard = ref(null);
 
-const availableShips = Common.getAvailableShips(myHitBoard.value.playerIndex);
-
 const placeShips = () => {
   // console.log('placing ships');
+  const availableShips = Common.getAvailableShips(myIndex.value);
+
   let t1 = performance.now();
   shipPlacementBoard.value = Common.PlaceShips(
     cloneDeep(availableShips),
