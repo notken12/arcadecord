@@ -101,7 +101,7 @@ const io = new Server(server, {
     origin: [host.webServerUrl],
     // origin: '*',
     methods: ['GET', 'POST'],
-    // credentials: true,
+    credentials: true,
   },
   allowEIO3: true,
 });

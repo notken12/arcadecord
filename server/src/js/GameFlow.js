@@ -38,7 +38,8 @@ const GameFlow = {
   isItUsersTurn(game, userIndex) {
     let i = userIndex;
     return (
-      game.turn == i || (!game.hasStarted && !this.isGameFull(game) && i == -1)
+      game.turn === i ||
+      (!game.hasStarted && !this.isGameFull(game) && i === -1)
     );
   },
   isGameFull(game) {
