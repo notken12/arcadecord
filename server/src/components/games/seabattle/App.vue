@@ -129,13 +129,18 @@ const placeShips = () => {
   const availableShips = Common.getAvailableShips(myIndex.value);
 
   let t1 = performance.now();
-  shipPlacementBoard.value = Common.PlaceShips(
+  let newBoard = Common.PlaceShips(
     cloneDeep(availableShips),
     new Common.ShipPlacementBoard(
       myHitBoard.value.width,
       myHitBoard.value.height
     )
   );
+
+  if (!shipPlacementBoard.value) shipPlacementBoard.value = newBoard;
+  else {
+    shipPlacementBoard.value.ships = newBoard.ships;
+  }
   let t2 = performance.now();
   // console.log('Placing ships took ' + Math.round(t2 - t1) + ' milliseconds.');
 };
