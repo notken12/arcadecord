@@ -330,6 +330,7 @@ io.on('connection', (socket) => {
         },
       });
     } catch (e) {
+      console.log('Error handling action');
       console.error(e);
 
       appInsightsClient.trackEvent({

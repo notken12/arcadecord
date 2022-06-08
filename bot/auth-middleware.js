@@ -26,6 +26,7 @@ function authMiddleware(req, res, next) {
     return;
   }
 
+  console.log('Authorized a request');
   next();
 }
 
