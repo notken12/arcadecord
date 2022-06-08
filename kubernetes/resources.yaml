@@ -327,7 +327,7 @@ spec:
             - name: GAME_SERVER_TOKEN
               valueFrom:
                 configMapKeyRef:
-                  name: gameserver
+                  name: gameserversecret
                   key: gameServerToken
             - name: VITE_GAME_SERVER_URL
               valueFrom:
