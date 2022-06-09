@@ -134,7 +134,10 @@ app.post('/startmessage', async (req, res) => {
 });
 
 app.post('/turninvite', async (req, res) => {
-  let shard = getShardByGuild(req.body.guild);
+  let guildId = req.body.game.guild;
+  console.log(`send turn invite for guild ${guildId}`);
+  let shard = getShardByGuild(guildId);
+  console.log(`sending to shard ${shard}`);
 
   manager
     .broadcastEval(
@@ -239,12 +242,12 @@ app.listen(port, () =>
 
 console.log(
   'Starting shard manager ' +
-    config.id +
-    ' with ' +
-    shardList.length +
-    ' shards out of ' +
-    totalShards +
-    ' total shards'
+  config.id +
+  ' with ' +
+  shardList.length +
+  ' shards out of ' +
+  totalShards +
+  ' total shards'
 );
 
 manager.spawn();
