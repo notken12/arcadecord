@@ -242,12 +242,12 @@ app.listen(port, () =>
 
 console.log(
   'Starting shard manager ' +
-  config.id +
-  ' with ' +
-  shardList.length +
-  ' shards out of ' +
-  totalShards +
-  ' total shards'
+    config.id +
+    ' with ' +
+    shardList.length +
+    ' shards out of ' +
+    totalShards +
+    ' total shards'
 );
 
 manager.spawn();
