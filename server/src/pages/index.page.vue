@@ -35,6 +35,7 @@ import GameDisplay from 'components/index/GameDisplay.vue';
         <GameDisplay game="chess">Chess</GameDisplay>
         <GameDisplay game="filler">Filler</GameDisplay>
       </section>
+      <div class="spacer"></div>
       <section class="row">
         <div class="text">
           <h3>Your favorite games, <br />in your favorite servers.</h3>
@@ -44,11 +45,24 @@ import GameDisplay from 'components/index/GameDisplay.vue';
             best friends only.
           </p>
         </div>
-        <div>
-          <img src="" alt="" width="200" height="200" />
+        <div class="image">
+          <img src="/images/pic1.png" alt="" />
         </div>
       </section>
       <section class="row-reverse">
+        <div class="text">
+          <h3>Play on any device, <br />no installation necessary.</h3>
+          <p>
+            Arcadecord games are played in your browser, so you don’t need to
+            install anything. No need to worry about what platform your friend
+            uses, just play!
+          </p>
+        </div>
+        <div class="image">
+          <img src="/images/pic2.png" alt="" />
+        </div>
+      </section>
+      <section class="row">
         <div class="text">
           <h3>Great for servers <br />big and small.</h3>
           <p>
@@ -58,27 +72,15 @@ import GameDisplay from 'components/index/GameDisplay.vue';
             threads for each game.
           </p>
         </div>
-        <div>
-          <img src="" alt="" width="200" height="200" />
-        </div>
-      </section>
-      <section class="row">
-        <div class="text">
-          <h3>Play on any device, <br />no installation necessary.</h3>
-          <p>
-            Arcadecord games are played in your browser, so you don’t need to
-            install anything. No need to worry about what platform your friend
-            uses, just play!
-          </p>
-        </div>
-        <div>
-          <img src="" alt="" width="200" height="200" />
+        <div class="image">
+          <img src="/images/pic3.png" alt="" />
         </div>
       </section>
       <section class="row add">
         <h3>Add and play today for free!</h3>
         <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
       </section>
+      <div class="spacer"></div>
     </Content>
     <Footer></Footer>
   </div>

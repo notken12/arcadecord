@@ -38,18 +38,35 @@ defineProps({
 }
 
 section {
-  padding: 64px var(--padding-x);
+  padding: 32px var(--padding-x);
   width: 100%;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 64px;
+}
+
+.image {
+  width: 50%;
+  display: flex;
 
   img {
     display: flex;
+    width: 100%;
+    height: 100%;
   }
+}
+
+.text {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px;
 }
 
 .stripe {
@@ -93,16 +110,6 @@ h3 {
   }
 }
 
-.text {
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 32px;
-}
-
 p {
   margin: 0;
   font-family: 'Inter';
@@ -133,5 +140,10 @@ p {
   align-items: center;
   justify-content: center;
   gap: 32px;
+}
+
+.spacer {
+  width: 100%;
+  height: 32px;
 }
 </style>
