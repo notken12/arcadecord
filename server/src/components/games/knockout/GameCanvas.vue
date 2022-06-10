@@ -600,6 +600,8 @@ onMounted(() => {
                 other.y,
                 dum.x + dum.velocity.x,
                 dum.y + dum.velocity.y,
+                // dum.x,
+                // dum.y,
                 REL_DUM_RADIUS,
                 iceSize.value
               )
