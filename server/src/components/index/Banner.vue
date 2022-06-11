@@ -31,7 +31,7 @@ import Hero from './Hero.vue';
   background: linear-gradient(180deg, #00000099 0px, #00000000 130px),
     url('/images/bannerart.png'),
     linear-gradient(257.44deg, #1e5dbc 2.01%, rgba(0, 61, 152, 0.35) 98.51%);
-  background-position: right;
+  background-position: bottom right;
   background-size: inherit;
   background-repeat: no-repeat;
 }

@@ -100,4 +100,12 @@ import GameDisplay from 'components/index/GameDisplay.vue';
 
 <style lang="scss">
 @use 'scss/base/pages';
+
+#app {
+  background: #1b1b1f;
+}
+
+* {
+  scroll-behavior: smooth;
+}
 </style>

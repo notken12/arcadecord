@@ -65,6 +65,13 @@ import LinkButton from 'components/index/LinkButton.vue';
   justify-content: center;
 }
 
+@media only screen and (max-width: 990px) {
+  .left {
+    height: 60em;
+    justify-content: flex-start;
+  }
+}
+
 h2,
 h3 {
   margin: 0;

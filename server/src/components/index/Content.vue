@@ -44,13 +44,13 @@ section {
   justify-content: center;
   box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
   gap: 64px;
 }
 
 .image {
-  width: 50%;
+  width: 100%;
   display: flex;
+  max-width: 500px;
 
   img {
     display: flex;
@@ -61,7 +61,7 @@ section {
 
 .text {
   width: 100%;
-  max-width: 480px;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -95,7 +95,7 @@ h3 {
 
 .games {
   padding: 16px var(--padding-x);
-  flex-direction: row;
+  flex-direction: row !important;
   display: flex;
   gap: 48px;
   border-top: 1px #999 solid;
@@ -132,6 +132,13 @@ p {
 .row-reverse {
   align-items: center;
   flex-direction: row-reverse;
+}
+
+@media only screen and (max-width: 820px) {
+  .row,
+  .row-reverse {
+    flex-direction: column;
+  }
 }
 
 .add {
