@@ -11,8 +11,6 @@ import Common from './common.js';
 
 import Game from '../../Game.js';
 
-import { fromRelative } from '../../../js/games/knockout/utils.js';
-
 // Snippet to make __dirname available
 // get __dirname
 import path from 'path';
@@ -150,7 +148,7 @@ class KnockoutGame extends Game {
       if (dum.fallen) continue;
       ctx.save();
       // Draw penguin body
-      var c = fromRelative(
+      var c = Common.fromRelative(
         dum.x,
         dum.y,
         mobile,

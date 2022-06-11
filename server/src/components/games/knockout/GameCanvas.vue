@@ -15,10 +15,9 @@ import { onMounted, ref, computed, watchEffect, watch, onUnmounted } from 'vue';
 import cloneDeep from 'lodash.clonedeep';
 
 import {
-  fromRelative,
-  toRelative,
   collisionResolution,
   collision,
+  collisionLocations,
 } from '@app/js/games/knockout/utils';
 import { drawMoveDirection, getHeadLen } from '@app/js/games/knockout/canvas';
 import { replayAction, utils } from '@app/js/client-framework';
@@ -43,6 +42,8 @@ const {
 // Relative coordinate system:
 // Ice size (width and height): 100
 // Dummy radius: 5
+
+const { fromRelative, toRelative } = Common;
 
 const { REL_DUM_RADIUS, REL_ICE_SIZE, DUM_LEDGE_TOLERANCE } = Common;
 
@@ -606,7 +607,24 @@ onMounted(() => {
                 iceSize.value
               )
             ) {
-              var resolve = collisionResolution(
+              let locations = collisionLocations(
+                dum.x,
+                dum.y,
+                dum.velocity.x,
+                dum.velocity.y,
+                other.x,
+                other.y,
+                other.velocity.x,
+                other.velocity.y,
+                REL_DUM_RADIUS,
+                iceSize.value
+              );
+              if (locations == null) {
+                throw new Error('couldnt get collision locations');
+              }
+              // let resolve = locations[2];
+              // resolve = { x: 0, y: 0 };
+              let resolve = collisionResolution(
                 dum.x,
                 dum.y,
                 dum.velocity.x,
@@ -616,10 +634,19 @@ onMounted(() => {
                 other.velocity.x,
                 other.velocity.y
               );
-              dum.velocity.x = resolve.x * RESTITUTION;
-              dum.velocity.y = resolve.y * RESTITUTION;
-              other.velocity.x = -resolve.x * RESTITUTION;
-              other.velocity.y = -resolve.y * RESTITUTION;
+              dum.x = locations[0].x;
+              dum.y = locations[0].y;
+              other.x = locations[1].x;
+              other.y = locations[1].y;
+              dum.velocity.x *= 0.5;
+              dum.velocity.y *= 0.5;
+              other.velocity.x *= 0.5;
+              other.velocity.y *= 0.5;
+
+              dum.velocity.x += resolve.x * RESTITUTION;
+              dum.velocity.y += resolve.y * RESTITUTION;
+              other.velocity.x += -resolve.x * RESTITUTION;
+              other.velocity.y += -resolve.y * RESTITUTION;
             }
           }
         }

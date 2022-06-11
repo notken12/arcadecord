@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { fromRelative, toRelative } from '@app/js/games/knockout/utils';
+import { fromRelative, toRelative } from '/gamecommons/knockout';
 
 export function getHeadLen(dummyRadius) {
   return 0.7 * dummyRadius; // length of arrow head in pixels

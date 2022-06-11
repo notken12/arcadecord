@@ -145,6 +145,31 @@ function spawn() {
 function randRange(min, max) {
   return Math.random() * (max - min) + min;
 }
+/** Convert an absolute position relative to the canvas wrapper bbox to a relative position */
+export function toRelative(lx, ly, mobile, width, height, padding, iceSize) {
+  const size = ((width - padding * 2) * iceSize) / 100;
+  const tlx = width / 2 - size / 2;
+  const tly = width / 2 - size / 2;
+  let x = ((lx - tlx) / size) * 100;
+  let y = ((ly - tly) / size) * 100;
+  return {
+    x,
+    y,
+  };
+}
+
+/** Convert a relative position to an absolute position relative to the canvas wrapper bbox */
+export function fromRelative(lx, ly, mobile, width, height, padding, iceSize) {
+  const size = ((width - padding * 2) * iceSize) / 100;
+  const tlx = width / 2 - size / 2;
+  const tly = width / 2 - size / 2;
+  let x = tlx + (lx / 100) * size; // move out (ice sheet width is 100)
+  let y = tly + (ly / 100) * size; // move out (ice sheet width is 100)
+  return {
+    x,
+    y,
+  };
+}
 
 export default {
   Ice,
@@ -154,4 +179,6 @@ export default {
   REL_DUM_RADIUS,
   REL_ICE_SIZE,
   DUM_LEDGE_TOLERANCE,
+  fromRelative,
+  toRelative,
 };
