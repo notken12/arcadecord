@@ -730,7 +730,7 @@ onUnmounted(() => {
   <button
     ref="fireOrSend"
     @click="fireOrSendFn"
-    :class="{ shown: canFireOrSend }"
+    v-if="canFireOrSend"
   >
     Send
   </button>
