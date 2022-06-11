@@ -599,29 +599,29 @@ onMounted(() => {
               collision(
                 other.x,
                 other.y,
-                dum.x + dum.velocity.x,
-                dum.y + dum.velocity.y,
-                // dum.x,
-                // dum.y,
+                // dum.x + dum.velocity.x,
+                // dum.y + dum.velocity.y,
+                dum.x,
+                dum.y,
                 REL_DUM_RADIUS,
                 iceSize.value
               )
             ) {
-              let locations = collisionLocations(
-                dum.x,
-                dum.y,
-                dum.velocity.x,
-                dum.velocity.y,
-                other.x,
-                other.y,
-                other.velocity.x,
-                other.velocity.y,
-                REL_DUM_RADIUS,
-                iceSize.value
-              );
-              if (locations == null) {
-                throw new Error('couldnt get collision locations');
-              }
+              // let locations = collisionLocations(
+              //   dum.x,
+              //   dum.y,
+              //   dum.velocity.x,
+              //   dum.velocity.y,
+              //   other.x,
+              //   other.y,
+              //   other.velocity.x,
+              //   other.velocity.y,
+              //   REL_DUM_RADIUS,
+              //   iceSize.value
+              // );
+              // if (locations == null) {
+              //   throw new Error('couldnt get collision locations');
+              // }
               // let resolve = locations[2];
               // resolve = { x: 0, y: 0 };
               let resolve = collisionResolution(
@@ -634,14 +634,14 @@ onMounted(() => {
                 other.velocity.x,
                 other.velocity.y
               );
-              dum.x = locations[0].x;
-              dum.y = locations[0].y;
-              other.x = locations[1].x;
-              other.y = locations[1].y;
-              dum.velocity.x *= 0.5;
-              dum.velocity.y *= 0.5;
-              other.velocity.x *= 0.5;
-              other.velocity.y *= 0.5;
+              // dum.x = locations[0].x;
+              // dum.y = locations[0].y;
+              // other.x = locations[1].x;
+              // other.y = locations[1].y;
+              // dum.velocity.x *= -0.5;
+              // dum.velocity.y *= -0.5;
+              // other.velocity.x *= -0.5;
+              // other.velocity.y *= -0.5;
 
               dum.velocity.x += resolve.x * RESTITUTION;
               dum.velocity.y += resolve.y * RESTITUTION;

@@ -69,8 +69,8 @@ export function collisionLocations(
   // Get how far the collision is from the intersection along each of the two lines
   let b = r / Math.sin(t);
   // Apply the distance to each line of movement from the intersection
-  let cos = Math.cos(t + Math.PI / 2);
-  let sin = Math.sin(t + Math.PI / 2);
+  let cos = Math.cos(a);
+  let sin = Math.sin(a);
   let cos1 = Math.cos(t1);
   let sin1 = Math.sin(t1);
   let cos2 = Math.cos(t2);
