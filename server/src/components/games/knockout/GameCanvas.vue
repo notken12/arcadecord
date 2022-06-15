@@ -727,11 +727,7 @@ onUnmounted(() => {
       <canvas ref="canvas" :style="{ cursor }"></canvas>
     </div>
   </div>
-  <button
-    ref="fireOrSend"
-    @click="fireOrSendFn"
-    v-if="canFireOrSend"
-  >
+  <button ref="fireOrSend" @click="fireOrSendFn" v-if="canFireOrSend">
     Send
   </button>
 </template>
