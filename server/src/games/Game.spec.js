@@ -168,3 +168,40 @@ describe.todo('Personal stats', () => {
     expect(newUser2.stats.gameTypes[game.typeId].gamesWon).toBe(0);
   });
 });
+
+describe.todo('Server leaderboards', () => {
+  it('Total games played will increase after game end, total games won will increase for winner', async () => {
+    // Mock 2 users to play the game with
+    const user1 = await mockUser();
+    const user2 = await mockUser();
+
+    // Create the mock game using player 1
+
+    const game = await createGame(
+      {
+        options: { ...mockGameOptions() },
+        userId: user1._id,
+      },
+      true
+    ); // true means testing
+
+    // Fake server id
+    const serverId = mockGameOptions().guild;
+
+    // Add the second player to the game
+
+    expect(await game.addPlayer(user2._id)).toEqual({ ok: true });
+
+    // Manually end the game and make player 1 win
+
+    await GameFlow.end(game, { winner: 0 }); // first player wins
+    expect(game.winner).toBe(0);
+    expect(game.hasEnded).toBe(true);
+
+    // Query the database for the server stats
+    const server = await db.servers.getById(serverId);
+
+    // Expect the new stats
+    expect(server.stats.)
+  });
+});

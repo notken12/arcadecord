@@ -4,7 +4,7 @@ Each server has its own leaderboard.
 
 Spec:
 
-- Track
+- Track for each player
   - Total games played for each type
   - Total games played overall
   - Total games won for each type
