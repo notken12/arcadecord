@@ -26,8 +26,8 @@ import Link from 'components/index/Link.vue';
         <p>
           If you're interested in joining our team and helping build and grow
           Arcadecord, please contact us by email at
-          <Link href="mailto:contact-arcadecord@gmail.com"
-            >contact-arcadecord@gmail.com</Link
+          <Link href="mailto:contactarcadecord@gmail.com"
+            >contactarcadecord@gmail.com</Link
           >! We're in need of more developers and artists and would be glad to
           welcome new members to the Arcadecord team.
         </p>
