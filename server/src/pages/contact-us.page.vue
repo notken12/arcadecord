@@ -33,7 +33,9 @@ import GameDisplay from 'components/index/GameDisplay.vue';
         <LinkButton href="/discord-invite"> Join Discord </LinkButton>
         <p>
           Alternatively, contact us through our email address at&nbsp
-          <a href="mailto:contact@arcadecord.com">contact@arcadecord.com</a>.
+          <a href="mailto:contact-arcadecord@gmail.com"
+            >contact-arcadecord@gmail.com</a
+          >.
         </p>
       </section>
     </Content>

@@ -25,9 +25,11 @@ import Link from 'components/index/Link.vue';
         <h3>Our team</h3>
         <p>
           If you're interested in joining our team and helping build and grow
-          Arcadecord, please
-          <Link href="mailto:contact@arcadecord.com">contact us by email</Link>!
-          We would be glad to welcome new members to the Arcadecord team.
+          Arcadecord, please contact us by email at
+          <Link href="mailto:contact-arcadecord@gmail.com"
+            >contact-arcadecord@gmail.com</Link
+          >! We're in need of more developers and artists and would be glad to
+          welcome new members to the Arcadecord team.
         </p>
         <Card>
           <template v-slot:title>
