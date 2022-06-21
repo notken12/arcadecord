@@ -160,12 +160,35 @@ class Game {
     this.actionHandlers[action].push(callback);
   }
   async emit(event, ...args) {
+    if (event === 'turn') {
+      // Update stats if game ended
+      if (this.hasEnded) {
+        // game.winner is the player index of the winner
+        for (let i = 0; i < this.players.length; i++) {
+          let player = this.players[i];
+          await db.users.incrementGamesPlayedForGameType(
+            player.id,
+            this.typeId
+          );
+          await db.users.incrementGamesPlayed(player.id);
+
+          // Is it a winner
+
+          if (this.winner === i) {
+            await db.users.incrementGamesWonForGameType(player.id, this.typeId);
+            await db.users.incrementGamesWon(player.id);
+          }
+        }
+      }
+    }
+
     if (this.testing) return;
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       await callback(this, ...args);
     }
+
     return true;
   }
   async handleAction(action) {

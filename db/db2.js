@@ -32,6 +32,29 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  stats: {
+    gamesPlayed: {
+      type: Number,
+      default: 0,
+    },
+    gamesWon: {
+      type: Number,
+      default: 0,
+    },
+    games: {
+      type: Map,
+      of: new Schema({
+        gamesPlayed: {
+          type: Number,
+          default: 0,
+        },
+        gamesWon: {
+          type: Number,
+          default: 0,
+        },
+      }),
+    },
+  },
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
@@ -141,6 +164,54 @@ const db = {
     async update(id, data) {
       try {
         return await User.findByIdAndUpdate(id, data, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayed(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWonForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWon(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
       } catch (e) {
         console.error(e);
         return null;

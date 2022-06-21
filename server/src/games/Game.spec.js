@@ -127,7 +127,7 @@ describe('User may connect to a game if', () => {
   });
 });
 
-describe.todo('Personal stats', () => {
+describe('Personal stats', () => {
   it('Total games played will increase after game end, total games won will increase for winner', async () => {
     const user1 = await mockUser();
     const user2 = await mockUser();
@@ -161,11 +161,11 @@ describe.todo('Personal stats', () => {
     expect(newUser2.stats.gamesWon).toBe(0);
 
     // Increase the stats for the specific game type too
-    expect(newUser1.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
-    expect(newUser2.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
+    expect(newUser1.stats.games.get(game.typeId).gamesPlayed).toBe(1);
+    expect(newUser2.stats.games.get(game.typeId).gamesPlayed).toBe(1);
 
-    expect(newUser1.stats.gameTypes[game.typeId].gamesWon).toBe(1);
-    expect(newUser2.stats.gameTypes[game.typeId].gamesWon).toBe(0);
+    expect(newUser1.stats.games.get(game.typeId).gamesWon).toBe(1);
+    expect(newUser2.stats.games.get(game.typeId).gamesWon).toBe(0);
   });
 });
 
