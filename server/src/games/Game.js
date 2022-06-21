@@ -160,54 +160,12 @@ class Game {
     this.actionHandlers[action].push(callback);
   }
   async emit(event, ...args) {
-    if (event === 'turn') {
-      // Update stats if game ended
-      if (this.hasEnded) {
-        // game.winner is the player index of the winner
-        for (let i = 0; i < this.players.length; i++) {
-          let player = this.players[i];
-          await db.users.incrementGamesPlayedForGameType(
-            player.id,
-            this.typeId
-          );
-          await db.users.incrementGamesPlayed(player.id);
-          await db.servers.incrementGamesPlayedByUser(this.guild, player.id);
-          await db.servers.incrementGamesPlayedByGame(this.guild, this.typeId);
-          await db.servers.incrementGamesPlayedByUserByGame(
-            this.guild,
-            player.id,
-            this.typeId
-          );
-
-          // Is it a winner
-          // Increment games won stat for personal and server stats
-          if (this.winner === i) {
-            await db.users.incrementGamesWonForGameType(player.id, this.typeId);
-            await db.users.incrementGamesWon(player.id);
-            await db.servers.incrementGamesWonByUser(this.guild, player.id);
-            await db.servers.incrementGamesWonByUserByGame(
-              this.guild,
-              player.id,
-              this.typeId
-            );
-          }
-        }
-
-        // await db.servers.create({
-        //   _id: this.guild,
-        // });
-
-        await db.servers.incrementGamesPlayed(this.guild);
-      }
-    }
-
     if (this.testing) return;
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       await callback(this, ...args);
     }
-
     return true;
   }
   async handleAction(action) {
