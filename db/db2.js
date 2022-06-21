@@ -32,6 +32,29 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  stats: {
+    gamesPlayed: {
+      type: Number,
+      default: 0,
+    },
+    gamesWon: {
+      type: Number,
+      default: 0,
+    },
+    games: {
+      type: Map,
+      of: new Schema({
+        gamesPlayed: {
+          type: Number,
+          default: 0,
+        },
+        gamesWon: {
+          type: Number,
+          default: 0,
+        },
+      }),
+    },
+  },
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
@@ -79,6 +102,53 @@ const gameSchema = new Schema({
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
+const serverSchema = new Schema({
+  _id: Number,
+  stats: {
+    users: {
+      type: Map,
+      of: new Schema({
+        gamesPlayed: {
+          type: Number,
+          default: 0,
+        },
+        gamesWon: {
+          type: Number,
+          default: 0,
+        },
+        games: {
+          type: Map,
+          of: new Schema({
+            gamesPlayed: {
+              type: Number,
+              default: 0,
+            },
+            gamesWon: {
+              type: Number,
+              default: 0,
+            },
+          }),
+        },
+      }),
+    },
+    games: {
+      type: Map,
+      of: new Schema({
+        gamesPlayed: {
+          type: Number,
+          default: 0,
+        },
+      }),
+    },
+  },
+  gamesPlayed: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const Server = mongoose.models.Server || mongoose.model('Server', serverSchema);
+
 const slashCommandOptionsSchema = new Schema({
   _id: String,
   invitedUsers: Array,
@@ -94,6 +164,140 @@ const SlashCommandOptions =
 const db = {
   async connect(uri) {
     await mongoose.connect(uri ?? process.env.MONGODB_URI);
+  },
+  servers: {
+    async incrementGamesPlayed(serverId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedByUser(serverId, userId) {
+      try {
+        let query = {};
+        let prop = `stats.users.${userId}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWonByUser(serverId, userId) {
+      try {
+        let query = {};
+        let prop = `stats.users.${userId}.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedByUserByGame(serverId, userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.users.${userId}.games.${gameType}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedByGame(serverId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWonByUserByGame(serverId, userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.users.${userId}.games.${gameType}.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await Server.findByIdAndUpdate(serverId, query, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async create(data) {
+      try {
+        var newServer = new Server(data);
+        console.log(data);
+        return await newServer.save();
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async getById(id) {
+      try {
+        return await Server.findById(id);
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async update(id, data) {
+      try {
+        return await Server.findByIdAndUpdate(id, data, {
+          new: true,
+        });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async delete(id) {
+      try {
+        return await Server.findByIdAndRemove(id);
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
   },
   users: {
     getHash: function (token) {
@@ -141,6 +345,54 @@ const db = {
     async update(id, data) {
       try {
         return await User.findByIdAndUpdate(id, data, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayed(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWonForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWon(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
       } catch (e) {
         console.error(e);
         return null;
