@@ -15,6 +15,8 @@ dotenv.config();
 // Get host configuration
 import { loadWebHostConfig } from './web/config.js';
 const host = loadWebHostConfig();
+console.log('Web host config:');
+console.log(host);
 
 import express from 'express';
 const app = express();
