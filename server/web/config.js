@@ -14,7 +14,7 @@ export function loadWebHostConfig() {
     id: process.env.WEB_HOST_ID,
     url: process.env.WEB_SERVER_URL,
     name: process.env.WEB_HOST_NAME,
-    botClientId: Number(process.env.BOT_CLIENT_ID),
+    botClientId: process.env.BOT_CLIENT_ID,
     discordServerInvite: process.env.DISCORD_SERVER_INVITE,
   };
   if (!isNaN(Number(process.env.GAME_SERVER_PROXY_PORT))) {
