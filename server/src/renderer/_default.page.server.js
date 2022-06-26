@@ -47,6 +47,9 @@ async function render(pageContext) {
       </head>
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
       </body>
     </html>`;
 
