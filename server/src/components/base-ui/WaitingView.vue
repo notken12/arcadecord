@@ -36,18 +36,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { useAdsense } from './adsense.js';
 
-const loadAdsenseAd = () => {
-  let inlineScript = document.createElement('script');
-  inlineScript.type = 'text/javascript';
-  inlineScript.text = '(adsbygoogle = window.adsbygoogle || []).push({});';
-  document.getElementsByTagName('body')[0].appendChild(inlineScript);
-};
-
-onMounted(() => {
-  loadAdsenseAd();
-});
+useAdsense();
 </script>
 
 <style scoped lang="scss">
