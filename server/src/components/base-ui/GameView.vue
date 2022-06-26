@@ -31,6 +31,7 @@
       <GameFull v-if="contested"></GameFull>
     </Transition>
     <slot></slot>
+    <BottomAd v-if="showBottomAd"></BottomAd>
   </div>
 </template>
 
@@ -44,10 +45,11 @@ import SendingView from './SendingView.vue';
 import GameFlow from '@app/js/GameFlow.js';
 import Settings from './Settings.vue';
 import FastForward from './FastForward.vue';
+import GameFull from './GameFull.vue';
+import BottomAd from './BottomAd.vue';
 
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useFacade } from './facade';
-import GameFull from './GameFull.vue';
 
 const props = defineProps({
   hint: String,
@@ -119,6 +121,16 @@ watch(
   },
   { immediate: true }
 );
+
+const showBottomAd = ref(false);
+
+const shouldShowBottomAd = () => {
+  return window.innerHeight >= 750;
+};
+
+onMounted(() => {
+  showBottomAd.value = shouldShowBottomAd();
+});
 </script>
 
 <style lang="scss">
@@ -142,6 +154,7 @@ watch(
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
