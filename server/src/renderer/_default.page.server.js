@@ -42,9 +42,8 @@ async function render(pageContext) {
 
         <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&family=Inter:wght@400;500;700&family=Work+Sans:wght@400;500;700&display=swap" as="style">
-
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9949308515923091"
-           crossorigin="anonymous"></script>
+     crossorigin="anonymous"></script>
       </head>
       <body>
         <div id="app">${dangerouslySkipEscape(appHtml)}</div>
