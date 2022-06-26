@@ -171,6 +171,7 @@ const startSimulation = () => {
       d.velocity = { x: d.moveDir.x * mult, y: d.moveDir.y * mult };
     });
   simulationRunning = true;
+  canFireOrSend.value = false;
 };
 
 /** Cleanup after simulation, run the action */
@@ -197,7 +198,7 @@ const endSimulation = async (replayEnding) => {
   replayingAction = false;
   style.moveDirOpacity = 1;
   showAllMoveDirs = false;
-  canFireOrSend.value = getCanFireOrSend();
+  canFireOrSend.value = false;
 };
 
 const showMoveDirsAndStartSimulation = () => {
@@ -274,12 +275,14 @@ const setDummiesFire = () => {
     $endAnimation(ICE_SHRINK_DURATION * 1000);
   }
   $runAction('setDummies', { dummies: states, firing });
+  canFireOrSend.value = false;
 };
 
 const fireOrSendFn = () => {
   if (replayingVal) return;
   // Your own move directions must be set
   if (!getCanFireOrSend()) return;
+  canFireOrSend.value = false;
 
   if (firing) {
     showMoveDirsAndStartSimulation();
@@ -318,8 +321,6 @@ const resize = () => {
   const cbbox = container.getBoundingClientRect();
   containerX = cbbox.x;
   containerY = cbbox.y;
-
-  console.log('resize');
 };
 
 useAspectRatio(1, canvasContainer, resize);
@@ -727,7 +728,11 @@ onUnmounted(() => {
       <canvas ref="canvas" :style="{ cursor }"></canvas>
     </div>
   </div>
-  <button ref="fireOrSend" @click="fireOrSendFn" v-if="canFireOrSend">
+  <button
+    ref="fireOrSend"
+    @click="fireOrSendFn"
+    :class="{ shown: canFireOrSend }"
+  >
     Send
   </button>
 </template>
