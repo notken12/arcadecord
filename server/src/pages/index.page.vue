@@ -91,6 +91,9 @@ useAppInsights();
       <section class="row add">
         <h3>Add and play today for free!</h3>
         <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+        <!-- Horizontal -->
+        <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898" data-ad-format="auto" data-full-width-responsive="true"></ins>
       </section>
       <div class="spacer"></div>
     </Content>
