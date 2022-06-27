@@ -649,19 +649,20 @@ const initThree = async () => {
     if (!controlsCanvas.value) return;
     requestAnimationFrame(animate);
 
-    const time = performance.now() / 1000; // seconds
-    if (!lastCallTime) {
-      // first call
-      world.step(timeStep);
-      lastCallTime = time;
-      updateCueBallPos();
-    } else {
-      let dt = time - lastCallTime;
-      if (dt >= timeStep) {
-        world.step(timeStep);
-        lastCallTime = time - (dt - timeStep);
-      }
-    }
+    // const time = performance.now() / 1000; // seconds
+    // if (!lastCallTime) {
+    //   // first call
+    //   world.step(timeStep);
+    //   lastCallTime = time;
+    //   updateCueBallPos();
+    // } else {
+    //   let dt = time - lastCallTime;
+    //   if (dt >= timeStep) {
+    //     world.step(timeStep);
+    //     lastCallTime = time - (dt - timeStep);
+    //   }
+    // }
+    world.fixedStep();
     frames++;
 
     if (table.surfaceBody) {
