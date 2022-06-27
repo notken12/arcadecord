@@ -141,7 +141,7 @@ function checkHorizontal(board, row, col) {
     }
   }
 
-  if (left + right === 3) {
+  if (left + right >= 3) {
     return true;
   }
 }
@@ -203,7 +203,7 @@ function checkDiagonal(board, row, col) {
     }
   }
 
-  if (ul + dr === 3 || ur + dl === 3) {
+  if (ul + dr >= 3 || ur + dl >= 3) {
     return true;
   }
 }
@@ -238,7 +238,7 @@ function checkVertical(board, row, col) {
     }
   }
 
-  if (up + down === 3) {
+  if (up + down >= 3) {
     return true;
   }
 }
