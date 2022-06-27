@@ -25,7 +25,7 @@ import Emoji from '../../Emoji.js';
 
 const THREAD_THRESHOLD = 100; // If the server's member count is above this threshold, automatically use a thread
 
-function getActionRows(dbOptionsId, invitedUsersIds) {
+function getActionRows() {
   let rows = [new MessageActionRow()];
   for (var g in games) {
     var game = games[g];
@@ -50,7 +50,7 @@ function getActionRows(dbOptionsId, invitedUsersIds) {
 }
 
 function getMessage(dbOptionsId, invitedUsersIds) {
-  var rows = getActionRows(dbOptionsId, invitedUsersIds);
+  var rows = getActionRows();
   var content = '';
 
   if (invitedUsersIds.length > 0) {
