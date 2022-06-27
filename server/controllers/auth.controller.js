@@ -66,8 +66,14 @@ export default (req, res) => {
 
         var discordUser = await fetchUserFromAccessToken(access_token);
         if (!discordUser) {
+          console.log(
+            'Could not get user from access token: Discord response data:'
+          );
+          console.log(data);
+          console.log('Request sent with params:');
+          console.log(params);
           res.send(
-            `Error: could not get user from access token: ${access_token}`
+            `Error: could not get user from access token. Please report this bug on our discord server: https://arcadecord.com/discord-invite`
           );
           return;
         }
