@@ -132,6 +132,23 @@ class Board {
     // 3. Output blob (list of coords {row, col})
     return blob;
   }
+  static isBoardOnlyTwoColors(board) {
+    let color1 = board.cells[0][0].color;
+    let color2 = null;
+    for (let row = 0; row < board.height; row++) {
+      for (let col = 0; col < board.width; col++) {
+        let { color } = board.cells[row][col];
+        if (color !== color1 && color !== color2) {
+          if (color2 === null) {
+            color2 = color;
+          } else {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
   static checkMatch(board, searched, row, col, color) {
     if (searched.find((coord) => coord.row === row && coord.col === col))
       return false;
@@ -163,9 +180,9 @@ async function action_switchColors(game, action) {
     board.cells[pos.row][pos.col].color = targetColor;
   }
 
-  var newBlob = Board.getPlayerBlob(board, playerIndex);
-  var opponentBlob = Board.getPlayerBlob(board, playerIndex === 0 ? 1 : 0);
-  if (newBlob.length + opponentBlob.length >= board.width * board.height) {
+  if (Board.isBoardOnlyTwoColors(board)) {
+    var newBlob = Board.getPlayerBlob(board, playerIndex);
+    var opponentBlob = Board.getPlayerBlob(board, playerIndex === 0 ? 1 : 0);
     // Game over
     // Whoever has the most tiles wins
     let winner;
