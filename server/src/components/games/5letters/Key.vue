@@ -86,7 +86,7 @@ const classes = computed(() => {
       v-if="kbkey.key === 'backspace' || kbkey.key === 'enter'"
       >{{ icons[kbkey.key.toLowerCase()] }}</i
     >
-    <span v-else>
+    <span v-if="kbkey.key !== 'backspace' && kbkey.key !== 'enter'">
       {{ kbkey.key }}
     </span>
   </div>
