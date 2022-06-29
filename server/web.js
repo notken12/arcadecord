@@ -107,17 +107,6 @@ import signOutController from './controllers/sign-out.controller.js';
 //get authorization code
 app.get('/auth', authController);
 
-app.get('/game/:gameId', async (req, res, next) => {
-  if (
-    req.params.gameId !== undefined &&
-    req.params.gameId !== null &&
-    req.params.gameId !== 'favicon.ico'
-  ) {
-  }
-
-  next();
-});
-
 import signInController from './controllers/sign-in.controller.js';
 app.get('/sign-in', signInController);
 
