@@ -107,20 +107,6 @@ import signOutController from './controllers/sign-out.controller.js';
 //get authorization code
 app.get('/auth', authController);
 
-app.get('/game/:gameId', async (req, res, next) => {
-  if (
-    req.params.gameId !== undefined &&
-    req.params.gameId !== null &&
-    req.params.gameId !== 'favicon.ico'
-  ) {
-    res.cookie('gameId', req.params.gameId, {
-      maxAge: 1000 * 60 * 60 * 24 * 365,
-    });
-  }
-
-  next();
-});
-
 import signInController from './controllers/sign-in.controller.js';
 app.get('/sign-in', signInController);
 
@@ -231,11 +217,19 @@ app.get('*', async (req, res, next) => {
   const pageContext = await renderPage(pageContextInit);
 
   if (pageContext.redirectTo) {
+    if (pageContext.redirectTo === '/sign-in') {
+      res.cookie('gameId', url.replace('/game/', ''), {
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+      });
+    }
     res.redirect(307, pageContext.redirectTo);
   } else if (!pageContext.httpResponse) {
     return next();
   } else {
     const { body, statusCode, contentType } = pageContext.httpResponse;
+    if (url.startsWith('/game/')) {
+      res.clearCookie('gameId');
+    }
     res.status(statusCode).type(contentType).send(body);
   }
 });
