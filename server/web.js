@@ -134,6 +134,10 @@ app.get('/game-server-url', (_req, res) => {
   res.send(host.gameServerUrl);
 });
 
+app.get('/top-gg', (_req, res) => {
+  res.redirect(host.topGgUrl);
+});
+
 let viteDevServer;
 const isProduction = process.env.NODE_ENV === 'production';
 // const root = `${path.dirname(import.meta.url)}/src`;

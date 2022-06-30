@@ -117,7 +117,7 @@ export default (req, res) => {
 
         var cookie = req.cookies.gameId;
         if (cookie === undefined) {
-          res.redirect('/');
+          res.redirect('/signed-in');
         } else {
           res.redirect('/game/' + cookie);
         }

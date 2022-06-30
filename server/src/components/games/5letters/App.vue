@@ -129,12 +129,15 @@ onMounted(() => {
         </div>
       </div>
       <div class="mine">
-        <h2 v-if="!myAnswer">Choose a secret word</h2>
         <div class="container">
           <WordChooser v-if="!myAnswer"></WordChooser>
           <!-- v-if="myAnswer && theirAnswer" -->
 
-          <Board :guesses="myGuesses" v-if="myAnswer" active></Board>
+          <Board
+            :guesses="myGuesses"
+            v-show="myAnswer != null"
+            :active="myAnswer != null"
+          ></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>

@@ -16,6 +16,7 @@ Environment vars:
 - `SHARD_MANAGER_COUNT`: amount of shard managers that exist.
 - `SHARD_MANAGER_POD_PREFIX`: name of kubernetes StatefulSet service that the pods are under + '-'. Used to find the hostnames of bot shard managers
 - `SHARD_MANAGER_POD_ADDRESS`: template string of the address of shard managers: `%ID%` is replaced with the shard manager pod's ID. Example: http://shardmanager-%ID%:3000
+- `TOP_GG_URL`: url of bot listing on top.gg
 
 ## Game server: `server/index.js`
 
