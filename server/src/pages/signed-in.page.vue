@@ -21,9 +21,7 @@ import GameDisplay from 'components/index/GameDisplay.vue';
 <template>
   <div class="container">
     <div class="flexElement">
-      <b>
-        <h3>🔑 Signed in successfully!</h3>
-      </b>
+      <h3>🔑 Signed in successfully!</h3>
       <h4>
         You can now close this tab and type /play in Discord to play a game.
       </h4>
