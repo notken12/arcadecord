@@ -108,4 +108,8 @@ import GameDisplay from 'components/index/GameDisplay.vue';
 * {
   scroll-behavior: smooth;
 }
+
+section {
+  gap: 64px;
+}
 </style>
