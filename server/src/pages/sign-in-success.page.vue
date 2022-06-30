@@ -1,5 +1,5 @@
 <!--
-  post-sign-in.page.vue - Arcadecord
+  sign-in-success.page.vue - Arcadecord
 
   Copyright (C) 2022 Ken Zhou
 
@@ -19,22 +19,23 @@ import GameDisplay from 'components/index/GameDisplay.vue';
 </script>
 
 <template>
-<div class="container">
+  <div class="container">
     <div class="flexElement">
-        <b><h3>🔑 Signed in successfully!</h3></b>
-        <h4>You can now close this tab and type /play in Discord to play a game.</h4>
+      <b>
+        <h3>🔑 Signed in successfully!</h3>
+      </b>
+      <h4>
+        You can now close this tab and type /play in Discord to play a game.
+      </h4>
     </div>
-    
-</div>
-    
-        
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .container {
-  position:absolute;
+  position: absolute;
   display: flex;
-  justify-content:center;
+  justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -44,13 +45,13 @@ a:hover {
   text-decoration: none;
 }
 
-.flexElement{
-    text-align:center;
-    position:static;
-    margin-left:auto;
-    margin-right:auto;
-    width:auto;
-    height:auto;
+.flexElement {
+  text-align: center;
+  position: static;
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  height: auto;
 }
 </style>
 
