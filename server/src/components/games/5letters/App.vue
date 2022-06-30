@@ -129,7 +129,6 @@ onMounted(() => {
         </div>
       </div>
       <div class="mine">
-        <h2 v-if="!myAnswer">Choose a secret word</h2>
         <div class="container">
           <WordChooser v-if="!myAnswer"></WordChooser>
           <!-- v-if="myAnswer && theirAnswer" -->
