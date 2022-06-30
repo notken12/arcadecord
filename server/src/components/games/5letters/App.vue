@@ -134,7 +134,11 @@ onMounted(() => {
           <WordChooser v-if="!myAnswer"></WordChooser>
           <!-- v-if="myAnswer && theirAnswer" -->
 
-          <Board :guesses="myGuesses" v-if="myAnswer" active></Board>
+          <Board
+            :guesses="myGuesses"
+            v-show="myAnswer != null"
+            :active="myAnswer != null"
+          ></Board>
         </div>
 
         <Keyboard :guesses="myGuesses"></Keyboard>
