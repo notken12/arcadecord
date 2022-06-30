@@ -44,7 +44,7 @@ section {
   justify-content: center;
   box-sizing: border-box;
   display: flex;
-  gap: 64px;
+  gap: 16px;
 }
 
 .image {
