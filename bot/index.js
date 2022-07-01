@@ -61,7 +61,7 @@ manager.on('shardCreate', (shard) => console.log(`Launched shard ${shard.id}`));
 // create http server to handle requests
 const app = express();
 
-app.use(express.json()); // Used to parse JSON bodies
+app.use(express.json({ limit: '500kb' })); // Used to parse JSON bodies
 
 app.use(authMiddleware);
 
