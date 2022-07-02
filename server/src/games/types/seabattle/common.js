@@ -12,6 +12,7 @@ import GameFlow from '../../GameFlow.js';
 const SHIP_TYPES = ['Carrier', 'Battleship', 'Cruiser', 'Destroyer'];
 const SHIP_LENGTHS = [4, 3, 2, 1];
 const SHIP_QUANTITIES = [1, 2, 3, 4];
+const SHIP_QUANTITIES = [2, 2, 3, 3];
 
 const CELL_STATE_EMPTY = 0;
 const CELL_STATE_MISS = 1;
