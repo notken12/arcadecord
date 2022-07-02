@@ -15,7 +15,7 @@ import ScoresView from 'components/base-ui/ScoresView.vue';
 
 import VueAppInsights from './vue-app-insights.js';
 
-import { appInsights } from './client-framework.js';
+import { appInsights } from './app-insights.js';
 
 import baseMixin from '../components/base-ui/base.mixin.js';
 import GameFlow from './GameFlow.js';
@@ -38,7 +38,8 @@ const createApp = (...options) => {
         newOptions.mixins = [baseMixin];
     }*/
   const app = createVueApp(...options);
-  app.use(VueAppInsights, { appInsights });
+  console.log(appInsights());
+  app.use(VueAppInsights, { appInsights: appInsights() });
   app.use(facade);
 
   app.mixin(baseMixin);

@@ -15,6 +15,10 @@ import Content from 'components/index/Content.vue';
 import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
 </script>
 
 <template>
@@ -33,8 +37,7 @@ import LinkButton from 'components/index/LinkButton.vue';
 
         <p>
           <span>Alternatively, you can email us at&nbsp;</span>
-          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a
-          ><span>.</span>
+          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a><span>.</span>
         </p>
       </section>
     </Content>

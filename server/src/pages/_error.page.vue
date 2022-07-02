@@ -27,6 +27,11 @@ import { computed, inject, onMounted, ref } from 'vue';
 import { GameConnectionError } from '../games/GameErrors.js';
 import Settings from '@app/components/base-ui/Settings.vue';
 import bus from '@app/js/vue-event-bus.js';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
+
 const pageContext = inject('pageContext');
 
 const isGameError = ref(false);
