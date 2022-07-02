@@ -2,7 +2,7 @@
   <div>
     <div>
       <h1>TERMS OF SERVICE</h1>
-      <h4>Last updated: July 01, 2022</h4>
+      <h4>Last updated: July 02, 2022</h4>
     </div>
     <div>
       <div>

@@ -2,7 +2,7 @@
   <div>
     <div>
       <h1>PRIVACY POLICY</h1>
-      <h4>Effective date: July 01, 2022</h4>
+      <h4>Effective date: July 02, 2022</h4>
     </div>
     <div>
       <div>
@@ -308,8 +308,10 @@
         </p>
         <ul>
           <li>
-            <b>The right to access, update or delete the information we have on
-              you. </b>Whenever made possible, you can access, update or request deletion
+            <b
+              >The right to access, update or delete the information we have on
+              you. </b
+            >Whenever made possible, you can access, update or request deletion
             of your Personal Data directly within your account settings section.
             If you are unable to perform these actions yourself, please contact
             us to assist you.
@@ -383,8 +385,11 @@
               <div>
                 For more information on the privacy practices of Microsoft,
                 please visit the Microsoft Privacy Statement web page:
-                <a href="https://privacy.microsoft.com/en-us/privacystatement"
-                  target="_blank">https://privacy.microsoft.com/en-us/privacystatement</a>
+                <a
+                  href="https://privacy.microsoft.com/en-us/privacystatement"
+                  target="_blank"
+                  >https://privacy.microsoft.com/en-us/privacystatement</a
+                >
               </div>
             </div>
           </li>
@@ -408,8 +413,9 @@
                 You may opt out of the use of the DoubleClick Cookie for
                 interest-based advertising by visiting the Google Ads Settings
                 web page:
-                <a href="https://www.google.com/ads/preferences"
-                  target="_blank">http://www.google.com/ads/preferences</a>
+                <a href="https://www.google.com/ads/preferences" target="_blank"
+                  >http://www.google.com/ads/preferences</a
+                >
               </p>
             </div>
           </li>
@@ -473,7 +479,9 @@
         <p>
           If you have any questions or concerns about our Terms, please contact
           us by email:
-          <a href="mailto:contactarcadecord@gmail.com">contactarcadecord@gmail.com</a>
+          <a href="mailto:contactarcadecord@gmail.com"
+            >contactarcadecord@gmail.com</a
+          >
         </p>
       </div>
     </div>
