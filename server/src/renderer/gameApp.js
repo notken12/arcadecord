@@ -13,8 +13,7 @@ import GameView from 'components/base-ui/GameView.vue';
 import ScoresView from 'components/base-ui/ScoresView.vue';
 
 import VueAppInsights from '@app/js/vue-app-insights.js';
-
-import { appInsights } from '@app/js/client-framework.js';
+import { appInsights } from '@app/js/app-insights.js';
 
 import baseMixin from 'components/base-ui/base.mixin.js';
 
@@ -28,6 +27,7 @@ function createApp(pageContext) {
     render: () => h(pageContext.Page, pageContext.pageProps || {}),
   });
   app.use(VueAppInsights, { appInsights });
+
   app.mixin(baseMixin);
   app.use(store);
 

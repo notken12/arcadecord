@@ -16,6 +16,10 @@ import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
 import GameDisplay from 'components/index/GameDisplay.vue';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
 </script>
 
 <template>
@@ -23,8 +27,16 @@ import GameDisplay from 'components/index/GameDisplay.vue';
     <Banner></Banner>
     <Content id="features">
       <section class="stripe">
-        Arcadecord is currently in beta. Feedback is greatly appreciated.
+        Arcadecord is currently in beta. Please pardon our dust, and feedback is
+        greatly appreciated.
       </section>
+      <!-- <section class="stripe"> -->
+      <!--   ✨ Note: We are popular! In a few days, Arcadecord has been added to 100 -->
+      <!--   servers! <br />Thank you for the love, please bear with us while we are -->
+      <!--   trying to complete the review process required by Discord.<br /> -->
+      <!--   Once it is done, you will be able to add it to your servers. Be sure to -->
+      <!--   check back in a few days. -->
+      <!-- </section> -->
       <section class="games row">
         <GameDisplay game="8ball">8 Ball</GameDisplay>
         <GameDisplay game="cuppong">Cup Pong</GameDisplay>

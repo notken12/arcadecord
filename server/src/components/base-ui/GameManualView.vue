@@ -23,6 +23,10 @@
         </div>
       </div>
       <div class="modal-content">
+        <p>
+          Need help? <a href="/discord-invite">Click here</a> to join our
+          official Discord server! We also post updates and announcements there.
+        </p>
         <div v-if="parsedMarkdown === undefined">Loading...</div>
         <div v-if="parsedMarkdown === null">
           Game manual for {{ game.name }} coming soon!

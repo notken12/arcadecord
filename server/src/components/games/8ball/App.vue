@@ -645,6 +645,7 @@ const initThree = async () => {
 
   let directionLineLength = 8;
 
+  updateCueBallPos();
   function animate() {
     if (!controlsCanvas.value) return;
     requestAnimationFrame(animate);
@@ -1141,7 +1142,9 @@ onUnmounted(() => {
         <Transition name="fade">
           <PocketChooser
             v-if="
-              (canHit8Ball && isItMyTurn && !replaying) || chosenPocket !== null
+              ((canHit8Ball && isItMyTurn && !replaying) ||
+                chosenPocket !== null) &&
+              scaleRef
             "
             :width="canvasWidth"
             :height="canvasHeight"

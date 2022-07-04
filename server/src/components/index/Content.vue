@@ -70,7 +70,7 @@ section {
 }
 
 .stripe {
-  padding: 10px;
+  padding: 10px 16px;
   background-color: #08234d;
   width: 100%;
   flex-direction: row;
@@ -135,6 +135,7 @@ p {
 }
 
 @media only screen and (max-width: 820px) {
+
   .row,
   .row-reverse {
     flex-direction: column;
