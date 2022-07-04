@@ -43,7 +43,17 @@ import GameDisplay from 'components/index/GameDisplay.vue';
         <GameDisplay game="chess">Chess</GameDisplay>
         <GameDisplay game="filler">Filler</GameDisplay>
       </section>
-      <div class="spacer"></div>
+      <section class="row">
+        <!-- Horizontal -->
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 100%; height: 90px"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898"
+          data-ad-format="fluid"
+          data-full-width-responsive="true"
+        ></ins>
+      </section>
       <section class="row">
         <div class="text">
           <h3>Your favorite games, <br />in your favorite servers.</h3>
@@ -87,9 +97,17 @@ import GameDisplay from 'components/index/GameDisplay.vue';
       <section class="row add">
         <h3>Add and play today for free!</h3>
         <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+      </section>
+      <section class="row">
         <!-- Horizontal -->
-        <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="6224498898" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 100%; height: 140px"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </section>
       <div class="spacer"></div>
     </Content>
