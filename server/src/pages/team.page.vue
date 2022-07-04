@@ -30,13 +30,18 @@ useAppInsights();
         <p>
           If you're interested in joining our team and helping build and grow
           Arcadecord, please contact us by email at
-          <Link href="mailto:contactarcadecord@gmail.com">contactarcadecord@gmail.com</Link>! We're in need of more
-          developers and artists and would be glad to
+          <Link href="mailto:contactarcadecord@gmail.com"
+            >contactarcadecord@gmail.com</Link
+          >! We're in need of more developers and artists and would be glad to
           welcome new members to the Arcadecord team.
         </p>
         <Card>
           <template v-slot:title>
-            <img src="/profile-pictures/notken12.jpg" alt="Profile picture" class="pfp" />
+            <img
+              src="/profile-pictures/notken12.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
             Ken
           </template>
           <div>
@@ -45,40 +50,72 @@ useAppInsights();
           </div>
           <div>
             <Link href="https://github.com/notken12">
-            <img src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png" alt="Github Mark" width="24" height="24"
-              style="display: inline-block" />
-            GitHub
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
             </Link>
           </div>
         </Card>
         <Card>
           <template v-slot:title>
-            <img src="/profile-pictures/SethDevsStuff.jpg" alt="Profile picture" class="pfp" />
+            <img
+              src="/profile-pictures/SethDevsStuff.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
             Seth
           </template>
           <div>Contributor to Arcadecord's code and art.</div>
           <div>
             <Link href="https://github.com/SethDevsStuff">
-            <img src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png" alt="Github Mark" width="24" height="24"
-              style="display: inline-block" />
-            GitHub
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
             </Link>
           </div>
         </Card>
         <Card>
           <template v-slot:title>
-            <img src="/profile-pictures/Crazexpert.jpg" alt="Profile picture" class="pfp" />
+            <img
+              src="/profile-pictures/Crazexpert.jpg"
+              alt="Profile picture"
+              class="pfp"
+            />
             Craz
           </template>
           <div>Contributor to Arcadecord's code.</div>
           <div>
             <Link href="https://github.com/Crazexpert">
-            <img src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png" alt="Github Mark" width="24" height="24"
-              style="display: inline-block" />
-            GitHub
+              <img
+                src="/GitHub-Mark/PNG/GitHub-Mark-Light-32px.png"
+                alt="Github Mark"
+                width="24"
+                height="24"
+                style="display: inline-block"
+              />
+              GitHub
             </Link>
           </div>
         </Card>
+        <!-- Horizontal -->
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 100%"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </section>
     </Content>
     <Footer></Footer>
