@@ -35,6 +35,7 @@ const options = {
   maxPlayers: 2,
   emoji: '😁',
   data: {},
+  hidden: true,
 };
 
 // Game constructor, extends base Game class
@@ -78,11 +79,10 @@ class Minigolf extends Game {
   // Use this function to create the game data
   onInit(game) {
     game.data.ball = {
-      x:0,
-      y:0,
-    }
+      x: 0,
+      y: 0,
+    };
   }
-
 }
 
 // REQUIRED: export the options and the game class as Game
