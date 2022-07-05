@@ -774,7 +774,8 @@ function getSituation(game, color) {
     }
   }
 
-  if (!isSufficientMaterial(game)) {//Function checks for the presence of sufficient material. Insufficient material would return false
+  if (!isSufficientMaterial(game)) {
+    //Function checks for the presence of sufficient material. Insufficient material would return false
     return 'insufficientMaterial';
   }
 
@@ -821,15 +822,27 @@ function isSufficientMaterial(game) {
       amountOfMaterialBlack[game.data.board[i].type] += 1;
     }
   }
-  if(amountOfMaterialWhite.p >= 1 || amountOfMaterialBlack.p >= 1 || amountOfMaterialWhite.q >= 1 || amountOfMaterialBlack.q >= 1 || amountOfMaterialWhite.r >= 1 || amountOfMaterialBlack.r >= 1){
+  if (
+    amountOfMaterialWhite.p >= 1 ||
+    amountOfMaterialBlack.p >= 1 ||
+    amountOfMaterialWhite.q >= 1 ||
+    amountOfMaterialBlack.q >= 1 ||
+    amountOfMaterialWhite.r >= 1 ||
+    amountOfMaterialBlack.r >= 1
+  ) {
     return true;
   } else {
-    if(amountOfMaterialWhite.b >= 2 || amountOfMaterialBlack.b >= 2 || amountOfMaterialWhite.n >= 3 || amountOfMaterialBlack.n >= 3){
+    if (
+      amountOfMaterialWhite.b >= 2 ||
+      amountOfMaterialBlack.b >= 2 ||
+      amountOfMaterialWhite.n >= 3 ||
+      amountOfMaterialBlack.n >= 3
+    ) {
       return true;
     } else {
-      if(amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1){
+      if (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1) {
         return true;
-      } else if(amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1){
+      } else if (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1) {
         return true;
       } else {
         return false; //Ends the game as a draw

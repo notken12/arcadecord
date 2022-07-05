@@ -172,5 +172,4 @@ h2 {
 }
 </style>
 
-<style lang="scss" src="scss/base/_modal.scss">
-</style>
+<style lang="scss" src="scss/base/_modal.scss"></style>

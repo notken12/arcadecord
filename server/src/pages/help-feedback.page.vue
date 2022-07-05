@@ -37,7 +37,8 @@ useAppInsights();
 
         <p>
           <span>Alternatively, you can email us at&nbsp;</span>
-          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a><span>.</span>
+          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a
+          ><span>.</span>
         </p>
       </section>
     </Content>
