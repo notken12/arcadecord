@@ -774,7 +774,7 @@ function getSituation(game, color) {
     }
   }
 
-  if (!checkSufficientMaterial(game)) {
+  if (!isSufficientMaterial(game)) {//Function checks for the presence of sufficient material. Insufficient material would return false
     return 'insufficientMaterial';
   }
 
@@ -794,7 +794,7 @@ function getSituation(game, color) {
 
   return '50move';
 }
-function checkSufficientMaterial(game) {
+function isSufficientMaterial(game) {
   var i;
   var amountOfMaterialWhite = {
     p: 0,
@@ -802,6 +802,7 @@ function checkSufficientMaterial(game) {
     n: 0,
     r: 0,
     q: 0,
+    k: 0,
   };
   var amountOfMaterialBlack = {
     p: 0,
@@ -809,6 +810,7 @@ function checkSufficientMaterial(game) {
     n: 0,
     r: 0,
     q: 0,
+    k: 0,
   };
   for (i = 0; i < game.data.board.length; i++) {
     if (game.data.board[i].color == 0) {
@@ -819,21 +821,20 @@ function checkSufficientMaterial(game) {
       amountOfMaterialBlack[game.data.board[i].type] += 1;
     }
   }
-  if (
-    !(
-      amountOfMaterialWhite.n >= 3 ||
-      amountOfMaterialWhite.b >= 2 ||
-      (amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1)
-    ) ||
-    !(
-      amountOfMaterialBlack.n >= 3 ||
-      amountOfMaterialBlack.b >= 2 ||
-      (amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1)
-    )
-  ) {
-    return false;
-  } else {
+  if(amountOfMaterialWhite.p >= 1 || amountOfMaterialBlack.p >= 1 || amountOfMaterialWhite.q >= 1 || amountOfMaterialBlack.q >= 1 || amountOfMaterialWhite.r >= 1 || amountOfMaterialBlack.r >= 1){
     return true;
+  } else {
+    if(amountOfMaterialWhite.b >= 2 || amountOfMaterialBlack.b >= 2 || amountOfMaterialWhite.n >= 3 || amountOfMaterialBlack.n >= 3){
+      return true;
+    } else {
+      if(amountOfMaterialWhite.b >= 1 && amountOfMaterialWhite.n >= 1){
+        return true;
+      } else if(amountOfMaterialBlack.b >= 1 && amountOfMaterialBlack.n >= 1){
+        return true;
+      } else {
+        return false; //Ends the game as a draw
+      }
+    }
   }
 }
 function doMovePiece(game, move) {
@@ -914,7 +915,7 @@ var exports = {
   offerDraw,
   drawDecision,
   cancelDraw,
-  checkSufficientMaterial,
+  isSufficientMaterial,
   Piece,
 };
 
