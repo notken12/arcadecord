@@ -17,6 +17,7 @@ import Game from '../../Game.js';
 // get __dirname
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { get } from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -28,9 +29,9 @@ const __dirname = path.dirname(__filename);
 const options = {
   typeId: 'minigolf',
   name: 'Mini Golf',
-  description: 'Play a game of gofl with a friend',
+  description: 'Play a game of golf with a friend',
   aliases: ['golf'],
-  minPlayers: 2,
+  minPlayers: Infinity,
   maxPlayers: 2,
   emoji: '😁',
   data: {},
@@ -48,10 +49,10 @@ class Minigolf extends Game {
     this.on('init', Game.eventHandlersDiscord.init);
     this.on('turn', Game.eventHandlersDiscord.turn);
 
-    // Set the action model for the 'throw' action
+    // Set the action model for the 'stroke' action
     // See common.js
     this.setActionModel('stroke', Common.stroke);
-    // Set the action schema for the 'throw' action
+    // Set the action schema for the 'stroke' action
     // action.data will be checked against this schema
     // See https://ajv.js.org/
     this.setActionSchema('stroke', {
@@ -76,7 +77,10 @@ class Minigolf extends Game {
 
   // Use this function to create the game data
   onInit(game) {
-
+    game.data.ball = {
+      x:0,
+      y:0,
+    }
   }
 
 }
