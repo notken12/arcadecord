@@ -1,3 +1,12 @@
+// app-insights.js - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 export const appInsights = new ApplicationInsights({

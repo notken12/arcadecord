@@ -33,5 +33,4 @@ const GameComponent = defineAsyncComponent(() =>
 );
 </script>
 
-<style lang="scss" src="scss/all-games.scss">
-</style>
+<style lang="scss" src="scss/all-games.scss"></style>
