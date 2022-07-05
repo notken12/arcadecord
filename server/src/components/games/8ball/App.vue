@@ -334,7 +334,6 @@ const replayNextShot = () => {
   shotAngle = angle;
   // 4. Show the pool stick being drawn back
   console.log(`replay power: ${power}`);
-  console.log(action.data);
 
   const tl = gsap.timeline();
   tl.fromTo(
@@ -683,8 +682,6 @@ const initThree = async () => {
             ball.out = true;
             ball.pocket = getClosestPocket(ball.body.position);
 
-            console.log(ball);
-
             ball.body.position.set(0, -0.3, 0);
             // ball.body.position.set(0, Ball.RADIUS, 0)
             ball.body.velocity.set(0, 0, 0);
@@ -922,6 +919,7 @@ const pointerDown = (e) => {
 };
 
 const pointerMove = (e, draggable) => {
+  if (replayingVal) return;
   if (!dragStartPoint) {
     shotAngle = -draggable.rotation * (Math.PI / 180);
     return;
