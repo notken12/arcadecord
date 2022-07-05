@@ -17,9 +17,9 @@ import GameFlow from '../../GameFlow.js';
 import Common from './common.js';
 
 // https://jestjs.io/docs/asynchronous
-test.todo('', async() => {
+test.todo('holes setting works properly', async() => {
     // Create a new game
-    let game = new main.Game();
+    let game = new main.Game({settings:{holes:3}});
     // Activate testing mode
     game.test();
     // Add fake players
@@ -28,7 +28,9 @@ test.todo('', async() => {
     // Initialize the game
     await game.init();
 
+    expect(game.settings.holes).toBe(3)
+});
 
-
-
+test.todo('', async() => {
+    
 })
