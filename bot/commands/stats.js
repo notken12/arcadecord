@@ -9,27 +9,29 @@
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 import db from '../../db/db2.js';
-import gametypes from '../../src\games\game-types.js'
+import { gameTypes } from '../../server/src/games/game-types.js'
 
 export default {
     data: new SlashCommandBuilder()
         .setName('stats')
-        .setDescription('Check your personal/server stats!'),
+        .setDescription('Check this server\'s stats!'),
     async execute(config, interaction) {
-        db.servers.delete(interaction.guildId)
         var server = await db.servers.getById(interaction.guildId);
         if (server == null) {
-            console.log('hihi')
             server = await db.servers.create({ _id: interaction.guildId });
         }
         var user = db.users.get
         var msg = '```cpp\n' +
-            `* ${interaction.guild.name} *\n` +
-            `Games Played Per Type:\n`;
-        console.log(server.gamesPlayed, server.stats.games)
-        for (var [name, game] in server.games) {
-            msg += '  ↳ ' + name + ': ' + game.gamesPlayed + '\n';
+            `* ${interaction.guild.name} *\n\n` +
+            `Games Played Per Type:  \n`;
+        for (var g in gameTypes) {
+            var game = gameTypes[g];
+            var stats = server.stats.games.get(game.options.typeId),
+                gamesPlayed = 0;
+            if (stats) gamesPlayed = stats.gamesPlayed;
+            if (!game.hidden) msg += '  ↳ ' + game.options.name + ': ' + gamesPlayed + '\n';
         }
+        msg += `\nGames Played Overall: ${server.gamesPlayed}`
 
         msg += '```'
         await interaction.reply(msg);

@@ -169,7 +169,7 @@ const db = {
         async incrementGamesPlayed(serverId) {
             try {
                 let query = {};
-                let prop = `stats.gamesPlayed`;
+                let prop = `gamesPlayed`;
                 // inc the prop by 1
                 query[prop] = 1;
                 return await Server.findByIdAndUpdate(serverId, query, {
