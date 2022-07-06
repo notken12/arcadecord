@@ -9,31 +9,32 @@
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 import db from '../../db/db2.js';
-import { gameTypes } from '../../server/src/games/game-types.js'
+import { gameTypes } from '../../server/src/games/game-types.js';
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName('stats')
-        .setDescription('Check this server\'s stats!'),
-    async execute(config, interaction) {
-        var server = await db.servers.getById(interaction.guildId);
-        if (server == null) {
-            server = await db.servers.create({ _id: interaction.guildId });
-        }
-        var user = db.users.get
-        var msg = '```cpp\n' +
-            `* ${interaction.guild.name} *\n\n` +
-            `Games Played Per Type:  \n`;
-        for (var g in gameTypes) {
-            var game = gameTypes[g];
-            var stats = server.stats.games.get(game.options.typeId),
-                gamesPlayed = 0;
-            if (stats) gamesPlayed = stats.gamesPlayed;
-            if (!game.hidden) msg += '  ↳ ' + game.options.name + ': ' + gamesPlayed + '\n';
-        }
-        msg += `\nGames Played Overall: ${server.gamesPlayed}`
+  data: new SlashCommandBuilder()
+    .setName('stats')
+    .setDescription("Check this server's stats!"),
+  async execute(config, interaction) {
+    var server = await db.servers.getById(interaction.guildId);
+    if (server == null) {
+      server = await db.servers.create({ _id: interaction.guildId });
+    }
+    var msg =
+      '```cpp\n' +
+      `Arcadecord stats for ${interaction.guild.name}\n\n` +
+      `Games played per type:  \n`;
+    for (var g in gameTypes) {
+      var game = gameTypes[g];
+      var stats = server.stats.games.get(game.options.typeId),
+        gamesPlayed = 0;
+      if (stats) gamesPlayed = stats.gamesPlayed;
+      if (!game.hidden)
+        msg += '  ↳ ' + game.options.name + ': ' + gamesPlayed + '\n';
+    }
+    msg += `\nGames played overall: ${server.gamesPlayed}`;
 
-        msg += '```'
-        await interaction.reply(msg);
-    },
+    msg += '```';
+    await interaction.reply(msg);
+  },
 };
