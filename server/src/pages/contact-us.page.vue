@@ -17,6 +17,10 @@ import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
 import GameDisplay from 'components/index/GameDisplay.vue';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
 </script>
 
 <template>
@@ -33,9 +37,7 @@ import GameDisplay from 'components/index/GameDisplay.vue';
         <LinkButton href="/discord-invite"> Join Discord </LinkButton>
         <p>
           Alternatively, contact us through our email address at&nbsp
-          <a href="mailto:contactarcadecord@gmail.com"
-            >contactarcadecord@gmail.com</a
-          >.
+          <a href="mailto:contactarcadecord@gmail.com">contactarcadecord@gmail.com</a>.
         </p>
       </section>
     </Content>

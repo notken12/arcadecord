@@ -1,5 +1,5 @@
 <!--
-  support-us.page.vue - Arcadecord
+  sign-in-success.page.vue - Arcadecord
 
   Copyright (C) 2022 Ken Zhou
 
@@ -8,7 +8,6 @@
   Arcadecord can not be copied and/or distributed
   without the express permission of Ken Zhou.
 -->
-
 <script setup>
 import Header from 'components/index/Header.vue';
 import Banner from 'components/index/Banner.vue';
@@ -25,43 +24,36 @@ useAppInsights();
 
 <template>
   <div class="container">
-    <Header></Header>
-    <Content id="content">
-      <section>
-        <h3>Support us</h3>
-        <h4>Ko-fi</h4>
-        <p>
-          You can donate on Ko-fi to help support Arcadecord. We're a small team
-          working for free, and any donations will help keep the project going.
-          Every $1 makes a difference. Thank you so much for your consideration!
-        </p>
-        <LinkButton href="/ko-fi">Ko-Fi</LinkButton>
-        <h4>top.gg</h4>
-        <p>
-          If you're enjoying Arcadecord, please vote for us on top.gg! It helps
-          other people discover our bot and it's free! You can vote every 12
-          hours. Thank you! &lt;3
-        </p>
-        <LinkButton href="/top-gg">Vote</LinkButton>
-      </section>
-    </Content>
-    <Footer></Footer>
+    <div class="flexElement">
+      <h3>🔑 Signed in successfully!</h3>
+      <h4>
+        You can now close this tab and type /play in Discord to play a game.
+      </h4>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .container {
+  position: absolute;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 0px;
   width: 100%;
   height: 100%;
-  background: #1b1b1f;
 }
 
 a:hover {
   text-decoration: none;
+}
+
+.flexElement {
+  text-align: center;
+  position: static;
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  height: auto;
 }
 </style>
 

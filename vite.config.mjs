@@ -151,7 +151,7 @@ export default defineConfig({
       ],
     },
     emptyOutDir: true,
-    minify: true,
+    minify: false,
   },
   // ssr: {
   // external: [/server\/src\/games\/([^\/]*)$/]

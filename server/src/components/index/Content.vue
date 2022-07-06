@@ -44,7 +44,7 @@ section {
   justify-content: center;
   box-sizing: border-box;
   display: flex;
-  gap: 64px;
+  gap: 16px;
 }
 
 .image {
@@ -70,7 +70,7 @@ section {
 }
 
 .stripe {
-  padding: 10px;
+  padding: 10px 16px;
   background-color: #08234d;
   width: 100%;
   flex-direction: row;
@@ -135,6 +135,7 @@ p {
 }
 
 @media only screen and (max-width: 820px) {
+
   .row,
   .row-reverse {
     flex-direction: column;

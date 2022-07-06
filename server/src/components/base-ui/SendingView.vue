@@ -29,11 +29,11 @@ export default {
   data() {
     return {};
   },
-  mounted() {},
+  mounted() { },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use '../../scss/all-games.scss';
 
 .sending-view {

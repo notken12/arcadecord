@@ -48,6 +48,7 @@ export default {
     }
 
     app.config.globalProperties.$appInsights = appInsights;
+    app.provide('appInsights', appInsights);
   },
 };
 

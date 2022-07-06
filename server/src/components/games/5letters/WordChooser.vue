@@ -108,14 +108,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="board" ref="board">
-    <div class="row" ref="board">
-      <Cell
-        v-for="i in letters.length"
-        :cell="{ letter: letters[i - 1] }"
-        :key="i - 1"
-        :index="i - 1"
-      />
+  <div class="chooser-wrapper">
+    <h2>Choose a secret word</h2>
+    <div class="board" ref="board">
+      <div class="row" ref="board">
+        <Cell
+          v-for="i in letters.length"
+          :cell="{ letter: letters[i - 1] }"
+          :key="i - 1"
+          :index="i - 1"
+        />
+      </div>
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.chooser-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+</style>
