@@ -13,9 +13,9 @@ import { gameTypes } from '../../server/src/games/game-types.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('stats')
-    .setDescription("Check this server's stats!"),
-  async execute(config, interaction) {
+    .setName('leaderboard')
+    .setDescription("Check this server's leaderboard and stats!"),
+  async execute(_config, interaction) {
     var server = await db.servers.getById(interaction.guildId);
     if (server == null) {
       server = await db.servers.create({ _id: interaction.guildId });
