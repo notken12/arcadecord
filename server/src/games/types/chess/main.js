@@ -32,7 +32,7 @@ const options = {
   typeId: 'chess',
   name: 'Chess',
   description: 'Play Chess With Friends!',
-  aliases: ['cheese'],
+  aliases: ['cheese', 'chess'],
   minPlayers: 2,
   maxPlayers: 2,
   emoji: '<:chess:971043095871377449>',

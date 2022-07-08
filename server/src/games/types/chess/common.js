@@ -663,8 +663,6 @@ async function movePiece(
   game.data.previousBoardPos.push(generateFEN(newToOld(game)));
   let situation = getSituation(game, game.data.colors[(game.turn + 1) % 2]);
 
-  // TODO: add 3 fold repetition
-
   if (situation === 'checkmate') {
     await GameFlow.end(game, {
       winner: game.turn,

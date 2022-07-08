@@ -157,7 +157,7 @@ client.sendTurnInvite = async function (g) {
 
   m.content = `${game.emoji || Emoji.ICON_ROUND}  **${game.name}**`;
 
-  // if (!game.resending) await channel.send(m);
+  if (!game.resending) await channel.send(m);
 
   let invite = await getInviteMessage(game);
   invite.embeds[0].setTitle(`${game.emoji || ''}  ${game.name}`);
