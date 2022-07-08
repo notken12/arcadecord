@@ -53,6 +53,7 @@ const userSchema = new Schema({
           default: 0,
         },
       }),
+      default: new Map(),
     },
   },
 });
