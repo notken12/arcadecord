@@ -107,6 +107,15 @@ useAppInsights();
             </Link>
           </div>
         </Card>
+        <!-- Horizontal -->
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 100%"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </section>
     </Content>
     <Footer></Footer>

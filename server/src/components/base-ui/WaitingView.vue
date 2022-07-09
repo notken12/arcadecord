@@ -20,15 +20,29 @@
           <span>.</span>
         </span>
       </div>
+      <div class="square-ad">
+        <!-- Square -->
+        <ins
+          class="adsbygoogle"
+          style="display: block"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="1704737756"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
+      </div>
     </div>
   </transition>
 </template>
 
-<script>
-export default {
-  data() {
-    return {};
-  },
-  props: [],
-};
+<script setup>
+import { useAdsense } from './adsense.js';
+
+useAdsense();
 </script>
+
+<style scoped lang="scss">
+.square-ad {
+  width: 100%;
+}
+</style>
