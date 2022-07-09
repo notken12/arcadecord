@@ -8,7 +8,6 @@ export async function onBeforeRender(
   // Route params: ./leaderboard.page.route.js
   const { serverId } = pageContext.routeParams;
   const server = await db.servers.getById(serverId);
-  console.log(server);
 
   if (server == null) {
     throw RenderErrorPage({
