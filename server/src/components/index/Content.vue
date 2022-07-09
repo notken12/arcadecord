@@ -135,7 +135,6 @@ p {
 }
 
 @media only screen and (max-width: 820px) {
-
   .row,
   .row-reverse {
     flex-direction: column;

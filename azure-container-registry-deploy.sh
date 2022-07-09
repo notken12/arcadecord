@@ -1,3 +1,12 @@
+# azure-container-registry-deploy.sh - Arcadecord
+#
+# Copyright (C) 2022 Ken Zhou
+#
+# This file is part of Arcadecord.
+#
+# Arcadecord can not be copied and/or distributed
+# without the express permission of Ken Zhou.
+
 echo "Logging in to Azure..."
 az acr login --name arcadecord
 docker tag arcadecord_web arcadecord.azurecr.io/arcadecord_web:latest

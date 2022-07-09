@@ -28,11 +28,15 @@ const GameFlow = {
     await game.emit('turn');
     await game.emit('end', result);
   },
-  async endTurn(game) {
+  async endTurn(game, nextPlayer) {
     if (game.hasEnded) return;
 
-    game.turn = (game.turn + 1) % game.players.length;
-
+    if(nextPlayer == undefined){
+      game.turn = (game.turn + 1) % game.players.length;
+    } else {
+      game.turn = nextPlayer;
+    }
+    
     await game.emit('turn');
   },
   isItMyTurn(game, ignoreGameEnd) {

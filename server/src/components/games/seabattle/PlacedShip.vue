@@ -53,6 +53,7 @@ const classes = computed(() => {
 const styles = computed(() => {
   return {
     'transform-origin': `${50 / props.ship.len}% 50%`,
+    width: `${props.ship.len * 10}%`,
   };
 });
 

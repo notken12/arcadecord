@@ -37,7 +37,9 @@ useAppInsights();
         <LinkButton href="/discord-invite"> Join Discord </LinkButton>
         <p>
           Alternatively, contact us through our email address at&nbsp
-          <a href="mailto:contactarcadecord@gmail.com">contactarcadecord@gmail.com</a>.
+          <a href="mailto:contactarcadecord@gmail.com"
+            >contactarcadecord@gmail.com</a
+          >.
         </p>
         <!-- Square -->
         <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"

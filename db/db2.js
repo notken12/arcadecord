@@ -73,7 +73,8 @@ const gameSchema = new Schema({
   reservedSpot: String,
   lastModifiedDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
+    expires: 259200 // 3 days
   },
 });
 
@@ -85,6 +86,11 @@ const slashCommandOptionsSchema = new Schema({
   inThread: Boolean,
   gameConfig: Object,
   typeId: String,
+  createdAt: {
+    type: Date,
+    expires:600,//10 minutes
+    default: Date.now
+  }
 });
 
 const SlashCommandOptions =
