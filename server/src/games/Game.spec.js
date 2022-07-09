@@ -220,7 +220,6 @@ describe('Server leaderboards', () => {
     expect(
       server.stats.users.get(user2._id).games.get(game.typeId).gamesPlayed
     ).toBe(1);
-    expect(server.gamesPlayed).toBe(1);
 
     expect(
       server.stats.users.get(user1._id).games.get(game.typeId).gamesWon
