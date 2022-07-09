@@ -31,12 +31,12 @@ const GameFlow = {
   async endTurn(game, nextPlayer) {
     if (game.hasEnded) return;
 
-    if(nextPlayer == undefined){
+    if (nextPlayer == undefined) {
       game.turn = (game.turn + 1) % game.players.length;
     } else {
       game.turn = nextPlayer;
     }
-    
+
     await game.emit('turn');
   },
   isItMyTurn(game, ignoreGameEnd) {
