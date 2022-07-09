@@ -11,6 +11,17 @@ const props = defineProps({
     required: true,
   },
 });
+
+const gameTypes = [
+  '4inarow',
+  '5letters',
+  '8ball',
+  'chess',
+  'cuppong',
+  'filler',
+  'knockout',
+  'seabattle',
+];
 </script>
 
 <template>
@@ -29,6 +40,10 @@ const props = defineProps({
         <h3>
           {{ server.name }}
         </h3>
+      </div>
+      <div class="overall">Total games played: {{ server.gamesPlayed }}</div>
+      <div class="game-types">
+        <div v-for="typeId in gameTypes">{{ typeId }}</div>
       </div>
     </Content>
     <Footer></Footer>
