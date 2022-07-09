@@ -35,10 +35,11 @@ const options = {
   aliases: ['uno', 'crazy8s'],
   minPlayers: 2,
   maxPlayers: Infinity,
-  emoji: ':eight:',
+  emoji: '🃏',
   data: {
     // Populate on init
   },
+  hidden: true,
 };
 
 class Crazy8s extends Game {
@@ -50,24 +51,22 @@ class Crazy8s extends Game {
 
     this.setActionModel('place', Common.place);
     this.setActionSchema('place', {
-        type:'object',
-        properties: {
-            value:{
-                type:'number',
-                maximum:9,
-                minimum:0
-            },
-            color:{
-                type:'number',
-                minimum:0,
-                maximum:4,
-            }
-        }
-    })
+      type: 'object',
+      properties: {
+        value: {
+          type: 'number',
+          maximum: 9,
+          minimum: 0,
+        },
+        color: {
+          type: 'number',
+          minimum: 0,
+          maximum: 4,
+        },
+      },
+    });
 
-    this.getThumbnail = async function () {
-      
-    };
+    this.getThumbnail = async function () {};
   }
 
   onInit(game) {
@@ -77,23 +76,24 @@ class Crazy8s extends Game {
     game.data.direction = 'standard';
 
     var i;
-    for(i=0;i<4;i++){//Base Cards
-        var j;
-        for(j=0;j<10;j++){
-            game.data.deck.push(Common.Card(j, i));
-            game.data.deck.push(Common.Card(j, i));
-        }
-        game.data.deck.push(Common.Card("skip", i));
-        game.data.deck.push(Common.Card("skip", i));
-        game.data.deck.push(Common.Card("reverse", i));
-        game.data.deck.push(Common.Card("reverse", i));
-        game.data.deck.push(Common.Card("+2", i));
-        game.data.deck.push(Common.Card("+2", i));
+    for (i = 0; i < 4; i++) {
+      //Base Cards
+      var j;
+      for (j = 0; j < 10; j++) {
+        game.data.deck.push(Common.Card(j, i));
+        game.data.deck.push(Common.Card(j, i));
+      }
+      game.data.deck.push(Common.Card('skip', i));
+      game.data.deck.push(Common.Card('skip', i));
+      game.data.deck.push(Common.Card('reverse', i));
+      game.data.deck.push(Common.Card('reverse', i));
+      game.data.deck.push(Common.Card('+2', i));
+      game.data.deck.push(Common.Card('+2', i));
     }
-    game.data.deck.push(Common.Card("wild", 4));
-    game.data.deck.push(Common.Card("wild", 4));
-    game.data.deck.push(Common.Card("wild4", 4));
-    game.data.deck.push(Common.Card("wild4", 4));
+    game.data.deck.push(Common.Card('wild', 4));
+    game.data.deck.push(Common.Card('wild', 4));
+    game.data.deck.push(Common.Card('wild4', 4));
+    game.data.deck.push(Common.Card('wild4', 4));
     Common.shuffle(game.data.deck);
   }
 }
