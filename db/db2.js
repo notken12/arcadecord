@@ -98,7 +98,7 @@ const gameSchema = new Schema({
   lastModifiedDate: {
     type: Date,
     default: Date.now,
-    expires: 259200 // 3 days
+    expires: 259200, // 3 days
   },
 });
 
@@ -134,7 +134,7 @@ const serverSchema = new Schema({
           }),
         },
       }),
-      default: new Map(),
+      // default: new Map(),
     },
     games: {
       type: Map,
@@ -144,7 +144,7 @@ const serverSchema = new Schema({
           default: 0,
         },
       }),
-      default: new Map(),
+      // default: new Map(),
     },
   },
   gamesPlayed: {
@@ -163,9 +163,9 @@ const slashCommandOptionsSchema = new Schema({
   typeId: String,
   createdAt: {
     type: Date,
-    expires:600,//10 minutes
-    default: Date.now
-  }
+    expires: 600, //10 minutes
+    default: Date.now,
+  },
 });
 
 const SlashCommandOptions =
@@ -180,7 +180,7 @@ const db = {
     async incrementGamesPlayed(serverId) {
       try {
         let query = {};
-        let prop = `gamesPlayed`;
+        let prop = `stats.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
         return await Server.findByIdAndUpdate(serverId, query, {
