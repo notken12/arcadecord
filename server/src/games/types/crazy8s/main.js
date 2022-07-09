@@ -39,7 +39,6 @@ const options = {
   data: {
     // Populate on init
   },
-  hidden: true,
 };
 
 class Crazy8s extends Game {
