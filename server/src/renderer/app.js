@@ -12,9 +12,12 @@ import { createSSRApp, h } from 'vue';
 export { createApp };
 
 function createApp(pageContext) {
-  const app = createSSRApp({
-    render: () => h(pageContext.Page),
-  });
+  const app = createSSRApp(
+    {
+      render: () => h(pageContext.Page),
+    },
+    pageContext.pageProps
+  );
   app.provide('pageContext', pageContext);
   return { app };
 }

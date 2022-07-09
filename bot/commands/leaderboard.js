@@ -16,9 +16,19 @@ export default {
     .setName('leaderboard')
     .setDescription("Check this server's leaderboard and stats!"),
   async execute(_config, interaction) {
+    if (!interaction.guildId) {
+      await interaction.reply(
+        "❓ This is the command for checking a server's leaderboard. Please try using it in a server!"
+      );
+      return;
+    }
     var server = await db.servers.getById(interaction.guildId);
     if (server == null) {
-      server = await db.servers.create({ _id: interaction.guildId });
+      server = await db.servers.create({
+        _id: interaction.guildId,
+        name: interaction.guild.name,
+        iconURL: interaction.guild.iconURL(),
+      });
     }
     var msg =
       '```cpp\n' +

@@ -105,6 +105,8 @@ const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 const serverSchema = new Schema({
   _id: String,
+  name: String,
+  iconURL: String,
   stats: {
     users: {
       type: Map,
@@ -303,7 +305,7 @@ const db = {
     },
   },
   users: {
-    getHash: function (token) {
+    getHash: function(token) {
       if (!token) {
         return null;
       }
