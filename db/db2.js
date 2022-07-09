@@ -263,7 +263,6 @@ const db = {
         let prop = `stats.games.${gameType}.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        console.log('incrementing games played by game');
         return await Server.findByIdAndUpdate(
           serverId,
           { $inc: query },
