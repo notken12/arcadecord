@@ -135,6 +135,7 @@ describe('Personal stats', () => {
       {
         options: {
           ...mockGameOptions(),
+          guild: 123,
         },
         userId: user1._id,
       },

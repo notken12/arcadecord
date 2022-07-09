@@ -183,11 +183,15 @@ const db = {
         let prop = `stats.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;
@@ -199,11 +203,15 @@ const db = {
         let prop = `stats.users.${userId}.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;
@@ -215,11 +223,15 @@ const db = {
         let prop = `stats.users.${userId}.gamesWon`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;
@@ -231,11 +243,15 @@ const db = {
         let prop = `stats.users.${userId}.games.${gameType}.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;
@@ -247,11 +263,16 @@ const db = {
         let prop = `stats.games.${gameType}.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        console.log('incrementing games played by game');
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;
@@ -263,11 +284,15 @@ const db = {
         let prop = `stats.users.${userId}.games.${gameType}.gamesWon`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(serverId, query, {
-          upsert: true,
-          setDefaultsOnInsert: true,
-          new: true,
-        });
+        return await Server.findByIdAndUpdate(
+          serverId,
+          { $inc: query },
+          {
+            upsert: true,
+            setDefaultsOnInsert: true,
+            new: true,
+          }
+        );
       } catch (e) {
         console.error(e);
         return null;

@@ -171,8 +171,8 @@ class Game {
             this.typeId
           );
           await db.users.incrementGamesPlayed(player.id);
+
           await db.servers.incrementGamesPlayedByUser(this.guild, player.id);
-          await db.servers.incrementGamesPlayedByGame(this.guild, this.typeId);
           await db.servers.incrementGamesPlayedByUserByGame(
             this.guild,
             player.id,
@@ -198,6 +198,7 @@ class Game {
         // });
 
         await db.servers.incrementGamesPlayed(this.guild);
+        await db.servers.incrementGamesPlayedByGame(this.guild, this.typeId);
       }
     }
 
