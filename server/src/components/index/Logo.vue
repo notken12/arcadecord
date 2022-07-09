@@ -29,7 +29,7 @@
 .logo {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 0px;
   height: 100%;

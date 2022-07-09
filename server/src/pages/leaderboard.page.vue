@@ -17,17 +17,18 @@ const props = defineProps({
   <div class="container">
     <Header></Header>
     <Content>
+      <h2>Server leaderboard</h2>
       <div class="server-header">
         <img
           :src="server.iconURL"
           alt="Server Icon"
           class="server-icon"
-          width="48"
-          height="48"
+          width="40"
+          height="40"
         />
-        <h2>
+        <h3>
           {{ server.name }}
-        </h2>
+        </h3>
       </div>
     </Content>
     <Footer></Footer>
@@ -50,6 +51,8 @@ const props = defineProps({
   flex-direction: row;
   gap: 16px;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .server-icon {
@@ -59,4 +62,9 @@ const props = defineProps({
 
 <style lang="scss">
 @use 'scss/base/pages';
+
+.content {
+  align-items: flex-start;
+  padding: 0 var(--padding-x);
+}
 </style>
