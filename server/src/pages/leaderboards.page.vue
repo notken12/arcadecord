@@ -46,15 +46,16 @@ provide('server', props.server);
         </h3>
       </div>
       <div class="overall">
-        Total games played: {{ server.stats.gamesPlayed }}
+        <p>Total games played: {{ server.stats.gamesPlayed }}</p>
       </div>
-      <div class="game-types">
+      <ul class="game-types">
+        <h3>Games played</h3>
         <GameType
           v-for="(name, typeId) in gameTypes"
           :typeId="typeId"
           :name="name"
         ></GameType>
-      </div>
+      </ul>
     </Content>
     <Footer></Footer>
   </div>
@@ -82,6 +83,17 @@ provide('server', props.server);
 
 .server-icon {
   border-radius: 100px;
+}
+
+.game-types {
+  padding: 0;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  margin: 0;
 }
 </style>
 
