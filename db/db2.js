@@ -146,10 +146,10 @@ const serverSchema = new Schema({
       }),
       // default: new Map(),
     },
-  },
-  gamesPlayed: {
-    type: Number,
-    default: 0,
+    gamesPlayed: {
+      type: Number,
+      default: 0,
+    },
   },
 });
 
@@ -335,7 +335,7 @@ const db = {
     },
   },
   users: {
-    getHash: function (token) {
+    getHash: function(token) {
       if (!token) {
         return null;
       }
@@ -380,6 +380,54 @@ const db = {
     async update(id, data) {
       try {
         return await User.findByIdAndUpdate(id, data, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayedForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesPlayed(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesPlayed`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWonForGameType(userId, gameType) {
+      try {
+        let query = {};
+        let prop = `stats.games.${gameType}.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    },
+    async incrementGamesWon(userId) {
+      try {
+        let query = {};
+        let prop = `stats.gamesWon`;
+        // inc the prop by 1
+        query[prop] = 1;
+        return await User.findByIdAndUpdate(userId, query, { new: true });
       } catch (e) {
         console.error(e);
         return null;

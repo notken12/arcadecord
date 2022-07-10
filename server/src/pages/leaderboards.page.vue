@@ -4,6 +4,8 @@ import Content from 'components/index/Content.vue';
 import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
+import GameType from 'components/leaderboards/GameType.vue';
+import { provide } from 'vue';
 
 const props = defineProps({
   server: {
@@ -22,6 +24,8 @@ const gameTypes = [
   'knockout',
   'seabattle',
 ];
+
+provide('server', props.server);
 </script>
 
 <template>
@@ -41,9 +45,11 @@ const gameTypes = [
           {{ server.name }}
         </h3>
       </div>
-      <div class="overall">Total games played: {{ server.gamesPlayed }}</div>
+      <div class="overall">
+        Total games played: {{ server.stats.gamesPlayed }}
+      </div>
       <div class="game-types">
-        <div v-for="typeId in gameTypes">{{ typeId }}</div>
+        <GameType v-for="typeId in gameTypes" :typeId="typeId"></GameType>
       </div>
     </Content>
     <Footer></Footer>

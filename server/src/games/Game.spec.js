@@ -32,8 +32,8 @@ afterAll(async () => await testdb.closeDatabase());
 function mockGameOptions() {
   return {
     typeId: 'filler',
-    guild: 'xxxxxxxx',
-    channel: 'xxxxxxxx',
+    guild: 12345,
+    channel: 12345,
     invitedUsers: [],
     inThread: false,
   };
@@ -127,7 +127,7 @@ describe('User may connect to a game if', () => {
   });
 });
 
-describe.todo('Personal stats', () => {
+describe('Personal stats', () => {
   it('Total games played will increase after game end, total games won will increase for winner', async () => {
     const user1 = await mockUser();
     const user2 = await mockUser();
@@ -135,7 +135,6 @@ describe.todo('Personal stats', () => {
       {
         options: {
           ...mockGameOptions(),
-          guild: 123,
         },
         userId: user1._id,
       },
@@ -162,15 +161,15 @@ describe.todo('Personal stats', () => {
     expect(newUser2.stats.gamesWon).toBe(0);
 
     // Increase the stats for the specific game type too
-    expect(newUser1.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
-    expect(newUser2.stats.gameTypes[game.typeId].gamesPlayed).toBe(1);
+    expect(newUser1.stats.games.get(game.typeId).gamesPlayed).toBe(1);
+    expect(newUser2.stats.games.get(game.typeId).gamesPlayed).toBe(1);
 
-    expect(newUser1.stats.gameTypes[game.typeId].gamesWon).toBe(1);
-    expect(newUser2.stats.gameTypes[game.typeId].gamesWon).toBe(0);
+    expect(newUser1.stats.games.get(game.typeId).gamesWon).toBe(1);
+    expect(newUser2.stats.games.get(game.typeId).gamesWon).toBe(0);
   });
 });
 
-describe.todo('Server leaderboards', () => {
+describe('Server leaderboards', () => {
   it('Total games played will increase after game end, total games won will increase for winner', async () => {
     // Mock 2 users to play the game with
     const user1 = await mockUser();
@@ -204,18 +203,32 @@ describe.todo('Server leaderboards', () => {
 
     // Expect the new stats
 
-    //Track games played and won overall
-    expect(server.stats.user[user1._id].gamesPlayed).toBe(1);
-    expect(server.stats.user[user2._id].gamesPlayed).toBe(1);
+    //Track games played overall
+    expect(server.stats.gamesPlayed).toBe(1);
 
-    expect(server.stats.user[user1._id].gamesWon).toBe(1);
-    expect(server.stats.user[user2._id].gamesWon).toBe(0);
+    //Track games played overall, by game
+    expect(server.stats.games.get(game.typeId).gamesPlayed).toBe(1);
 
-    //Track specific game type
-    expect(server.stats.user[user1._id].games[game.typeId].gamesPlayed).toBe(1);
-    expect(server.stats.user[user2._id].games[game.typeId].gamesPlayed).toBe(1);
+    //Track games played and won overall, by user
+    expect(server.stats.users.get(user1._id).gamesPlayed).toBe(1);
+    expect(server.stats.users.get(user2._id).gamesPlayed).toBe(1);
 
-    expect(server.stats.user[user1._id].games[game.typeId].gamesWon).toBe(1);
-    expect(server.stats.user[user2._id].games[game.typeId].gamesWon).toBe(0);
+    expect(server.stats.users.get(user1._id).gamesWon).toBe(1);
+    expect(server.stats.users.get(user2._id).gamesWon).toBe(0);
+
+    //Track specific game type by user
+    expect(
+      server.stats.users.get(user1._id).games.get(game.typeId).gamesPlayed
+    ).toBe(1);
+    expect(
+      server.stats.users.get(user2._id).games.get(game.typeId).gamesPlayed
+    ).toBe(1);
+
+    expect(
+      server.stats.users.get(user1._id).games.get(game.typeId).gamesWon
+    ).toBe(1);
+    expect(
+      server.stats.users.get(user2._id).games.get(game.typeId).gamesWon
+    ).toBe(0);
   });
 });

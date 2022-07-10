@@ -27,7 +27,6 @@ export default {
         let stats = user.stats.games.get(game.options.typeId),
           gamesPlayed = 0,
           gamesWon = 0;
-        console.log(user.stats, game.options.typeId, stats);
         if (stats) {
           gamesPlayed = stats.gamesPlayed;
           gamesWon = stats.gamesWon;
