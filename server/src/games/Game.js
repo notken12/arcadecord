@@ -84,29 +84,6 @@ class Game {
 
     let game = this;
 
-    this.client = {
-      eventHandlers: {},
-      emit: function (event, ...args) {
-        if (game.testing) return;
-        if (!this.eventHandlers[event]) return;
-
-        for (let callback of this.eventHandlers[event]) {
-          callback(this, ...args);
-        }
-      },
-      on: function (event, callback) {
-        if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
-        this.eventHandlers[event].push(callback);
-      },
-      getDataForClient: function () {
-        return {
-          eventHandlers: this.eventHandlers,
-          emit: this.emit.toString(),
-          on: this.on.toString(),
-        };
-      },
-    }; // event management, just for client. used for updating ui. copy of this can be found in client-framework.js
-
     Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
     Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
 
@@ -208,7 +185,6 @@ class Game {
     for (let callback of this.eventHandlers[event]) {
       await callback(this, ...args);
     }
-
     return true;
   }
   async handleAction(action) {
@@ -722,7 +698,6 @@ class Game {
       myIndex: this.getPlayerIndex(userId),
       hasStarted: this.hasStarted,
       turns: this.turns.getDataForClient(userId),
-      client: this.client.getDataForClient(userId),
       actionModels: {},
       clientActionModels: {},
       winner: this.winner,

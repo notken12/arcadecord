@@ -9,6 +9,10 @@
 
 import { createSSRApp, h } from 'vue';
 
+import VueAppInsights from '@app/js/vue-app-insights.js';
+
+import { appInsights } from '@app/js/app-insights.js';
+
 export { createApp };
 
 function createApp(pageContext) {
@@ -18,6 +22,8 @@ function createApp(pageContext) {
     },
     pageContext.pageProps
   );
+  app.use(VueAppInsights, { appInsights });
+
   app.provide('pageContext', pageContext);
   return { app };
 }

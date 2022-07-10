@@ -17,6 +17,10 @@ import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
 import GameDisplay from 'components/index/GameDisplay.vue';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
 </script>
 
 <template>

@@ -82,7 +82,9 @@ function resend() {
             <button @click="resend" :disabled="resending">Resend invite</button>
             <h2>Graphics</h2>
             <ul class="settings-items">
-              <li><Switch v-model="enableConfetti">Enable confetti</Switch></li>
+              <li>
+                <Switch v-model="enableConfetti">Enable confetti</Switch>
+              </li>
             </ul>
           </template>
           <h2>Account</h2>
@@ -93,11 +95,16 @@ function resend() {
           </ul>
         </section>
         <section class="links-section">
-          <Link href="/help-feedback">Help and Feedback</Link
-          ><span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
+          <Link href="/help-feedback">Help and Feedback</Link>
+          <span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
           <Link href="/support-us">Support Us</Link>
           <span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
           <Link href="/discord-invite">Discord Server</Link>
+        </section>
+        <section class="links-section">
+          <Link href="/terms">Terms of Service</Link>
+          <span>&nbsp;&nbsp;⸱&nbsp;&nbsp;</span>
+          <Link href="/privacy">Privacy Policy</Link>
         </section>
       </div>
     </div>
@@ -160,6 +167,7 @@ h2 {
   font-weight: bold;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   /* justify-content: center; */
 }
 </style>

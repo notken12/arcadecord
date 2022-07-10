@@ -15,6 +15,10 @@
 
 <script setup>
 import { defineAsyncComponent } from 'vue';
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
+
 const props = defineProps({
   gameType: {
     type: String,

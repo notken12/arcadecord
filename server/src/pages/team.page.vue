@@ -15,6 +15,10 @@ import Content from 'components/index/Content.vue';
 import Footer from 'components/index/Footer.vue';
 import Card from 'components/index/Card.vue';
 import Link from 'components/index/Link.vue';
+
+import { useAppInsights } from '@app/components/base-ui/app-insights';
+
+useAppInsights();
 </script>
 
 <template>

@@ -385,54 +385,6 @@ const db = {
         return null;
       }
     },
-    async incrementGamesPlayedForGameType(userId, gameType) {
-      try {
-        let query = {};
-        let prop = `stats.games.${gameType}.gamesPlayed`;
-        // inc the prop by 1
-        query[prop] = 1;
-        return await User.findByIdAndUpdate(userId, query, { new: true });
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    },
-    async incrementGamesPlayed(userId) {
-      try {
-        let query = {};
-        let prop = `stats.gamesPlayed`;
-        // inc the prop by 1
-        query[prop] = 1;
-        return await User.findByIdAndUpdate(userId, query, { new: true });
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    },
-    async incrementGamesWonForGameType(userId, gameType) {
-      try {
-        let query = {};
-        let prop = `stats.games.${gameType}.gamesWon`;
-        // inc the prop by 1
-        query[prop] = 1;
-        return await User.findByIdAndUpdate(userId, query, { new: true });
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    },
-    async incrementGamesWon(userId) {
-      try {
-        let query = {};
-        let prop = `stats.gamesWon`;
-        // inc the prop by 1
-        query[prop] = 1;
-        return await User.findByIdAndUpdate(userId, query, { new: true });
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    },
     async delete(id) {
       try {
         return await User.findByIdAndRemove(id);
