@@ -335,7 +335,7 @@ const db = {
     },
   },
   users: {
-    getHash: function(token) {
+    getHash: function (token) {
       if (!token) {
         return null;
       }

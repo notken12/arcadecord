@@ -1,1 +1,1 @@
-export const GOLF_MAPS = []
+export const GOLF_MAPS = [];

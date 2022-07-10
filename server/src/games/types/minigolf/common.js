@@ -7,20 +7,20 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import GameFlow from '../../GameFlow.js'
+import GameFlow from '../../GameFlow.js';
 
-import {GOLF_MAPS} from './maps.js'
+import { GOLF_MAPS } from './maps.js';
 
-async function stroke(game, event){
-    let ball = game.data.ball;
-    let strokeData = event.data.force;
+async function stroke(game, event) {
+  let ball = game.data.ball;
+  let strokeData = event.data.force;
 
-    ball.x = strokeData.x;
-    ball.y = strokeData.y;
+  ball.x = strokeData.x;
+  ball.y = strokeData.y;
 
-    return game;
+  return game;
 }
 
 export default {
-    stroke,
-}
+  stroke,
+};
