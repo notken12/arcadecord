@@ -140,42 +140,46 @@ class Game {
     if (event === 'turn') {
       // Update stats if game ended
       if (this.hasEnded) {
+        // Requests to send to DB
+        let r = [];
         // game.winner is the player index of the winner
         for (let i = 0; i < this.players.length; i++) {
           let player = this.players[i];
-          await db.users.incrementGamesPlayedForGameType(
-            player.id,
-            this.typeId
+          r.push(
+            db.users.incrementGamesPlayedForGameType(player.id, this.typeId)
           );
-          await db.users.incrementGamesPlayed(player.id);
+          r.push(db.users.incrementGamesPlayed(player.id));
 
-          await db.servers.incrementGamesPlayedByUser(this.guild, player.id);
-          await db.servers.incrementGamesPlayedByUserByGame(
-            this.guild,
-            player.id,
-            this.typeId
+          r.push(db.servers.incrementGamesPlayedByUser(this.guild, player.id));
+          r.push(
+            db.servers.incrementGamesPlayedByUserByGame(
+              this.guild,
+              player.id,
+              this.typeId
+            )
           );
 
           // Is it a winner
           // Increment games won stat for personal and server stats
           if (this.winner === i) {
-            await db.users.incrementGamesWonForGameType(player.id, this.typeId);
-            await db.users.incrementGamesWon(player.id);
-            await db.servers.incrementGamesWonByUser(this.guild, player.id);
-            await db.servers.incrementGamesWonByUserByGame(
-              this.guild,
-              player.id,
-              this.typeId
+            r.push(
+              db.users.incrementGamesWonForGameType(player.id, this.typeId)
+            );
+            r.push(db.users.incrementGamesWon(player.id));
+            r.push(db.servers.incrementGamesWonByUser(this.guild, player.id));
+            r.push(
+              db.servers.incrementGamesWonByUserByGame(
+                this.guild,
+                player.id,
+                this.typeId
+              )
             );
           }
         }
 
-        // await db.servers.create({
-        //   _id: this.guild,
-        // });
-
-        await db.servers.incrementGamesPlayed(this.guild);
-        await db.servers.incrementGamesPlayedByGame(this.guild, this.typeId);
+        r.push(db.servers.incrementGamesPlayed(this.guild));
+        r.push(db.servers.incrementGamesPlayedByGame(this.guild, this.typeId));
+        await Promise.all(r).catch(console.error);
       }
     }
 
