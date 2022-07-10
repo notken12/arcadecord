@@ -80,19 +80,6 @@ section {
   border: none;
 }
 
-h3 {
-  margin: 0;
-  font-family: 'Work Sans', sans-serif;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 36px;
-  line-height: 42px;
-  display: flex;
-  align-items: center;
-  letter-spacing: 0.1px;
-  color: theme.$color;
-}
-
 .games {
   padding: 16px var(--padding-x);
   flex-direction: row !important;

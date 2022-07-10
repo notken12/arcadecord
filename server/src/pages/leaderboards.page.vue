@@ -14,16 +14,16 @@ const props = defineProps({
   },
 });
 
-const gameTypes = [
-  '4inarow',
-  '5letters',
-  '8ball',
-  'chess',
-  'cuppong',
-  'filler',
-  'knockout',
-  'seabattle',
-];
+const gameTypes = {
+  '4inarow': 'Four in a Row',
+  '5letters': 'Five Letters',
+  '8ball': '8 Ball',
+  chess: 'Chess',
+  cuppong: 'Cup Pong',
+  filler: 'Filler',
+  knockout: 'Knockout',
+  seabattle: 'Sea Battle',
+};
 
 provide('server', props.server);
 </script>
@@ -49,7 +49,11 @@ provide('server', props.server);
         Total games played: {{ server.stats.gamesPlayed }}
       </div>
       <div class="game-types">
-        <GameType v-for="typeId in gameTypes" :typeId="typeId"></GameType>
+        <GameType
+          v-for="(name, typeId) in gameTypes"
+          :typeId="typeId"
+          :name="name"
+        ></GameType>
       </div>
     </Content>
     <Footer></Footer>

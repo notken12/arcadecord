@@ -1,5 +1,6 @@
 import db from '../../../db/db2.js';
 import { RenderErrorPage } from 'vite-plugin-ssr';
+import cloneDeep from 'lodash.clonedeep';
 
 export async function onBeforeRender(
   /** @type import('vite-plugin-ssr').PageContextBuiltIn */
@@ -7,9 +8,9 @@ export async function onBeforeRender(
 ) {
   // Route params: ./leaderboard.page.route.js
   const { serverId } = pageContext.routeParams;
-  const server = await db.servers.getById(serverId);
+  let serverRes = await db.servers.getById(serverId);
 
-  if (server == null) {
+  if (serverRes == null) {
     throw RenderErrorPage({
       pageContext: {
         is404: true,
@@ -17,6 +18,8 @@ export async function onBeforeRender(
     });
   }
 
+  let server = serverRes._doc;
+  server.stats.games = Object.fromEntries(server.stats.games);
   return {
     pageContext: {
       pageProps: {

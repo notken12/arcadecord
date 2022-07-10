@@ -1,8 +1,12 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, onMounted } from 'vue';
 
 const props = defineProps({
   typeId: {
+    type: String,
+    required: true,
+  },
+  name: {
     type: String,
     required: true,
   },
@@ -10,11 +14,9 @@ const props = defineProps({
 
 const server = inject('server');
 
-const stats = server.stats.games.get(props.typeId) || { gamesPlayed: 0 };
+const stats = server.stats.games[props.typeId] || { gamesPlayed: 0 };
 </script>
 
 <template>
-  <div>
-    {{ stats.gamesPlayed }}
-  </div>
+  <div>{{ name }}: {{ stats.gamesPlayed }}</div>
 </template>

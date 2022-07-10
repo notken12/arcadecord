@@ -133,6 +133,7 @@ useAppInsights();
 
 <style lang="scss">
 @use 'scss/base/pages';
+@use 'scss/base/theme' as theme;
 
 #app {
   background: #1b1b1f;
@@ -144,5 +145,18 @@ useAppInsights();
 
 section {
   gap: 64px;
+}
+
+h3 {
+  margin: 0;
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 42px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.1px;
+  color: theme.$color;
 }
 </style>
