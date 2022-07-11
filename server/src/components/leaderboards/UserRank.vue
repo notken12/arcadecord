@@ -9,5 +9,5 @@ const props = defineProps({
 </script>
 
 <template>
-  <div>{{ user.tag }}: Games won: {{ user.gamesWon }}</div>
+  <div>{{ user.tag }}: Games won: {{ user.gamesWon }} {{ user.id }}</div>
 </template>
