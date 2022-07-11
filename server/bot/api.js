@@ -43,6 +43,12 @@ function routeByGuild(path, options, guildId) {
   return fetch(url, options);
 }
 
+function routeByShardManager(path, options, shard_manager_id) {
+  const url = getShardManagerAddress(shard_manager_id) + path;
+  auth(options);
+  return fetch(url, options);
+}
+
 function getShardId(guildId) {
   return (guildId >>> 22) % config.totalShards;
 }
@@ -139,10 +145,40 @@ function getUserPermissionsInChannel(guildId, channelId, userId) {
   return routeByGuild(path, options, guildId);
 }
 
+// Stateless
+function getShardManagerStats(id) {
+  const path = '/stats';
+
+  const options = {
+    method: 'GET',
+  };
+
+  return routeByShardManager(path, options, id);
+}
+
+// Stateless, aggegate all
+async function getBotStats() {
+  try {
+    let totalGuilds = 0;
+    let totalMembers = 0;
+    for (let id = 0; id < config.shardManagerCount; id++) {
+      let result = await getShardManagerStats(id);
+      result = await result.json();
+      totalGuilds += result.totalGuilds;
+      totalMembers += result.totalMembers;
+    }
+    return { totalGuilds, totalMembers };
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export default {
   sendStartMessage,
   fetchUser,
   deleteMessage,
   getUserPermissionsInChannel,
   sendTurnInvite,
+  getShardManagerStats,
+  getBotStats,
 };

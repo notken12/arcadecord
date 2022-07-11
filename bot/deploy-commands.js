@@ -29,7 +29,7 @@ const commandFiles = readdirSync(__dirname + '/commands').filter((file) =>
 
 for (const file of commandFiles) {
   const { default: command } = await import(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+  if (!command.private) commands.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
