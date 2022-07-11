@@ -5,9 +5,27 @@ import Footer from 'components/index/Footer.vue';
 import Button from 'components/index/Button.vue';
 import LinkButton from 'components/index/LinkButton.vue';
 import GameType from 'components/leaderboards/GameType.vue';
-import { provide } from 'vue';
+import { computed, provide } from 'vue';
+
+/**
+ * @typedef {Object} UserStats
+ * @prop {number} gamesPlayed
+ * @prop {number} gamesWon
+ *
+ * @typedef {UserStats & import('../games/Player').DiscordUser} User
+ *
+ * @typedef {Object} Stats
+ * @prop {Map.<string, User>} users
+ * @prop {number} gamesPlayed
+ *
+ * @typedef {Object} Server
+ * @prop {Stats} stats
+ * @prop {string} name
+ * @prop {string} iconURL
+ */
 
 const props = defineProps({
+  /** @type {import('vue').PropType<Server>} */
   server: {
     type: Object,
     required: true,
@@ -26,6 +44,13 @@ const gameTypes = {
 };
 
 provide('server', props.server);
+
+const sortedUsers = computed(() => {
+  return [...props.server.stats.users]
+    .map((e) => e[1])
+    .slice()
+    .sort((a, b) => b.gamesWon - a.gamesWon);
+});
 </script>
 
 <template>
@@ -56,7 +81,9 @@ provide('server', props.server);
           :name="name"
         ></GameType>
       </ul>
-      <div v-for="user in server.stats.users">{{ user[1].gamesWon }}</div>
+      <div v-for="user in sortedUsers">
+        {{ user.gamesWon }}
+      </div>
     </Content>
     <Footer></Footer>
   </div>
