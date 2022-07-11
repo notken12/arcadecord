@@ -57,15 +57,21 @@ const sortedUsers = computed(() => {
       <div class="overall">
         <p>Total games played: {{ server.stats.gamesPlayed }}</p>
       </div>
-      <ul class="game-types">
-        <h3>Games played</h3>
-        <GameType
-          v-for="(name, typeId) in gameTypes"
-          :typeId="typeId"
-          :name="name"
-        ></GameType>
-      </ul>
-      <UserRank v-for="user in sortedUsers" :user="user" />
+      <div class="wrapper">
+        <div style="width:100%;">
+          <ul class="user-ranks">
+            <UserRank v-for="(user, place) in sortedUsers" :user="user" :place="place + 1"/>
+          </ul>
+        </div>
+        <ul class="game-types">
+          <h3>Games played</h3>
+          <GameType
+            v-for="(name, typeId) in gameTypes"
+            :typeId="typeId"
+            :name="name"
+          ></GameType>
+        </ul>
+      </div>
     </Content>
     <Footer></Footer>
   </div>
@@ -113,5 +119,20 @@ h3 {
 .content {
   align-items: flex-start;
   padding: 0 var(--padding-x);
+}
+
+.wrapper {
+  display: flex;
+  width:100%;
+  gap: 32px;
+  margin:16px 0;
+}
+.user-ranks {
+  display: flex;
+  width: auto;
+  flex-direction: column;
+  padding: 0;
+  gap: 16px;
+  margin: 0;
 }
 </style>

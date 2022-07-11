@@ -18,17 +18,30 @@ const stats = server.stats.games[props.typeId] || { gamesPlayed: 0 };
 </script>
 
 <template>
-  <li>{{ name }}: {{ stats.gamesPlayed }}</li>
+  <li>
+    <img
+      :src="'/icons/' + typeId + '.svg'"
+      :alt="name"
+      width="40"
+      height="40"
+    />
+    <div>{{ name }}: {{ stats.gamesPlayed }}</div>
+  </li>
 </template>
 
 <style lang="scss" scoped>
 @use 'scss/base/theme' as theme;
 
+img {
+  border-radius: 4px;
+}
 li {
   list-decoration: none;
   display: flex;
   padding: 16px;
   background: theme.$md-sys-surface-variant;
   border-radius: 4px;
+  align-items: center;
+  gap: 16px;
 }
 </style>
