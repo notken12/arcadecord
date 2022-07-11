@@ -141,6 +141,10 @@ const serverSchema = new Schema({
           type: String,
           required: true,
         },
+        id: {
+          type: String,
+          required: true,
+        },
       }),
       // default: new Map(),
     },
@@ -221,6 +225,7 @@ const db = {
           player.discordUser.tag;
         discordUserQuery[`stats.users.${player.id}.avatar`] =
           player.discordUser.avatar;
+        discordUserQuery[`stats.users.${player.id}.id`] = player.discordUser.id;
         return await Server.findByIdAndUpdate(
           serverId,
           {
@@ -356,7 +361,7 @@ const db = {
     },
   },
   users: {
-    getHash: function(token) {
+    getHash: function (token) {
       if (!token) {
         return null;
       }

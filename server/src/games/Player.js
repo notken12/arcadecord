@@ -10,6 +10,7 @@
 /**
  * Representation of a discord user from Discord.js
  * @typedef {Object} DiscordUser
+ * @property {string} id - User's Discord ID
  * @property {string} tag - Username + discriminator, ex. "mango#1234"
  * @property {string} avatar - Avatar hash, used to get avatar URL from Discord CDN
  */
@@ -36,7 +37,7 @@ class Player {
   }
 }
 
-Player.getDataForClient = function(player, userId) {
+Player.getDataForClient = function (player, userId) {
   return {
     id: player.id,
     discordUser: player.discordUser,
