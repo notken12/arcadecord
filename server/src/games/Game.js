@@ -98,7 +98,7 @@ class Game {
       player.id = player.id.toString();
     }
 
-    this.turns.getDataForClient = function (userId) {
+    this.turns.getDataForClient = function(userId) {
       var data = [];
       for (let turn of this) {
         data.push(Turn.getDataForClient(turn, userId));
@@ -150,7 +150,7 @@ class Game {
           );
           r.push(db.users.incrementGamesPlayed(player.id));
 
-          r.push(db.servers.incrementGamesPlayedByUser(this.guild, player.id));
+          r.push(db.servers.incrementGamesPlayedByUser(this.guild, player));
           r.push(
             db.servers.incrementGamesPlayedByUserByGame(
               this.guild,
@@ -201,7 +201,7 @@ class Game {
       if (!valid) {
         console.warn(
           'Action data does not follow schema: ' +
-            JSON.stringify(validate.errors)
+          JSON.stringify(validate.errors)
         );
         return {
           success: false,
@@ -212,10 +212,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-          action.type +
-          '" to game: "' +
-          this.typeId +
-          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+        action.type +
+        '" to game: "' +
+        this.typeId +
+        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       );
     }
 
@@ -350,11 +350,13 @@ class Game {
       }
     }
 
+    /** @type import('./Player').DiscordUser */
     let discordUser;
     if (!this.testing) discordUser = await BotApi.fetchUser(user.discordId);
     else
       discordUser = {
         tag: 'fakeplayer#0000',
+        avatar: 'abc7823bc7abc7',
       };
 
     if (!discordUser) {
@@ -668,7 +670,7 @@ class Game {
     }
   }
 
-  getImage() {}
+  getImage() { }
 
   getChanges(oldData, newData) {
     var changes = {};
@@ -722,11 +724,11 @@ class Game {
     return game;
   }
 
-  getThumbnail() {}
+  getThumbnail() { }
 }
 
 Game.eventHandlersDiscord = {
-  init: async function (game) {
+  init: async function(game) {
     var res = await BotApi.sendStartMessage(game);
 
     var msg = await res.json().catch((e) => {
@@ -739,7 +741,7 @@ Game.eventHandlersDiscord = {
 
     return game;
   },
-  turn: async function (game) {
+  turn: async function(game) {
     var res = await BotApi.sendTurnInvite(game);
 
     var msg = await res.json();

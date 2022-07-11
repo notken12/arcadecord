@@ -56,6 +56,7 @@ provide('server', props.server);
           :name="name"
         ></GameType>
       </ul>
+      <div v-for="user in server.stats.users">{{ user[1].gamesWon }}</div>
     </Content>
     <Footer></Footer>
   </div>

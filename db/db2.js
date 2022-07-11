@@ -133,6 +133,14 @@ const serverSchema = new Schema({
             },
           }),
         },
+        tag: {
+          type: String,
+          required: true,
+        },
+        avatar: {
+          type: String,
+          required: true,
+        },
       }),
       // default: new Map(),
     },
@@ -197,15 +205,28 @@ const db = {
         return null;
       }
     },
-    async incrementGamesPlayedByUser(serverId, userId) {
+    async incrementGamesPlayedByUser(
+      /** @type string */
+      serverId,
+      /** @type import('../server/src/games/Player').Player */
+      player
+    ) {
       try {
-        let query = {};
-        let prop = `stats.users.${userId}.gamesPlayed`;
+        let incQuery = {};
+        let prop = `stats.users.${player.id}.gamesPlayed`;
         // inc the prop by 1
-        query[prop] = 1;
+        incQuery[prop] = 1;
+        let discordUserQuery = {};
+        discordUserQuery[`stats.users.${player.id}.tag`] =
+          player.discordUser.tag;
+        discordUserQuery[`stats.users.${player.id}.avatar`] =
+          player.discordUser.avatar;
         return await Server.findByIdAndUpdate(
           serverId,
-          { $inc: query },
+          {
+            $inc: incQuery,
+            ...discordUserQuery,
+          },
           {
             upsert: true,
             setDefaultsOnInsert: true,

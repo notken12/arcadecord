@@ -230,5 +230,20 @@ describe('Server leaderboards', () => {
     expect(
       server.stats.users.get(user2._id).games.get(game.typeId).gamesWon
     ).toBe(0);
+
+    // Track users tag and avatar
+    expect(server.stats.users.get(user1._id).tag).toBe(
+      game.players[0].discordUser.tag
+    );
+    expect(server.stats.users.get(user1._id).avatar).toBe(
+      game.players[0].discordUser.avatar
+    );
+
+    expect(server.stats.users.get(user2._id).tag).toBe(
+      game.players[1].discordUser.tag
+    );
+    expect(server.stats.users.get(user2._id).avatar).toBe(
+      game.players[1].discordUser.avatar
+    );
   });
 });
