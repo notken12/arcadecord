@@ -498,8 +498,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { useAppInsights } from '@app/components/base-ui/app-insights';
-useAppInsights();
-</script>

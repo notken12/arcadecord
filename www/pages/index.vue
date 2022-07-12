@@ -9,17 +9,8 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-// import Banner from 'components/index/Banner.vue'
-// import Content from 'components/index/Content.vue'
-// import Footer from 'components/index/Footer.vue'
-// import Button from 'components/index/Button.vue'
-// import LinkButton from 'components/index/LinkButton.vue'
-// import GameDisplay from 'components/index/GameDisplay.vue'
-
-// import { useAppInsights } from '@app/components/base-ui/app-insights'
-//
-// useAppInsights()
+<script setup lang="ts">
+const { gameServerUrl } = useRuntimeConfig();
 </script>
 
 <template>
@@ -49,14 +40,9 @@
       </section>
       <section class="row">
         <!-- Horizontal -->
-        <ins
-          class="adsbygoogle"
-          style="display: block; width: 100%; height: 90px"
-          data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="6224498898"
-          data-ad-format="fluid"
-          data-full-width-responsive="true"
-        ></ins>
+        <ins class="adsbygoogle" style="display: block; width: 100%; height: 90px"
+          data-ad-client="ca-pub-9949308515923091" data-ad-slot="6224498898" data-ad-format="fluid"
+          data-full-width-responsive="true"></ins>
       </section>
       <section class="row">
         <div class="text">
@@ -100,18 +86,13 @@
       </section>
       <section class="row add">
         <h3>Add and play today for free!</h3>
-        <LinkButton href="/invite" icon="add">Add to Discord</LinkButton>
+        <LinkButton :href="`${gameServerUrl}/invite`" icon="add">Add to Discord</LinkButton>
       </section>
       <section class="row">
         <!-- Horizontal -->
-        <ins
-          class="adsbygoogle"
-          style="display: block; width: 100%; height: 140px"
-          data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="6224498898"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
+        <ins class="adsbygoogle" style="display: block; width: 100%; height: 140px"
+          data-ad-client="ca-pub-9949308515923091" data-ad-slot="6224498898" data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
       </section>
       <div class="spacer"></div>
     </Content>

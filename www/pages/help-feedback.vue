@@ -9,18 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-import Header from 'components/index/Header.vue';
-import Content from 'components/index/Content.vue';
-import Footer from 'components/index/Footer.vue';
-import Button from 'components/index/Button.vue';
-import LinkButton from 'components/index/LinkButton.vue';
-
-import { useAppInsights } from '@app/components/base-ui/app-insights';
-
-useAppInsights();
-</script>
-
 <template>
   <div class="container">
     <Header></Header>
@@ -33,23 +21,16 @@ useAppInsights();
           upcoming features.
         </p>
 
-        <LinkButton href="/discord-invite">Join Discord</LinkButton>
+        <LinkButton href="/discord-invite" :gs="true">Join Discord</LinkButton>
 
         <p>
           <span>Alternatively, you can email us at&nbsp;</span>
-          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a
-          ><span>.</span>
+          <a href="mailto:arcadecordhelp@gmail.com">arcadecordhelp@gmail.com</a><span>.</span>
         </p>
       </section>
       <!-- Horizontal -->
-      <ins
-        class="adsbygoogle"
-        style="display: block; width: 100%"
-        data-ad-client="ca-pub-9949308515923091"
-        data-ad-slot="6224498898"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
+        data-ad-slot="6224498898" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </Content>
     <Footer></Footer>
   </div>
@@ -72,5 +53,5 @@ a:hover {
 </style>
 
 <style lang="scss">
-@use 'scss/base/pages';
+@use '~/assets/css/base/pages';
 </style>

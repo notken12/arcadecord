@@ -9,18 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-import Header from 'components/index/Header.vue';
-import Content from 'components/index/Content.vue';
-import Footer from 'components/index/Footer.vue';
-import Card from 'components/index/Card.vue';
-import Link from 'components/index/Link.vue';
-
-import { useAppInsights } from '@app/components/base-ui/app-insights';
-
-useAppInsights();
-</script>
-
 <template>
   <div class="container">
     <Header></Header>
@@ -123,7 +111,7 @@ useAppInsights();
 </template>
 
 <style lang="scss">
-@use 'scss/base/pages';
+@use '~/assets/css/base/pages';
 
 .container {
   display: flex;
@@ -159,7 +147,3 @@ p {
   }
 }
 </style>
-
-<!-- <style lang="scss"> -->
-<!-- @use 'scss/base/pages'; -->
-<!-- </style> -->

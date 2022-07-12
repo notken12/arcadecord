@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     botClientId: '',
     webServerUrl: '',
+    gameServerUrl: '',
   },
   modules: [
     // Simple usage

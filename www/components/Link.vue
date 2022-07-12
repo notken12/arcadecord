@@ -9,14 +9,22 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-defineProps({
+<script setup lang="ts">
+const props = defineProps({
   href: String,
-})
+  /** Whether to link to game server */
+  gs: Boolean,
+});
+
+const { gameServerUrl } = useRuntimeConfig();
+
+const computedHref = computed(() => {
+  return props.gs ? `${gameServerUrl}${props.href}` : props.href;
+});
 </script>
 
 <template>
-  <a :href="href">
+  <a :href="computedHref">
     <slot></slot>
   </a>
 </template>

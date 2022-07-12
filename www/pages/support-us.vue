@@ -9,18 +9,8 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-import Header from 'components/index/Header.vue';
-import Banner from 'components/index/Banner.vue';
-import Content from 'components/index/Content.vue';
-import Footer from 'components/index/Footer.vue';
-import Button from 'components/index/Button.vue';
-import LinkButton from 'components/index/LinkButton.vue';
-import GameDisplay from 'components/index/GameDisplay.vue';
-
-import { useAppInsights } from '@app/components/base-ui/app-insights';
-
-useAppInsights();
+<script setup lang="ts">
+const { gameServerUrl } = useRuntimeConfig();
 </script>
 
 <template>
@@ -35,23 +25,17 @@ useAppInsights();
           working for free, and any donations will help keep the project going.
           Every $1 makes a difference. Thank you so much for your consideration!
         </p>
-        <LinkButton href="/ko-fi">Ko-Fi</LinkButton>
+        <LinkButton :href="`${gameServerUrl}/ko-fi`">Ko-Fi</LinkButton>
         <h4>top.gg</h4>
         <p>
           If you're enjoying Arcadecord, please vote for us on top.gg! It helps
           other people discover our bot and it's free! You can vote every 12
           hours. Thank you! &lt;3
         </p>
-        <LinkButton href="/top-gg">Vote</LinkButton>
+        <LinkButton :href="`${gameServerUrl}/top-gg`">Vote</LinkButton>
         <!-- Horizontal -->
-        <ins
-          class="adsbygoogle"
-          style="display: block; width: 100%"
-          data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="6224498898"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
+        <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="6224498898" data-ad-format="auto" data-full-width-responsive="true"></ins>
       </section>
     </Content>
     <Footer></Footer>
@@ -75,5 +59,5 @@ a:hover {
 </style>
 
 <style lang="scss">
-@use 'scss/base/pages';
+@use '~/assets/css/base/pages';
 </style>

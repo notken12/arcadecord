@@ -18,12 +18,13 @@ export function loadHostConfig() {
 
   // Use environment vars for config
   host.port = Number(process.env.GAME_SERVER_HOST_PORT ?? host.port);
-  host.name = process.env.GAME_SERVER_HOST_NAME ?? host.name;
   host.id = process.env.GAME_SERVER_HOST_ID ?? host.id;
   host.webServerUrl = process.env.WEB_SERVER_URL;
   host.totalShards = Number(process.env.TOTAL_SHARDS);
   host.shardManagerCount = Number(process.env.SHARD_MANAGER_COUNT);
   host.shardManagerPodAddress = process.env.SHARD_MANAGER_POD_ADDRESS;
+  host.topGgUrl = process.env.TOP_GG_URL;
+  host.discordServerInvite = process.env.DISCORD_SERVER_INVITE;
   for (let prop in host) {
     if (host[prop] == null) {
       console.log(host);

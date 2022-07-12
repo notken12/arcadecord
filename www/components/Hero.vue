@@ -9,6 +9,10 @@
   without the express permission of Ken Zhou.
 -->
 
+<script setup lang="ts">
+const { gameServerUrl } = useRuntimeConfig();
+</script>
+
 <template>
   <div class="hero">
     <div class="left">
@@ -23,7 +27,7 @@
         <span>.</span>
       </h3>
       <div class="buttons">
-        <LinkButton icon="add" href="/invite">Add to Discord</LinkButton>
+        <LinkButton icon="add" :href="`${gameServerUrl}/invite`">Add to Discord</LinkButton>
 
         <LinkButton outlined href="#features">See features</LinkButton>
       </div>

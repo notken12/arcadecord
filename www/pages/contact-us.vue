@@ -9,20 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-import Header from 'components/index/Header.vue';
-import Banner from 'components/index/Banner.vue';
-import Content from 'components/index/Content.vue';
-import Footer from 'components/index/Footer.vue';
-import Button from 'components/index/Button.vue';
-import LinkButton from 'components/index/LinkButton.vue';
-import GameDisplay from 'components/index/GameDisplay.vue';
-
-import { useAppInsights } from '@app/components/base-ui/app-insights';
-
-useAppInsights();
-</script>
-
 <template>
   <div class="container">
     <Header></Header>
@@ -34,22 +20,14 @@ useAppInsights();
           games with others in the community) is through the official Arcadecord
           Discord server.
         </p>
-        <LinkButton href="/discord-invite"> Join Discord </LinkButton>
+        <LinkButton href="/discord-invite" :gs="true">Join Discord</LinkButton>
         <p>
           Alternatively, contact us through our email address at&nbsp
-          <a href="mailto:contactarcadecord@gmail.com"
-            >contactarcadecord@gmail.com</a
-          >.
+          <a href="mailto:contactarcadecord@gmail.com">contactarcadecord@gmail.com</a>.
         </p>
         <!-- Square -->
-        <ins
-          class="adsbygoogle"
-          style="display: block; width: 100%"
-          data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="1704737756"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
+        <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="1704737756" data-ad-format="auto" data-full-width-responsive="true"></ins>
       </section>
     </Content>
     <Footer></Footer>
@@ -73,5 +51,5 @@ a:hover {
 </style>
 
 <style lang="scss">
-@use 'scss/base/pages';
+@use '~/assets/css/base/pages';
 </style>

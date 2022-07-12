@@ -28,7 +28,7 @@ async function getNewAccessToken(dbUser) {
   body.append('grant_type', 'refresh_token');
   body.append('refresh_token', dbUser.discordRefreshToken);
   // body.append('scope', 'identify email connections')
-  body.append('redirect_uri', process.env.WEB_SERVER_URL + '/auth');
+  body.append('redirect_uri', process.env.GAME_SERVER_URL + '/auth');
 
   // console.log(body)
   var res = await fetch('https://discord.com/api/v8/oauth2/token', {
