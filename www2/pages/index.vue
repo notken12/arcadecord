@@ -9,10 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-useAppInsights();
-</script>
-
 <template>
   <div class="container">
     <Banner></Banner>

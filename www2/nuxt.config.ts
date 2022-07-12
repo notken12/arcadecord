@@ -6,4 +6,13 @@ export default defineNuxtConfig({
     botClientId: '',
     webServerUrl: '',
   },
+  modules: [
+    // Simple usage
+    [
+      '@nuxtjs/google-adsense',
+      {
+        id: 'ca-pub-9949308515923091',
+      },
+    ],
+  ],
 });

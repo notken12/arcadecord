@@ -3,9 +3,4 @@ import vueAppInsights from './vueAppInsights';
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(vueAppInsights, { appInsights });
-  return {
-    provide: {
-      mogo: () => 'sog',
-    },
-  };
 });

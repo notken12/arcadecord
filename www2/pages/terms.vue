@@ -195,7 +195,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-useAppInsights();
-</script>
