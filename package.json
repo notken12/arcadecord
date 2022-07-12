@@ -1,4 +1,5 @@
 {
+  "private": true,
   "type": "module",
   "name": "arcadecord",
   "version": "1.0.0",

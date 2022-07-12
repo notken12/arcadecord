@@ -9,15 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup>
-import Link from './Link.vue';
-import Button from './Button.vue';
-import Logo from './Logo.vue';
-import LinkButton from './LinkButton.vue';
-
-const { gameServerUrl } = useRuntimeConfig();
-</script>
-
 <template>
   <div class="header">
     <Logo></Logo>
@@ -25,9 +16,9 @@ const { gameServerUrl } = useRuntimeConfig();
       <div class="links">
         <Link href="/help-feedback">Help and feedback</Link>
         <Link href="/support-us">Support us</Link>
-        <Link :href="`${gameServerUrl}/sign-in`">Sign in</Link>
+        <Link href="/sign-in" :gs="true">Sign in</Link>
       </div>
-      <LinkButton :href="`${gameServerUrl}/invite`" icon="add">Add to Discord</LinkButton>
+      <LinkButton href="/invite" icon="add" :gs="true">Add to Discord</LinkButton>
     </div>
   </div>
 </template>

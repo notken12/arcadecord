@@ -9,10 +9,6 @@
   without the express permission of Ken Zhou.
 -->
 
-<script setup lang="ts">
-const { gameServerUrl } = useRuntimeConfig();
-</script>
-
 <template>
   <div class="container">
     <Banner></Banner>
@@ -21,13 +17,6 @@ const { gameServerUrl } = useRuntimeConfig();
         Arcadecord is currently in beta. Please pardon our dust, and feedback is
         greatly appreciated.
       </section>
-      <!-- <section class="stripe"> -->
-      <!--   ✨ Note: We are popular! In a few days, Arcadecord has been added to 100 -->
-      <!--   servers! <br />Thank you for the love, please bear with us while we are -->
-      <!--   trying to complete the review process required by Discord.<br /> -->
-      <!--   Once it is done, you will be able to add it to your servers. Be sure to -->
-      <!--   check back in a few days. -->
-      <!-- </section> -->
       <section class="games row">
         <GameDisplay game="8ball">8 Ball</GameDisplay>
         <GameDisplay game="cuppong">Cup Pong</GameDisplay>
@@ -86,7 +75,7 @@ const { gameServerUrl } = useRuntimeConfig();
       </section>
       <section class="row add">
         <h3>Add and play today for free!</h3>
-        <LinkButton :href="`${gameServerUrl}/invite`" icon="add">Add to Discord</LinkButton>
+        <LinkButton href="/invite" icon="add" :gs="true">Add to Discord</LinkButton>
       </section>
       <section class="row">
         <!-- Horizontal -->

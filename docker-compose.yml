@@ -8,11 +8,8 @@ services:
       dockerfile: './docker/web/Dockerfile'
     ports:
       - '3000:3000'
-    environment:
-      - PORT=3000
-      - WEB_HOST_ID=0
-      - WEB_HOST_NAME=mangoweb
-      - WEB_SERVER_URL=localhost:5000
+    env_file:
+      - ./www/.env
   gameserver:
     build:
       context: .

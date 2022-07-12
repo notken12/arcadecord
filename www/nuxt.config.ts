@@ -7,13 +7,7 @@ export default defineNuxtConfig({
     webServerUrl: '',
     gameServerUrl: '',
   },
-  modules: [
-    // Simple usage
-    [
-      '@nuxtjs/google-adsense',
-      {
-        id: 'ca-pub-9949308515923091',
-      },
-    ],
-  ],
+  postcss: {
+    config: true,
+  },
 });
