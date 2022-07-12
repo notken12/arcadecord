@@ -1,0 +1,137 @@
+/*
+  seabattle.scss - Arcadecord
+
+  Copyright (C) 2022 Ken Zhou
+
+  This file is part of Arcadecord.
+
+  Arcadecord can not be copied and/or distributed
+  without the express permission of Ken Zhou.
+*/
+
+// seabattle.scss - Arcadecord
+//
+// Copyright (C) 2022 Ken Zhou
+//
+// This file is part of Arcadecord.
+//
+// Arcadecord can not be copied and/or distributed
+// without the express permission of Ken Zhou.
+
+#app {
+  background-color: #0065c4;
+  background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230070da' fill-opacity='1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.middle {
+  padding: 16px;
+  gap: 32px;
+}
+
+// .ship-placer-container,
+// .hit-board {
+
+// }
+
+.ship-placer-grid {
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  // border: 0.5px solid #00000055;
+  display: grid;
+  position: relative;
+}
+
+.placed-ship-bounding-box {
+  position: absolute;
+  background: rgba(255, 0, 0, 0.2);
+  display: none;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.hit-board {
+  position: relative;
+}
+
+.ship-placer-board {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/seabattle/FullBack.svg');
+  background-size: cover;
+  //border: 0.5px solid #00000055;
+}
+
+.ship-placer-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.ship-placer-cell,
+.hit-board-cell {
+  width: 100%;
+  height: 100%;
+  //border: 0.5px solid #00000055;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/****/
+
+.hit-board-ships {
+  opacity: 0.5;
+}
+
+.hit-board-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/seabattle/FullBack.svg');
+  background-size: cover;
+  /*
+  border: 1px solid #00000055;
+  */
+}
+
+.hit-board-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.hit-board-cell {
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+  background-size: 100%;
+}
+
+@keyframes miss {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hit {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
