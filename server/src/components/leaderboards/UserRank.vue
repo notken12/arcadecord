@@ -1,4 +1,6 @@
 <script setup>
+import { computed } from '@vue/runtime-core';
+
 const props = defineProps({
   /** @type {import('vue').PropType<import('../../pages/leaderboards.page.server.js').User>} */
   user: {
@@ -10,11 +12,19 @@ const props = defineProps({
     required: true,
   }
 });
+const top3 = computed(()=> {
+  if (props.place === 1) return '🥇'; 
+  if (props.place === 2) return '🥈'; 
+  if (props.place === 3) return '🥉'; 
+  else return props.place;
+})
 </script>
 
 <template>
   <li>
-    <div class="place">{{place}}</div>
+    <div class="place">
+      {{top3}}
+      </div>
     <img
       :src="`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128`"
       width="40"
@@ -41,4 +51,5 @@ li {
 img {
   border-radius:100%;
 }
+place {}
 </style>
