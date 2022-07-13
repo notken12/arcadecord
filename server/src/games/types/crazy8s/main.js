@@ -32,7 +32,7 @@ const options = {
   typeId: 'crazy8s',
   name: 'Crazy Eights',
   description: 'Be the first to rid all of your cards in CRAZY 8s!',
-  aliases: ['uno', 'crazy8s'],
+  aliases: ['crazy8s'],
   minPlayers: 2,
   maxPlayers: Infinity,
   emoji: '🃏',

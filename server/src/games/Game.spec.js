@@ -218,3 +218,22 @@ describe.todo('Server leaderboards', () => {
     expect(server.stats.user[user2._id].games[game.typeId].gamesWon).toBe(0);
   });
 });
+
+describe.todo('3+ Player Lobby', () => {
+  it('Lobby created', async () => {
+    const user = await mockUser();
+    const game = await createGame(
+      {
+        options: {
+          ...mockGameOptions(),
+          typeId:'crazy8s',
+        },
+        userId: user._id,
+      },
+      true // mark as testing
+    );
+    expect(Array.isArray(game.lobby.players)).toBe(true);
+    expect(game.lobby.players[0]).toBe()
+  });
+
+})
