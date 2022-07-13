@@ -9,6 +9,7 @@
 
 import { createTestingDb } from '../../../db/testdb.js';
 import db from '../../../db/db2.js';
+import Action from './Action.js';
 import {
   describe,
   test,
@@ -22,6 +23,7 @@ import {
 import { createGame } from '../../controllers/create-game.controller.js';
 import { AddPlayerError } from './GameErrors.js';
 import GameFlow from './GameFlow.js';
+import { check } from 'prettier';
 
 const testdb = await createTestingDb();
 
@@ -220,8 +222,13 @@ describe.todo('Server leaderboards', () => {
 });
 
 describe.todo('3+ Player Lobby', () => {
+  //User Leaves
+  //User Unreadies
+  //Owner Kicks
   it('Lobby created', async () => {
     const user = await mockUser();
+    const user2 = await mockUser();
+    const user3 = await mockUser();
     const game = await createGame(
       {
         options: {
@@ -232,8 +239,49 @@ describe.todo('3+ Player Lobby', () => {
       },
       true // mark as testing
     );
-    expect(Array.isArray(game.lobby.players)).toBe(true);
-    expect(game.lobby.players[0]).toBe()
-  });
+    expect(game.players.length).toBe(1);
+    expect(game.players[0].ready).toBe(true);
 
+    await game.addPlayer(user2);
+    expect(game.players.length).toBe(2);
+    expect(game.players[1].ready).toBe(false);
+
+    await game.addPlayer(user3);
+    expect(game.players.length).toBe(3);
+    expect(game.players[2].ready).toBe(false);
+
+    await game.readyUp(user2);
+    expect(game.hasStarted).toBe(false);
+    expect(game.ready).toBe(false);
+
+    let test1 = new Action(
+      'place',
+      {
+        value:0,
+        color:0,
+      },
+      0
+    );
+    expect(await game.handleAction(test1)).toEqual({
+      success:false,
+      error:ActionError.ISNT_READY,
+    });
+
+    await game.readyUp(user3);
+    expect(game.hasStarted).toBe(false);
+    expect(game.ready).toBe(true);
+
+    let test2 = new Action(
+      'place',
+      {
+        value:0,
+        color:0,
+      },
+      0
+    );
+    expect(await game.handleAction(test2)).toEqual({
+      success:false,
+      error:ActionError.ISNT_READY,
+    });
+  });
 })
