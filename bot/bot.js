@@ -60,6 +60,7 @@ Canvas.registerFont(
   { family: 'Work Sans' }
 );
 
+/** @param {Game} g */
 client.sendStartMessage = async function (g) {
   // get game type
   var gameType = gameTypes[g.typeId];
@@ -107,6 +108,7 @@ client.sendStartMessage = async function (g) {
   return await channel.send(message);
 };
 
+/** @param {Game} g */
 client.sendTurnInvite = async function (g) {
   // get game type
   var gameType = gameTypes[g.typeId];
@@ -208,6 +210,7 @@ function roundRect(ctx, x, y, w, h, r) {
   return ctx;
 }
 
+/** @param {Game} game */
 async function getInviteMessage(game) {
   var embed = new MessageEmbed()
     .setTitle(`${game.emoji || ''}  Let's play ${game.name}!`)
