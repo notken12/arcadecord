@@ -30,6 +30,15 @@ config();
 
 const ajv = new Ajv();
 
+/** Options for creating a game. All values will be directly applied to the new game object.
+ * @typedef {Object} GameOptions
+ * @prop {string} guild - Server ID the game was created in
+ * @prop {string} channel - Channel ID the game was created in
+ * @prop {string} typeId - ID of the game's type, which is the game type's folder name
+ * @prop {string[]} invitedUsers - Discord IDs of invited users
+ * @prop {boolean} inThread - If true, a thread will be created once the game starts and messages will be sent there.
+ */
+
 class Game {
   // options schema
   // {
@@ -43,6 +52,9 @@ class Game {
 
   gameOptions = {}; // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
 
+  /**
+   * @param {GameOptions} options - used to recreate games from DB documents or create new games
+   */
   constructor(typeOptions, options) {
     this.testing = false;
 
