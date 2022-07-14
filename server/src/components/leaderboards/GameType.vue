@@ -37,7 +37,6 @@ img {
 }
 
 li {
-  list-decoration: none;
   display: flex;
   padding: 16px;
   background: theme.$md-sys-surface-variant;

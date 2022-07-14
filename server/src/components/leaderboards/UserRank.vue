@@ -33,8 +33,12 @@ const top3 = computed(() => {
     />
     <div>
       <p class="name">{{ user.tag }}</p>
-      <p>Games won: {{ user.gamesWon }}</p>
-      <p>Games played: {{ user.gamesPlayed }}</p>
+      <p>
+        Games won:&nbsp;<b>{{ user.gamesWon }}</b>
+      </p>
+      <p>
+        Games played:&nbsp;<b>{{ user.gamesPlayed }}</b>
+      </p>
     </div>
   </li>
 </template>
@@ -58,6 +62,8 @@ img {
 
 .name {
   font-weight: bold;
+  font-size: 1.2em;
+  font-family: 'Work Sans', sans-serif;
 }
 
 .place {

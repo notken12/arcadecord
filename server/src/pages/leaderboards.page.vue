@@ -142,6 +142,7 @@ h3 {
   gap: 32px;
   margin: 16px 0;
   margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 .user-ranks-wrapper {
