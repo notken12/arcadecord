@@ -41,7 +41,7 @@ const sortedUsers = computed(() => {
   <div class="container">
     <Header></Header>
     <Content>
-      <h2>🏆 Server leaderboard</h2>
+      <h2>👑 Server leaderboard</h2>
       <div class="server">
         <div class="server-header">
           <img
@@ -154,9 +154,9 @@ h3 {
   display: flex;
   flex-direction: column;
   padding: 0;
-  gap: 16px;
+  gap: 8px;
   margin: 0;
-  width: max-content;
+  width: 100%;
 }
 
 .game-types {
@@ -165,6 +165,10 @@ h3 {
   display: flex;
   flex-direction: column;
   width: max-content;
+
+  h3 {
+    margin-bottom: 8px;
+  }
 }
 </style>
 

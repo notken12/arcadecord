@@ -22,23 +22,27 @@ const top3 = computed(() => {
 
 <template>
   <li>
-    <div class="place">
-      {{ top3 }}
-    </div>
-    <img
-      :src="`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128`"
-      width="40"
-      height="40"
-      alt="stop being blind"
-    />
-    <div>
+    <div class="user">
+      <div class="place">
+        {{ top3 }}
+      </div>
+      <img
+        :src="`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128`"
+        width="40"
+        height="40"
+        alt="stop being blind"
+      />
       <p class="name">{{ user.tag }}</p>
-      <p>
-        Games won:&nbsp;<b>{{ user.gamesWon }}</b>
-      </p>
-      <p>
-        Games played:&nbsp;<b>{{ user.gamesPlayed }}</b>
-      </p>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <p class="stat-title">Games won</p>
+        <p class="stat-value">🏆 {{ user.gamesWon }}</p>
+      </div>
+      <div class="stat">
+        <p class="stat-title">Games played</p>
+        <p class="stat-value">{{ user.gamesPlayed }}</p>
+      </div>
     </div>
   </li>
 </template>
@@ -49,24 +53,64 @@ const top3 = computed(() => {
 li {
   display: flex;
   width: 100%;
-  gap: 16px;
+  gap: 0px;
   border-radius: 6px;
-  align-items: center;
-  padding: 8px 16px;
+  padding: 16px 16px;
   background: theme.$md-sys-surface-variant;
+  flex-wrap: wrap;
+}
+
+li > div {
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
 
 img {
   border-radius: 100%;
 }
 
+.user {
+  flex-grow: 1;
+}
+
 .name {
   font-weight: bold;
   font-size: 1.2em;
   font-family: 'Work Sans', sans-serif;
+  flex-grow: 1;
 }
 
 .place {
   font-size: 1.5em;
+  width: 24px;
+  text-align: center;
+  font-weight: bold;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-title {
+  opacity: 0.8;
+  font-size: 0.9em;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1.2em;
 }
 </style>

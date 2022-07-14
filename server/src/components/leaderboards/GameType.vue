@@ -25,7 +25,9 @@ const stats = server.stats.games[props.typeId] || { gamesPlayed: 0 };
       width="40"
       height="40"
     />
-    <div>{{ name }}: {{ stats.gamesPlayed }}</div>
+    <div>
+      {{ name }}:&nbsp;<b>{{ stats.gamesPlayed }}</b>
+    </div>
   </li>
 </template>
 
