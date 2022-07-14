@@ -42,8 +42,14 @@ useAppInsights();
           >.
         </p>
         <!-- Square -->
-        <ins class="adsbygoogle" style="display: block; width: 100%" data-ad-client="ca-pub-9949308515923091"
-          data-ad-slot="1704737756" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 100%"
+          data-ad-client="ca-pub-9949308515923091"
+          data-ad-slot="1704737756"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </section>
     </Content>
     <Footer></Footer>

@@ -30,6 +30,15 @@ config();
 
 const ajv = new Ajv();
 
+/** Options for creating a game. All values will be directly applied to the new game object.
+ * @typedef {Object} GameOptions
+ * @prop {string} guild - Server ID the game was created in
+ * @prop {string} channel - Channel ID the game was created in
+ * @prop {string} typeId - ID of the game's type, which is the game type's folder name
+ * @prop {string[]} invitedUsers - Discord IDs of invited users
+ * @prop {boolean} inThread - If true, a thread will be created once the game starts and messages will be sent there.
+ */
+
 class Game {
   // options schema
   // {
@@ -43,6 +52,9 @@ class Game {
 
   gameOptions = {}; // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
 
+  /**
+   * @param {GameOptions} options - used to recreate games from DB documents or create new games
+   */
   constructor(typeOptions, options) {
     this.testing = false;
 
@@ -83,29 +95,6 @@ class Game {
     this.io = null;
 
     let game = this;
-
-    this.client = {
-      eventHandlers: {},
-      emit: function (event, ...args) {
-        if (game.testing) return;
-        if (!this.eventHandlers[event]) return;
-
-        for (let callback of this.eventHandlers[event]) {
-          callback(this, ...args);
-        }
-      },
-      on: function (event, callback) {
-        if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
-        this.eventHandlers[event].push(callback);
-      },
-      getDataForClient: function () {
-        return {
-          eventHandlers: this.eventHandlers,
-          emit: this.emit.toString(),
-          on: this.on.toString(),
-        };
-      },
-    }; // event management, just for client. used for updating ui. copy of this can be found in client-framework.js
 
     Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
     Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
@@ -679,7 +668,6 @@ class Game {
       myIndex: this.getPlayerIndex(userId),
       hasStarted: this.hasStarted,
       turns: this.turns.getDataForClient(userId),
-      client: this.client.getDataForClient(userId),
       actionModels: {},
       clientActionModels: {},
       winner: this.winner,

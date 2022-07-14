@@ -13,9 +13,9 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: String,
+  // Cryptographic hash of discordId (SHA256 Hex)
+  _id: String,
   discordId: String,
-  /*discordUser: Object,*/
   discordAccessToken: String,
   discordRefreshToken: String,
   joined: {
@@ -31,6 +31,11 @@ const userSchema = new Schema({
   banned: {
     type: Boolean,
     default: false,
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now,
+    expires: 2592000,
   },
 });
 
@@ -74,7 +79,7 @@ const gameSchema = new Schema({
   lastModifiedDate: {
     type: Date,
     default: Date.now,
-    expires: 259200 // 3 days
+    expires: 259200, // 3 days
   },
 });
 
@@ -88,14 +93,18 @@ const slashCommandOptionsSchema = new Schema({
   typeId: String,
   createdAt: {
     type: Date,
-    expires:600,//10 minutes
-    default: Date.now
-  }
+    expires: 600, //10 minutes
+    default: Date.now,
+  },
 });
 
 const SlashCommandOptions =
   mongoose.models.SlashCommandOptions ||
   mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
+
+const getSha256 = (id) => {
+  return crypto.createHash('sha256').update(id).digest('hex');
+};
 
 const db = {
   async connect(uri) {
@@ -106,11 +115,15 @@ const db = {
       if (!token) {
         return null;
       }
-      return crypto.createHash('sha256').update(token).digest('hex');
+      return getSha256(token);
     },
     async create(data) {
       try {
-        var newUser = new User(data);
+        const newUser = new User({
+          ...data,
+          // Cryptographic hash of Discord ID
+          _id: getSha256(data.discordId),
+        });
         return await newUser.save();
       } catch (e) {
         console.error(e);
@@ -119,6 +132,9 @@ const db = {
     },
     async getById(id) {
       try {
+        User.findByIdAndUpdate(id, {
+          lastActive: mongoose.now(),
+        });
         return await User.findById(id);
       } catch (e) {
         console.error(e);
@@ -127,7 +143,10 @@ const db = {
     },
     async getByDiscordId(id) {
       try {
-        return await User.findOne({ discordId: id });
+        User.findByIdAndUpdate(getSha256(id), {
+          lastActive: mongoose.now(),
+        });
+        return await User.findById(getSha256(id));
       } catch (e) {
         console.error(e);
         return null;
@@ -146,7 +165,14 @@ const db = {
     },
     async update(id, data) {
       try {
-        return await User.findByIdAndUpdate(id, data, { new: true });
+        return await User.findByIdAndUpdate(
+          id,
+          {
+            ...data,
+            lastActive: mongoose.now(),
+          },
+          { new: true }
+        );
       } catch (e) {
         console.error(e);
         return null;

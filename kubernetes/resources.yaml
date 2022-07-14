@@ -309,6 +309,11 @@ spec:
                 configMapKeyRef:
                   name: sharding
                   key: shardManagerPodPrefix
+            - name: SHARD_MANAGER_POD_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: sharding
+                  key: shardManagerPodAddress
             # - name: BOT_IPC_TOKEN
             #   valueFrom:
             #     secretKeyRef:

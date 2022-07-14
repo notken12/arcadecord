@@ -533,4 +533,15 @@ app.use(function (req, res, next) {
 });
 
 import createGameController from './controllers/create-game.controller.js';
-app.post('/create-game', createGameController);
+app.post('/create-game', (req, res, next) => {
+  appInsightsClient.trackEvent({
+    name: 'Game created',
+    properties: {
+      typeId: req.body.options.typeId,
+      guild: req.body.options.guild,
+      channel: req.body.options.channel,
+      userId: req.body.userId,
+    },
+  });
+  createGameController(req, res, next);
+});

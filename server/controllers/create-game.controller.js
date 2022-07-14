@@ -33,6 +33,7 @@ const cyrb53 = function (str, seed = 0) {
 
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
+import Game from '../src/games/Game.js';
 const seed = cyrb53(host.id);
 console.log(`Snowflake generator using seed ${seed}`);
 const SnowflakeGenerator = new Generator(946684800000, seed);
@@ -89,14 +90,25 @@ export default async (req, res) => {
   }
 };
 
+/** JSON request body for POST /create-game
+ * @typedef {Object} CreateGameBody
+ * @prop {import('../src/games/Game.js').GameOptions} options - options for creating the game, passed into the new Game(options) constructor
+ * @prop {string} userId - ID of user who created the game
+ */
+
+/** Create a game and add it to the database
+ * @param {CreateGameBody} reqBody - Object containing options for the new game
+ * @param {boolean} testing - Whether or not the game is used in the test. Disables event handlers if true (used for sending Discord messages)
+ */
 export async function createGame(reqBody, testing) {
   let { options, userId } = reqBody;
-  var typeId = options.typeId;
+  const { typeId } = options;
 
   // get game constructor
-  var Game = gameTypes[typeId].Game;
+  const Game = gameTypes[typeId].Game;
 
-  var game = new Game(options);
+  /** @type Game */
+  const game = new Game(options);
   if (testing) {
     game.test();
   }
@@ -108,8 +120,8 @@ export async function createGame(reqBody, testing) {
 
   // add player to game
   var user = await db.users.getById(userId);
-  if (!user) return false;
-  if (user.banned) return false;
+  if (!user) return null;
+  if (user.banned) return null;
 
   await game.addPlayer(user._id);
   await game.init();

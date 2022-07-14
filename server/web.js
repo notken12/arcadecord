@@ -105,7 +105,15 @@ import authController from './controllers/auth.controller.js';
 import signOutController from './controllers/sign-out.controller.js';
 
 //get authorization code
-app.get('/auth', authController);
+app.get('/auth', async (req, res, next) => {
+  const result = await authController(req, res, next);
+  if (result != null) {
+    appInsightsClient.trackEvent({
+      name: 'User logged in',
+      properties: result,
+    });
+  }
+});
 
 import signInController from './controllers/sign-in.controller.js';
 app.get('/sign-in', signInController);

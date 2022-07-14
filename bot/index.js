@@ -236,6 +236,44 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
   }
 });
 
+/** Get bot stats from all shards
+ * @param {import('discord.js').ShardingManager} shardManager
+ */
+async function getStats(shardManager) {
+  const promises = [
+    shardManager.fetchClientValues('guilds.cache.size'),
+    shardManager.broadcastEval((c) =>
+      c.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+    ),
+  ];
+
+  try {
+    const results = await Promise.all(promises);
+    /** @type number */
+    const totalGuilds = results[0].reduce(
+      (acc_1, guildCount) => acc_1 + guildCount,
+      0
+    );
+    /** @type number */
+    const totalMembers = results[1].reduce(
+      (acc_2, memberCount) => acc_2 + memberCount,
+      0
+    );
+    return { totalGuilds, totalMembers };
+  } catch (message) {
+    return console.error(message);
+  }
+}
+
+app.get('/stats', async (_req, res) => {
+  try {
+    res.json(await getStats(manager));
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
+});
+
 app.listen(port, () =>
   console.log(`Bot host ${config.id} listening on port ${port}`)
 );
