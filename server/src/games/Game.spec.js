@@ -222,13 +222,14 @@ describe.todo('Server leaderboards', () => {
 });
 
 describe.todo('3+ Player Lobby', () => {
-  //User Leaves
-  //User Unreadies
-  //Owner Kicks
+  //User Leaves\
+  //User Unreadies\
+  //Owner Kicks\
   it('Lobby created', async () => {
     const user = await mockUser();
     const user2 = await mockUser();
     const user3 = await mockUser();
+    const user4 = await mockUser();
     const game = await createGame(
       {
         options: {
@@ -242,15 +243,15 @@ describe.todo('3+ Player Lobby', () => {
     expect(game.players.length).toBe(1);
     expect(game.players[0].ready).toBe(true);
 
-    await game.addPlayer(user2);
+    await game.addPlayer(user2._id);
     expect(game.players.length).toBe(2);
     expect(game.players[1].ready).toBe(false);
 
-    await game.addPlayer(user3);
+    await game.addPlayer(user3._id);
     expect(game.players.length).toBe(3);
     expect(game.players[2].ready).toBe(false);
 
-    await game.readyUp(user2);
+    await game.readyPlayer(user2._id);
     expect(game.hasStarted).toBe(false);
     expect(game.ready).toBe(false);
 
@@ -267,7 +268,7 @@ describe.todo('3+ Player Lobby', () => {
       error:ActionError.ISNT_READY,
     });
 
-    await game.readyUp(user3);
+    await game.readyPlayer(user3._id);
     expect(game.hasStarted).toBe(false);
     expect(game.ready).toBe(true);
 
@@ -279,9 +280,104 @@ describe.todo('3+ Player Lobby', () => {
       },
       0
     );
-    expect(await game.handleAction(test2)).toEqual({
-      success:false,
-      error:ActionError.ISNT_READY,
-    });
+    expect(await game.handleAction(test2).success).toBe(true);
   });
+
+  it('Player gets kicked', async () => {
+    const user = await mockUser();
+    const user2 = await mockUser();
+    const user3 = await mockUser();
+    const user4 = await mockUser();
+    const game = await createGame(
+      {
+        options: {
+          ...mockGameOptions(),
+          typeId:'crazy8s',
+        },
+        userId: user._id,
+      },
+      true // mark as testing
+    );
+    await game.addPlayer(user2._id);
+    await game.readyPlayer(user2._id);
+    expect(game.players.length).toBe(2);
+
+    await game.kickPlayer(user2._id);//Not index because having multiple kicks might start kicking incorrect players
+    expect(game.players.length).toBe(1);
+    expect(game.players[1]).toBe(undefined);
+
+    await game.addPlayer(user3._id);
+    await game.readyPlayer(user3._id);
+    expect(game.players.length).toBe(2);
+    expect(game.ready).toBe(false);
+
+    await game.addPlayer(user4._id);
+    await game.readyPlayer(user4._id);
+    expect(game.players.length).toBe(3);
+    expect(game.ready).toBe(true);
+  });
+  it('Player unreadies', async () => {
+    const user = await mockUser();
+    const user2 = await mockUser();
+    const user3 = await mockUser();
+    const user4 = await mockUser();
+    const game = await createGame(
+      {
+        options: {
+          ...mockGameOptions(),
+          typeId:'crazy8s',
+        },
+        userId: user._id,
+      },
+      true // mark as testing
+    );
+    await game.addPlayer(user2._id);
+    await game.readyPlayer(user2._id);
+    expect(game.players.length).toBe(2);
+
+    await game.unreadyPlayer(user2._id);
+
+    await game.addPlayer(user3._id);
+    await game.readyPlayer(user3._id);
+    expect(game.players.length).toBe(3);
+    expect(game.ready).toBe(false);
+
+    await game.addPlayer(user4._id);
+    await game.readyPlayer(user4._id);
+    expect(game.players.length).toBe(3);//game.players will purge all unreadied players once the lobby is ready to start
+    expect(game.ready).toBe(true);
+  });
+  it('Player disconnects', async () => {
+    const user = await mockUser();
+    const user2 = await mockUser();
+    const user3 = await mockUser();
+    const user4 = await mockUser();
+    const game = await createGame(
+      {
+        options: {
+          ...mockGameOptions(),
+          typeId:'crazy8s',
+        },
+        userId: user._id,
+      },
+      true // mark as testing
+    );
+    await game.addPlayer(user2._id);
+    await game.readyUp(user2._id);
+    expect(game.players.length).toBe(2);
+
+    await game.disconnectSocket(user2._id)
+    expect(game.players.length).toBe(1);
+    expect(game.players[1]).toBe(undefined);
+
+    await game.addPlayer(user3._id);
+    await game.readyUp(user3._id);
+    expect(game.players.length).toBe(2);
+    expect(game.ready).toBe(false);
+
+    await game.addPlayer(user4._id);
+    await game.readyUp(user4._id);
+    expect(game.players.length).toBe(3);
+    expect(game.ready).toBe(true);
+  })
 })
