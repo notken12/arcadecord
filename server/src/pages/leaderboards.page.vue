@@ -41,26 +41,35 @@ const sortedUsers = computed(() => {
   <div class="container">
     <Header></Header>
     <Content>
-      <h2>Server leaderboard</h2>
-      <div class="server-header">
-        <img
-          :src="server.iconURL"
-          alt="Server Icon"
-          class="server-icon"
-          width="40"
-          height="40"
-        />
-        <h3>
-          {{ server.name }}
-        </h3>
-      </div>
-      <div class="overall">
-        <p>Total games played: {{ server.stats.gamesPlayed }}</p>
+      <h2>🏆 Server leaderboard</h2>
+      <div class="server">
+        <div class="server-header">
+          <img
+            :src="server.iconURL"
+            alt="Server Icon"
+            class="server-icon"
+            width="40"
+            height="40"
+          />
+          <h3>
+            {{ server.name }}
+          </h3>
+        </div>
+        <div>
+          <p class="small-heading">📜 Stats</p>
+          <div class="overall">
+            <p>Total games played: {{ server.stats.gamesPlayed }}</p>
+          </div>
+        </div>
       </div>
       <div class="wrapper">
-        <div style="width:100%;">
+        <div class="user-ranks-wrapper">
           <ul class="user-ranks">
-            <UserRank v-for="(user, place) in sortedUsers" :user="user" :place="place + 1"/>
+            <UserRank
+              v-for="(user, place) in sortedUsers"
+              :user="user"
+              :place="place + 1"
+            />
           </ul>
         </div>
         <ul class="game-types">
@@ -78,6 +87,8 @@ const sortedUsers = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+@use 'scss/base/theme' as theme;
+
 .container {
   display: flex;
   flex-direction: column;
@@ -86,6 +97,25 @@ const sortedUsers = computed(() => {
   width: 100%;
   height: 100%;
   background: #1b1b1f;
+}
+
+ul {
+  margin: 0;
+}
+
+.small-heading {
+  font-weight: bold;
+  font-family: 'Work Sans', sans-serif;
+  margin: 0;
+}
+
+.server {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px theme.$md-sys-surface-variant solid;
+  border-radius: 6px;
+  padding: 16px;
 }
 
 .server-header {
@@ -101,15 +131,39 @@ const sortedUsers = computed(() => {
   border-radius: 100px;
 }
 
+h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  gap: 32px;
+  margin: 16px 0;
+  margin-bottom: 32px;
+}
+
+.user-ranks-wrapper {
+  flex-grow: 1;
+  display: flex;
+}
+
+.user-ranks {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 16px;
+  margin: 0;
+  width: max-content;
+}
+
 .game-types {
   padding: 0;
   gap: 8px;
   display: flex;
   flex-direction: column;
-}
-
-h3 {
-  margin: 0;
+  width: max-content;
 }
 </style>
 
@@ -119,20 +173,5 @@ h3 {
 .content {
   align-items: flex-start;
   padding: 0 var(--padding-x);
-}
-
-.wrapper {
-  display: flex;
-  width:100%;
-  gap: 32px;
-  margin:16px 0;
-}
-.user-ranks {
-  display: flex;
-  width: auto;
-  flex-direction: column;
-  padding: 0;
-  gap: 16px;
-  margin: 0;
 }
 </style>

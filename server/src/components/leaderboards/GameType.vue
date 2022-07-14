@@ -35,13 +35,15 @@ const stats = server.stats.games[props.typeId] || { gamesPlayed: 0 };
 img {
   border-radius: 4px;
 }
+
 li {
   list-decoration: none;
   display: flex;
   padding: 16px;
   background: theme.$md-sys-surface-variant;
-  border-radius: 4px;
+  border-radius: 6px;
   align-items: center;
   gap: 16px;
+  width: 100%;
 }
 </style>
