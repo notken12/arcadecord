@@ -2,7 +2,7 @@
 
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
-## Todo
+## Todo vk
 
 https://github.com/notken12/arcadecord/issues
 
