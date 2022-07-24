@@ -14,11 +14,7 @@
       "scss/*": ["server/src/scss/*"],
       "/gamecommons/*": ["server/src/games/types/*/common"]
     },
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "ts-node": {
-    "esm": true
+    "allowJs": true
   },
   "include": ["server/src/**/*.vue", "server/**/*.ts"],
   "allowSyntheticDefaultImports": true

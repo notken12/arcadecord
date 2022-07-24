@@ -26,7 +26,7 @@ function generateAccessToken(id) {
   );
 }
 
-export default async (req, res) => {
+export default async (req, res, _next) => {
   try {
     const error = req.query.error;
     const errorDescription = req.query.error_description;

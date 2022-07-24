@@ -17,7 +17,7 @@ import {
   MessageButton,
 } from 'discord.js';
 
-import { gameTypes } from '../server/src/games/game-types.js';
+import { gameTypes } from '../server/src/games/game-types';
 import Emoji from '../Emoji.js';
 
 import { readdirSync } from 'fs';
@@ -47,7 +47,7 @@ const config = loadShardManagerConfig();
 console.log(`Shard started with config: `, config);
 
 // Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [] });
 client.commands = new Collection();
 client.selectMenus = new Collection();
 client.buttons = new Collection();

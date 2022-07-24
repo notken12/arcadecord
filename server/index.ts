@@ -1,4 +1,4 @@
-// index.js - Arcadecord
+// index.ts - Arcadecord
 //
 // Copyright (C) 2022 Ken Zhou
 //
@@ -9,19 +9,19 @@
 
 let start = Date.now();
 
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+config();
 
 // Get host configuration
 import { loadHostConfig } from './config.js';
 const host = loadHostConfig();
 
-import express from 'express';
+import * as express from 'express';
 const app = express();
 app.enable('trust proxy');
 app.set('port', host.port || 3000);
 
-import shrinkRay from 'shrink-ray-current';
+import * as shrinkRay from 'shrink-ray-current';
 // Compress all requests
 app.use(shrinkRay());
 
@@ -38,18 +38,18 @@ app.use(
 import { createServer } from 'http';
 const server = createServer(app);
 import { Server } from 'socket.io';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import JWT from 'jsonwebtoken';
+import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
+import * as JWT from 'jsonwebtoken';
 
 import db from '../db/db2.js';
 
-import { fetchUser } from './utils/discord-api.js';
-import { gameTypes } from './src/games/game-types.js';
-import Action from './src/games/Action.js';
-import Turn from './src/games/Turn.js';
+import { fetchUser } from './utils/discord-api';
+import { gameTypes } from './src/games/game-types';
+import Action from './src/games/Action';
+import Turn from './src/games/Turn';
 
-import appInsights from 'applicationinsights';
+import * as appInsights from 'applicationinsights';
 
 appInsights
   .setup(process.env.APPINSIGHTS_CONNECTIONSTRING)
@@ -60,7 +60,7 @@ const appInsightsClient = appInsights.defaultClient;
 appInsights.start();
 
 // get __dirname
-import path from 'path';
+import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -78,12 +78,12 @@ app.use(
 );
 
 // Health check
-app.head('/health', function (req, res) {
+app.head('/health', function (_req, res) {
   res.sendStatus(200);
 });
 
 // Check the name of the host
-app.get('/name', function (req, res) {
+app.get('/name', function (_req, res) {
   res.send(host.id);
 });
 
@@ -97,10 +97,10 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get('/discord-oauth', (req, res) => {
+app.get('/discord-oauth', (_req, res) => {
   res.redirect(
     'https://discord.com/api/oauth2/authorize?client_id=903801669194772531&redirect_uri=' +
-      encodeURIComponent(host.url + '/auth') +
+      encodeURIComponent(host.gameServerUrl + '/auth') +
       '&response_type=code&scope=identify'
   );
 });
@@ -128,7 +128,7 @@ app.get('/invite', (_req, res) => {
     'https://discord.com/api/oauth2/authorize?client_id=' +
       host.botClientId +
       '&redirect_uri=' +
-      encodeURIComponent(host.url + '/auth') +
+      encodeURIComponent(host.gameServerUrl + '/auth') +
       '&response_type=code&scope=bot%20applications.commands%20identify'
   );
 });
@@ -179,7 +179,10 @@ io.on('connection', (socket) => {
     let tokenUserId;
     let token;
     try {
-      token = JWT.verify(cookie, process.env.JWT_SECRET);
+      token = JWT.verify(
+        cookie,
+        process.env.JWT_SECRET as JWT.Secret
+      ) as JWT.JwtPayload;
       tokenUserId = token.id;
     } catch (e) {
       //user is not signed in. or has an invalid access token
@@ -296,6 +299,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('action', async (type, data, callback) => {
+    let action;
     try {
       // get which game the socket is in
       var gameId = socket.data.gameId;
@@ -333,7 +337,7 @@ io.on('connection', (socket) => {
       var oldTurn = game.turn + 0;
 
       // perform action
-      var action = new Action(type, data, userId);
+      action = new Action(type, data, userId);
       var result = await game.handleAction(action);
 
       if (!result.success) {
@@ -362,7 +366,7 @@ io.on('connection', (socket) => {
             game.turns[game.turns.length - 1],
             player.id
           );
-          await io.to(s).emit('turn', gameData, turnData);
+          io.to(s).emit('turn', gameData, turnData);
         }
       }
 
@@ -387,7 +391,7 @@ io.on('connection', (socket) => {
           userId: userId,
           type: type,
           result: result,
-          id: action.id,
+          id: action?.id,
           action: action,
         },
       });
@@ -649,7 +653,10 @@ app.get('*', async (req, res, next) => {
   let userId;
   let token;
   try {
-    token = JWT.verify(cookie, process.env.JWT_SECRET);
+    token = JWT.verify(
+      cookie,
+      process.env.JWT_SECRET as JWT.Secret
+    ) as JWT.JwtPayload;
     userId = token.id;
   } catch (e) {
     userId = null;

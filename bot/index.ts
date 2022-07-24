@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { ShardingManager } from 'discord.js';
+import { ShardingManager, User } from 'discord.js';
 import express from 'express';
 
 // load .env that will be used for all processes running shard managers
@@ -41,16 +41,17 @@ function getShardByRoundRobin() {
   return shardList[shardIndex];
 }
 
-function getShardByGuild(guild_id) {
+function getShardByGuild(guild_id: string | number) {
+  let guild_id_parsed = Number(guild_id);
   var num_shards = totalShards;
 
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-  var shard_id = (guild_id >>> 22) % num_shards;
+  var shard_id = (guild_id_parsed >>> 22) % num_shards;
   return shard_id;
 }
 
 // create sharding manager
-const manager = new ShardingManager('./bot/bot.js', {
+const manager = new ShardingManager('./bot/bot', {
   token: process.env.BOT_TOKEN,
   shardList: shardList,
   totalShards: totalShards,
@@ -76,7 +77,7 @@ app.get('/users/:id', (req, res) => {
       },
       { shard: shard, context: { id: req.params.id } }
     )
-    .then((users) => {
+    .then((users: User[]) => {
       if (typeof users.find === 'function') {
         var user = users.find((user) => user.id === req.params.id);
         if (user) {
@@ -239,7 +240,7 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 /** Get bot stats from all shards
  * @param {import('discord.js').ShardingManager} shardManager
  */
-async function getStats(shardManager) {
+async function getStats(shardManager: ShardingManager) {
   const promises = [
     shardManager.fetchClientValues('guilds.cache.size'),
     shardManager.broadcastEval((c) =>
@@ -249,16 +250,14 @@ async function getStats(shardManager) {
 
   try {
     const results = await Promise.all(promises);
-    /** @type number */
-    const totalGuilds = results[0].reduce(
-      (acc_1, guildCount) => acc_1 + guildCount,
+    const totalGuilds: number = results[0].reduce(
+      (acc_1: number, guildCount: number) => acc_1 + guildCount,
       0
-    );
-    /** @type number */
-    const totalMembers = results[1].reduce(
-      (acc_2, memberCount) => acc_2 + memberCount,
+    ) as number;
+    const totalMembers: number = results[1].reduce(
+      (acc_2: number, memberCount: number) => acc_2 + memberCount,
       0
-    );
+    ) as number;
     return { totalGuilds, totalMembers };
   } catch (message) {
     return console.error(message);

@@ -12,7 +12,7 @@ import {
   SlashCommandUserOption,
   SlashCommandStringOption,
 } from '@discordjs/builders';
-import { gameTypes as games } from '../../server/src/games/game-types.js';
+import { gameTypes as games } from '../../server/src/games/game-types';
 import {
   MessageActionRow,
   MessageEmbed,

@@ -7,15 +7,15 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import db from '../../../db/db2.js';
+import db from '../../../db/db2';
 import { fetchUser } from '../../utils/discord-api';
-import { gameTypes } from '@app/games/game-types.js';
+import { gameTypes } from '@app/games/game-types';
 import { RenderErrorPage } from 'vite-plugin-ssr';
 import { createApp } from '@app/renderer/gameApp';
 // import { createApp } from '@app/renderer/app'
 import { renderToString } from '@vue/server-renderer';
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr';
-import { GameConnectionError } from '../games/GameErrors.js';
+import { GameConnectionError } from '../games/GameErrors';
 
 export async function onBeforeRender(pageContext) {
   // The route parameter of `/game/:gameId` is available at `pageContext.routeParams`

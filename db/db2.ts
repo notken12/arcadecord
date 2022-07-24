@@ -12,7 +12,19 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
+export interface IUser {
+  name: string;
+  discordId: string;
+  discordAccessToken: string;
+  discordRefreshToken: string;
+  joined: Date;
+  settings: {
+    enableConfetti: boolean;
+  };
+  banned: boolean;
+}
+
+const userSchema = new Schema<IUser>({
   name: String,
   discordId: String,
   /*discordUser: Object,*/
@@ -62,7 +74,6 @@ const gameSchema = new Schema({
     default: {},
     required: true,
   },
-  secretData: Object,
   turns: Array,
   sockets: Object,
   channel: String,
@@ -102,7 +113,7 @@ const db = {
     await mongoose.connect(uri ?? process.env.MONGODB_URI);
   },
   users: {
-    getHash: function (token) {
+    getHash: function(token) {
       if (!token) {
         return null;
       }

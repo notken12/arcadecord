@@ -10,28 +10,31 @@
 import { randomUUID } from 'crypto';
 
 class Action {
-  constructor(type, data, userId) {
+  id: string;
+  /** Set by Game, index of player in game.players */
+  playerIndex: number | null = null;
+  type: string;
+  data: Object;
+  userId: string;
+
+  constructor(type: string, data: Object, userId: string) {
     this.id = randomUUID();
 
     this.type = type;
     this.userId = userId; // userId of the player who made the action
 
-    this.playerIndex; // set by Game, index of player in game.players.
-
     this.data = data;
   }
 
-  getDataForClient() {}
+  static getDataForClient(action: Action) {
+    return {
+      id: action.id,
+      type: action.type,
+      data: action.data,
+      playerIndex: action.playerIndex,
+      userId: action.userId,
+    };
+  }
 }
-
-Action.getDataForClient = function (action, userId) {
-  return {
-    id: action.id,
-    type: action.type,
-    data: action.data,
-    playerIndex: action.playerIndex,
-    userId: action.userId,
-  };
-};
 
 export default Action;

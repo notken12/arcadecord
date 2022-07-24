@@ -14,6 +14,8 @@ import { loadApiConfig } from './config.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import Game from '../src/games/Game';
+
 const config = loadApiConfig();
 console.log('bot api config: ', config);
 
@@ -49,15 +51,16 @@ function routeByShardManager(path, options, shard_manager_id) {
   return fetch(url, options);
 }
 
-function getShardId(guildId) {
-  return (guildId >>> 22) % config.totalShards;
+function getShardId(guildId: string | number) {
+  let guild_id_parsed = Number(guildId);
+  return (guild_id_parsed >>> 22) % config.totalShards;
 }
 
-function getShardManagerAddress(shard_manager_id) {
+function getShardManagerAddress(shard_manager_id: string | number) {
   return config.shardManagerPodAddress.replace('%ID%', shard_manager_id);
 }
 
-function getBaseUrlByGuild(guildId) {
+function getBaseUrlByGuild(guildId: string | number) {
   let shard_id = getShardId(guildId);
   let shard_manager_id = shard_id % config.shardManagerCount;
   return getShardManagerAddress(shard_manager_id);
@@ -70,7 +73,7 @@ function getBaseUrlRoundRobin() {
 }
 
 // Stateless (round robin)
-async function fetchUser(userId) {
+async function fetchUser(userId: string) {
   try {
     let path = '/users/' + userId;
 
@@ -86,7 +89,7 @@ async function fetchUser(userId) {
 }
 
 // Stateful (by guild, needs to be sent to right shard manager)
-function sendStartMessage(game) {
+function sendStartMessage(game: Game) {
   let guildId = game.guild;
   let path = '/startmessage';
   var data = {
@@ -146,7 +149,7 @@ function getUserPermissionsInChannel(guildId, channelId, userId) {
 }
 
 // Stateless
-function getShardManagerStats(id) {
+function getShardManagerStats(id: number) {
   const path = '/stats';
 
   const options = {
@@ -163,9 +166,10 @@ async function getBotStats() {
     let totalMembers = 0;
     for (let id = 0; id < config.shardManagerCount; id++) {
       let result = await getShardManagerStats(id);
-      result = await result.json();
-      totalGuilds += result.totalGuilds;
-      totalMembers += result.totalMembers;
+      let json: { totalGuilds: number; totalMembers: number } =
+        await result.json();
+      totalGuilds += json.totalGuilds;
+      totalMembers += json.totalMembers;
     }
     return { totalGuilds, totalMembers };
   } catch (e) {

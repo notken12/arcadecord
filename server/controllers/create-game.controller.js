@@ -7,8 +7,8 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import db from '../../db/db2.js';
-import { gameTypes } from '../src/games/game-types.js';
+import db from '../../db/db2';
+import { gameTypes } from '../src/games/game-types';
 
 // Get host configuration
 import { loadHostConfig } from '../config.js';
@@ -51,7 +51,7 @@ function toBase62(n) {
   return result;
 }
 
-export default async (req, res) => {
+export default async (req, res, _next) => {
   console.log('creating game');
   try {
     // get token from headers

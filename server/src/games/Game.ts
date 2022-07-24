@@ -1,4 +1,4 @@
-// Game.js - Arcadecord
+// Game.ts - Arcadecord
 //
 // Copyright (C) 2022 Ken Zhou
 //
@@ -8,16 +8,18 @@
 // without the express permission of Ken Zhou.
 
 import { config } from 'dotenv';
-import Player from './Player.js';
-import Action from './Action.js';
-import Turn from './Turn.js';
+import Player from './Player';
+import Action from './Action';
+import Turn from './Turn';
 import cloneDeep from 'lodash.clonedeep';
 
-import GameFlow from './GameFlow.js';
-import BotApi from '../../bot/api.js';
-import Emoji from '../../../Emoji.js';
-import db from '../../../db/db2.js';
+import GameFlow from './GameFlow';
+import BotApi from '../../bot/api';
+import Emoji from '../../../Emoji';
+import db from '../../../db/db2';
 import Ajv from 'ajv';
+
+import type { IUser } from '../../../db/db2';
 
 import {
   GameConnectionError,
@@ -30,45 +32,82 @@ config();
 
 const ajv = new Ajv();
 
+type TypeOptions = {
+  typeId: string;
+  name: string;
+  description: string;
+  aliases: string[];
+  minPlayers: number;
+  maxPlayers: number;
+  emoji: string;
+  data: Object;
+};
+
+interface ClientData {
+  getDataForClient?: (userId?: string) => any;
+}
+
+type ActionModel = (game: Game, action: Action) => Game | boolean;
+
+type EventHandler = (game: Game, ...args: any[]) => Game;
+type ActionHandler = (game: Game, ...args: any[]) => Game;
+
 class Game {
-  // options schema
-  // {
-  //     "id": "",
-  //     "name": "",
-  //     "description": "",
-  //     "aliases": [],
-  //     "maxPlayers": 0,
-  //     "minPlayers": 0,
-  // }
-
+  id: string;
+  _id: string;
+  typeId: string = '';
+  players: Player[] = [];
+  maxPlayers: number = 2;
+  minPlayers: number = 2;
+  eventHandlers: { [event: string]: EventHandler[] } = {};
+  actionHandlers: { [event: string]: ActionHandler[] } = {};
+  sockets: { [pid: string]: string } = {};
+  /** Discord ID of the server the game is in */
+  guild: String = '';
+  /** Discord ID of the text channel the game is in */
+  channel: String = '';
+  turn: number = 1;
   gameOptions = {}; // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
+  resending: boolean = false;
+  testing: boolean = false;
+  hasStarted: boolean = false;
+  hasEnded: boolean = false;
+  lastTurnInvite: string | null = null;
+  startMessage: string | null = null;
+  /** Player index of the winner or -1 if game is a draw. Null if game hasn't ended yet */
+  winner: number | null = null;
+  /** Arbitrary object to store game position, scores, etc */
+  data: Object = {};
+  /** Actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate */
+  actionModels: {
+    [actionName: string]: ActionModel;
+  } = {};
+  /** Action models that are only run server side. See actionModels */
+  serverActionModels: {
+    [actionName: string]: ActionModel;
+  } = {};
+  /** Action models that are only run client side. See actionModels */
+  clientActionModels: {
+    [actionName: string]: ActionModel;
+  } = {};
+  /** All past turns taken by players */
+  turns: Turn[] & ClientData = [];
+  /** Action data schemas to enforce. Helps with debugging and protects against attacks */
+  actionSchemas: { [actionName: string]: Object } = {};
+  /** Snapshot of game data before the last turn */
+  previousData: Object = {};
+  /** Discord IDs of users that have been invited to join the game, reserved spots */
+  invitedUsers: string[] = [];
+  /** Whether or not the game is played in a thread */
+  inThread: boolean = false;
+  /** The thread channel the the game is played in (ignore if inThread is false) */
+  threadChannel: string | null = null;
+  /** The user id that has been reserved a spot in the game because they opened the game first when there are competing connections. Used to choose who gets to go when multiple users are trying to connect into an open spot. */
+  reservedSpot: string | null = null;
 
-  constructor(typeOptions, options) {
-    this.testing = false;
-
-    this.id = null; // will be set by the server index.js
-    this.players = [];
-    this.eventHandlers = {};
-    this.actionHandlers = {};
-    this.turn = 1;
-    this.sockets = {};
-    this.hasStarted = false;
-    this.hasEnded = false;
-    this.lastTurnInvite = null;
-    this.startMessage = null;
-    this.winner = null; // will be set to player index
-    this.data = {}; // game position, scores, etc
-    this.secretData = {}; // data to be kept secret from players clients
-    this.turns = []; // all past turns taken by players
-    this.actionModels = {}; // actions and their functions to manipulate the game, will be supplied by game type, and sent to client so client can emulate
-    this.actionSchemas = {}; // action data schemas to enforce. helps with debugging and protects against attacks
-    this.previousData = {}; // snapshot of game data before the last turn
-    this.invitedUsers = []; // discord IDs of users that have been invited to join the game, reserved spots
-    this.inThread = false; // whether or not the game is played in a thread
-    this.threadChannel = null; // the thread channel the game is played in (valid only if inThread is true)
-    // the user id that has been reserved a spot in the game.
-    this.reservedSpot = null;
-    // Used to choose who gets to go when multiple users are trying to connect into an open spot
+  constructor(typeOptions: TypeOptions, options?: Game) {
+    this.id = options?.id || '';
+    this._id = options?.id || '';
 
     // async actionModel (action, game) {
     // action: information about action
@@ -77,13 +116,6 @@ class Game {
     // manipulate game data, whether it be server or client data
     // return game, or false if action was unsuccesful
     // }
-    this.serverActionModels = {};
-    this.clientActionModels = {};
-
-    this.io = null;
-
-    let game = this;
-
     Object.assign(this, cloneDeep(typeOptions || {})); // deep clone options so that options wont be changed when game is modified
     Object.assign(this, cloneDeep(options || {})); // deep clone options so that options wont be changed when game is modified
 
@@ -98,7 +130,7 @@ class Game {
       player.id = player.id.toString();
     }
 
-    this.turns.getDataForClient = function (userId) {
+    this.turns.getDataForClient = function(userId) {
       var data = [];
       for (let turn of this) {
         data.push(Turn.getDataForClient(turn, userId));
@@ -110,13 +142,17 @@ class Game {
   test() {
     this.testing = true;
   }
-  setGuild(guild) {
+  setGuild(guild: string) {
     this.guild = guild;
   }
-  setChannel(channel) {
+  setChannel(channel: string) {
     this.channel = channel;
   }
-  setActionModel(action, model, side) {
+  setActionModel(
+    action: string,
+    model: ActionModel,
+    side?: 'client' | 'server'
+  ) {
     if (side == 'client') {
       this.clientActionModels[action] = model;
     } else if (side == 'server') {
@@ -128,15 +164,15 @@ class Game {
   getURL() {
     return process.env.GAME_SERVER_URL + '/game/' + this.id;
   }
-  on(event, callback) {
+  on(event: string, callback: EventHandler) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
     this.eventHandlers[event].push(callback);
   }
-  onAction(action, callback) {
+  onAction(action: string, callback: ActionHandler) {
     if (!this.actionHandlers[action]) this.actionHandlers[action] = [];
     this.actionHandlers[action].push(callback);
   }
-  async emit(event, ...args) {
+  async emit(event: string, ...args: any[]) {
     if (this.testing) return;
     if (!this.eventHandlers[event]) return;
 
@@ -145,7 +181,7 @@ class Game {
     }
     return true;
   }
-  async handleAction(action) {
+  async handleAction(action: Action) {
     action.playerIndex = this.getPlayerIndex(action.userId);
 
     let actionSchema = this.actionSchemas[action.type];
@@ -155,7 +191,7 @@ class Game {
       if (!valid) {
         console.warn(
           'Action data does not follow schema: ' +
-            JSON.stringify(validate.errors)
+          JSON.stringify(validate.errors)
         );
         return {
           success: false,
@@ -166,10 +202,10 @@ class Game {
       console.warn(
         '\x1b[31m%s\x1b[0m',
         '[WARNING] Add action schema for action: "' +
-          action.type +
-          '" to game: "' +
-          this.typeId +
-          '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
+        action.type +
+        '" to game: "' +
+        this.typeId +
+        '" with game.setActionSchema(type, schema) to prevent attacks. (see https://www.npmjs.com/package/ajv)'
       );
     }
 
@@ -236,16 +272,10 @@ class Game {
             success: false,
           };
         } else {
-          if (typeof response[1] == 'object') {
-            actionResult = response[1];
-            actionResult.success = true;
-          } else {
-            actionResult = {
-              success: true,
-              changes: this.getChanges(previousData, this.data), // changes between game data before and after action,
-              game: this.getDataForClient(action.userId),
-            };
-          }
+          actionResult = {
+            success: true,
+            game: this.getDataForClient(action.userId),
+          };
         }
       }
 
@@ -260,7 +290,7 @@ class Game {
       };
     }
   }
-  async addPlayer(id) {
+  async addPlayer(id: string) {
     var user = await db.users.getById(id);
     if (!user)
       return {
@@ -329,7 +359,7 @@ class Game {
       ok: true,
     };
   }
-  mockPlayers(count) {
+  mockPlayers(count: number) {
     if (!this.testing) {
       console.error(
         'Mocking players is only available in testing mode. Use game.test() to enable it.'
@@ -351,11 +381,11 @@ class Game {
     await this.onInit(this);
     await this.emit('init');
   }
-  async onInit(game) {
+  async onInit(game: Game) {
     return game;
   }
   // TODO: change to using an object with {ok: bool, error: UserPermissionError}
-  async doesUserHavePermission(dbUser) {
+  async doesUserHavePermission(dbUser: IUser) {
     if (!dbUser)
       return {
         ok: false,
@@ -389,7 +419,9 @@ class Game {
       };
 
     let error;
-    var perms = await res.json().catch(() => (error = true));
+    const perms: Object = (await res
+      .json()
+      .catch(() => (error = true))) as Object;
 
     if (error)
       return {
@@ -570,7 +602,7 @@ class Game {
     );
   }
 
-  setSocket(userId, socket) {
+  setSocket(userId: string, socket: string) {
     // Keep track of a who has the "reserved" spot after socket connection
 
     // If there are 0 unjoined sockets, then no one has reserved
@@ -608,10 +640,6 @@ class Game {
     }
   }
 
-  setIo(io) {
-    this.io = io;
-  }
-
   broadcastToAllSockets(event, broadcastGame, ...args) {
     for (let key in this.sockets) {
       if (broadcastGame) {
@@ -622,7 +650,7 @@ class Game {
     }
   }
 
-  getImage() {}
+  getImage() { }
 
   getChanges(oldData, newData) {
     var changes = {};
@@ -676,11 +704,11 @@ class Game {
     return game;
   }
 
-  getThumbnail() {}
+  getThumbnail() { }
 }
 
 Game.eventHandlersDiscord = {
-  init: async function (game) {
+  init: async function(game) {
     var res = await BotApi.sendStartMessage(game);
 
     var msg = await res.json().catch((e) => {
@@ -693,7 +721,7 @@ Game.eventHandlersDiscord = {
 
     return game;
   },
-  turn: async function (game) {
+  turn: async function(game) {
     var res = await BotApi.sendTurnInvite(game);
 
     var msg = await res.json();
