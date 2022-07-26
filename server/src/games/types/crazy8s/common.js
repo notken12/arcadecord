@@ -183,4 +183,5 @@ export default {
   getNextPlayer,
   dealCards,
   Card,
+  drawTopCard,
 };

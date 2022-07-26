@@ -108,6 +108,18 @@ class Crazy8s extends Game {
       };
     }
     Common.dealCards(game);
+    // take top card of draw pile and add to discard as starting card
+
+    let card = Common.drawTopCard(game);
+    game.data.discardPile = Common.Card.encode(card) + game.data.discardPile;
+
+    // array sets list of cards not allowed on first draw
+    let invalid_cards = ['w', '2', '4', 's', 'R'];
+    // if any of these invalid cards are selected, loop through till valid card is selected
+    while (invalid_cards.includes(card.type)) {
+      card = Common.drawTopCard(game);
+      game.data.discardPile = Common.Card.encode(card) + game.data.discardPile;
+    }
   }
 }
 
