@@ -69,31 +69,35 @@ class Crazy8s extends Game {
   }
 
   onInit(game) {
-    game.data.cardPile = [];
-    game.data.deck = [];
-    game.data.playerHands = [];
+    game.data.drawPile = '';
+    game.data.discardPile = '';
+    game.data.hands = [];
     game.data.direction = 'standard';
 
+    let pile = [];
     var i;
     for (i = 0; i < 4; i++) {
       //Base Cards
       var j;
       for (j = 0; j < 10; j++) {
-        game.data.deck.push(Common.Card(j, i));
-        game.data.deck.push(Common.Card(j, i));
+        pile.push(new Common.Card(j, i));
+        pile.push(new Common.Card(j, i));
       }
-      game.data.deck.push(Common.Card('skip', i));
-      game.data.deck.push(Common.Card('skip', i));
-      game.data.deck.push(Common.Card('reverse', i));
-      game.data.deck.push(Common.Card('reverse', i));
-      game.data.deck.push(Common.Card('+2', i));
-      game.data.deck.push(Common.Card('+2', i));
+      pile.push(new Common.Card('s', i));
+      pile.push(new Common.Card('s', i));
+      pile.push(new Common.Card('R', i));
+      pile.push(new Common.Card('R', i));
+      pile.push(new Common.Card('2', i));
+      pile.push(new Common.Card('2', i));
     }
-    game.data.deck.push(Common.Card('wild', 4));
-    game.data.deck.push(Common.Card('wild', 4));
-    game.data.deck.push(Common.Card('wild4', 4));
-    game.data.deck.push(Common.Card('wild4', 4));
-    Common.shuffle(game.data.deck);
+    pile.push(new Common.Card('w', 0));
+    pile.push(new Common.Card('w', 1));
+    pile.push(new Common.Card('4', 0));
+    pile.push(new Common.Card('4', 1));
+
+    let shuffled = Common.Card.shuffleArray(pile, 1);
+    let encoded = Common.Card.encodeArray(shuffled);
+    game.data.drawPile = encoded;
   }
 }
 
