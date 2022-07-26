@@ -76,19 +76,22 @@ class Crazy8s extends Game {
 
     let pile = [];
     var i;
+
+    let colors = 'rgby';
+    // For each color
     for (i = 0; i < 4; i++) {
       //Base Cards
       var j;
       for (j = 0; j < 10; j++) {
-        pile.push(new Common.Card(j, i));
-        pile.push(new Common.Card(j, i));
+        pile.push(new Common.Card(colors[i], j));
+        pile.push(new Common.Card(colors[i], j));
       }
       pile.push(new Common.Card('s', i));
-      pile.push(new Common.Card('s', i));
+      pile.push(new Common.Card('s', i + 4));
       pile.push(new Common.Card('R', i));
-      pile.push(new Common.Card('R', i));
+      pile.push(new Common.Card('R', i + 4));
       pile.push(new Common.Card('2', i));
-      pile.push(new Common.Card('2', i));
+      pile.push(new Common.Card('2', i + 4));
     }
     pile.push(new Common.Card('w', 0));
     pile.push(new Common.Card('w', 1));
@@ -98,6 +101,13 @@ class Crazy8s extends Game {
     let shuffled = Common.Card.shuffleArray(pile, 1);
     let encoded = Common.Card.encodeArray(shuffled);
     game.data.drawPile = encoded;
+
+    for (let i = 0; i < game.players.length; i++) {
+      game.data.hands[i] = {
+        cards: [],
+      };
+    }
+    Common.dealCards(game);
   }
 }
 

@@ -12,8 +12,11 @@ import cloneDeep from 'lodash.clonedeep';
 
 /** @typedef {'r'|'g'|'b'|'y'|'2'|'4'|'w'|'s'|'R'} CardType */
 
+const STARTING_HAND_SIZE = 7;
+
 class Card {
-  /** Card's number, for non applicable cards use a unique number so each card is unique when encoded */
+  /** Card's number, for non applicable cards use a unique number so each card is unique when encoded
+   * @type number*/
   number;
   /** Type of card (red, green, blue, yellow, +2, +4, wild, skip, or reverse).
    * Represent using r,g,b,y,2,4,w,s,R respectively.
@@ -38,14 +41,14 @@ class Card {
 
   /** @param {string} str - String to decode from, see Card.encode */
   static decode(str) {
-    return new Card(str[0], str[1]);
+    return new Card(str[0], parseInt(str[1]));
   }
 
   /** @param {string} str - String to decode from, see Card.encode */
   static decodeArray(str) {
     let arr = [];
     for (let i = 0; i < str.length; i += 2) {
-      arr.push(Card.decode(str.substring(i, i + 1)));
+      arr.push(Card.decode(str.substring(i, i + 2)));
     }
     return arr;
   }
@@ -70,6 +73,12 @@ class Card {
     }
 
     return array;
+  }
+
+  /** @param {string} str - String to decode from, see Card.encode */
+  static getTopCard(str) {
+    let card = Card.decode(str.substring(0, 2));
+    return card;
   }
 }
 
@@ -146,9 +155,32 @@ function shuffle(cards) {
   }
   return newCards;
 }
+
+function dealCards(game) {
+  for (let i = 0; i < game.players.length; i++) {
+    let hand = [];
+    // Deal 7 cards to each player
+    for (let j = 0; j < STARTING_HAND_SIZE; j++) {
+      let card = drawTopCard(game);
+      hand.push(card);
+    }
+    game.data.hands[i].cards = Card.encodeArray(hand);
+  }
+}
+
+function drawTopCard(game) {
+  let card = Card.getTopCard(game.data.drawPile);
+  game.data.drawPile = game.data.drawPile.substring(
+    2,
+    game.data.drawPile.length
+  );
+  return card;
+}
+
 export default {
   place,
   shuffle,
   getNextPlayer,
+  dealCards,
   Card,
 };

@@ -17,35 +17,20 @@ const ajv = new Ajv();
 const stateSchema = {
   type: 'object',
   properties: {
+    // For piles: each card is encoded as 2 chars: {type}{number} and put in order into a string to represent the pile.
+    // The top card of the pile is at the beginning of the string and the bottom is at the end
     hands: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
           cards: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                /** Type of card (red, green, blue, yellow, +2, +4, wild, skip, or reverse).
-                 * Represent using r,g,b,y,2,4,w,s,r respectively. */
-                type: {
-                  type: 'string',
-                },
-                /** Card's number, for non applicable cards use a unique number so each card is unique when encoded */
-                number: {
-                  type: 'number',
-                },
-              },
-              required: ['type', 'number'],
-            },
+            type: 'string',
           },
         },
         required: ['cards'],
       },
     },
-    // For piles: each card is encoded as 2 chars: {type}{number} and put in order into a string to represent the pile.
-    // The top card of the pile is at the beginning of the string and the bottom is at the end
     drawPile: {
       type: 'string',
     },
@@ -70,9 +55,9 @@ test('initial game state', async () => {
   await game.init();
 
   const valid = validateGameState(game.data);
-  expect(valid).toBe(true);
-  expect(validateGameState.errors).toBe(null);
   console.log(game.data);
+  expect(validateGameState.errors).toBe(null);
+  expect(valid).toBe(true);
   // There are 108 cards in a deck of uno cards
-  expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(108);
+  expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(108 - 3 * 7);
 });
