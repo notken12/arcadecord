@@ -60,4 +60,7 @@ test('initial game state', async () => {
   expect(valid).toBe(true);
   // There are 108 cards in a deck of uno cards
   expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(108 - 3 * 7);
+  expect(game.data.hands[0].cards.length).toBe(7 * 2);
+  expect(game.data.hands[1].cards.length).toBe(7 * 2);
+  expect(game.data.hands[2].cards.length).toBe(7 * 2);
 });
