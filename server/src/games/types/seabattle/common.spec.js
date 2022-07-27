@@ -164,7 +164,7 @@ describe('Action: place ships', async () => {
       1
     );
 
-    expect(await game.handleAction(action)).toEqual({ success: false });
+    expect((await game.handleAction(action)).success).toBe(false);
   });
 
   test('Amounts of ships must match the availableShips', async () => {

@@ -199,6 +199,7 @@ class Game {
     if (this.hasEnded)
       return {
         success: false,
+        message: 'Game has already ended',
       };
 
     if (action.playerIndex == -1) {
@@ -214,6 +215,7 @@ class Game {
     if (this.turn !== action.playerIndex)
       return {
         success: false,
+        message: 'Not your turn',
       };
 
     if (
@@ -244,6 +246,7 @@ class Game {
 
         return {
           success: false,
+          message: 'Invalid action',
         };
       }
 
@@ -257,6 +260,7 @@ class Game {
 
           return {
             success: false,
+            message: 'Invalid action',
           };
         } else {
           if (typeof response[1] == 'object') {
@@ -372,9 +376,28 @@ class Game {
   }
   async init() {
     await this.onInit(this);
+    if (this.maxPlayers === 2) {
+      await this.ready();
+    }
     await this.emit('init');
   }
+  async ready() {
+    this.ready = true;
+    if (this.players.length > 2) {
+      this.turn = 0;
+    }
+    await this.onReady(this);
+  }
+  /** Override to make a handler for when the game is created (right after the /play command, and before the bot sends the invite message).
+   * @deprecated use game.onReady() instead. */
   async onInit(game) {
+    return game;
+  }
+  /** Override to make a handler for when the game is ready.
+   * Fires once the game has been created and all players have readied up.
+   * In 2 player games, it will fire immediately after onInit().
+   * Use this function to initialize game.data with the game state.*/
+  async onReady(game) {
     return game;
   }
   // TODO: change to using an object with {ok: bool, error: UserPermissionError}

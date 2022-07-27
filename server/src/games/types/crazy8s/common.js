@@ -69,6 +69,11 @@ class Card {
     return arr;
   }
 
+  static getCardByIndex(str, i) {
+    let card = Card.decode(str.substring(i, i + Card.ENCODING_LENGTH));
+    return card;
+  }
+
   /** @param {Card[]} array */
   /** @param {number} seed */
   static shuffleArray(array, seed) {
@@ -93,8 +98,7 @@ class Card {
 
   /** @param {string} str - String to decode from, see Card.encode */
   static getTopCard(str) {
-    let card = Card.decode(str.substring(0, Card.ENCODING_LENGTH));
-    return card;
+    return Card.getCardByIndex(str, 0);
   }
 }
 
@@ -104,46 +108,47 @@ function random(seed) {
 }
 
 async function place(game, action) {
-  var card = game.data.playerHands[game.turn][action.data.index];
-  var deck = game.data.deck;
-  var pile = game.data.cardPile;
+  // Get the card the player wants to play from their hand, by index
+  let hand = game.data.hands[action.playerIndex];
+  let card = Card.getCardByIndex(hand.cards, action.data.index);
+  let drawPile = game.data.drawPile;
+  let discardPile = game.data.discardPile;
+  let topCard = Card.getTopCard(discardPile);
+  console.log(topCard);
+  console.log(card);
 
   if (
-    pile[pile.length - 1].color == card.color ||
-    pile[pile.length - 1].value == card.value ||
-    pile[pile.length - 1].color == 4
+    topCard.color === card.color ||
+    topCard.number === card.number ||
+    card.type === 'w' ||
+    card.type === '4'
   ) {
-    //Same color || same number || wild card
-    if (card.value == 'R')
-      game.data.direction = ['reverse', 'standard'][
-        ['standard', 'reverse'].indexOf(game.data.direction)
-      ]; //Gets the opposite of the current direction
-    var nextPlayer = getNextPlayer(game);
-    if (card.value == '2') {
-      game.data.playerHands[nextPlayer].push(
-        deck[deck.length - 1],
-        deck[deck.length - 2]
-      );
+    // Same color || same number || wild card || +4 card
+    if (card.type == 'r')
+      game.data.direction =
+        game.data.direction === 'standard' ? 'reverse' : 'standard'; // Reverse game direction
+    switch (card.type) {
+      // TODO: handle +2/+4: add a pending +2/+4, players can play a +2/+4 to continue the chain or be forced to draw 2 cards
+      case '2':
+        break;
+      case '4':
+        // Color selection takes place on client side
+        card.color = action.wildColor;
+        break;
+      case 'w':
+        card.color = action.wildColor;
+        break;
     }
-    if (card.value == 'w') {
-      card.color = card.wildColor; //Color selection takes place in one turn client side
-    }
-    if (card.value == '4') {
-      game.data.playerHands[nextPlayer].push(
-        deck[deck.length - 1],
-        deck[deck.length - 2],
-        deck[deck.length - 3],
-        deck[deck.length - 4]
-      );
-      card.color = card.wildColor;
-    }
-    if (game.data.playerHands[game.turn].length == 0) {
+    if (hand.cards.length === 0) {
       await GameFlow.end(game, {
         winner: game.turn,
       });
     }
-    pile.push(card);
-    game.data.playerHands.splice(action.data.index, 1);
+    discardPile.push(card);
+    // Remove that card from the hand
+    hand.cards = hand.cards
+      .split('')
+      .splice(action.data.index * Card.ENCODING_LENGTH, Card.ENCODING_LENGTH);
     await GameFlow.endTurn(game);
     return game;
   }

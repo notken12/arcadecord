@@ -53,6 +53,7 @@ test('initial game state', async () => {
 
   game.mockPlayers(3);
   await game.init();
+  await game.ready();
 
   const valid = validateGameState(game.data);
   console.log(game.data);
@@ -77,7 +78,7 @@ test('initial game state', async () => {
     },
     0
   );
-  await game.handleAction(action);
+  expect(await game.handleAction(action)).toEqual({ success: true });
 
   // epecting cards in hand to be 6
   expect(Common.Card.decodeArray(game.data.hands[0].cards).length).toBe(6);

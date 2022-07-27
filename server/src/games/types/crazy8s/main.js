@@ -52,23 +52,18 @@ class Crazy8s extends Game {
     this.setActionSchema('place', {
       type: 'object',
       properties: {
-        value: {
+        index: {
           type: 'number',
-          maximum: 9,
-          minimum: 0,
         },
-        color: {
-          type: 'number',
-          minimum: 0,
-          maximum: 4,
+        wildColor: {
+          type: 'string',
         },
       },
+      required: ['index'],
     });
-
-    this.getThumbnail = async function () {};
   }
 
-  onInit(game) {
+  onReady(game) {
     game.data.drawPile = '';
     game.data.discardPile = '';
     game.data.hands = [];
@@ -126,6 +121,8 @@ class Crazy8s extends Game {
       game.data.discardPile = Common.Card.encode(card) + game.data.discardPile;
     }
   }
+
+  async getThumbnail() {}
 }
 
 export default {
