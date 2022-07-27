@@ -10,28 +10,44 @@
 import GameFlow from '../../GameFlow.js';
 import cloneDeep from 'lodash.clonedeep';
 
-/** @typedef {'r'|'g'|'b'|'y'|'2'|'4'|'w'|'s'|'R'} CardType */
+/** @typedef {'_'|'w'|'s'|'r'|'2'|'4'} CardType */
+/** @typedef {'_'|'r'|'g'|'b'|'y'} CardColor */
 
 const STARTING_HAND_SIZE = 7;
 
 class Card {
-  /** Card's number, for non applicable cards use a unique number so each card is unique when encoded
+  /** Card's number, for non applicable cards use 0
    * @type number*/
   number;
-  /** Type of card (red, green, blue, yellow, +2, +4, wild, skip, or reverse).
-   * Represent using r,g,b,y,2,4,w,s,R respectively.
+  /** Type of card (number, wild, skip, reverse, +2, +4)
+   * Represent using _,w,s,r,2,4 respectively.
    * @type CardType */
   type;
-  /** @param {CardType} type */
-  constructor(type, number) {
+  /** Color of card (n/a, red, green, blue, yellow)
+   * Represent using _,r,g,b,y respectively.
+   * @type CardColor */
+  color;
+  /** Discriminant used to make sure all cards will be encoded uniquely to help vue.js keep track of cards
+   * In an Uno deck, there are two copies of all colored cards except zeroes
+   * @type string */
+  discriminant;
+  /** @param {CardType} type
+   * @param {CardColor} color
+   * @param {number} number
+   * @param {string} discriminant */
+  constructor(type, color, number, discriminant) {
     this.type = type;
+    this.color = color;
     this.number = number;
+    this.discriminant = discriminant;
   }
+
+  static ENCODING_LENGTH = 4;
 
   /** Encodes a card as 2 chars: {type}{number}
    * @param {Card} card */
   static encode(card) {
-    return `${card.type}${card.number}`;
+    return `${card.type}${card.color}${card.number}${card.discriminant}`;
   }
 
   /** @param {Card[]} cards */
@@ -41,14 +57,14 @@ class Card {
 
   /** @param {string} str - String to decode from, see Card.encode */
   static decode(str) {
-    return new Card(str[0], parseInt(str[1]));
+    return new Card(str[0], str[1], parseInt(str[2]), str[3]);
   }
 
   /** @param {string} str - String to decode from, see Card.encode */
   static decodeArray(str) {
     let arr = [];
-    for (let i = 0; i < str.length; i += 2) {
-      arr.push(Card.decode(str.substring(i, i + 2)));
+    for (let i = 0; i < str.length; i += Card.ENCODING_LENGTH) {
+      arr.push(Card.decode(str.substring(i, i + Card.ENCODING_LENGTH)));
     }
     return arr;
   }
@@ -77,7 +93,7 @@ class Card {
 
   /** @param {string} str - String to decode from, see Card.encode */
   static getTopCard(str) {
-    let card = Card.decode(str.substring(0, 2));
+    let card = Card.decode(str.substring(0, Card.ENCODING_LENGTH));
     return card;
   }
 }
@@ -171,7 +187,7 @@ function dealCards(game) {
 function drawTopCard(game) {
   let card = Card.getTopCard(game.data.drawPile);
   game.data.drawPile = game.data.drawPile.substring(
-    2,
+    Card.ENCODING_LENGTH,
     game.data.drawPile.length
   );
   return card;

@@ -75,30 +75,35 @@ class Crazy8s extends Game {
     game.data.direction = 'standard';
 
     let pile = [];
-    var i;
 
     let colors = 'rgby';
+    let discriminants = '!@#$';
     // For each color
-    for (i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       //Base Cards
-      var j;
-      for (j = 0; j < 10; j++) {
-        pile.push(new Common.Card(colors[i], j));
-        pile.push(new Common.Card(colors[i], j));
+      // Two copies of each colored card, besides zeroes
+      for (let k = 0; k < 2; k++) {
+        // 1-9
+        for (let j = 1; j < 10; j++) {
+          pile.push(new Common.Card('_', colors[i], j, discriminants[k]));
+        }
+        // Skip, reverse, +2
+        pile.push(new Common.Card('s', colors[i], 0, discriminants[k]));
+        pile.push(new Common.Card('r', colors[i], 0, discriminants[k]));
+        pile.push(new Common.Card('2', colors[i], 0, discriminants[k]));
       }
-      pile.push(new Common.Card('s', i));
-      pile.push(new Common.Card('s', i + 4));
-      pile.push(new Common.Card('R', i));
-      pile.push(new Common.Card('R', i + 4));
-      pile.push(new Common.Card('2', i));
-      pile.push(new Common.Card('2', i + 4));
+      // 0
+      pile.push(new Common.Card('_', colors[i], 0, '0'));
     }
-    pile.push(new Common.Card('w', 0));
-    pile.push(new Common.Card('w', 1));
-    pile.push(new Common.Card('4', 0));
-    pile.push(new Common.Card('4', 1));
+    for (let k = 0; k < 4; k++) {
+      // 4 wild cards
+      pile.push(new Common.Card('w', '_', 0, discriminants[k]));
+      // 4 +4 cards
+      pile.push(new Common.Card('4', '_', 0, discriminants[k]));
+    }
 
     let shuffled = Common.Card.shuffleArray(pile, 1);
+
     let encoded = Common.Card.encodeArray(shuffled);
     game.data.drawPile = encoded;
 
@@ -114,7 +119,7 @@ class Crazy8s extends Game {
     game.data.discardPile = Common.Card.encode(card) + game.data.discardPile;
 
     // array sets list of cards not allowed on first draw
-    let invalid_cards = ['w', '2', '4', 's', 'R'];
+    let invalid_cards = ['w', '2', '4', 's', 'r'];
     // if any of these invalid cards are selected, loop through till valid card is selected
     while (invalid_cards.includes(card.type)) {
       card = Common.drawTopCard(game);
