@@ -15,7 +15,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const config = loadApiConfig();
-console.log('bot api config: ', config);
+if (process.env.NODE_ENV !== 'test') console.log('bot api config: ', config);
 
 function getAuthHeader() {
   return {

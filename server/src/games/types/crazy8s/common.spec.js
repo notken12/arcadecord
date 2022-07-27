@@ -56,7 +56,7 @@ test('initial game state', async () => {
   await game.ready();
 
   const valid = validateGameState(game.data);
-  console.log(game.data);
+  // console.log(game.data);
   expect(validateGameState.errors).toBe(null);
   expect(valid).toBe(true);
   // There are 108 cards in a deck of uno cards
@@ -83,6 +83,6 @@ test('initial game state', async () => {
   // epecting cards in hand to be 6
   expect(Common.Card.decodeArray(game.data.hands[0].cards).length).toBe(6);
 
-  // expecting cards in discard to be 2
-  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(2);
+  // expecting cards in discard to be 4
+  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(4);
 });

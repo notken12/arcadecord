@@ -70,7 +70,9 @@ class Card {
   }
 
   static getCardByIndex(str, i) {
-    let card = Card.decode(str.substring(i, i + Card.ENCODING_LENGTH));
+    let card = Card.decode(
+      str.substring(i * Card.ENCODING_LENGTH, (i + 1) * Card.ENCODING_LENGTH)
+    );
     return card;
   }
 
@@ -114,8 +116,6 @@ async function place(game, action) {
   let drawPile = game.data.drawPile;
   let discardPile = game.data.discardPile;
   let topCard = Card.getTopCard(discardPile);
-  console.log(topCard);
-  console.log(card);
 
   if (
     topCard.color === card.color ||
@@ -144,11 +144,14 @@ async function place(game, action) {
         winner: game.turn,
       });
     }
-    discardPile.push(card);
+    game.data.discardPile = Card.encode(card) + discardPile;
     // Remove that card from the hand
-    hand.cards = hand.cards
-      .split('')
-      .splice(action.data.index * Card.ENCODING_LENGTH, Card.ENCODING_LENGTH);
+    let newCards = hand.cards.split('');
+    newCards.splice(
+      action.data.index * Card.ENCODING_LENGTH,
+      Card.ENCODING_LENGTH
+    );
+    hand.cards = newCards.join('');
     await GameFlow.endTurn(game);
     return game;
   }

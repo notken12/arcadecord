@@ -34,7 +34,8 @@ const cyrb53 = function (str, seed = 0) {
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
 const seed = cyrb53(host.id);
-console.log(`Snowflake generator using seed ${seed}`);
+if (process.env.NODE_ENV !== 'test')
+  console.log(`Snowflake generator using seed ${seed}`);
 const SnowflakeGenerator = new Generator(946684800000, seed);
 
 function toBase62(n) {
