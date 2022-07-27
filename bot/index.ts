@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { Client, ShardingManager, User } from 'discord.js';
+import { Client, ShardingManager, TextChannel, User } from 'discord.js';
 import express from 'express';
 
 // load .env that will be used for all processes running shard managers
@@ -16,6 +16,10 @@ dotenv.config();
 
 import authMiddleware from './auth-middleware.js';
 
+import type { ArcadecordClient } from './bot';
+
+import Game from '../server/src/games/Game.js';
+
 import { loadShardManagerConfig } from './shard-manager-config.js';
 
 const config = loadShardManagerConfig();
@@ -23,7 +27,7 @@ console.log(config);
 const { totalShards } = config;
 
 function getShardList() {
-  let shardList = [];
+  let shardList: number[] = [];
   for (let i = config.id; i < totalShards; i += config.shardManagerCount) {
     shardList.push(i);
   }
@@ -51,7 +55,7 @@ function getShardByGuild(guild_id: string | number) {
 }
 
 // create sharding manager
-const manager = new ShardingManager('./bot/bot', {
+const manager = new ShardingManager('./bot/bot.ts', {
   token: process.env.BOT_TOKEN,
   shardList: shardList,
   totalShards: totalShards,
@@ -71,13 +75,14 @@ app.get('/users/:id', (req, res) => {
   let shard = getShardByRoundRobin();
   manager
     .broadcastEval(
-      (c: Client, { id }) => {
+      (c: Client, { id }: { id: string }) => {
         var user = c.users.fetch(id);
         return user;
       },
       { shard: shard, context: { id: req.params.id } }
     )
-    .then((users: User[]) => {
+    .then((ausers) => {
+      let users = ausers as User[];
       if (typeof users.find === 'function') {
         var user = users.find((user) => user.id === req.params.id);
         if (user) {
@@ -98,12 +103,12 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
-app.post('/posttest', (req, res) => {
+app.post('/posttest', (_req, res) => {
   console.log('Received post test request');
   res.send('ok');
 });
 
-app.get('/gettest', (req, res) => {
+app.get('/gettest', (_req, res) => {
   console.log('Received get test request');
   res.send('ok');
 });
@@ -119,7 +124,8 @@ app.post('/startmessage', async (req, res) => {
 
   manager
     .broadcastEval(
-      async (c: Client, { game }) => {
+      // @ts-ignore
+      async (c: ArcadecordClient, { game }: { game: Game }) => {
         try {
           return await c.sendStartMessage(game);
         } catch (e) {
@@ -142,7 +148,8 @@ app.post('/turninvite', async (req, res) => {
 
   manager
     .broadcastEval(
-      async (c, { game }) => {
+      // @ts-ignore
+      async (c: ArcadecordClient, { game }) => {
         try {
           return await c.sendTurnInvite(game);
         } catch (e) {
@@ -162,12 +169,13 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
 
   manager
     .broadcastEval(
-      async (c, { channel, message }) => {
-        var channel = await c.channels.cache.get(channel);
+      // @ts-ignore
+      async (c: ArcadecordClient, { channel, message }) => {
+        var achannel = (await c.channels.cache.get(channel)) as TextChannel;
 
-        if (!channel) return null;
+        if (!achannel) return null;
 
-        var msg = await channel.messages.delete(message).catch((err) => {
+        var msg = await achannel.messages.delete(message).catch((err) => {
           //console.log(err);
           return null;
         });
@@ -189,6 +197,7 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
     manager
       .broadcastEval(
+        // @ts-ignore
         async (c, { guild, channel, user }) => {
           try {
             var guild = await c.guilds.fetch(guild);
@@ -249,7 +258,7 @@ async function getStats(shardManager: ShardingManager) {
   ];
 
   try {
-    const results = await Promise.all(promises);
+    const results = await Promise.all(promises) as number[][];
     const totalGuilds: number = results[0].reduce(
       (acc_1: number, guildCount: number) => acc_1 + guildCount,
       0
@@ -279,12 +288,12 @@ app.listen(port, () =>
 
 console.log(
   'Starting shard manager ' +
-  config.id +
-  ' with ' +
-  shardList.length +
-  ' shards out of ' +
-  totalShards +
-  ' total shards'
+    config.id +
+    ' with ' +
+    shardList.length +
+    ' shards out of ' +
+    totalShards +
+    ' total shards'
 );
 
 manager.spawn();
