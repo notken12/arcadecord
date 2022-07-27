@@ -917,7 +917,7 @@ function doMovePiece(game, move) {
   return game;
 }
 
-var exports = {
+export default {
   movePiece,
   getMoves,
   isInCheck,
@@ -929,5 +929,3 @@ var exports = {
   isSufficientMaterial,
   Piece,
 };
-
-export default exports;

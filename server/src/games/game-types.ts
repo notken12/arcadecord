@@ -25,7 +25,9 @@ type GameType = {
   Game: typeof Game;
 };
 
-const gameTypes: { [typeId: string]: GameType } = {};
+export type GameTypes = { [typeId: string]: GameType };
+
+const gameTypes: GameTypes = {};
 
 for (const folder of gameFolders) {
   let typeFolder = readdirSync(_dirname + '/types/' + folder);

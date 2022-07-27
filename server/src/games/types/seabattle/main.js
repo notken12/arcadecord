@@ -158,7 +158,7 @@ class SeaBattleGame extends Game {
       required: ['row', 'col'],
     });
 
-    this.getThumbnail = async function () {
+    this.getThumbnail = async function() {
       const { default: Canvas } = await import('canvas');
 
       const canvas = Canvas.createCanvas(

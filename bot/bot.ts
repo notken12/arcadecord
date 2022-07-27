@@ -15,9 +15,11 @@ import {
   MessageEmbed,
   MessageSelectMenu,
   MessageButton,
+  BufferResolvable,
+  MessageOptions,
 } from 'discord.js';
 
-import { gameTypes } from '../server/src/games/game-types';
+import { GameTypes, gameTypes } from '../server/src/games/game-types';
 import Emoji from '../Emoji.js';
 
 import { readdirSync } from 'fs';
@@ -43,16 +45,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import { loadShardManagerConfig } from './shard-manager-config.js';
+import { Stream } from 'stream';
 const config = loadShardManagerConfig();
 console.log(`Shard started with config: `, config);
 
+type ArcadecordClient = Client & {
+  commands: Collection;
+  selectMenus: Collection;
+  buttons: Collection;
+  sendStartMessage: (game: Game) => any;
+};
+
 // Create a new client instance
-const client = new Client({ intents: [] });
+const client: ArcadecordClient = new Client({
+  intents: [],
+}) as ArcadecordClient;
 client.commands = new Collection();
 client.selectMenus = new Collection();
 client.buttons = new Collection();
-client.gameTypes = gameTypes;
-client.Emoji = Emoji;
 
 // Register font for showing winner names
 Canvas.registerFont(
@@ -60,7 +70,7 @@ Canvas.registerFont(
   { family: 'Work Sans' }
 );
 
-client.sendStartMessage = async function (g) {
+client.sendStartMessage = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -107,7 +117,7 @@ client.sendStartMessage = async function (g) {
   return await channel.send(message);
 };
 
-client.sendTurnInvite = async function (g) {
+client.sendTurnInvite = async function(g) {
   // get game type
   var gameType = gameTypes[g.typeId];
 
@@ -118,7 +128,7 @@ client.sendTurnInvite = async function (g) {
 
   let textChannel = await client.channels.fetch(game.channel);
   if (game.startMessage) {
-    textChannel.messages.delete(game.startMessage).catch(() => {});
+    textChannel.messages.delete(game.startMessage).catch(() => { });
   }
 
   if (game.inThread) {
@@ -141,15 +151,14 @@ client.sendTurnInvite = async function (g) {
   }
 
   if (game.lastTurnInvite) {
-    channel.messages.delete(game.lastTurnInvite).catch(() => {});
+    channel.messages.delete(game.lastTurnInvite).catch(() => { });
   }
 
   var lastPlayer = game.players[game.turns[game.turns.length - 1].playerIndex];
 
   var m = {
-    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${
-      game.emoji + ' ' || ''
-    }${game.name}*`,
+    content: `${Emoji.ICON_ROUND} <@${lastPlayer.discordUser.id}>: *${game.emoji + ' ' || ''
+      }${game.name}*`,
     allowedMentions: {
       parse: [],
     },
@@ -177,7 +186,7 @@ client.sendTurnInvite = async function (g) {
     }
   }
 
-  var embed = invite.embeds[0];
+  const embed = invite.embeds[0] as MessageEmbed;
   embed.setAuthor({
     name: `${lastPlayer.discordUser.tag}`,
     iconURL: `https://cdn.discordapp.com/avatars/${lastPlayer.discordUser.id}/${lastPlayer.discordUser.avatar}.webp?size=32`,
@@ -208,11 +217,11 @@ function roundRect(ctx, x, y, w, h, r) {
   return ctx;
 }
 
-async function getInviteMessage(game) {
+async function getInviteMessage(game: Game): Promise<MessageOptions> {
   var embed = new MessageEmbed()
     .setTitle(`${game.emoji || ''}  Let's play ${game.name}!`)
     // .setDescription(`${game.description}`)
-    .setColor(game.color || '#5253f9')
+    .setColor('#5253f9')
     .setURL(game.getURL());
 
   var button = new MessageButton()
@@ -229,7 +238,7 @@ async function getInviteMessage(game) {
   };
 
   var canvas = await game.getThumbnail();
-  let image;
+  let image: BufferResolvable | Stream;
   if (canvas) {
     const ctx = canvas.getContext('2d');
 

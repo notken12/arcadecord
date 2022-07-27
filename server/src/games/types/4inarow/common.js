@@ -242,7 +242,8 @@ function checkVertical(board, row, col) {
     return true;
   }
 }
-var exports = {
+
+export default {
   emptyCell,
   Piece,
   Board,
@@ -256,5 +257,3 @@ var exports = {
   checkHorizontal,
   checkGameOver,
 };
-
-export default exports;

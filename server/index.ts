@@ -16,16 +16,17 @@ config();
 import { loadHostConfig } from './config.js';
 const host = loadHostConfig();
 
-import * as express from 'express';
+import express from 'express';
 const app = express();
 app.enable('trust proxy');
 app.set('port', host.port || 3000);
 
-import * as shrinkRay from 'shrink-ray-current';
+import shrinkRay from 'shrink-ray-current';
 // Compress all requests
 app.use(shrinkRay());
 
 // need cookieParser middleware before we can do anything with cookies
+import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
 app.use(express.json());
@@ -38,9 +39,8 @@ app.use(
 import { createServer } from 'http';
 const server = createServer(app);
 import { Server } from 'socket.io';
-import * as cookieParser from 'cookie-parser';
-import * as cors from 'cors';
-import * as JWT from 'jsonwebtoken';
+import cors from 'cors';
+import JWT from 'jsonwebtoken';
 
 import db from '../db/db2.js';
 
@@ -390,7 +390,6 @@ io.on('connection', (socket) => {
           gameId: gameId,
           userId: userId,
           type: type,
-          result: result,
           id: action?.id,
           action: action,
         },
@@ -665,6 +664,7 @@ app.get('*', async (req, res, next) => {
   const pageContextInit = {
     url,
     userId,
+    redirectTo: null,
   };
   const pageContext = await renderPage(pageContextInit);
 

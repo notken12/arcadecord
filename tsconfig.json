@@ -1,8 +1,8 @@
 {
-  "module": "esnext",
+  "module": "es2022",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2022",
+    "module": "es2022",
     // this enables stricter inference for data properties on `this`
     "strict": true,
     "jsx": "preserve",
@@ -15,10 +15,12 @@
       "/gamecommons/*": ["server/src/games/types/*/common"]
     },
     "allowJs": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "ts-node": {
-    "esm": true
+    "esm": true,
+    "module": "es2022"
   },
   "include": ["server/src/**/*.vue", "server/**/*.ts"],
   "allowSyntheticDefaultImports": true

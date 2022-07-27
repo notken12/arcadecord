@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 export interface IUser {
+  _id: string;
   name: string;
   discordId: string;
   discordAccessToken: string;

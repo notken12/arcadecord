@@ -17,9 +17,13 @@ import GameFlow from './GameFlow';
 import BotApi from '../../bot/api';
 import Emoji from '../../../Emoji';
 import db from '../../../db/db2';
-import Ajv from 'ajv';
+import Ajv, { Schema } from 'ajv';
+
+import type { Canvas } from 'canvas';
 
 import type { IUser } from '../../../db/db2';
+
+import type { Message } from 'discord.js';
 
 import {
   GameConnectionError,
@@ -61,11 +65,16 @@ class Game {
   minPlayers: number = 2;
   eventHandlers: { [event: string]: EventHandler[] } = {};
   actionHandlers: { [event: string]: ActionHandler[] } = {};
-  sockets: { [pid: string]: string } = {};
+  sockets: { [pid: string]: string | null } = {};
   /** Discord ID of the server the game is in */
-  guild: String = '';
+  guild: string = '';
   /** Discord ID of the text channel the game is in */
-  channel: String = '';
+  channel: string = '';
+  /** Emoji representing the game */
+  emoji: string = '';
+  name: string = 'Game';
+  description: string = '';
+  aliases: string[] = [];
   turn: number = 1;
   gameOptions = {}; // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
   resending: boolean = false;
@@ -93,7 +102,7 @@ class Game {
   /** All past turns taken by players */
   turns: Turn[] & ClientData = [];
   /** Action data schemas to enforce. Helps with debugging and protects against attacks */
-  actionSchemas: { [actionName: string]: Object } = {};
+  actionSchemas: { [actionName: string]: Schema } = {};
   /** Snapshot of game data before the last turn */
   previousData: Object = {};
   /** Discord IDs of users that have been invited to join the game, reserved spots */
@@ -104,6 +113,11 @@ class Game {
   threadChannel: string | null = null;
   /** The user id that has been reserved a spot in the game because they opened the game first when there are competing connections. Used to choose who gets to go when multiple users are trying to connect into an open spot. */
   reservedSpot: string | null = null;
+
+  static thumbnailDimensions: { width: number; height: number };
+  static eventHandlersDiscord: {
+    [event: string]: (game: Game) => Game | Promise<Game>;
+  };
 
   constructor(typeOptions: TypeOptions, options?: Game) {
     this.id = options?.id || '';
@@ -419,9 +433,7 @@ class Game {
       };
 
     let error;
-    const perms: Object = (await res
-      .json()
-      .catch(() => (error = true))) as Object;
+    const perms: any = (await res.json().catch(() => (error = true))) as Object;
 
     if (error)
       return {
@@ -458,7 +470,7 @@ class Game {
       }
     }
   }
-  async canUserJoin(user) {
+  async canUserJoin(user: IUser) {
     if (this.isGameFull()) {
       this.emit('error', 'Game is full');
       return {
@@ -474,7 +486,7 @@ class Game {
         error: CanUserJoinError.NO_PERMISSION,
       };
 
-    if (this.players.filter((player) => player.id === user.id).length > 0) {
+    if (this.players.filter((player) => player.id === user._id).length > 0) {
       this.emit('error', 'Player already in game');
       return {
         ok: false,
@@ -486,11 +498,11 @@ class Game {
     };
   }
 
-  isConnectionContested(id) {
+  isConnectionContested(userId: string) {
     // If the user isn't in the game and doesn't have the reserved spot, its contested
     return (
-      !this.isPlayerInGame(id) &&
-      this.reservedSpot !== id.toString() &&
+      !this.isPlayerInGame(userId) &&
+      this.reservedSpot !== userId.toString() &&
       this.reservedSpot !== null
     );
   }
@@ -498,7 +510,7 @@ class Game {
    * Get unjoined sockets
    * @returns {array<String>} array of user ids of sockets that are connected to the game but not joined
    */
-  getUnjoinedSockets() {
+  getUnjoinedSockets(): Array<string> {
     let unjoinedSockets = [];
     for (let pid in this.sockets) {
       if (this.sockets[pid]) unjoinedSockets.push(pid);
@@ -512,8 +524,8 @@ class Game {
     }
     return unjoinedSockets;
   }
-  async canUserSocketConnect(id) {
-    if (this.isPlayerInGame(id)) {
+  async canUserSocketConnect(userId: string) {
+    if (this.isPlayerInGame(userId)) {
       return {
         ok: true,
       }; // shortcut, we know the user can connect so don't bother using HTTP requests to check permissions
@@ -527,7 +539,7 @@ class Game {
       };
     }
 
-    let dbUser = await db.users.getById(id);
+    let dbUser = await db.users.getById(userId);
     if (!dbUser) {
       this.emit('error', 'User not found');
       return {
@@ -579,18 +591,21 @@ class Game {
   isGameFull() {
     return this.players.length >= this.maxPlayers;
   }
-  isPlayerInGame(id) {
+  isPlayerInGame(userId: string) {
     return (
-      this.players.filter((player) => player.id.toString() === id.toString())
-        .length > 0
+      this.players.filter(
+        (player) => player.id.toString() === userId.toString()
+      ).length > 0
     );
   }
-  getPlayerIndex(id) {
-    return this.players.indexOf(
-      this.players.find((player) => player.id.toString() === id.toString())
+  getPlayerIndex(userId: string) {
+    let player = this.players.find(
+      (player) => player.id.toString() === userId.toString()
     );
+    if (player != null) return this.players.indexOf(player);
+    return -1;
   }
-  isItUsersTurn(userId, index) {
+  isItUsersTurn(userId: string, index: number) {
     var i;
     if (index !== undefined) {
       i = index;
@@ -621,10 +636,10 @@ class Game {
       this.reservedSpot = unjoined[0];
     }
   }
-  getSocket(userId) {
+  getSocket(userId: string) {
     return this.sockets[userId];
   }
-  disconnectSocket(userId) {
+  disconnectSocket(userId: string) {
     // Manage reservation on socket disconnect
     // If after disconnect there are 0 unjoined sockets, then no one has reserved
     // If after disconnect there is 1 unjoined socket, they get the reserved spot
@@ -640,39 +655,19 @@ class Game {
     }
   }
 
-  broadcastToAllSockets(event, broadcastGame, ...args) {
-    for (let key in this.sockets) {
-      if (broadcastGame) {
-        this.sockets[key].emit(event, this.getDataForClient(key), ...args);
-      } else {
-        this.sockets[key].emit(event, undefined, ...args);
-      }
-    }
-  }
-
   getImage() { }
 
-  getChanges(oldData, newData) {
-    var changes = {};
-    for (let key in newData) {
-      if (oldData[key] !== newData[key]) {
-        changes[key] = newData[key];
-      }
-    }
-    return changes;
-  }
-
-  setActionSchema(actionType, schema) {
+  setActionSchema(actionType: string, schema: Schema) {
+    // @ts-ignore
     schema.additionalProperties = false;
     this.actionSchemas[actionType] = schema;
   }
 
-  getDataForClient(userId) {
+  getDataForClient(userId: string) {
     var game = {
       id: this.id,
       name: this.name,
       description: this.description,
-      image: this.image,
       aliases: this.aliases,
       players: this.players.map((player) =>
         Player.getDataForClient(player, userId)
@@ -683,9 +678,9 @@ class Game {
       data: this.data,
       myIndex: this.getPlayerIndex(userId),
       hasStarted: this.hasStarted,
-      turns: this.turns.getDataForClient(userId),
-      actionModels: {},
-      clientActionModels: {},
+      turns: this.turns,
+      actionModels: {} as { [actionName: string]: string },
+      clientActionModels: {} as { [actionName: string]: string },
       winner: this.winner,
       hasEnded: this.hasEnded,
       typeId: this.typeId,
@@ -704,18 +699,18 @@ class Game {
     return game;
   }
 
-  getThumbnail() { }
+  getThumbnail(): Canvas | void { }
 }
 
 Game.eventHandlersDiscord = {
   init: async function(game) {
     var res = await BotApi.sendStartMessage(game);
 
-    var msg = await res.json().catch((e) => {
+    var msg = (await res.json().catch((e) => {
       console.log(res);
       console.log(e);
       return game;
-    });
+    })) as Message;
     if (!msg) return game;
     game.startMessage = msg.id;
 
@@ -724,7 +719,7 @@ Game.eventHandlersDiscord = {
   turn: async function(game) {
     var res = await BotApi.sendTurnInvite(game);
 
-    var msg = await res.json();
+    var msg = (await res.json()) as Message;
     game.lastTurnInvite = msg.id;
     if (game.inThread) {
       game.threadChannel = msg.channelId;

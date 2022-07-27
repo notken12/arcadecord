@@ -207,18 +207,8 @@ async function action_switchColors(game, action) {
   return game;
 }
 
-// Compatibility with browser and node
-
-var exports = {
+export default {
   COLORS: COLORS,
   Board: Board,
   action_switchColors: action_switchColors,
 };
-
-/*if (typeof(module) !== 'undefined') {
-    module.exports = exports; // require()
-} else {
-    window.Common = exports; // global var
-}*/
-
-export default exports;

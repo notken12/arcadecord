@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { ShardingManager, User } from 'discord.js';
+import { Client, ShardingManager, User } from 'discord.js';
 import express from 'express';
 
 // load .env that will be used for all processes running shard managers
@@ -71,7 +71,7 @@ app.get('/users/:id', (req, res) => {
   let shard = getShardByRoundRobin();
   manager
     .broadcastEval(
-      (c, { id }) => {
+      (c: Client, { id }) => {
         var user = c.users.fetch(id);
         return user;
       },
@@ -119,7 +119,7 @@ app.post('/startmessage', async (req, res) => {
 
   manager
     .broadcastEval(
-      async (c, { game }) => {
+      async (c: Client, { game }) => {
         try {
           return await c.sendStartMessage(game);
         } catch (e) {
@@ -279,12 +279,12 @@ app.listen(port, () =>
 
 console.log(
   'Starting shard manager ' +
-    config.id +
-    ' with ' +
-    shardList.length +
-    ' shards out of ' +
-    totalShards +
-    ' total shards'
+  config.id +
+  ' with ' +
+  shardList.length +
+  ' shards out of ' +
+  totalShards +
+  ' total shards'
 );
 
 manager.spawn();
