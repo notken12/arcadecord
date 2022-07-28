@@ -49,7 +49,7 @@ import { gameTypes } from './src/games/game-types.js';
 import Action from './src/games/Action.js';
 import Turn from './src/games/Turn.js';
 
-import * as appInsights from 'applicationinsights';
+import appInsights from 'applicationinsights';
 
 appInsights
   .setup(process.env.APPINSIGHTS_CONNECTIONSTRING)

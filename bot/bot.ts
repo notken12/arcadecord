@@ -17,6 +17,9 @@ import {
   MessageButton,
   BufferResolvable,
   MessageOptions,
+  TextChannel,
+  ThreadChannel,
+  Interaction,
 } from 'discord.js';
 
 import { GameTypes, gameTypes } from '../server/src/games/game-types';
@@ -25,7 +28,9 @@ import Emoji from '../Emoji.js';
 import { readdirSync } from 'fs';
 import { Client, Collection, Intents } from 'discord.js';
 
-import Canvas from 'canvas';
+import { SlashCommandBuilder } from '@discordjs/builders';
+
+import Canvas, { CanvasRenderingContext2D } from 'canvas';
 import Game from '../server/src/games/Game.js';
 
 // connect to the database
@@ -49,10 +54,18 @@ import { Stream } from 'stream';
 const config = loadShardManagerConfig();
 console.log(`Shard started with config: `, config);
 
+export interface InteractionHandler {
+  execute: (interaction: Interaction) => any;
+}
+
+export interface CommandHandler extends InteractionHandler {
+  data: SlashCommandBuilder;
+}
+
 export type ArcadecordClient = Client & {
-  commands: Collection;
-  selectMenus: Collection;
-  buttons: Collection;
+  commands: Collection<String, CommandHandler>;
+  selectMenus: Collection<String, InteractionHandler>;
+  buttons: Collection<String, InteractionHandler>;
   sendStartMessage: (game: Game) => any;
   sendTurnInvite: (game: Game) => any;
 };
@@ -78,7 +91,8 @@ client.sendStartMessage = async function (g) {
   // create instance of game
   const game = new gameType.Game(g);
 
-  const channel = await client.channels.fetch(game.channel);
+  const channel = (await client.channels.fetch(game.channel)) as TextChannel;
+  if (!channel) return;
 
   var gameCreator = game.players[0];
   //var gameCreatorUser = new Discord.User();
@@ -92,7 +106,10 @@ client.sendStartMessage = async function (g) {
 
   const message = await getInviteMessage(game);
 
-  var embed = message.embeds[0];
+  const { embeds } = message;
+  if (embeds == null) return;
+  var embed = embeds[0] as MessageEmbed;
+  if (embed == null) return;
   embed.setAuthor({
     name: `${gameCreator.discordUser.tag}`,
     iconURL: `https://cdn.discordapp.com/avatars/${gameCreator.discordUser.id}/${gameCreator.discordUser.avatar}.webp?size=32`,
@@ -125,9 +142,10 @@ client.sendTurnInvite = async function (g) {
   // create instance of game
   const game = new gameType.Game(g);
 
-  let channel;
+  let channel: TextChannel | ThreadChannel;
 
-  let textChannel = await client.channels.fetch(game.channel);
+  let textChannel = (await client.channels.fetch(game.channel)) as TextChannel;
+  if (textChannel == null) return;
   if (game.startMessage) {
     textChannel.messages.delete(game.startMessage).catch(() => {});
   }
@@ -145,7 +163,9 @@ client.sendTurnInvite = async function (g) {
       }
       channel = thread;
     } else {
-      channel = await client.channels.fetch(game.threadChannel);
+      channel = (await client.channels.fetch(
+        game.threadChannel
+      )) as TextChannel;
     }
   } else {
     channel = textChannel;
@@ -171,7 +191,10 @@ client.sendTurnInvite = async function (g) {
   if (!game.resending) await channel.send(m);
 
   let invite = await getInviteMessage(game);
-  invite.embeds[0].setTitle(`${game.emoji || ''}  ${game.name}`);
+  if (invite.embeds == null) return;
+  (invite.embeds[0] as MessageEmbed).setTitle(
+    `${game.emoji || ''}  ${game.name}`
+  );
 
   let currentPlayer = game.players[game.turn];
   if (!game.hasEnded) {
@@ -181,8 +204,6 @@ client.sendTurnInvite = async function (g) {
       invite.content = `It's a draw! <@${currentPlayer.discordUser.id}>`;
     } else {
       if (game.winner === game.turn) {
-        invite.content = `${Emoji.CHECK} You win, <@${currentPlayer.discordUser.id}>!`;
-      } else {
         invite.content = `${Emoji.X} You lose, <@${currentPlayer.discordUser.id}>!`;
       }
     }
@@ -206,7 +227,14 @@ client.sendTurnInvite = async function (g) {
   return await channel.send(invite);
 };
 
-function roundRect(ctx, x, y, w, h, r) {
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
   if (w < 2 * r) r = w / 2;
   if (h < 2 * r) r = h / 2;
   ctx.beginPath();
@@ -234,7 +262,7 @@ async function getInviteMessage(game: Game): Promise<MessageOptions> {
 
   var row = new MessageActionRow().addComponents([button]);
 
-  var invite = {
+  var invite: MessageOptions = {
     embeds: [embed],
     components: [row],
   };
@@ -247,7 +275,7 @@ async function getInviteMessage(game: Game): Promise<MessageOptions> {
     // Reset current transformation matrix to the identity matrix
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    if (game.hasEnded) {
+    if (game.hasEnded && game.winner != null) {
       if (game.winner === -1) {
         let drawOverlaySrc = path.resolve(
           __dirname,

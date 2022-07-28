@@ -22,6 +22,6 @@
     "esm": true,
     "module": "es2022"
   },
-  "include": ["server/src/**/*.vue", "server/**/*.ts"],
+  "include": ["server/src/**/*.vue", "server/**/*.ts", "bot/**/*.ts", "bot/bot.ts"],
   "allowSyntheticDefaultImports": true
 }
