@@ -16,12 +16,14 @@
     },
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "outDir": ".build"
   },
   "ts-node": {
     "esm": true,
     "module": "es2022"
   },
-  "include": ["server/src/**/*.vue", "server/**/*.ts", "bot/**/*.ts", "bot/bot.ts"],
+  "include": ["server/**/*.*", "bot/**/*.*", "db/**/*.*"],
+  "exclude": ["node_modules", "**/*.spec.js", "**/*.spec.ts"],
   "allowSyntheticDefaultImports": true
 }
