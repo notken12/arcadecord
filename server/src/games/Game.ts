@@ -8,20 +8,20 @@
 // without the express permission of Ken Zhou.
 
 import { config } from 'dotenv';
-import Player from './Player';
-import Action from './Action';
-import Turn from './Turn';
+import Player from './Player.js';
+import Action from './Action.js';
+import Turn from './Turn.js';
 import cloneDeep from 'lodash.clonedeep';
 
-import GameFlow from './GameFlow';
-import BotApi from '../../bot/api';
-import Emoji from '../../../Emoji';
-import db from '../../../db/db2';
+import GameFlow from './GameFlow.js';
+import BotApi from '../../bot/api.js';
+import Emoji from '../../../Emoji.js';
+import db from '../../../db/db2.js';
 import Ajv, { Schema } from 'ajv';
 
 import type { Canvas } from 'canvas';
 
-import type { IUser } from '../../../db/db2';
+import type { IUser } from '../../../db/db2.js';
 
 import type { Message } from 'discord.js';
 
@@ -36,7 +36,7 @@ config();
 
 const ajv = new Ajv();
 
-type TypeOptions = {
+export type TypeOptions = {
   typeId: string;
   name: string;
   description: string;
@@ -119,7 +119,7 @@ class Game {
     [event: string]: (game: Game) => Game | Promise<Game>;
   };
 
-  constructor(typeOptions: TypeOptions, options?: Game) {
+  constructor(typeOptions: Partial<TypeOptions>, options?: Game) {
     this.id = options?.id || '';
     this._id = options?.id || '';
 

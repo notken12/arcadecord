@@ -33,11 +33,13 @@ const cyrb53 = function (str: string, seed = 0) {
 
 // Create snowflake generator
 import { Generator } from 'snowflake-generator';
+import { RequestHandler } from 'express';
+import Game from '@app/games/Game.js';
 const seed = cyrb53(host.id);
 console.log(`Snowflake generator using seed ${seed}`);
 const SnowflakeGenerator = new Generator(946684800000, seed);
 
-var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 function bigint2base(x: bigint, baseDigits: string) {
   let base = BigInt(baseDigits.length);
@@ -51,7 +53,7 @@ function bigint2base(x: bigint, baseDigits: string) {
   return result || '0';
 }
 
-export default async (req, res, _next) => {
+const handler: RequestHandler = async (req, res, _next) => {
   console.log('creating game');
   try {
     // get token from headers
@@ -89,7 +91,23 @@ export default async (req, res, _next) => {
   }
 };
 
-export async function createGame(reqBody, testing) {
+export default handler;
+
+type CreateGameOptions = {
+  options: {
+    typeId: string;
+    guild: string;
+    channel: string;
+    invitedUsers: string[];
+    inThread: boolean;
+  };
+  userId: string;
+};
+
+export async function createGame(
+  reqBody: CreateGameOptions,
+  testing?: boolean
+) {
   let { options, userId } = reqBody;
   var typeId = options.typeId;
 
@@ -103,8 +121,7 @@ export async function createGame(reqBody, testing) {
 
   // Set game ID
   var snowflake = SnowflakeGenerator.generate();
-  var snowflakeNum = Number(snowflake);
-  game.id = bigint2base(snowflakeNum, 62);
+  game.id = bigint2base(snowflake as bigint, digits);
 
   // add player to game
   var user = await db.users.getById(userId);

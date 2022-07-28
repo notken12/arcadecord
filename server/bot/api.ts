@@ -114,7 +114,7 @@ function sendStartMessage(game: Game) {
 }
 
 // Stateful
-function sendTurnInvite(game) {
+function sendTurnInvite(game: Game) {
   let guildId = game.guild;
   let path = '/turninvite';
   let data = {
@@ -133,7 +133,7 @@ function sendTurnInvite(game) {
 }
 
 // Stateful
-function deleteMessage(guildId, channelId, messageId) {
+function deleteMessage(guildId: string, channelId: string, messageId: string) {
   let path = '/message/' + guildId + '/' + channelId + '/' + messageId;
 
   var options = {
@@ -144,7 +144,11 @@ function deleteMessage(guildId, channelId, messageId) {
 }
 
 // Stateful
-function getUserPermissionsInChannel(guildId, channelId, userId) {
+function getUserPermissionsInChannel(
+  guildId: string,
+  channelId: string,
+  userId: string
+) {
   let path = '/permissions/' + guildId + '/' + channelId + '/' + userId;
 
   var options = {
@@ -172,8 +176,10 @@ async function getBotStats() {
     let totalMembers = 0;
     for (let id = 0; id < config.shardManagerCount; id++) {
       let result = await getShardManagerStats(id);
-      let json: { totalGuilds: number; totalMembers: number } =
-        await result.json();
+      let json = (await result.json()) as {
+        totalGuilds: number;
+        totalMembers: number;
+      };
       totalGuilds += json.totalGuilds;
       totalMembers += json.totalMembers;
     }
