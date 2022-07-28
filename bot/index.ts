@@ -53,7 +53,7 @@ function getShardByRoundRobin() {
   return shardList[shardIndex];
 }
 
-function getShardByGuild(guild_id: string | number) {
+function getShardByGuild(guild_id: string) {
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
   return Number(BigInt(guild_id) >> 22n) % totalShards;
 }
@@ -210,7 +210,7 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
           }: { guild: string; channel: string; user: string }
         ) => {
           try {
-            const guild: Guild = await c.guilds.fetch(guildId);
+            const guild = await c.guilds.fetch(guildId);
 
             const channel = await guild.channels.fetch(channelId);
 
@@ -231,10 +231,12 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
             if (!member) return null;
 
+            console.log(member);
             const permissions = channel.permissionsFor(member).serialize();
 
             return permissions;
-          } catch {
+          } catch (e) {
+            console.error(e);
             return null;
           }
         },

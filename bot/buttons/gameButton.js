@@ -9,11 +9,12 @@
 
 import db from '../../db/db2.js';
 import fetch from 'node-fetch';
-import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { ButtonInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { gameTypes } from '../../server/src/games/game-types.js';
 import Emoji from '../../Emoji.js';
 
-function getOptionsMessage(dbOptions, interaction) {
+/** @param {ButtonInteraction} interaction */
+async function getOptionsMessage(dbOptions, interaction) {
   let gameType = gameTypes[dbOptions.typeId];
 
   let emoji = gameType.options.emoji || Emoji.ICON_ROUND;
@@ -44,7 +45,8 @@ function getOptionsMessage(dbOptions, interaction) {
     .setEmoji(Emoji.BACK);
   row.addComponents([backButton]);
 
-  if (interaction.channel.type === 'GUILD_TEXT') {
+  let channel = interaction.channel ?? await interaction.client.channels.fetch(interaction.channelId)
+  if (channel.type === 'GUILD_TEXT') {
     let threadToggleBtn = new MessageButton()
       .setStyle('SECONDARY')
       .setLabel('Play in thread')
@@ -93,7 +95,7 @@ export default {
       typeId,
     });
 
-    var msg = getOptionsMessage(dbOptions, interaction);
+    var msg = await getOptionsMessage(dbOptions, interaction);
     interaction.editReply(msg).catch(console.error);
   },
 };

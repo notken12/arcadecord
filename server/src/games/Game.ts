@@ -297,7 +297,7 @@ class Game {
     }
   }
   async addPlayer(id: string) {
-    var user = await db.users.getById(id);
+    var user: IUser = await db.users.getById(id);
     if (!user)
       return {
         ok: false,
@@ -349,7 +349,7 @@ class Game {
 
     if (!discordUser) {
       console.warn(
-        '[WARNING] Could not find discord user for user: ' + user.id
+        '[WARNING] Could not find discord user for user: ' + user._id
       );
       return {
         ok: false,
@@ -472,11 +472,14 @@ class Game {
     }
 
     // TODO: add more specific message
-    if (!(await this.doesUserHavePermission(user)).ok)
+    let permissionResult = await this.doesUserHavePermission(user);
+    if (!permissionResult.ok) {
+      console.error(permissionResult.error);
       return {
         ok: false,
         error: CanUserJoinError.NO_PERMISSION,
       };
+    }
 
     if (this.players.filter((player) => player.id === user._id).length > 0) {
       this.emit('error', 'Player already in game');

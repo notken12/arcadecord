@@ -14,7 +14,7 @@
     "start": "concurrently \"cd www && npm run dev\" \"nodemon --watch server server/index.ts single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.ts 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.ts\"",
     "format": "prettier --write .",
     "tsc": "tsc && npm run copyfiles",
-    "copyfiles": "cp -r bot/fonts/* .build/bot/fonts/ && cp -r bot/select-menus/* .build/bot/select-menus/"
+    "copyfiles": "cp -r bot/* .build/bot/ && cp -r server/* .build/server/"
   },
   "engines": {
     "node": "16.x"

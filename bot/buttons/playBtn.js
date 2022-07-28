@@ -24,8 +24,8 @@ export default {
 
     const body = {
       options: {
-        guild: interaction.guild.id,
-        channel: interaction.channel.id,
+        guild: interaction.guildId,
+        channel: interaction.channelId,
         typeId: dbOptions.typeId,
         invitedUsers: dbOptions.invitedUsers,
         inThread: dbOptions.inThread,

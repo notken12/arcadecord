@@ -128,7 +128,13 @@ export async function createGame(
   if (!user) return false;
   if (user.banned) return false;
 
-  await game.addPlayer(user._id);
+  const addPlayerResult = await game.addPlayer(user._id);
+  if (!addPlayerResult.ok) {
+    console.error(addPlayerResult.error);
+    throw new Error(
+      `Error while adding player to game: ${addPlayerResult.error}`
+    );
+  }
   await game.init();
 
   return game;
