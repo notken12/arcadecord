@@ -23,7 +23,7 @@ type HostConfig = {
 /** Load game server host's configuration from environment variables. See configuration.md for details. */
 export function loadHostConfig() {
   // Use environment vars for config
-  const host: HostConfig = {
+  const host: { [key: string]: any } = {
     port: Number(process.env.GAME_SERVER_HOST_PORT),
     id: process.env.GAME_SERVER_HOST_ID,
     webServerUrl: process.env.WEB_SERVER_URL,
@@ -43,5 +43,5 @@ export function loadHostConfig() {
       );
     }
   }
-  return host;
+  return host as HostConfig;
 }

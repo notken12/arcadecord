@@ -7,7 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import fetch from 'node-fetch';
+import fetch, { RequestInit } from 'node-fetch';
 
 import { loadApiConfig } from './config.js';
 
@@ -25,42 +25,48 @@ function getAuthHeader() {
   };
 }
 
-function auth(options) {
+function auth(options: RequestInit) {
   if (!options.headers) {
     options.headers = {};
   }
-  options.headers.Authorization = getAuthHeader().Authorization;
+  (options.headers as any).Authorization = getAuthHeader().Authorization;
 }
 
 let currentManager = 0;
-function routeRoundRobin(path, options) {
+function routeRoundRobin(path: string, options: RequestInit) {
   let url = getBaseUrlRoundRobin() + path;
   auth(options);
   return fetch(url, options);
 }
 
-function routeByGuild(path, options, guildId) {
+function routeByGuild(path: string, options: RequestInit, guildId: string) {
   let url = getBaseUrlByGuild(guildId) + path;
   auth(options);
   return fetch(url, options);
 }
 
-function routeByShardManager(path, options, shard_manager_id) {
+function routeByShardManager(
+  path: string,
+  options: RequestInit,
+  shard_manager_id: number
+) {
   const url = getShardManagerAddress(shard_manager_id) + path;
   auth(options);
   return fetch(url, options);
 }
 
-function getShardId(guildId: string | number) {
-  let guild_id_parsed = Number(guildId);
-  return (guild_id_parsed >>> 22) % config.totalShards;
+function getShardId(guildId: string) {
+  return Number(BigInt(guildId) >> 22n) % config.totalShards;
 }
 
-function getShardManagerAddress(shard_manager_id: string | number) {
-  return config.shardManagerPodAddress.replace('%ID%', shard_manager_id);
+function getShardManagerAddress(shard_manager_id: number) {
+  return config.shardManagerPodAddress?.replace(
+    '%ID%',
+    shard_manager_id.toString()
+  );
 }
 
-function getBaseUrlByGuild(guildId: string | number) {
+function getBaseUrlByGuild(guildId: string) {
   let shard_id = getShardId(guildId);
   let shard_manager_id = shard_id % config.shardManagerCount;
   return getShardManagerAddress(shard_manager_id);

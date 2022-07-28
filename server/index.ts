@@ -44,10 +44,10 @@ import JWT from 'jsonwebtoken';
 
 import db from '../db/db2.js';
 
-import { fetchUser } from './utils/discord-api';
-import { gameTypes } from './src/games/game-types';
-import Action from './src/games/Action';
-import Turn from './src/games/Turn';
+import { fetchUser } from './utils/discord-api.js';
+import { gameTypes } from './src/games/game-types.js';
+import Action from './src/games/Action.js';
+import Turn from './src/games/Turn.js';
 
 import * as appInsights from 'applicationinsights';
 
@@ -239,7 +239,9 @@ io.on('connection', (socket) => {
         if ((await game.canUserSocketConnect(userId)).ok) {
           // Disconnect socket from other tab
           let oldSocket = game.getSocket(userId);
-          io.to(oldSocket).disconnectSockets(true);
+          if (oldSocket != null) {
+            io.to(oldSocket).disconnectSockets(true);
+          }
 
           // Disconnect reasons:
           // https://socket.io/docs/v4/client-api/#event-disconnect
@@ -362,10 +364,7 @@ io.on('connection', (socket) => {
         // send turn to next user
         if (s) {
           var gameData = game.getDataForClient(player.id);
-          var turnData = Turn.getDataForClient(
-            game.turns[game.turns.length - 1],
-            player.id
-          );
+          var turnData = game.turns[game.turns.length - 1];
           io.to(s).emit('turn', gameData, turnData);
         }
       }
@@ -549,10 +548,10 @@ io.on('connection', (socket) => {
       await db.games.update(gameId, game);
 
       for (let userId in game.sockets) {
-        io.to(game.sockets[userId]).emit(
-          'contested',
-          game.isConnectionContested(userId)
-        );
+        let socket = game.sockets[userId];
+        if (socket != null) {
+          io.to(socket).emit('contested', game.isConnectionContested(userId));
+        }
       }
 
       appInsightsClient.trackEvent({

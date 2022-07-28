@@ -7,14 +7,14 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import db from '../../db/db2';
-import { gameTypes } from '../src/games/game-types';
+import db from '../../db/db2.js';
+import { gameTypes } from '../src/games/game-types.js';
 
 // Get host configuration
 import { loadHostConfig } from '../config.js';
 const host = loadHostConfig();
 
-const cyrb53 = function (str, seed = 0) {
+const cyrb53 = function (str: string, seed = 0) {
   let h1 = 0xdeadbeef ^ seed,
     h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {
@@ -37,18 +37,18 @@ const seed = cyrb53(host.id);
 console.log(`Snowflake generator using seed ${seed}`);
 const SnowflakeGenerator = new Generator(946684800000, seed);
 
-function toBase62(n) {
-  if (n === 0) {
-    return '0';
-  }
-  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  var result = '';
-  while (n > 0) {
-    result = digits[n % digits.length] + result;
-    n = parseInt(n / digits.length, 10);
+var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function bigint2base(x: bigint, baseDigits: string) {
+  let base = BigInt(baseDigits.length);
+  let result = '';
+
+  while (0 < x) {
+    result = baseDigits.charAt(Number(x % base)) + result;
+    x = x / base;
   }
 
-  return result;
+  return result || '0';
 }
 
 export default async (req, res, _next) => {
@@ -104,7 +104,7 @@ export async function createGame(reqBody, testing) {
   // Set game ID
   var snowflake = SnowflakeGenerator.generate();
   var snowflakeNum = Number(snowflake);
-  game.id = toBase62(snowflakeNum);
+  game.id = bigint2base(snowflakeNum, 62);
 
   // add player to game
   var user = await db.users.getById(userId);

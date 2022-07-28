@@ -7,7 +7,15 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { Client, ShardingManager, TextChannel, User } from 'discord.js';
+import {
+  Client,
+  Guild,
+  GuildMember,
+  Role,
+  ShardingManager,
+  TextChannel,
+  User,
+} from 'discord.js';
 import express from 'express';
 
 // load .env that will be used for all processes running shard managers
@@ -46,12 +54,8 @@ function getShardByRoundRobin() {
 }
 
 function getShardByGuild(guild_id: string | number) {
-  let guild_id_parsed = Number(guild_id);
-  var num_shards = totalShards;
-
   //https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-  var shard_id = (guild_id_parsed >>> 22) % num_shards;
-  return shard_id;
+  return Number(BigInt(guild_id) >> 22n) % totalShards;
 }
 
 // create sharding manager
@@ -124,10 +128,9 @@ app.post('/startmessage', async (req, res) => {
 
   manager
     .broadcastEval(
-      // @ts-ignore
-      async (c: ArcadecordClient, { game }: { game: Game }) => {
+      async (c: Client, { game }: { game: Game }) => {
         try {
-          return await c.sendStartMessage(game);
+          return await (c as ArcadecordClient).sendStartMessage(game);
         } catch (e) {
           console.log(e);
           return null;
@@ -148,10 +151,9 @@ app.post('/turninvite', async (req, res) => {
 
   manager
     .broadcastEval(
-      // @ts-ignore
-      async (c: ArcadecordClient, { game }) => {
+      async (c: Client, { game }: { game: Game }) => {
         try {
-          return await c.sendTurnInvite(game);
+          return await (c as ArcadecordClient).sendTurnInvite(game);
         } catch (e) {
           console.log(e);
           return null;
@@ -169,13 +171,15 @@ app.delete('/message/:guild/:channel/:message', (req, res) => {
 
   manager
     .broadcastEval(
-      // @ts-ignore
-      async (c: ArcadecordClient, { channel, message }) => {
-        var achannel = (await c.channels.cache.get(channel)) as TextChannel;
+      async (
+        c: Client,
+        { channel, message }: { channel: string; message: string }
+      ) => {
+        let textChannel = (await c.channels.cache.get(channel)) as TextChannel;
 
-        if (!achannel) return null;
+        if (!textChannel) return null;
 
-        var msg = await achannel.messages.delete(message).catch((err) => {
+        var msg = await textChannel.messages.delete(message).catch((err) => {
           //console.log(err);
           return null;
         });
@@ -197,20 +201,26 @@ app.get('/permissions/:guild/:channel/:user', (req, res) => {
 
     manager
       .broadcastEval(
-        // @ts-ignore
-        async (c, { guild, channel, user }) => {
+        async (
+          c: Client,
+          {
+            guild: guildId,
+            channel: channelId,
+            user,
+          }: { guild: string; channel: string; user: string }
+        ) => {
           try {
-            var guild = await c.guilds.fetch(guild);
+            const guild: Guild = await c.guilds.fetch(guildId);
 
-            var channel = await guild.channels.fetch(channel);
+            const channel = await guild.channels.fetch(channelId);
 
             if (!channel) return null;
 
-            var members = guild.members;
+            const members = guild.members;
 
             //get discord user id
 
-            var member;
+            let member: GuildMember | Role;
 
             try {
               member = await members.fetch(user);
@@ -258,7 +268,7 @@ async function getStats(shardManager: ShardingManager) {
   ];
 
   try {
-    const results = await Promise.all(promises) as number[][];
+    const results = (await Promise.all(promises)) as number[][];
     const totalGuilds: number = results[0].reduce(
       (acc_1: number, guildCount: number) => acc_1 + guildCount,
       0

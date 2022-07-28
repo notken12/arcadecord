@@ -15,7 +15,7 @@
     "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
     "start": "npm run startsingle",
     "startprod": "concurrently \"node server/web.js\" \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
-    "startsingle": "concurrently \"cd www && npm run dev\" \"nodemon --watch server server/index.ts single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.ts 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.ts\"",
+    "startsingle": "concurrently \"cd www && npm run dev\" \"nodemon --watch server server/index.ts single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot ts-node --emit bot/index.ts 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch ts-node --emit bot bot/index.ts\"",
     "format": "prettier --write '**/*.js'"
   },
   "engines": {

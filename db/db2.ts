@@ -7,6 +7,7 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
+import IGame from '@app/games/Game';
 import crypto from 'crypto';
 
 import mongoose from 'mongoose';
@@ -49,12 +50,11 @@ const userSchema = new Schema<IUser>({
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
-const gameSchema = new Schema({
+const gameSchema = new Schema<{ lastModifiedDate: Date } & IGame>({
   _id: String,
   typeId: String,
   name: String,
   description: String,
-  image: String,
   aliases: [String],
   minPlayers: Number,
   maxPlayers: Number,
@@ -92,7 +92,17 @@ const gameSchema = new Schema({
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
-const slashCommandOptionsSchema = new Schema({
+export interface ISlashCommandOptions {
+  _id: string;
+  invitedUsers: string[];
+  inThread: boolean;
+  gameConfig: Object | void;
+  typeId: string;
+}
+
+const slashCommandOptionsSchema = new Schema<
+  { createdAt: Date } & ISlashCommandOptions
+>({
   _id: String,
   invitedUsers: Array,
   inThread: Boolean,
@@ -110,17 +120,23 @@ const SlashCommandOptions =
   mongoose.model('SlashCommandOptions', slashCommandOptionsSchema);
 
 const db = {
-  async connect(uri) {
-    await mongoose.connect(uri ?? process.env.MONGODB_URI);
+  async connect(uri?: string) {
+    let mongoUri = uri ?? process.env.MONGODB_URI;
+    if (mongoUri == null) {
+      throw new Error(
+        'You must provide a uri to connect to or set $MONGODB_URI to a uri'
+      );
+    }
+    await mongoose.connect(mongoUri);
   },
   users: {
-    getHash: function(token) {
+    getHash: function (token: crypto.BinaryLike) {
       if (!token) {
         return null;
       }
       return crypto.createHash('sha256').update(token).digest('hex');
     },
-    async create(data) {
+    async create(data: IUser) {
       try {
         var newUser = new User(data);
         return await newUser.save();
@@ -129,7 +145,7 @@ const db = {
         return null;
       }
     },
-    async getById(id) {
+    async getById(id: string) {
       try {
         return await User.findById(id);
       } catch (e) {
@@ -137,7 +153,7 @@ const db = {
         return null;
       }
     },
-    async getByDiscordId(id) {
+    async getByDiscordId(id: string) {
       try {
         return await User.findOne({ discordId: id });
       } catch (e) {
@@ -145,7 +161,7 @@ const db = {
         return null;
       }
     },
-    async getByAccessToken(token) {
+    async getByAccessToken(token: string) {
       try {
         if (!token) {
           return null;
@@ -156,7 +172,7 @@ const db = {
         return null;
       }
     },
-    async update(id, data) {
+    async update(id: string, data: Partial<IUser>) {
       try {
         return await User.findByIdAndUpdate(id, data, { new: true });
       } catch (e) {
@@ -164,7 +180,7 @@ const db = {
         return null;
       }
     },
-    async delete(id) {
+    async delete(id: string) {
       try {
         return await User.findByIdAndRemove(id);
       } catch (e) {
@@ -172,7 +188,7 @@ const db = {
         return null;
       }
     },
-    async generateAccessToken(id) {
+    async generateAccessToken(id: string) {
       var user = await this.getById(id);
 
       if (!user) {
@@ -191,7 +207,7 @@ const db = {
     },
   },
   games: {
-    async create(data) {
+    async create(data: IGame) {
       try {
         var newGame = new Game(data);
         newGame._id = data.id;
@@ -201,7 +217,7 @@ const db = {
         return null;
       }
     },
-    async getById(id) {
+    async getById(id: string) {
       try {
         return await Game.findById(id);
       } catch (e) {
@@ -209,7 +225,7 @@ const db = {
         return null;
       }
     },
-    async update(id, data) {
+    async update(id: string, data: Partial<IGame>) {
       try {
         return await Game.findByIdAndUpdate(
           id,
@@ -224,7 +240,7 @@ const db = {
         return null;
       }
     },
-    async delete(id) {
+    async delete(id: string) {
       try {
         return await Game.findByIdAndRemove(id);
       } catch (e) {
@@ -234,7 +250,7 @@ const db = {
     },
   },
   slashCommandOptions: {
-    async create(data) {
+    async create(data: ISlashCommandOptions) {
       try {
         var newSlashCommandOptions = new SlashCommandOptions(data);
         return await newSlashCommandOptions.save();
@@ -243,7 +259,7 @@ const db = {
         return null;
       }
     },
-    async getById(id) {
+    async getById(id: string) {
       try {
         return await SlashCommandOptions.findById(id);
       } catch (e) {
@@ -251,7 +267,7 @@ const db = {
         return null;
       }
     },
-    async update(id, data) {
+    async update(id: string, data: Partial<ISlashCommandOptions>) {
       try {
         return await SlashCommandOptions.findByIdAndUpdate(id, data, {
           new: true,
@@ -261,7 +277,7 @@ const db = {
         return null;
       }
     },
-    async delete(id) {
+    async delete(id: string) {
       try {
         return await SlashCommandOptions.findByIdAndRemove(id);
       } catch (e) {

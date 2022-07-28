@@ -10,21 +10,12 @@
 import Action from './Action.js';
 
 class Turn {
-  constructor(playerIndex, actions) {
+  playerIndex: number;
+  actions: Action[];
+  constructor(playerIndex: number, actions?: Action[]) {
     this.playerIndex = playerIndex;
-    this.actions = actions || [];
+    this.actions = actions || ([] as Action[]);
   }
-
-  getDataForClient() {}
 }
-
-Turn.getDataForClient = function (turn, userId) {
-  return {
-    playerIndex: turn.playerIndex,
-    actions: turn.actions.map((action) =>
-      Action.getDataForClient(action, userId)
-    ),
-  };
-};
 
 export default Turn;
