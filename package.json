@@ -11,12 +11,9 @@
   "scripts": {
     "build": "vite build && vite build --ssr",
     "test": "vitest",
-    "startbot": "concurrently \"nodemon --watch bot bot/proxy.js\" \"nodemon --watch bot bot/index.js 1\" \"nodemon --watch bot bot/index.js 2\"",
-    "startserver": "concurrently \"nodemon --watch server server/index.js 1\" \"nodemon --watch server server/index.js 2\" \"nodemon --watch server server/index.js 3\"",
-    "start": "npm run startsingle",
-    "startprod": "concurrently \"node server/web.js\" \"node server/index.js single\" \"node bot/proxy.js\" \"node bot/index.js 1\" \"node bot/index.js 2\"",
-    "startsingle": "concurrently \"cd www && npm run dev\" \"nodemon --watch server server/index.ts single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.ts 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.ts\"",
-    "format": "prettier --write '**/*.js'"
+    "start": "concurrently \"cd www && npm run dev\" \"nodemon --watch server server/index.ts single\" \"PORT=2000 POD_NAME=shardmanager-0 nodemon --watch bot bot/index.ts 1\" \"PORT=2001 POD_NAME=shardmanager-1 nodemon --watch bot bot/index.ts\"",
+    "format": "prettier --write .",
+    "tsc": "tsc --outDir .build -p tsconfig.json"
   },
   "engines": {
     "node": "16.x"
@@ -37,7 +34,7 @@
       "server/src/games/**"
     ],
     "execMap": {
-      "ts": "ts-node --compilerHost --emit"
+      "ts": "ts-node"
     },
     "delay": 2500
   },

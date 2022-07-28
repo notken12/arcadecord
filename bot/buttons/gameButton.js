@@ -7,10 +7,10 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import db from '../../db/db2';
+import db from '../../db/db2.js';
 import fetch from 'node-fetch';
 import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { gameTypes } from '../../server/src/games/game-types';
+import { gameTypes } from '../../server/src/games/game-types.js';
 import Emoji from '../../Emoji.js';
 
 function getOptionsMessage(dbOptions, interaction) {

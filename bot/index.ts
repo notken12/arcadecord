@@ -59,7 +59,7 @@ function getShardByGuild(guild_id: string | number) {
 }
 
 // create sharding manager
-const manager = new ShardingManager('./.ts-node/bot/bot.js', {
+const manager = new ShardingManager('./.build/bot/bot.js', {
   token: process.env.BOT_TOKEN,
   shardList: shardList,
   totalShards: totalShards,

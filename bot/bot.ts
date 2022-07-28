@@ -22,7 +22,7 @@ import {
   Interaction,
 } from 'discord.js';
 
-import { GameTypes, gameTypes } from '../server/src/games/game-types';
+import { GameTypes, gameTypes } from '../server/src/games/game-types.js';
 import Emoji from '../Emoji.js';
 
 import { readdirSync } from 'fs';
@@ -122,14 +122,6 @@ client.sendStartMessage = async function (g) {
     embed.setDescription(
       `<@${gameCreator.discordUser.id}> invited you to this game!`
     );
-  } else {
-    // embed.setDescription(
-    //   `${game.description}\n\nJoin <@${gameCreator.discordUser.id}> in this game!`
-    // )
-  }
-
-  if (content.length > 0) {
-    message.content = content;
   }
 
   return await channel.send(message);
