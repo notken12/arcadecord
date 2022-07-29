@@ -88,4 +88,29 @@ test('initial game state', async () => {
   // Expecting the turn to be the next player's
   expect(game.turn).toBe(1);
   console.log(game.data);
+
+  const draw = new Action('draw', {}, 1);
+  expect(await game.handleAction(draw)).toEqual({ success : true});
+  expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(8);
+
+  // // second player plays skip
+  // const skip = new Action(
+  //   'place',
+  //   {
+  //     index: 5,
+  //   },
+  //   1
+  // );
+
+  // // expect it to be a valid action
+  // expect(await game.handleAction(skip)).toEqual({ success: true });
+
+  // // expect the turn to be a skip, normally in a turn ot would be player 2, but it goes back to player 0
+  // expect(game.turn).toBe(0);
+
+  // // epecting cards in hand to be 6
+  // expect(Common.Card.decodeArray(game.data.hands[0].cards).length).toBe(6);
+
+  // // expecting cards in discard to be 5
+  // expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(5);
 });
