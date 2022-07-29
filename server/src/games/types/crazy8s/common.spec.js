@@ -89,9 +89,18 @@ test('initial game state', async () => {
   expect(game.turn).toBe(1);
   console.log(game.data);
 
+  // create new action draw to allow player to draw from pile
   const draw = new Action('draw', {}, 1);
-  expect(await game.handleAction(draw)).toEqual({ success : true});
+  expect(await game.handleAction(draw)).toEqual({ success: true });
   expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(8);
+  expect(game.turn).toBe(1);
+
+  // create new action end turn to end players turn after they draw
+  const end_turn = new Action('end_turn', {}, 1);
+  
+  expect(await game.handleAction(end_turn)).toEqual({ success: true });
+  expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(8);
+  expect(game.turn).toBe(2);
 
   // // second player plays skip
   // const skip = new Action(
