@@ -61,6 +61,18 @@ class Crazy8s extends Game {
       },
       required: ['index'],
     });
+
+    this.setActionModel('draw', Common.action_draw);
+    this.setActionSchema('draw', {
+      type: 'object',
+      properties: {},
+    });
+
+    this.setActionModel('endTurn', Common.action_endTurn);
+    this.setActionSchema('endTurn', {
+      type: 'object',
+      properties: {},
+    });
   }
 
   onReady(game) {
@@ -105,6 +117,7 @@ class Crazy8s extends Game {
     for (let i = 0; i < game.players.length; i++) {
       game.data.hands[i] = {
         cards: [],
+        drawn: false,
       };
     }
     Common.dealCards(game);

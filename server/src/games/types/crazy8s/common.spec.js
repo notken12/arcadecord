@@ -27,8 +27,12 @@ const stateSchema = {
           cards: {
             type: 'string',
           },
+          /// Whether the player has drawn a card in their current turn. Players may only pass if they have drawn a card
+          drawn: {
+            type: 'boolean',
+          },
         },
-        required: ['cards'],
+        required: ['cards', 'drawn'],
       },
     },
     drawPile: {
@@ -87,20 +91,30 @@ test('initial game state', async () => {
 
   // Expecting the turn to be the next player's
   expect(game.turn).toBe(1);
-  console.log(game.data);
+
+  // create new action end turn to end players turn after they draw
+  const end_turn = new Action('endTurn', {}, 1);
+  // Ending turn should be an invalid action because the player has not drawn a card yet
+  expect((await game.handleAction(end_turn)).success).toBe(false);
 
   // create new action draw to allow player to draw from pile
   const draw = new Action('draw', {}, 1);
   expect(await game.handleAction(draw)).toEqual({ success: true });
-  expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(8);
+  expect(Common.Card.decodeArray(game.data.hands[1].cards).length).toBe(8);
   expect(game.turn).toBe(1);
+  // Hand should have a "drawn" flag to allow the player to end their turn
+  expect(game.data.hands[1].drawn).toBe(true);
 
-  // create new action end turn to end players turn after they draw
-  const end_turn = new Action('end_turn', {}, 1);
-  
+  // Ending turn should now be a valid action because the player has drawn a card
   expect(await game.handleAction(end_turn)).toEqual({ success: true });
-  expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(8);
+  // Hand should remain the same
+  expect(Common.Card.decodeArray(game.data.hands[1].cards).length).toBe(8);
+  // Should be next player's turn
   expect(game.turn).toBe(2);
+  // Reset "drawn" flag to false
+  expect(game.data.hands[1].drawn).toBe(false);
+
+  console.log(game.data);
 
   // // second player plays skip
   // const skip = new Action(

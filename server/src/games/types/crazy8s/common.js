@@ -14,7 +14,6 @@ import cloneDeep from 'lodash.clonedeep';
 /** @typedef {'_'|'r'|'g'|'b'|'y'} CardColor */
 
 const STARTING_HAND_SIZE = 7;
-
 class Card {
   /** Card's number, for non applicable cards use 0
    * @type number*/
@@ -111,8 +110,8 @@ function random(seed) {
 
 async function place(game, action) {
   // Get the card the player wants to play from their hand, by index
-  let hand = game.data.hands[action.playerIndex];
-  let card = Card.getCardByIndex(hand.cards, action.data.index);
+  const hand = game.data.hands[action.playerIndex];
+  const card = Card.getCardByIndex(hand.cards, action.data.index);
   let drawPile = game.data.drawPile;
   let discardPile = game.data.discardPile;
   let topCard = Card.getTopCard(discardPile);
@@ -140,6 +139,7 @@ async function place(game, action) {
         break;
     }
     if (hand.cards.length === 0) {
+      hand.drawn = false;
       await GameFlow.end(game, {
         winner: game.turn,
       });
@@ -152,7 +152,8 @@ async function place(game, action) {
       Card.ENCODING_LENGTH
     );
     hand.cards = newCards.join('');
-    await GameFlow.endTurn(game);
+    hand.drawn = false;
+    await endTurn(game);
     return game;
   }
   return false;
@@ -168,6 +169,11 @@ function getNextPlayer(game) {
     if (nextPlayer === -1) nextPlayer = game.players.length - 1;
   }
   return nextPlayer;
+}
+
+async function endTurn(game) {
+  let nextPlayer = getNextPlayer(game);
+  await GameFlow.endTurn(game, nextPlayer);
 }
 
 function shuffle(cards) {
@@ -192,6 +198,7 @@ function dealCards(game) {
   }
 }
 
+// TODO: implement shuffling once all cards are drawn
 function drawTopCard(game) {
   let card = Card.getTopCard(game.data.drawPile);
   game.data.drawPile = game.data.drawPile.substring(
@@ -201,6 +208,25 @@ function drawTopCard(game) {
   return card;
 }
 
+async function action_draw(game, action) {
+  const card = drawTopCard(game);
+  const hand = game.data.hands[action.playerIndex];
+  hand.cards += Card.encode(card);
+  hand.drawn = true;
+  return game;
+}
+
+async function action_endTurn(game, action) {
+  const hand = game.data.hands[action.playerIndex];
+  // Player must first draw a card to end their turn
+  if (!hand.drawn) {
+    return false;
+  }
+  hand.drawn = false;
+  await endTurn(game);
+  return game;
+}
+
 export default {
   place,
   shuffle,
@@ -208,4 +234,6 @@ export default {
   dealCards,
   Card,
   drawTopCard,
+  action_draw,
+  action_endTurn,
 };
