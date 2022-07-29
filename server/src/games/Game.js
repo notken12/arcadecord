@@ -369,7 +369,10 @@ class Game {
       };
     }
     const player = new Player(id, discordUser);
-    if (this.players.length === 0) {
+    if (
+      this.players.length === 0 ||
+      this.players.length + 1 === this.maxPlayers
+    ) {
       player.ready = true;
     }
 
@@ -383,8 +386,8 @@ class Game {
   /** Ready up a player that has joined the game from multiplayer lobby
    * @param {string} userId */
   async readyPlayer(userId) {
-    const player = this.players.find((p) => p.id === userId);
-    if (player == null) return;
+    const player = this.getPlayerById(userId);
+    if (player == null) return false;
     player.ready = true;
     // Start game if all players are ready
     if (this.players.length >= this.minPlayers) {
@@ -397,6 +400,22 @@ class Game {
       }
       if (allReady) await this.readyUp();
     }
+    return true;
+  }
+  /** Un-ready a player that has joined the game from multiplayer lobby
+   * @param {string} userId */
+  async unReadyPlayer(userId) {
+    // Too late fool the game has already started
+    if (this.ready) return false;
+
+    const player = this.getPlayerById(userId);
+
+    if (player == null) return false;
+
+    player.ready = false;
+  }
+  getPlayerById(userId) {
+    return this.players.find((p) => p.id.toString() === userId.toString());
   }
   /** Kick a player from the game, done in the multiplayer lobby
    * @param {string} ownerId - User id of the game creator (player 0)
@@ -432,7 +451,7 @@ class Game {
             tag: `player${i}#${i.toString().padStart(4, '0')}`,
           },
           // 1st player (game owner) should be automatically ready
-          i === 0
+          i === 0 || i + 1 === this.maxPlayers
         )
       );
     }
@@ -444,12 +463,19 @@ class Game {
     }
     await this.emit('init');
   }
+  /** Runs when game is ready from multiplayer lobby or init and the first action may be taken. Purges all non-ready players. */
   async readyUp() {
     this.ready = true;
     if (this.players.length > 2) {
       this.turn = 0;
     }
+    this.players = this.players.filter((p) => p.ready);
     await this.onReady(this);
+  }
+  async readyAllPlayers() {
+    for (let player of this.players) {
+      await this.readyPlayer(player.id);
+    }
   }
   /** Override to make a handler for when the game is created (right after the /play command, and before the bot sends the invite message).
    * @deprecated use game.onReady() instead. */
@@ -714,6 +740,12 @@ class Game {
       this.reservedSpot = null;
     } else if (unjoined.length === 1) {
       this.reservedSpot = unjoined[0];
+    }
+
+    // Remove player if he isn't ready
+    const player = this.getPlayerById(userId);
+    if (!player.ready) {
+      this.players.splice(this.getPlayerIndex(player.id), 1);
     }
   }
 

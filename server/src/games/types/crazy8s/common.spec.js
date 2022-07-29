@@ -57,7 +57,7 @@ test('initial game state', async () => {
 
   game.mockPlayers(3);
   await game.init();
-  await game.readyUp();
+  await game.readyAllPlayers();
 
   const valid = validateGameState(game.data);
   expect(validateGameState.errors).toBe(null);
