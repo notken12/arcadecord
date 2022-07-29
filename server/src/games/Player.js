@@ -21,19 +21,25 @@
  * @property {string} id - User id in database
  * @property {DiscordUser} discordUser - The user's discord profile
  */
- class Player {
+class Player {
   /** @type string */
   id;
   /** @type DiscordUser */
   discordUser;
+  /** Whether the player has readied up in the game lobby for 3+ player games
+   * @type number
+   */
+  ready = false;
   /**
    * @param {string} id - User id in database
    * @param {DiscordUser} discordUser - The user's discord profile
+   * @param {boolean?} ready - Whether the player has readied up in the game lobby for 3+ player games
    */
-  constructor(id, discordUser) {
+  constructor(id, discordUser, ready) {
     this.id = id;
 
     this.discordUser = discordUser;
+    this.ready = ready || false;
   }
 }
 

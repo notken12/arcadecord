@@ -92,6 +92,6 @@
   "devDependencies": {
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
-    "vitest": "^0.7.10"
+    "vitest": "^0.19.1"
   }
 }

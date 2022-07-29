@@ -55,7 +55,7 @@ test('Initial game state', async () => {
   game.mockPlayers(2);
 
   // Initialize the game
-  game.init();
+  await game.init();
 
   const valid = validateGameState(game.data);
   expect(valid).toBe(true);
@@ -71,7 +71,7 @@ describe('Action: place ships', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     let availableShips = Common.getAvailableShips(1);
     let shipPlacementBoard = Common.PlaceShips(
@@ -113,7 +113,7 @@ describe('Action: place ships', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     let availableShips = Common.getAvailableShips(1);
     let shipPlacementBoard = Common.PlaceShips(
@@ -143,7 +143,7 @@ describe('Action: place ships', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     let availableShips = Common.getAvailableShips(1);
     let shipPlacementBoard = Common.PlaceShips(
@@ -176,7 +176,7 @@ describe('Action: place ships', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     let availableShips = Common.getAvailableShips(1);
     let shipPlacementBoard = Common.PlaceShips(
@@ -225,7 +225,7 @@ describe('Action: shoot', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     let action = new Action('placeShips', { shipPlacementBoard }, 1);
     let action2 = new Action('placeShips', { shipPlacementBoard }, 0);

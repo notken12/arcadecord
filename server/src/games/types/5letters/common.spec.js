@@ -69,7 +69,7 @@ test('initial game state', async () => {
   game.mockPlayers(2);
 
   // Initialize the game
-  game.init();
+  await game.init();
 
   const valid = validateGameState(game.data);
   expect(valid).toBe(true);
@@ -85,7 +85,7 @@ describe('Action: choose word', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     // Choose a word
     let action = new Action(
@@ -122,7 +122,7 @@ describe('Action: choose word', async () => {
     let game = new main.Game();
     game.test();
     game.mockPlayers(2);
-    game.init();
+    await game.init();
 
     let action = new Action(
       'chooseWord',
@@ -147,7 +147,7 @@ describe('Action: guess', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -203,7 +203,7 @@ describe('Action: guess', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -261,7 +261,7 @@ describe('Action: guess', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -324,7 +324,7 @@ describe('Action: guess', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
 
     // Player 1 chooses a word
     let action = new Action(
@@ -369,7 +369,8 @@ describe('Action: guess', async () => {
     game.mockPlayers(2);
 
     // Initialize the game
-    game.init();
+    await game.init();
+    expect(game.ready).toBe(true);
 
     // Player 1 chooses a word
     let action = new Action(

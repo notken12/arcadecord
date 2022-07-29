@@ -24,6 +24,7 @@ import {
   CanUserJoinError,
   AddPlayerError,
   UserPermissionError,
+  ActionError,
 } from './GameErrors.js';
 
 config();
@@ -42,12 +43,16 @@ class Game {
   // }
 
   gameOptions = {}; // options for the game like 8 ball/9 ball, basketball moving targets or not, etc
+  /** @type Player[] */
+  players = [];
+  /** Whether all players in the multiplayer lobby have readied up and the game has started, but the first action may not have been taken yet
+   * @type boolean */
+  ready = false;
 
   constructor(typeOptions, options) {
     this.testing = false;
 
     this.id = null; // will be set by the server index.js
-    this.players = [];
     this.eventHandlers = {};
     this.actionHandlers = {};
     this.turn = 1;
@@ -168,7 +173,16 @@ class Game {
     }
     return true;
   }
-  async handleAction(action) {
+  /** Gets ready to run action model and returns true if the game may execute this action, otherwise it returns a handleAction result. Run before handleAction runs the action model. **Only for internal use.**
+   * This function has side effects.
+   * @param {Action} action */
+  async canRunAction(action) {
+    if (!this.ready) {
+      return {
+        success: false,
+        error: ActionError.ISNT_READY,
+      };
+    }
     action.playerIndex = this.getPlayerIndex(action.userId);
 
     let actionSchema = this.actionSchemas[action.type];
@@ -218,6 +232,12 @@ class Game {
         success: false,
         message: 'Not your turn',
       };
+
+    return true;
+  }
+  async handleAction(action) {
+    let canRunAction = await this.canRunAction(action);
+    if (canRunAction !== true) return canRunAction;
 
     if (
       this.turns.length == 0 ||
@@ -348,7 +368,10 @@ class Game {
         error: AddPlayerError.DISCORD_USER_NOT_FOUND,
       };
     }
-    var player = new Player(id, discordUser);
+    const player = new Player(id, discordUser);
+    if (this.players.length === 0) {
+      player.ready = true;
+    }
 
     this.players.push(player);
     this.emit('join', player);
@@ -356,6 +379,41 @@ class Game {
     return {
       ok: true,
     };
+  }
+  /** Ready up a player that has joined the game from multiplayer lobby
+   * @param {string} userId */
+  async readyPlayer(userId) {
+    const player = this.players.find((p) => p.id === userId);
+    if (player == null) return;
+    player.ready = true;
+    // Start game if all players are ready
+    if (this.players.length >= this.minPlayers) {
+      let allReady = true;
+      for (let i = 0; i < this.players.length; i++) {
+        if (!this.players[i].ready) {
+          allReady = false;
+          break;
+        }
+      }
+      if (allReady) await this.readyUp();
+    }
+  }
+  /** Kick a player from the game, done in the multiplayer lobby
+   * @param {string} ownerId - User id of the game creator (player 0)
+   * @param {string} userId - User id to kick*/
+  kickPlayer(ownerId, userId) {
+    if (this.players[0].id.toString() !== ownerId.toString()) {
+      console.log(this.players[0], ownerId);
+      return false;
+    }
+    for (let i = 0; i < this.players.length; i++) {
+      let player = this.players[i];
+      if (player.id === userId) {
+        this.players.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
   }
   mockPlayers(count) {
     if (!this.testing) {
@@ -365,24 +423,28 @@ class Game {
       return;
     }
     for (let i = 0; i < count; i++) {
-      this.players.push({
-        id: i,
-        discordUser: {
-          mock: true,
-          id: 'xxxxxxxxxxx',
-          tag: `player${i}#${i.toString().padStart(4, '0')}`,
-        },
-      });
+      this.players.push(
+        new Player(
+          i,
+          {
+            mock: true,
+            id: 'xxxxxxxxxxx',
+            tag: `player${i}#${i.toString().padStart(4, '0')}`,
+          },
+          // 1st player (game owner) should be automatically ready
+          i === 0
+        )
+      );
     }
   }
   async init() {
     await this.onInit(this);
     if (this.maxPlayers === 2) {
-      await this.ready();
+      await this.readyUp();
     }
     await this.emit('init');
   }
-  async ready() {
+  async readyUp() {
     this.ready = true;
     if (this.players.length > 2) {
       this.turn = 0;

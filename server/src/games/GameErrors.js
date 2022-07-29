@@ -37,3 +37,7 @@ export const UserPermissionError = {
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   USER_BANNED: 'USER_BANNED',
 };
+
+export const ActionError = {
+  ISNT_READY: 'ISNT_READY',
+};

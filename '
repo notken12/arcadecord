@@ -307,10 +307,9 @@ describe('3+ Player Lobby', () => {
       },
       true // mark as testing
     );
-    game.minPlayers = 3;
     await game.addPlayer(user1._id);
-    expect(game.players.length).toBe(2);
     await game.readyPlayer(user1._id);
+    expect(game.players.length).toBe(2);
 
     expect(game.players[0].id).toEqual(user0._id);
     expect(await game.kickPlayer(user0._id, user1._id)).toBe(true); //Not index because having multiple kicks might start kicking incorrect players

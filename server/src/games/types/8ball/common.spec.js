@@ -100,7 +100,7 @@ const stateSchema = {
 
 const validateGameState = ajv.compile(stateSchema);
 
-test('Initial 8ball game state', () => {
+test('Initial 8ball game state', async () => {
   // Create a new game
   let game = new main.Game();
   // Activate testing mode
@@ -109,7 +109,7 @@ test('Initial 8ball game state', () => {
   game.mockPlayers(2);
 
   // Initialize the game
-  game.init();
+  await game.init();
 
   const valid = validateGameState(game.data);
   expect(game.data.balls.length).toEqual(16);
