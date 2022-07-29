@@ -104,6 +104,10 @@ test('initial game state', async () => {
   expect(game.turn).toBe(1);
   // Hand should have a "drawn" flag to allow the player to end their turn
   expect(game.data.hands[1].drawn).toBe(true);
+  // Draw pile should have one less card in it
+  expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(
+    108 - 3 * 7 - 3 - 1
+  );
 
   // Ending turn should now be a valid action because the player has drawn a card
   expect(await game.handleAction(end_turn)).toEqual({ success: true });
@@ -115,6 +119,8 @@ test('initial game state', async () => {
   expect(game.data.hands[1].drawn).toBe(false);
 
   console.log(game.data);
+
+  // TODO: test player 2 playing a red +2
 
   // // second player plays skip
   // const skip = new Action(
