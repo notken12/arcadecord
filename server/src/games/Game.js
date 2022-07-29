@@ -688,10 +688,14 @@ class Game {
         .length > 0
     );
   }
-  getPlayerIndex(id) {
-    return this.players.indexOf(
-      this.players.find((player) => player.id.toString() === id.toString())
-    );
+  getPlayerIndex(userId) {
+    for (let i = 0; i < this.players.length; i++) {
+      let player = this.players[i];
+      if (player.id.toString() === userId.toString()) {
+        return i;
+      }
+    }
+    return -1;
   }
   isItUsersTurn(userId, index) {
     var i;
