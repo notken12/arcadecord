@@ -51,6 +51,9 @@ async function hydrate() {
     // Nice UI components for the basic UI
     // No need to setup UI for the client, we are using SSR
     store.commit('SETUP', response);
+    console.log(response.game.players);
+    console.log(store.state.game.players);
+    console.log(store.state.realGame.players);
     // store.commit('REPLAY_TURN');
 
     // Listen for events from the server
@@ -70,6 +73,12 @@ async function hydrate() {
     Client.socket.on('contested', (contested) => {
       // Update store's contested
       store.commit('UPDATE_CONTESTED', contested);
+    });
+
+    // When the game is updated (new players join the game lobby), update the game state on the client
+    Client.socket.on('gameUpdate', (partialGame) => {
+      store.commit('UPDATE_GAME', partialGame);
+      console.log('[arcadecord.socket] game was updated');
     });
 
     window.app = app;

@@ -198,9 +198,6 @@ io.on('connection', (socket) => {
           socket.data.userId = userId;
           socket.data.gameId = gameId;
 
-          // add socket to game room for broadcasting events
-          socket.join('game/' + gameId);
-
           await game.setSocket(userId, socket.id);
 
           // save game to db
@@ -221,6 +218,15 @@ io.on('connection', (socket) => {
               joined,
             },
             contested: game.isConnectionContested(userId),
+          });
+
+          // add socket to game room for broadcasting events
+          await socket.join('game/' + gameId);
+
+          // Notify game players of a new player joining
+          io.to(`game/${gameId}`).emit('gameUpdate', {
+            ready: game.ready,
+            players: game.players,
           });
 
           appInsightsClient.trackEvent({
@@ -493,10 +499,16 @@ io.on('connection', (socket) => {
       // create instance of game
       var game = new gameType.Game(dbGame._doc);
 
-      game.disconnectSocket(userId);
+      await game.disconnectSocket(userId);
 
       // save game to db
       await db.games.update(gameId, game);
+
+      // Notify game players of a new player joining
+      io.to(`game/${gameId}`).emit('gameUpdate', {
+        ready: game.ready,
+        players: game.players,
+      });
 
       for (let userId in game.sockets) {
         io.to(game.sockets[userId]).emit(

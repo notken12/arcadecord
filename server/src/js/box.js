@@ -46,6 +46,7 @@ function createStore() {
         state.user = store.state.user;
         state.contested = store.state.contested;
         state.realGame = store.state.realGame;
+        state.game = store.state.realGame;
       },
       UPDATE_SETTINGS(_state, settings) {
         store.commit('UPDATE_SETTINGS', settings);
@@ -60,6 +61,7 @@ function createStore() {
         state.realGame = store.state.realGame;
 
         if (
+          !store.state.game.ready ||
           (!GameFlow.isItMyTurn(store.state.game, true) &&
             !store.state.game.hasEnded) ||
           store.state.game.turns.length == 0
@@ -120,8 +122,9 @@ function createStore() {
         }
         runAction(state.game, action.type, action.data);
       },
-      UPDATE_GAME(_state, game) {
+      UPDATE_GAME(state, game) {
         store.commit('UPDATE_GAME', game);
+        state.game = state.realGame;
       },
       UPDATE_CONTESTED(state, contested) {
         store.commit('UPDATE_CONTESTED', contested);
