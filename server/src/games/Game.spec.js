@@ -252,7 +252,7 @@ describe('3+ Player Lobby', () => {
     expect(game.players.length).toBe(1);
     expect(game.players[0].ready).toBe(true);
 
-    await game.addPlayer(user2._id);
+    await game.setSocket(user2._id, 'abcdef');
     expect(game.players.length).toBe(2);
     expect(game.players[1].ready).toBe(false);
 

@@ -12,7 +12,13 @@
 <template>
   <div class="game-container">
     <waiting-view
-      v-if="!isItMyTurn && !game.hasEnded && !sending && !runningAction"
+      v-if="
+        !isItMyTurn &&
+        !game.hasEnded &&
+        !sending &&
+        !runningAction &&
+        game.ready
+      "
     ></waiting-view>
     <result-view
       v-if="game.hasEnded && !replaying && !runningAction"
@@ -30,12 +36,16 @@
     <Transition name="fade">
       <GameFull v-if="contested"></GameFull>
     </Transition>
-    <slot></slot>
-    <BottomAd v-if="showBottomAd"></BottomAd>
+    <slot v-if="game.ready"></slot>
+    <Lobby v-if="!game.ready" />
+    <BottomAd v-if="showBottomAd"> </BottomAd>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useFacade } from './facade';
+
 import bus from '@app/js/vue-event-bus.js';
 import GameHeader from './GameHeader.vue';
 import WaitingView from './WaitingView.vue';
@@ -47,9 +57,7 @@ import Settings from './Settings.vue';
 import FastForward from './FastForward.vue';
 import GameFull from './GameFull.vue';
 import BottomAd from './BottomAd.vue';
-
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useFacade } from './facade';
+import Lobby from './Lobby.vue';
 
 const props = defineProps({
   hint: String,

@@ -22,7 +22,7 @@
         <i class="material-icons">settings</i>
       </button>
     </div>
-    <players-view></players-view>
+    <players-view v-if="game.ready"></players-view>
   </div>
 </template>
 
