@@ -51,10 +51,6 @@ async function hydrate() {
     // Nice UI components for the basic UI
     // No need to setup UI for the client, we are using SSR
     store.commit('SETUP', response);
-    console.log(response.game.players);
-    console.log(store.state.game.players);
-    console.log(store.state.realGame.players);
-    // store.commit('REPLAY_TURN');
 
     // Listen for events from the server
     Client.socket.on('turn', (game, turn) => {
