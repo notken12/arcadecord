@@ -120,7 +120,20 @@ test('initial game state', async () => {
 
   console.log(game.data);
 
-  // TODO: test player 2 playing a red +2
+  // new action of player 2 playing a red +2
+  const plustwo = new Action('place', {index : 9}, 2);
+  expect(await game.handleAction(plustwo)).toEqual({ success: true });
+
+  // epecting cards in hand to be 6
+  expect(Common.Card.decodeArray(game.data.hands[2].cards).length).toBe(6);
+
+  // Expecting the turn to be the next player (player 0)
+  expect(game.turn).toBe(0);
+
+  // expecting cards in player 0's hand to be 8 (current 6 plus the draw of 2)
+  expect(Common.Card.decodeArray(game.data.hands[0]).length).toBe(8);
+
+ 
 
   // // second player plays skip
   // const skip = new Action(
