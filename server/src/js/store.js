@@ -27,7 +27,7 @@ function createStore() {
     },
     mutations: {
       UPDATE_GAME(state, game) {
-        utils.updateGame(state.game, game);
+        utils.updateGame(state.realGame, game);
       },
       SETUP(state, connectionResponse) {
         if (!connectionResponse) return;

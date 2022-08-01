@@ -198,10 +198,7 @@ io.on('connection', (socket) => {
           socket.data.userId = userId;
           socket.data.gameId = gameId;
 
-          // add socket to game room for broadcasting events
-          socket.join('game/' + gameId);
-
-          game.setSocket(userId, socket.id);
+          await game.setSocket(userId, socket.id);
 
           // save game to db
           await db.games.update(gameId, game);
@@ -221,6 +218,15 @@ io.on('connection', (socket) => {
               joined,
             },
             contested: game.isConnectionContested(userId),
+          });
+
+          // add socket to game room for broadcasting events
+          await socket.join('game/' + gameId);
+
+          // Notify game players of a new player joining
+          io.to(`game/${gameId}`).emit('gameUpdate', {
+            ready: game.ready,
+            players: game.players,
           });
 
           appInsightsClient.trackEvent({
@@ -417,9 +423,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('settings:update', async (newSettings, callback) => {
+    const { userId } = socket.data;
     try {
       // get which game the socket is in
-      var userId = socket.data.userId;
 
       if (userId === undefined || userId === null) {
         console.log('Socket update user settings error: userId is missing');
@@ -450,7 +456,76 @@ io.on('connection', (socket) => {
       console.error(e);
       appInsightsClient.trackEvent({
         name: 'Update user settings error',
-        properties: { userId: userId, error: e },
+        properties: { userId, error: e },
+      });
+
+      callback({
+        status: 'error',
+      });
+    }
+  });
+
+  socket.on('player:setReady', async (isReady, callback) => {
+    // get which game the socket is in
+    const { gameId, userId } = socket.data;
+    try {
+      if (
+        gameId === undefined ||
+        userId === undefined ||
+        gameId === null ||
+        userId === null
+      ) {
+        console.log('Socket set ready error: gameId or userId is undefined');
+        callback({
+          error: 'Invalid game or user',
+        });
+
+        appInsightsClient.trackEvent({
+          name: 'Socket set ready error',
+          properties: { error: 'Invalid game or user' },
+        });
+        return;
+      }
+
+      // get game from db
+      const dbGame = await db.games.getById(gameId);
+
+      if (!dbGame) return;
+
+      // get game type
+      const gameType = gameTypes[dbGame._doc.typeId];
+
+      // create instance of game
+      const game = new gameType.Game(dbGame._doc);
+
+      if (isReady) {
+        await game.readyPlayer(userId);
+      } else {
+        await game.unReadyPlayer(userId);
+      }
+
+      // save game to db
+      await db.games.update(gameId, game);
+
+      // send result to client
+      await callback({ status: 'success', success: true });
+
+      // Notify game players the player readying up
+      io.to(`game/${gameId}`).emit('gameUpdate', {
+        ready: game.ready,
+        players: game.players,
+      });
+
+      appInsightsClient.trackEvent({
+        name: 'Socket set ready',
+        properties: { gameId, userId, isReady },
+      });
+    } catch (e) {
+      console.error(e);
+
+      appInsightsClient.trackEvent({
+        name: 'Socket set ready error',
+        properties: { userId, gameId, error: e },
       });
 
       callback({
@@ -493,10 +568,16 @@ io.on('connection', (socket) => {
       // create instance of game
       var game = new gameType.Game(dbGame._doc);
 
-      game.disconnectSocket(userId);
+      await game.disconnectSocket(userId);
 
       // save game to db
       await db.games.update(gameId, game);
+
+      // Notify game players of a new player joining
+      io.to(`game/${gameId}`).emit('gameUpdate', {
+        ready: game.ready,
+        players: game.players,
+      });
 
       for (let userId in game.sockets) {
         io.to(game.sockets[userId]).emit(

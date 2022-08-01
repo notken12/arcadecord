@@ -709,7 +709,7 @@ class Game {
     );
   }
 
-  setSocket(userId, socket) {
+  async setSocket(userId, socket) {
     // Keep track of a who has the "reserved" spot after socket connection
 
     // If there are 0 unjoined sockets, then no one has reserved
@@ -721,11 +721,18 @@ class Game {
 
     this.sockets[userId] = socket;
 
-    let unjoined = this.getUnjoinedSockets();
-    if (unjoined.length === 0) {
-      this.reservedSpot = null;
-    } else if (unjoined.length === 1) {
-      this.reservedSpot = unjoined[0];
+    if (this.ready) {
+      // 2 player game
+      let unjoined = this.getUnjoinedSockets();
+      if (unjoined.length === 0) {
+        this.reservedSpot = null;
+      } else if (unjoined.length === 1) {
+        this.reservedSpot = unjoined[0];
+      }
+    } else {
+      // 2+ player game
+      // add player to game for lobby
+      await this.addPlayer(userId);
     }
   }
   getSocket(userId) {
@@ -811,6 +818,7 @@ class Game {
       actionSchemas: this.actionSchemas,
       reservedSpot: this.reservedSpot,
       sockets: this.sockets,
+      ready: this.ready,
     };
     for (let key in this.actionModels) {
       game.actionModels[key] = this.actionModels[key].name;

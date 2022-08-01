@@ -242,6 +242,15 @@ async function updateSettings(newSettings) {
   });
 }
 
+/** @param {boolean} isReady */
+async function setReady(isReady) {
+  return new Promise((resolve, reject) => {
+    socket.emit('player:setReady', isReady, (result) => {
+      resolve(result);
+    });
+  });
+}
+
 async function resendInvite() {
   return new Promise((resolve, reject) => {
     socket.emit('resend invite', () => {
@@ -367,4 +376,5 @@ export {
   useOnClient,
   updateSettings,
   resendInvite,
+  setReady,
 };

@@ -47,6 +47,7 @@ Player.getDataForClient = function (player, userId) {
   return {
     id: player.id,
     discordUser: player.discordUser,
+    ready: player.ready,
   };
 };
 
