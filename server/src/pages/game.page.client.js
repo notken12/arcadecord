@@ -77,6 +77,11 @@ async function hydrate() {
       console.log('[arcadecord.socket] game was updated');
     });
 
+    Client.socket.on('kicked', () => {
+      store.commit('KICKED');
+      console.log('[arcadecord.socket] you were kicked');
+    });
+
     window.app = app;
   }
 }

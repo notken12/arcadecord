@@ -80,21 +80,21 @@ class Action {
 
 const client = {
   eventHandlers: {},
-  emit: function (event, ...args) {
+  emit: function(event, ...args) {
     if (!this.eventHandlers[event]) return;
 
     for (let callback of this.eventHandlers[event]) {
       callback(...args);
     }
   },
-  on: function (event, callback) {
+  on: function(event, callback) {
     if (!this.eventHandlers[event]) this.eventHandlers[event] = [];
     this.eventHandlers[event].push(callback);
   },
 };
 
 const utils = {
-  getGameId: function (location) {
+  getGameId: function(location) {
     return location.pathname.split('/')[2];
   },
   propertiesToIgnore: ['client', 'actionModels'],
@@ -242,10 +242,21 @@ async function updateSettings(newSettings) {
   });
 }
 
-/** @param {boolean} isReady */
+/** Set ready status in game lobby
+ * @param {boolean} isReady */
 async function setReady(isReady) {
   return new Promise((resolve, reject) => {
     socket.emit('player:setReady', isReady, (result) => {
+      resolve(result);
+    });
+  });
+}
+
+/** Kick a player from the game lobby
+ * @param {string} userId */
+async function kickPlayer(userId) {
+  return new Promise((resolve, reject) => {
+    socket.emit('player:kickFromLobby', userId, (result) => {
       resolve(result);
     });
   });
@@ -377,4 +388,5 @@ export {
   updateSettings,
   resendInvite,
   setReady,
+  kickPlayer,
 };

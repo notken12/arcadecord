@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useFacade } from './facade';
 import LobbyPlayer from './LobbyPlayer.vue';
 import { setReady } from '../../js/client-framework';
+import { useStore } from 'vuex';
 
 const { game, me } = useFacade();
 
@@ -24,19 +25,31 @@ const toggleReady = async () => {
     console.log('[arcadecord] successfully set ready status!');
   }
 };
+
+const store = useStore();
+const kicked = computed(() => {
+  return store.state.kicked;
+});
 </script>
 
 <template>
   <div class="lobby-wrapper">
-    <h1>{{ game.name }} lobby</h1>
-    <h3>{{ game.description }}</h3>
-    <p>Waiting for players to join and ready up...</p>
-    <ul class="players">
-      <LobbyPlayer v-for="player in game.players" :player="player" />
-    </ul>
-    <div class="flex-center">
-      <button @click="toggleReady">{{ readyButtonText }}</button>
+    <div v-if="!kicked">
+      <h1>{{ game.name }} lobby</h1>
+      <h3>{{ game.description }}</h3>
+      <p>Waiting for players to join and ready up...</p>
+      <ul class="players">
+        <LobbyPlayer
+          v-for="player in game.players"
+          :player="player"
+          :i-am-owner="game.myIndex === 0"
+        />
+      </ul>
+      <div class="flex-center">
+        <button @click="toggleReady">{{ readyButtonText }}</button>
+      </div>
     </div>
+    <div v-if="kicked">Sorry, you've been kicked from the game.</div>
   </div>
 </template>
 

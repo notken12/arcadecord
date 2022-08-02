@@ -48,6 +48,7 @@ import { fetchUser } from './utils/discord-api.js';
 import { gameTypes } from './src/games/game-types.js';
 import Action from './src/games/Action.js';
 import Turn from './src/games/Turn.js';
+import cloneDeep from 'lodash.clonedeep';
 
 import appInsights from 'applicationinsights';
 
@@ -78,12 +79,12 @@ app.use(
 );
 
 // Health check
-app.head('/health', function (req, res) {
+app.head('/health', function(req, res) {
   res.sendStatus(200);
 });
 
 // Check the name of the host
-app.get('/name', function (req, res) {
+app.get('/name', function(req, res) {
   res.send(host.name);
 });
 
@@ -126,7 +127,7 @@ Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
 io.on('connection', (socket) => {
   appInsightsClient.trackEvent({ name: 'Socket opened' });
 
-  socket.on('connect_socket', async function (data, callback) {
+  socket.on('connect_socket', async function(data, callback) {
     let cookie = data.accessToken;
 
     let tokenUserId;
@@ -534,6 +535,82 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('player:kickFromLobby', async (userIdToKick, callback) => {
+    // get which game the socket is in
+    const { gameId, userId } = socket.data;
+    try {
+      if (
+        gameId === undefined ||
+        userId === undefined ||
+        gameId === null ||
+        userId === null
+      ) {
+        console.log('Socket kick player error: gameId or userId is undefined');
+        callback({
+          error: 'Invalid game or user',
+        });
+
+        appInsightsClient.trackEvent({
+          name: 'Socket kick player error',
+          properties: {
+            gameId,
+            userId,
+            userIdToKick,
+            error: 'Invalid game or user',
+          },
+        });
+        return;
+      }
+
+      // get game from db
+      const dbGame = await db.games.getById(gameId);
+
+      if (!dbGame) return;
+
+      // get game type
+      const gameType = gameTypes[dbGame._doc.typeId];
+
+      // create instance of game
+      const game = new gameType.Game(dbGame._doc);
+
+      const kickedSocket = cloneDeep(game.sockets[userIdToKick]);
+      const result = await game.kickPlayer(userId, userIdToKick);
+      if (result) {
+        // save game to db
+        await db.games.update(gameId, game);
+
+        // send result to client
+        await callback({ status: 'success', success: true });
+
+        // Notify game players about the player getting kicked
+        io.to(`game/${gameId}`).emit('gameUpdate', {
+          ready: game.ready,
+          players: game.players,
+        });
+
+        if (kickedSocket != null) {
+          io.to(kickedSocket).emit('kicked');
+        }
+
+        appInsightsClient.trackEvent({
+          name: 'Socket kicked player',
+          properties: { userId, gameId, userIdToKick },
+        });
+      }
+    } catch (e) {
+      console.error(e);
+
+      appInsightsClient.trackEvent({
+        name: 'Socket kick player error',
+        properties: { userId, gameId, userIdToKick, error: e },
+      });
+
+      callback({
+        status: 'error',
+      });
+    }
+  });
+
   socket.on('disconnect', async () => {
     try {
       // get which game the socket is in
@@ -608,7 +685,7 @@ io.on('connection', (socket) => {
 });
 
 // Track all HTTP requests with Application Insights
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   appInsightsClient.trackNodeHttpRequest({ request: req, response: res });
   next();
 });
