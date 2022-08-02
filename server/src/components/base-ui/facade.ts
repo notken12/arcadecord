@@ -7,13 +7,15 @@
 // Arcadecord can not be copied and/or distributed
 // without the express permission of Ken Zhou.
 
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, ComputedRef } from 'vue';
+import Game from '../../games/Game';
 import bus from '@app/js/vue-event-bus';
 import { useStore } from 'vuex';
 
 import { turnReplayDelay } from './replay-constants';
+import { DiscordUser } from '@app/games/Player';
 
-let replayTurnFunc = () => {};
+let replayTurnFunc = () => { };
 let replayTurnFuncSet = false;
 
 let replaySubscribed = false;
@@ -22,13 +24,17 @@ let replaySubscribed = false;
 export function useFacade() {
   const facade = useStore();
 
-  const game = computed(() => facade.state.game);
+  const game: ComputedRef<Game> = computed(() => facade.state.game);
   // My discord user
-  const me = computed(() => facade.state.me);
+  const me: ComputedRef<DiscordUser> = computed(() => facade.state.me);
   // Error with connecting to game
   const error = computed(() => facade.state.error);
-  const replaying = computed(() => facade.state.replaying);
-  const runningAction = computed(() => facade.state.runningAction);
+  const replaying: ComputedRef<boolean> = computed(
+    () => facade.state.replaying
+  );
+  const runningAction: ComputedRef<boolean> = computed(
+    () => facade.state.runningAction
+  );
   // Is socket connection contested: multiple players are connected, 1 free spot
   const contested = computed(() => facade.state.contested);
 
@@ -41,7 +47,7 @@ export function useFacade() {
     return null;
   });
 
-  const $endReplay = (delayMS) => {
+  const $endReplay = (delayMS: number) => {
     if (delayMS == undefined) {
       delayMS = 0;
     }
@@ -51,7 +57,7 @@ export function useFacade() {
     }, delayMS);
   };
 
-  const $replayTurn = (func) => {
+  const $replayTurn = (func?: () => any) => {
     if (typeof func === 'function') {
       replayTurnFunc = func;
       replayTurnFuncSet = true;
@@ -65,15 +71,17 @@ export function useFacade() {
   };
 
   onMounted(() => {
+    // @ts-expect-error
     if (!replaySubscribed) bus.on('facade:replay-turn', $replayTurn);
     replaySubscribed = true;
   });
 
   onUnmounted(() => {
+    // @ts-expect-error
     bus.off('facade:replay-turn', $replayTurn);
   });
 
-  const $endAnimation = (delayMS) => {
+  const $endAnimation = (delayMS: number) => {
     facade.commit('START_ACTION_ANIMATION');
     if (delayMS == undefined) {
       delayMS = 0;
@@ -83,7 +91,7 @@ export function useFacade() {
     }, delayMS);
   };
 
-  const $runAction = (actionType, actionData) => {
+  const $runAction = (actionType: string, actionData: Object) => {
     facade.commit('RUN_ACTION', {
       type: actionType,
       data: actionData,

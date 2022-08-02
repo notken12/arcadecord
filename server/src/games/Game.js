@@ -48,6 +48,10 @@ class Game {
   /** Whether all players in the multiplayer lobby have readied up and the game has started, but the first action may not have been taken yet
    * @type boolean */
   ready = false;
+  /** @type string */
+  name = 'Game';
+  /** @type string? */
+  description;
 
   constructor(typeOptions, options) {
     this.testing = false;

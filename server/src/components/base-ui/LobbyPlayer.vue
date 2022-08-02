@@ -36,7 +36,9 @@ const onClick = async () => {
     <p class="player-name">
       {{ playerName }}
     </p>
-    <p class="ready-text">{{ readyText }}</p>
+    <p class="ready-text" :class="{ 'is-ready': player.ready }">
+      {{ readyText }}
+    </p>
   </div>
 </template>
 
@@ -62,6 +64,11 @@ p {
 .ready-text {
   font-weight: bold;
   text-transform: uppercase;
+  color: theme.$red;
+}
+
+.is-ready {
+  color: theme.$md-sys-tertiary;
 }
 
 .is-you {
