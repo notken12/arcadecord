@@ -33,7 +33,6 @@ export default {
       userId: user._id,
     };
 
-    console.log('sending with game server token:' + config.gameServerToken);
     const response = await fetch(
       `${config.gameServerUrlInternal}/create-game`,
       {
