@@ -34,6 +34,7 @@ function createStore() {
         user: null,
         contested: false,
         realGame: null,
+        kicked: false,
       };
     },
     mutations: {
@@ -130,6 +131,9 @@ function createStore() {
         store.commit('UPDATE_CONTESTED', contested);
 
         state.contested = contested;
+      },
+      KICKED(state) {
+        state.kicked = true;
       },
     },
   });

@@ -2,9 +2,9 @@
 import { computed } from 'vue';
 import Player from '../../games/Player';
 import { useFacade } from './facade';
-import { setReady } from '../../js/client-framework';
+import { setReady, kickPlayer } from '../../js/client-framework';
 
-const props = defineProps<{ player: Player }>();
+const props = defineProps<{ player: Player; iAmOwner: boolean }>();
 
 const { me } = useFacade();
 
@@ -29,6 +29,13 @@ const onClick = async () => {
     }
   }
 };
+
+const onClickKickPlayer = async () => {
+  const result = await kickPlayer(props.player.id);
+  if (result.success) {
+    console.log('[arcadecord] successfully set ready status!');
+  }
+};
 </script>
 
 <template>
@@ -36,7 +43,10 @@ const onClick = async () => {
     <p class="player-name">
       {{ playerName }}
     </p>
-    <p class="ready-text">{{ readyText }}</p>
+    <p class="ready-text" :class="{ 'is-ready': player.ready }">
+      {{ readyText }}
+    </p>
+    <button v-if="iAmOwner && !isYou" @click="onClickKickPlayer">Kick</button>
   </div>
 </template>
 
@@ -62,6 +72,11 @@ p {
 .ready-text {
   font-weight: bold;
   text-transform: uppercase;
+  color: theme.$red;
+}
+
+.is-ready {
+  color: theme.$md-sys-tertiary;
 }
 
 .is-you {
@@ -70,5 +85,11 @@ p {
   .player-name {
     font-weight: bold;
   }
+}
+
+button {
+  height: unset;
+  padding: 0;
+  margin-left: 8px;
 }
 </style>

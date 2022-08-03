@@ -48,6 +48,13 @@ class Game {
   /** Whether all players in the multiplayer lobby have readied up and the game has started, but the first action may not have been taken yet
    * @type boolean */
   ready = false;
+  /** @type string */
+  name = 'Game';
+  /** @type string? */
+  description;
+  /** Used only on client to represent what index that client's player is in game.players.
+   * @type number? */
+  myIndex;
 
   constructor(typeOptions, options) {
     this.testing = false;
@@ -421,8 +428,12 @@ class Game {
    * @param {string} ownerId - User id of the game creator (player 0)
    * @param {string} userId - User id to kick*/
   kickPlayer(ownerId, userId) {
+    // You must be owner to kick players
     if (this.players[0].id.toString() !== ownerId.toString()) {
-      console.log(this.players[0], ownerId);
+      return false;
+    }
+    // Owner can't kick himself
+    if (ownerId.toString() === userId.toString()) {
       return false;
     }
     for (let i = 0; i < this.players.length; i++) {
@@ -755,8 +766,10 @@ class Game {
 
     // Remove player if he isn't ready
     const player = this.getPlayerById(userId);
-    if (!player.ready) {
-      this.players.splice(this.getPlayerIndex(player.id), 1);
+    if (player != null) {
+      if (!player.ready) {
+        this.players.splice(this.getPlayerIndex(player.id), 1);
+      }
     }
   }
 

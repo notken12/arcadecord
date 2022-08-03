@@ -37,7 +37,9 @@
       <GameFull v-if="contested"></GameFull>
     </Transition>
     <slot v-if="game.ready"></slot>
-    <Lobby v-if="!game.ready" />
+    <Transition name="fade">
+      <Lobby v-if="!game.ready" />
+    </Transition>
     <BottomAd v-if="showBottomAd"> </BottomAd>
   </div>
 </template>
