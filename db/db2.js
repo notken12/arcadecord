@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+  id: String,
   name: String,
   discordId: String,
   /*discordUser: Object,*/
@@ -115,6 +116,10 @@ const serverSchema = new Schema({
     users: {
       type: Array,
       of: new Schema({
+        id: {
+          type: String,
+          required: true,
+        },
         gamesPlayed: {
           type: Number,
           default: 0,
@@ -144,12 +149,12 @@ const serverSchema = new Schema({
           type: String,
           required: true,
         },
-        id: {
+        discordId: {
           type: String,
           required: true,
         },
       }),
-      default: [],
+      default: new Array(),
     },
     games: {
       type: Map,
@@ -222,7 +227,8 @@ const db = {
         let updatedDoc = {
           tag: player.discordUser.tag,
           avatar: player.discordUser.avatar,
-          id: player.discordUser.id,
+          discordId: player.discordUser.id,
+          id: player.id.toString(),
           gamesPlayed: {
             $add: [
               {
@@ -234,6 +240,12 @@ const db = {
               },
               1,
             ],
+          },
+          gamesWon: {
+            $cond: [{ $not: ['$this.gamesWon'] }, 0, '$this.gamesWon'],
+          },
+          games: {
+            $cond: [{ $not: ['$this.games'] }, {}, '$this.games'],
           },
         };
         return await Server.findOneAndUpdate(
@@ -294,14 +306,13 @@ const db = {
     async incrementGamesWonByUser(serverId, userId) {
       try {
         let query = {};
-        let prop = `stats.users.${userId}.gamesWon`;
+        let prop = `stats.users.$.gamesWon`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(
-          serverId,
+        return await Server.findOneAndUpdate(
+          { _id: serverId, 'stats.users.id': userId.toString() },
           { $inc: query },
           {
-            upsert: true,
             setDefaultsOnInsert: true,
             new: true,
           }
@@ -314,14 +325,13 @@ const db = {
     async incrementGamesPlayedByUserByGame(serverId, userId, gameType) {
       try {
         let query = {};
-        let prop = `stats.users.${userId}.games.${gameType}.gamesPlayed`;
+        let prop = `stats.users.$.games.${gameType}.gamesPlayed`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(
-          serverId,
+        return await Server.findOneAndUpdate(
+          { _id: serverId, 'stats.users.id': userId.toString() },
           { $inc: query },
           {
-            upsert: true,
             setDefaultsOnInsert: true,
             new: true,
           }
@@ -354,14 +364,13 @@ const db = {
     async incrementGamesWonByUserByGame(serverId, userId, gameType) {
       try {
         let query = {};
-        let prop = `stats.users.${userId}.games.${gameType}.gamesWon`;
+        let prop = `stats.users.$.games.${gameType}.gamesWon`;
         // inc the prop by 1
         query[prop] = 1;
-        return await Server.findByIdAndUpdate(
-          serverId,
+        return await Server.findOneAndUpdate(
+          { _id: serverId, 'stats.users.id': userId.toString() },
           { $inc: query },
           {
-            upsert: true,
             setDefaultsOnInsert: true,
             new: true,
           }
