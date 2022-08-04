@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import Header from 'components/index/Header.vue';
 import Content from 'components/index/Content.vue';
 import Footer from 'components/index/Footer.vue';
@@ -9,7 +9,6 @@ import UserRank from 'components/leaderboards/UserRank.vue';
 import { computed, provide } from 'vue';
 
 const props = defineProps({
-  /** @type {import('vue').PropType<import('./leaderboards.page.server.js').Server>} */
   server: {
     type: Object,
     required: true,
@@ -30,10 +29,9 @@ const gameTypes = {
 provide('server', props.server);
 
 const sortedUsers = computed(() => {
-  return [...props.server.stats.users]
-    .map((e) => e[1])
-    .slice()
-    .sort((a, b) => b.gamesWon - a.gamesWon);
+  return props.server.stats.users.sort(
+    (a: any, b: any) => b.gamesWon - a.gamesWon
+  );
 });
 </script>
 
@@ -44,13 +42,7 @@ const sortedUsers = computed(() => {
       <h2>👑 Server leaderboard</h2>
       <div class="server">
         <div class="server-header">
-          <img
-            :src="server.iconURL"
-            alt="Server Icon"
-            class="server-icon"
-            width="40"
-            height="40"
-          />
+          <img :src="server.iconURL" alt="Server Icon" class="server-icon" width="40" height="40" />
           <h3>
             {{ server.name }}
           </h3>
@@ -65,20 +57,12 @@ const sortedUsers = computed(() => {
       <div class="wrapper">
         <div class="user-ranks-wrapper">
           <ul class="user-ranks">
-            <UserRank
-              v-for="(user, place) in sortedUsers"
-              :user="user"
-              :place="place + 1"
-            />
+            <UserRank v-for="(user, place) in sortedUsers" :user="user" :place="place + 1" />
           </ul>
         </div>
         <ul class="game-types">
           <h3>Games played</h3>
-          <GameType
-            v-for="(name, typeId) in gameTypes"
-            :typeId="typeId"
-            :name="name"
-          ></GameType>
+          <GameType v-for="(name, typeId) in gameTypes" :typeId="typeId" :name="name"></GameType>
         </ul>
       </div>
     </Content>

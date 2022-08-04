@@ -6,6 +6,7 @@ import cloneDeep from 'lodash.clonedeep';
  * @typedef {Object} UserStats
  * @prop {number} gamesPlayed
  * @prop {number} gamesWon
+ * @prop {string} discordId
  *
  * @typedef {UserStats & import('../games/Player').DiscordUser} User
  *

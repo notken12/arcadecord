@@ -1,17 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import { User } from '@app/pages/leaderboards.page.server.js';
 import { computed } from '@vue/runtime-core';
 
-const props = defineProps({
-  /** @type {import('vue').PropType<import('../../pages/leaderboards.page.server.js').User>} */
-  user: {
-    type: Object,
-    required: true,
-  },
-  place: {
-    type: Number,
-    required: true,
-  },
-});
+const props = defineProps<{ user: User; place: number }>();
 const top3 = computed(() => {
   if (props.place === 1) return '🥇';
   if (props.place === 2) return '🥈';
@@ -26,12 +17,8 @@ const top3 = computed(() => {
       <div class="place">
         {{ top3 }}
       </div>
-      <img
-        :src="`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128`"
-        width="40"
-        height="40"
-        alt="stop being blind"
-      />
+      <img :src="`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.webp?size=128`" width="40"
+        height="40" alt="Profile picture" />
       <p class="name">{{ user.tag }}</p>
     </div>
     <div class="stats">
@@ -60,7 +47,7 @@ li {
   flex-wrap: wrap;
 }
 
-li > div {
+li>div {
   display: flex;
   gap: 16px;
   align-items: center;

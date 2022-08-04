@@ -409,6 +409,7 @@ const db = {
             },
           },
         ]);
+        if (aggregate[0] == null) return null;
         return aggregate[0].stats.users;
       } catch (e) {
         console.error(e);
@@ -420,6 +421,7 @@ const db = {
       let topUsers = db.servers.getTopUsers(id, 0, 10);
       let results = await Promise.all([doc, topUsers]);
       let server = results[0];
+      if (server == null) return null;
       server.stats.users = results[1];
       return server;
     },
