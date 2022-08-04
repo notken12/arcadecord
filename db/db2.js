@@ -383,20 +383,45 @@ const db = {
     async create(data) {
       try {
         var newServer = new Server(data);
-        console.log(data);
         return await newServer.save();
       } catch (e) {
         console.error(e);
         return null;
       }
     },
-    async getById(id) {
+    async getTopUsers(id, min, max) {
       try {
-        return await Server.findById(id);
+        let aggregate = await Server.aggregate([
+          { $match: { _id: id.toString() } },
+          { $unwind: '$stats.users' },
+          { $sort: { 'stats.users.gamesWon': -1 } },
+          {
+            $group: {
+              _id: '$_id',
+              userStats: { $push: '$stats.users' },
+            },
+          },
+          {
+            $project: {
+              'stats.users': {
+                $slice: ['$userStats', min, max],
+              },
+            },
+          },
+        ]);
+        return aggregate[0].stats.users;
       } catch (e) {
         console.error(e);
         return null;
       }
+    },
+    async getById(id) {
+      let doc = Server.findById(id, { 'stats.users': 0 });
+      let topUsers = db.servers.getTopUsers(id, 0, 10);
+      let results = await Promise.all([doc, topUsers]);
+      let server = results[0];
+      server.stats.users = results[1];
+      return server;
     },
     async update(id, data) {
       try {

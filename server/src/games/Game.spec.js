@@ -208,6 +208,7 @@ describe('Server leaderboards', () => {
     // Expect the new stats
 
     //Track games played overall
+    console.log(server);
     expect(server.stats.gamesPlayed).toBe(1);
 
     //Track games played overall, by game

@@ -357,7 +357,7 @@ class Game {
       discordUser = {
         tag: 'fakeplayer#0000',
         avatar: 'abc7823bc7abc7',
-        id: user.id,
+        id: user._id,
       };
 
     if (!discordUser) {
