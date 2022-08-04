@@ -425,10 +425,11 @@ const db = {
       server.stats.users = results[1];
       return server;
     },
-    async update(id, data) {
+    async update(id, data, opts) {
       try {
         return await Server.findByIdAndUpdate(id, data, {
-          new: true,
+          ...opts,
+          // new: true,
         });
       } catch (e) {
         console.error(e);
