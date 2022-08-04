@@ -169,6 +169,10 @@ describe('Personal stats', () => {
   });
 });
 
+function getUserStats(server, userId) {
+  return server.stats.users.find((u) => u.id.toString() === userId.toString());
+}
+
 describe('Server leaderboards', () => {
   it('Total games played will increase after game end, total games won will increase for winner', async () => {
     // Mock 2 users to play the game with
@@ -210,39 +214,40 @@ describe('Server leaderboards', () => {
     expect(server.stats.games.get(game.typeId).gamesPlayed).toBe(1);
 
     //Track games played and won overall, by user
-    expect(server.stats.users.get(user1._id).gamesPlayed).toBe(1);
-    expect(server.stats.users.get(user2._id).gamesPlayed).toBe(1);
+    console.log(server.stats.users);
+    expect(getUserStats(server, user1._id).gamesPlayed).toBe(1);
+    expect(getUserStats(server, user2._id).gamesPlayed).toBe(1);
 
-    expect(server.stats.users.get(user1._id).gamesWon).toBe(1);
-    expect(server.stats.users.get(user2._id).gamesWon).toBe(0);
+    expect(getUserStats(server, user1._id).gamesWon).toBe(1);
+    expect(getUserStats(server, user2._id).gamesWon).toBe(0);
 
     //Track specific game type by user
     expect(
-      server.stats.users.get(user1._id).games.get(game.typeId).gamesPlayed
+      getUserStats(server, user1._id).games.get(game.typeId).gamesPlayed
     ).toBe(1);
     expect(
-      server.stats.users.get(user2._id).games.get(game.typeId).gamesPlayed
+      getUserStats(server, user2._id).games.get(game.typeId).gamesPlayed
     ).toBe(1);
 
     expect(
-      server.stats.users.get(user1._id).games.get(game.typeId).gamesWon
+      getUserStats(server, user1._id).games.get(game.typeId).gamesWon
     ).toBe(1);
     expect(
-      server.stats.users.get(user2._id).games.get(game.typeId).gamesWon
+      getUserStats(server, user2._id).games.get(game.typeId).gamesWon
     ).toBe(0);
 
     // Track users tag and avatar
-    expect(server.stats.users.get(user1._id).tag).toBe(
+    expect(getUserStats(server, user1._id).tag).toBe(
       game.players[0].discordUser.tag
     );
-    expect(server.stats.users.get(user1._id).avatar).toBe(
+    expect(getUserStats(server, user1._id).avatar).toBe(
       game.players[0].discordUser.avatar
     );
 
-    expect(server.stats.users.get(user2._id).tag).toBe(
+    expect(getUserStats(server, user2._id).tag).toBe(
       game.players[1].discordUser.tag
     );
-    expect(server.stats.users.get(user2._id).avatar).toBe(
+    expect(getUserStats(server, user2._id).avatar).toBe(
       game.players[1].discordUser.avatar
     );
   });

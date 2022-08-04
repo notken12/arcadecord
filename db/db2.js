@@ -109,8 +109,11 @@ const serverSchema = new Schema({
   name: String,
   iconURL: String,
   stats: {
+    // users: {
+    //   // default: new Map(),
+    // },{
     users: {
-      type: Map,
+      type: Array,
       of: new Schema({
         gamesPlayed: {
           type: Number,
@@ -146,7 +149,7 @@ const serverSchema = new Schema({
           required: true,
         },
       }),
-      // default: new Map(),
+      default: [],
     },
     games: {
       type: Map,
@@ -216,22 +219,67 @@ const db = {
       player
     ) {
       try {
-        let incQuery = {};
-        let prop = `stats.users.${player.id}.gamesPlayed`;
-        // inc the prop by 1
-        incQuery[prop] = 1;
-        let discordUserQuery = {};
-        discordUserQuery[`stats.users.${player.id}.tag`] =
-          player.discordUser.tag;
-        discordUserQuery[`stats.users.${player.id}.avatar`] =
-          player.discordUser.avatar;
-        discordUserQuery[`stats.users.${player.id}.id`] = player.discordUser.id;
-        return await Server.findByIdAndUpdate(
-          serverId,
-          {
-            $inc: incQuery,
-            ...discordUserQuery,
+        let updatedDoc = {
+          tag: player.discordUser.tag,
+          avatar: player.discordUser.avatar,
+          id: player.discordUser.id,
+          gamesPlayed: {
+            $add: [
+              {
+                $cond: [
+                  { $not: ['$this.gamesPlayed'] },
+                  0,
+                  '$this.gamesPlayed',
+                ],
+              },
+              1,
+            ],
           },
+        };
+        return await Server.findOneAndUpdate(
+          { _id: serverId },
+          [
+            {
+              $set: {
+                'stats.users': {
+                  $cond: [{ $not: ['$stats.users'] }, [], '$stats.users'],
+                },
+              },
+            },
+            {
+              $set: {
+                'stats.users': {
+                  $cond: [
+                    {
+                      $in: [updatedDoc.id, '$stats.users.id'],
+                    },
+                    {
+                      $map: {
+                        input: '$stats.users',
+                        in: {
+                          $mergeObjects: [
+                            '$$this',
+                            {
+                              $cond: [
+                                {
+                                  $eq: ['$$this.id', updatedDoc.id],
+                                },
+                                updatedDoc,
+                                {},
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      $concatArrays: ['$stats.users', [updatedDoc]],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
           {
             upsert: true,
             setDefaultsOnInsert: true,
