@@ -199,40 +199,44 @@ describe('Server leaderboards', () => {
     // Manually end the game and make player 1 win
 
     await GameFlow.end(game, { winner: 0 }); // first player wins
+    let server = await db.servers.getById(serverId);
+    console.log(server);
+    console.log(server.stats.users);
+    await GameFlow.end(game, { winner: 0 }); // first player wins
+    server = await db.servers.getById(serverId);
     expect(game.winner).toBe(0);
     expect(game.hasEnded).toBe(true);
 
     // Query the database for the server stats
-    const server = await db.servers.getById(serverId);
 
     // Expect the new stats
 
     //Track games played overall
     console.log(server);
-    expect(server.stats.gamesPlayed).toBe(1);
+    expect(server.stats.gamesPlayed).toBe(2);
 
     //Track games played overall, by game
-    expect(server.stats.games.get(game.typeId).gamesPlayed).toBe(1);
+    expect(server.stats.games.get(game.typeId).gamesPlayed).toBe(2);
 
     //Track games played and won overall, by user
     console.log(server.stats.users);
-    expect(getUserStats(server, user1._id).gamesPlayed).toBe(1);
-    expect(getUserStats(server, user2._id).gamesPlayed).toBe(1);
+    expect(getUserStats(server, user1._id).gamesPlayed).toBe(2);
+    expect(getUserStats(server, user2._id).gamesPlayed).toBe(2);
 
-    expect(getUserStats(server, user1._id).gamesWon).toBe(1);
+    expect(getUserStats(server, user1._id).gamesWon).toBe(2);
     expect(getUserStats(server, user2._id).gamesWon).toBe(0);
 
     //Track specific game type by user
     expect(
       getUserStats(server, user1._id).games.get(game.typeId).gamesPlayed
-    ).toBe(1);
+    ).toBe(2);
     expect(
       getUserStats(server, user2._id).games.get(game.typeId).gamesPlayed
-    ).toBe(1);
+    ).toBe(2);
 
     expect(
       getUserStats(server, user1._id).games.get(game.typeId).gamesWon
-    ).toBe(1);
+    ).toBe(2);
     expect(
       getUserStats(server, user2._id).games.get(game.typeId).gamesWon
     ).toBe(0);

@@ -224,22 +224,15 @@ const db = {
       player
     ) {
       try {
+        console.log('incrementing');
         let updatedDoc = {
           tag: player.discordUser.tag,
           avatar: player.discordUser.avatar,
           discordId: player.discordUser.id,
           id: player.id.toString(),
           gamesPlayed: {
-            $add: [
-              {
-                $cond: [
-                  { $not: ['$this.gamesPlayed'] },
-                  0,
-                  '$this.gamesPlayed',
-                ],
-              },
-              1,
-            ],
+            // TODO: ISSUE WITH THE VALUES NOT INCREMENTING
+            $sum: [1, '$this.gamesPlayed'],
           },
           gamesWon: {
             $cond: [{ $not: ['$this.gamesWon'] }, 0, '$this.gamesWon'],
