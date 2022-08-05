@@ -129,11 +129,20 @@ test('initial game state', async () => {
   // epecting cards in hand to be 6
   expect(Common.Card.decodeArray(game.data.hands[2].cards).length).toBe(6);
 
+  // expecting cards in discard to be 5
+  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(5);
+
   // Expecting the turn to be the next player (player 0)
   expect(game.turn).toBe(0);
 
   // expecting cards in player 0's hand to be 8 (current 6 plus the draw of 2)
   expect(Common.Card.decodeArray(game.data.hands[0]).length).toBe(8);
+
+  // expect draw pile length minus two cards drawn
+  expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(
+    108 - 3 * 7 - 3 - 1 - 2
+  );
+
 
   // expecting turn to be player 1
   expect(game.turn).toBe(1);
@@ -145,6 +154,9 @@ test('initial game state', async () => {
   // expect cards in player 1 hand be 7 (8 -1)
   expect(Common.Card.decodeArray(game.data.hands[1]).length).toBe(7);
 
+  // expecting cards in discard to be 6
+  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(6);
+
   // reverse order having player 0 play again
   expect(game.turn).toBe(0);
 
@@ -155,31 +167,41 @@ test('initial game state', async () => {
   // expect player 0 to have 7 cards (current 8-1)
   expect(Common.Card.decodeArray(game.data.hands[0]).length).toBe(7);
 
+  // expecting cards in discard to be 7
+  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(7);
+
   // expect it to be player 2 turn since reverse continues
   expect(game.turn).toBe(2);
 
-  // have player 2 draw 2 cards
-  
+  // have player 2 draw 2 cards (expect current 6 + 2)
+  expect(Common.Card.decodeArray(game.data.hands[2]).length).toBe(8);
 
+  // expect draw pile length minus two cards drawn
+  expect(Common.Card.decodeArray(game.data.drawPile).length).toBe(
+    108 - 3 * 7 - 3 - 1 - 2 - 2
+  );
 
-  // // second player plays skip
-  // const skip = new Action(
-  //   'place',
-  //   {
-  //     index: 5,
-  //   },
-  //   1
-  // );
+  // expect it to be player 1 turn, reverse continues
+  expect(game.turn).toBe(1);
 
-  // // expect it to be a valid action
-  // expect(await game.handleAction(skip)).toEqual({ success: true });
+  // player 1 plays blue skip
+  const skip = new Action(
+    'place',
+    {
+      index: 5,
+    },
+    1
+  );
 
-  // // expect the turn to be a skip, normally in a turn ot would be player 2, but it goes back to player 0
-  // expect(game.turn).toBe(0);
+  // expect it to be a valid action
+  expect(await game.handleAction(skip)).toEqual({ success: true });
 
-  // // epecting cards in hand to be 6
-  // expect(Common.Card.decodeArray(game.data.hands[0].cards).length).toBe(6);
+  // expecting cards in hand to be 6 (7-1)
+  expect(Common.Card.decodeArray(game.data.hands[1].cards).length).toBe(6);
 
-  // // expecting cards in discard to be 5
-  // expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(5);
+  // expecting cards in discard to be 8
+  expect(Common.Card.decodeArray(game.data.discardPile).length).toBe(8);
+
+  // expect the turn to be a skip, normally in a turn it would be player 2, but it goes back to player 0
+  expect(game.turn).toBe(0);
 });
