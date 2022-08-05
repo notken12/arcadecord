@@ -10,7 +10,6 @@ import Common from './common.js';
 import GameFlow from '../../GameFlow.js';
 
 import Ajv from 'ajv';
-import { assertWarning } from 'vite-plugin-ssr/dist/cjs/utils/assert.js';
 const ajv = new Ajv();
 
 // https://jestjs.io/docs/asynchronous
@@ -119,7 +118,9 @@ test('initial game state', async () => {
   // Reset "drawn" flag to false
   expect(game.data.hands[1].drawn).toBe(false);
 
+
   console.log(game.data);
+
 
   // new action of player 2 playing a red +2
   const plustwo = new Action('place', { index: 2 }, 2);
@@ -146,6 +147,19 @@ test('initial game state', async () => {
 
   // reverse order having player 0 play again
   expect(game.turn).toBe(0);
+
+  // player 0 playing blue draw 2 (plus 2)
+  plustwo = new Action('place', { index: 4 }, 0);
+  expect(await game.handleAction(plustwo)).toEqual({ success: true });
+
+  // expect player 0 to have 7 cards (current 8-1)
+  expect(Common.Card.decodeArray(game.data.hands[0]).length).toBe(7);
+
+  // expect it to be player 2 turn since reverse continues
+  expect(game.turn).toBe(2);
+
+  // have player 2 draw 2 cards
+  
 
 
   // // second player plays skip
