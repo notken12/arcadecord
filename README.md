@@ -4,7 +4,11 @@ A collection of games that you can play in Discord. Basically GamePigeon for Dis
 
 ## Development
 
-Create a file called .env in the root folder and paste this in:
+Go to https://discord.dev and create an application. Then go to the bot section and create a bot for the application. Record the bot's client ID, token, and client secret. 
+
+Then go to https://mongodb.com and register an account and create a free database. Follow their steps to get your login URI and record the URI.
+
+Finally, create a file called .env in the root folder and paste this in. Make sure to replace the <PASTE YOUR XXX HERE> with the actual values you recorded.
 
 ```
 NODE_ENV=development
@@ -39,6 +43,8 @@ Use this commandin your terminal to run Arcadecord:
 ```bash
 npm run start
 ```
+
+If you're having any trouble getting Arcadecord to work, feel free to let a core contributor know and we can help!
 
 TODO: Create npm script for starting on Windows. For now the start script uses Bash syntax. 
 
