@@ -41,6 +41,8 @@ Use this commandin your terminal to run Arcadecord:
 npm run start
 ```
 
+TODO: Create npm script for starting on Windows. For now the start script uses Bash syntax. 
+
 ## Todo
 
 https://github.com/notken12/arcadecord/issues
