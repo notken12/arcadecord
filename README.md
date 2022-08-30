@@ -2,6 +2,45 @@
 
 A collection of games that you can play in Discord. Basically GamePigeon for Discord.
 
+## Development
+
+Create a file called .env in the root folder and paste this in:
+
+```
+NODE_ENV=development
+VITE_GAME_SERVER_URL=http://localhost:5000
+GAME_SERVER_URL_INTERNAL=http://localhost:5000
+GAME_SERVER_TOKEN=j7n0zLeXx1TxLpw7VHcZoYTgTnL6FDX38hHV!FTEQQ3eotRU4
+REDIS_URL=redis://redis-12093.c245.us-east-1-3.ec2.cloud.redislabs.com:12093
+REDIS_PASSWORD=7Lb9qdija1EoDDOqWRSzHZHORZrg8lJ6
+BOT_IPC_TOKEN=JNA2oS7?dzoCtUBxN5Q55VHr6A!pdEESzRY2K5YRvbu2VKMYQ
+BOT_IPC_URL=http://localhost:2000
+BOT_CLIENT_ID=903801669194772531
+BOT_CLIENT_SECRET=ptD9Y2BKF7lk-npiI-0HBlNyQlNigfjc
+BOT_TOKEN=OTAzODAxNjY5MTk0NzcyNTMx.YXyQ5Q.h2i6gDAnqFXhtA2mFmWO862QqUY
+DISCORD_SERVER_INVITE=https://discord.gg/C2Wm3pkcsz
+APPINSIGHTS_CONNECTIONSTRING=InstrumentationKey=54ef4b41-2e52-4be2-bf3f-02471829b486;IngestionEndpoint=https://eastus-1.in.applicationinsights.azure.com
+MONGODB_URI=mongodb+srv://kendotzhou:tKW3fUVK9YhEeswz@cluster0.hl6k2.mongodb.net/?retryWrites=true&w=majority
+JWT_SECRET=DlrV1BIW6fwLHC3VH3Zj7fazKzG8J7RUspJ4i5izLBRROXndOprNBsbn4uwHFg9BpR2Xmw7yZ60XpOLet+jWEahUzHr9SM+SulmBLIuY1tjckao5Z1UYlccRI+WAhyYyxVKHCeEh/tc7YWk0teAg2ic4R6QnAREnhrry+w1UW6W269OMhB/JRgxh3l3mkqLY14ld9wnq5uj3oebfnKxzpN9yCDk320ASbPEsEj4aqzc0YBLS9lKxCVVgN1jarH1bgHzIVuxMcj3Tz7wUFKD4sho6j8dDH76MJjOt9qWxpnqhrWk17uIhbrz93NY9yBBH//83O8nLIBV2/9anP1PP4Q==J
+GAME_SERVER_HOST_PORT=5000
+WEB_SERVER_URL=http://localhost:3000
+PORT=3000
+WEB_HOST_ID=0
+WEB_HOST_NAME=mango
+TOTAL_SHARDS=2
+SHARD_MANAGER_COUNT=2
+SHARD_MANAGER_POD_ADDRESS=http://localhost:200%ID%
+SHARD_MANAGER_POD_PREFIX=shardmanager-
+GAME_SERVER_HOST_ID=mango
+TOP_GG_URL=https://top.gg/bot/939355142556373043
+```
+
+Use this commandin your terminal to run Arcadecord:
+
+```bash
+npm run start
+```
+
 ## Todo
 
 https://github.com/notken12/arcadecord/issues
